@@ -1,0 +1,92 @@
+﻿@using AlamutB.Service
+@using System.ComponentModel.DataAnnotations
+@inject ProtectedSessionStorage sessionStorage
+@inject NavigationManager Navman
+@inject AppState appState
+@inject FeService feService
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<br />
+<div class="d-flex flex-column align-items-center justify-content-center text-center">
+        <MudContainer MaxWidth="MaxWidth.Small" Class="mt-2 px-0">
+            <MudCard Class="mx-auto">
+                <MudCardContent Style="background-color:rgba(249,249,249);">
+                    <div style="text-align:left">
+                        <h5>Excel columns to <span style="color:indianred">import</span> TESTS<br /></h5>
+                        <hr />
+                        <table class="table table-light">
+                            <tr><th>column</th><th>header</th><th></th>
+                            </tr>
+                            <tr>
+                                <td>A</td>
+                                <td>Topic</td>
+                                <td>course topic or name of chapter</td>
+                            </tr>
+                            <tr>
+                                <td>B</td>
+                                <td>Question</td>
+                                <td>(the Test string) <br /> can be rtl or ltr</td>
+                                </tr>
+                            <tr>
+                                <td>C</td>
+                                <td>nOpt</td>
+                            <td>number of options in this test <br /> (0 - 5) <br /> set it 0 or 1 if the test type is essay (for example, fill0in blank, or short answer question) </td>
+                            </tr>
+                            <tr>
+                                <td>D</td>
+                                <td><span style="color:indianred">Opt1</span></td>
+                                <td>Option-1 of the test <br />(enter 'x' if not applicable)</td>
+                            </tr>
+                            <tr>
+                                <td>E</td>
+                                <td><span style="color:indianred">Opt2</span></td>
+                                <td>Option-2 of the test <br />(enter 'x' if not applicable)</td>
+                            </tr>
+                            <tr>
+                                <td>F</td>
+                                <td><span style="color:indianred">Opt3</span></td>
+                                <td>Option-3 of the test <br/>(enter 'x' if not applicable)</td>
+                            </tr>
+                            <tr>
+                                <td>G</td>
+                                <td><span style="color:indianred">Opt4</span></td>
+                            <td>Option-4 of the test <br />(enter 'x' if not applicable)</td>
+                            </tr>
+                            <tr>
+                                <td>H</td>
+                                <td><span style="color:indianred">Opt5</span></td>
+                            <td>Option-5 of the test <br />(enter 'x' if not applicable)</td>
+                            </tr>
+                            <tr>
+                                <td>I</td>
+                                <td>Ans</td>
+                            <td>Correct option (answer)? <br />(0 - 5) <br />(enter 0 if test type is essay)</td>
+                            </tr>
+                            <tr>
+                                <td>J</td>
+                                <td>ForceLast</td>
+                                <td>Determines which option appears as the last option<br /> (1 - 5), if none (or not applicable): enter 0</td>
+                            </tr>
+                            <tr>
+                                <td>K</td>
+                                <td>TestRtl</td>
+                                <td>R : test is rtl <br />  L : test is ltr </td>
+                            </tr>
+                            <tr>
+                                <td>L</td>
+                                <td>OptRtl</td>
+                                <td>R : option is rtl <br />  L : options (or the answer of essay test) are ltr </td>
+                            </tr>
+                            <tr>
+                                <td>M</td>
+                                <td>Level</td>
+                                <td>sets difficulty level of the test<br/> (1: easy to 5: hard), default= 3</td>
+                            </tr>
+                        </table>
+                        <br />
+                    </div>
+                </MudCardContent>
+            </MudCard>
+        </MudContainer>
+    </div>

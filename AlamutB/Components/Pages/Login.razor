@@ -1,0 +1,249 @@
+﻿@page "/"
+@page "/PgLogin"
+
+@using AlamutB.Service
+@using PSC.Blazor.Components.BrowserDetect
+@using System
+@using System.Text
+@inject NavigationManager Navman
+@inject AppState appState
+@inject HttpClient http
+@inject FeService feService
+@inject IJSRuntime JS
+@implements IDisposable
+@inject ISnackbar Snackbar
+@inject BrowserDetect browserDetector
+
+<PageTitle>Alamut Home</PageTitle>
+@* LOGIN *@
+    <div style="display: flex; flex-direction: column; justify-content: center; align-items: center;margin-top:20px;">
+        <EditForm Model="user" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+        @* <DataAnnotationsValidator></DataAnnotationsValidator> *@
+            <div style="display: flex; justify-content: flex-end;margin-bottom:20px;">
+            <img src="/img/_logoAlamut.png" width="180" style="margin-right:10px" />
+            </div>
+            <MudContainer Class="mt-2 px-0">
+                <MudCard Class="mx-0">
+                    <MudCardContent Style="background-color:rgba(248,248,248, 1);max-width:500px;min-width:400px;min-height:220px;padding-bottom:20px;">
+                    <MudTextField @ref="refUser"
+                                  @bind-Value="_username"
+                                  Label="Username"
+                                  Variant="Variant.Text"
+                                  Margin="Margin.Normal"
+                                  Adornment="Adornment.End"
+                                  AdornmentIcon="@Icons.Material.Filled.PersonOutline"
+                                  @onkeydown="HandleKey_Usernamebox"
+                                  Style="font-family:Tahoma"
+                                  Class="my-textfield" />
+                    <MudTextField @ref="refPass"
+                                  @bind-Value="_password"
+                                  Label="Password"
+                                  Variant="Variant.Text"
+                                  Margin="Margin.Normal"
+                                  Class="my-textfield"
+                                  Adornment="Adornment.End"
+                                  AdornmentIcon="@_passwordIcon"
+                                  OnAdornmentClick="TogglePasswordVisibility"
+                                  @onkeydown="HandleKey_Passwordbox"
+                                  Style="font-family:Tahoma"
+                                  InputType="_passwordInput" />
+                        <div style="margin-top:40px;margin-bottom:25px;">
+                        @* <div style="text-align: center; margin-top: 10px; margin-bottom: 20px;"> *@
+                            <MudButton OnClick="@(() => BtnLogin())"
+                                   Variant="Variant.Filled"
+                                   EndIcon="@Icons.Material.Filled.AccountBox"
+                                   Size="Size.Medium"
+                                   Style="text-align:center; width:200px;margin-top:30px;margin-right:20px;">
+                            <span> Login</span>
+                            </MudButton>
+                            <MudButton Variant="Variant.Filled"
+                                   EndIcon="@Icons.Material.Filled.AppRegistration"
+                                   Size="Size.Medium"
+                                   OnClick="@(() => BtnSignup())"
+                                   Style="width:200px;margin-top:30px;">
+                            Sign Up
+                            </MudButton>
+                        </div>
+                    </MudCardContent>
+                </MudCard>
+            </MudContainer>
+        </EditForm>
+    </div>
+<br />
+<br />
+<br />
+<br />
+    @* ABOUT *@
+    <center>
+        <div class="accordion align-items-center m-2" id="accordionIndex" style="text-align:center;min-width:380px;max-width:450px;">
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#collapseZero"
+                        aria-expanded="false"
+                        aria-controls="collapseZero">
+                    <h6 style="color:lightseagreen">about</h6>
+                    </button>
+                </h2>
+                <div id="collapseZero" class="accordion-collapse collapse" data-bs-parent="#accordionIndex">
+                    <div class="accordion-body" style="text-align:center;margin-bottom:15px;">
+                    @* <hr /> *@
+                    @* <img src="/img/_mshtHat.png" width="100" style="margin:20px;border-radius:100px" /> *@
+                    <br />
+                        <a href="https://www.msht.ir/" target="_blank" style="text-decoration: none;">
+                        <h6 style="color:dimgray;text-decoration:none">Majid SharifiTehrani, August 2026</h6>
+                        </a>
+                        <a href="https://www.linkedin.com/in/majid-sharifi-tehrani/" target="_blank" style="text-decoration: none;">
+                        <h6 style="color:indianred;text-decoration:none">linkedin</h6>
+                        </a>
+                        <a href="https://github.com/msht-ir" target="_blank" style="text-decoration: none;">
+                        <h6 style="color:royalblue;text-decoration:none">github</h6>
+                        </a>
+                        <div style="text-align:center">
+                        @* <hr /> *@
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </center>
+
+@code {
+    private BrowserInfo? browserInfo
+        {
+        get; set;
+        }
+    private bool _passwordVisible;
+    private InputType _passwordInput = InputType.Password;
+    private string _passwordIcon = Icons.Material.Filled.VisibilityOff;
+    private User user = new User();
+    private MudTextField<string> refUser;
+    private MudTextField<string> refPass; // private ElementReference refPass;
+    private string _username = "";
+    private string _password = "";
+    private bool _firstRender = true;
+    private List<Note> lstDueNotes = new List<Note>();
+
+    //LifeCycleEvents
+    protected override async Task OnInitializedAsync ()
+        {
+        appState.OnChange += StateHasChanged;
+        appState.OnChange += TriggerRender;
+        appState.SetUserLoginStatus(0);
+        appState.SetUserTags(0);
+        appState.SetUserName("");
+        StateHasChanged();
+        }
+    protected override async Task OnAfterRenderAsync (bool firstRender)
+        {
+        if (_firstRender)
+            {
+            _firstRender = false;
+            await Task.Delay(1);
+            await refUser.FocusAsync();
+            }
+        }
+    private void TriggerRender ()
+        {
+        InvokeAsync(StateHasChanged);
+        }
+    public void Dispose ()
+        {
+        appState.OnChange -= TriggerRender;
+        }
+    //btns
+    public async Task BtnLogin ()
+        {
+        user = await feService.Read_User(_username, _password) ?? new User();
+        if (user.UserId != 0)
+            {
+            appState.SetUserLoginStatus(1);
+            appState.SetUserId(user.UserId);
+            appState.SetUserName(user.Username);
+            appState.SetUserPass(user.Password);
+            appState.SetUserTags(user.UserTags);
+            appState.SetUserNickname(user.UserNickname);
+            appState.SetCmd("showAlertsOnExamsAndNewChats");
+            if ((user.UserTags & 16) == 16)
+                {
+                lstDueNotes = await feService.Read_DueNotes(user.UserId, ((user.UserTags & 32) == 32) ? 7 : 3);
+                if (lstDueNotes.Count > 0)
+                    {
+                    foreach (Note dueNote in lstDueNotes)
+                        {
+                        Snackbar.Add($"{(dueNote.NoteText.Length > 30 ? dueNote.NoteText.Substring(0, 30) + " ..." : dueNote.NoteText)}", Severity.Info, opt => { opt.VisibleStateDuration = 5000; opt.ShowTransitionDuration = 800; opt.HideTransitionDuration = 800; });
+                        }
+                    }
+                }
+            //navigate
+            await Task.Delay(1);
+            Navman.NavigateTo("/Switchboard");
+            Snackbar.Add($"\n\nwelcome {user.UserNickname}!", Severity.Success, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+            }
+        else
+            {
+            Snackbar.Add("incorrect username or password!", Severity.Warning);
+            return;
+            }
+        }
+    public void BtnSignup ()
+        {
+        Navman.NavigateTo("/PgSignUp");
+        }
+    //convert date
+    public string PersianDate (DateTimeOffset? dt)
+        {
+        if ((Convert.ToInt32(appState.UserTags) & 256) == 256)
+            {
+            return feService.ToPersianDate(dt.ToString());
+            }
+        else
+            {
+            return dt?.ToString("yyyy-MM-dd HH:mm");
+            }
+        }
+    //methods
+    void TogglePasswordVisibility ()
+        {
+        _passwordVisible = !_passwordVisible;
+        _passwordInput = _passwordVisible ? InputType.Text : InputType.Password;
+        _passwordIcon = _passwordVisible ? Icons.Material.Filled.Visibility : Icons.Material.Filled.VisibilityOff;
+        StateHasChanged();
+        }
+    private async Task HandleKey_Usernamebox (KeyboardEventArgs e)
+        {
+        switch (e.Key)
+            {
+            case "Enter":
+                    {
+                    await refPass.FocusAsync();
+                    break;
+                    }
+            case "Escape":
+                    {
+                    _username = "";
+                    _password = "";
+                    break;
+                    }
+            }
+        StateHasChanged();
+        }
+    private async Task HandleKey_Passwordbox (KeyboardEventArgs e)
+        {
+        switch (e.Key)
+            {
+            case "Enter":
+                    {
+                    await BtnLogin();
+                    break;
+                    }
+            case "Escape":
+                    {
+                    _password = "";
+                    break;
+                    }
+            }
+        StateHasChanged();
+        }
+    }

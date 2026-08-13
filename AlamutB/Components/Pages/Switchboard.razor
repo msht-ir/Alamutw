@@ -1,0 +1,223 @@
+﻿@page "/Switchboard"
+@inject ProtectedSessionStorage sessionStorage
+@inject NavigationManager Navman
+@inject AppState appState
+@implements IDisposable
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+
+@if (appState.Cmd == "CreateNote")
+    {
+    <Modal_CreateNote OnClose="HandleModalClose" />
+    }
+
+
+    <div class="container" style="max-width:500px; margin: 0 auto;">
+        <div style="text-align: center;">
+            <div style="text-align: center;margin-top:50px;margin-bottom:20px;">
+            <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname</p>
+            </div>
+        <hr style="color:red;margin-bottom:50px;" />
+            <div class="d-flex gap-4 justify-content-center">
+                <button class="btn btn-link pulse-animation" @onclick="() => GotoPage(1)">
+                <img src="/img/icoTaxonomy.png" width="38" title="Taxonomy" />
+                </button>
+                <button class="btn btn-link pulse-hover" @onclick="() => GotoPage(2)">
+                <img src="/img/icoDatasets.png" width="38" title="Datasets" />
+                </button>
+                <button class="btn btn-link pulse-hover" @onclick="() => GotoPage(3)">
+                <img src="/img/icoLayers.png" width="44" title="Sets" />
+                </button>
+                <button class="btn btn-link pulse-hover" @onclick="() => GotoPage(4)">
+                <img src="/img/icoChartPie1.png" width="46" title="Analysis" />
+                </button>
+            @if (Convert.ToInt32(appState.UserTags & 128) == 128)
+                {
+                    <button class="btn btn-link pulse-hover" @onclick="() => GotoPage(5)">
+                    <img src="/img/icoAdmin.png" width="46" title="Settings" />
+                    </button>
+                }
+            else
+                {
+                    <button class="btn btn-link pulse-hover" @onclick="() => GotoPage(6)">
+                    <img src="/img/icoSettings1.png" width="46" title="Settings" />
+                    </button>
+                }
+            </div>
+        <br />
+        <br />
+            <div class="d-flex gap-4 justify-content-center">
+                <button class="btn btn-link pulse-hover" @onclick="() => GotoPage(7)">
+                <img src="/img/icoNoteBook.png" width="46" title="Notebooks" />
+                </button>
+                <button class="btn btn-link pulse-hover" @onclick="() => GotoPage(8)">
+                <img src="/img/icoNoteSticky1.png" width="48" title="Sticky Notes" />
+                </button>
+                <button class="btn btn-link pulse-hover" @onclick="() => GotoPage(9)">
+                <img src="/img/icoReport0.png" width="40" title="Reports" />
+                </button>
+                <button class="btn btn-link pulse-hover" @onclick="() => GotoPage(10)">
+                <img src="/img/icoPrompt.png" width="38" title="APL" />
+                </button>
+                <button class="btn btn-link pulse-hover" @onclick="() => GotoPage(11)">
+                <img src="/img/icoPrinter.png" width="44" title="Print" />
+                </button>
+            </div>
+        <br />
+        <br />
+            <div class="d-flex gap-4 justify-content-center">
+                <button class="btn btn-link pulse-hover" @onclick="() => GotoPage(12)">
+                <img src="/img/icoSearch.png" width="36" title="Search" />
+                </button>
+                <button class="btn btn-link pulse-hover" @onclick="() => GotoPage(13)">
+                <img src="/img/icoBooks.png" width="44" title="Library" />
+                </button>
+                <button class="btn btn-link pulse-hover" @onclick="() => GotoPage(14)">
+                <img src="/img/icoMap.png" width="38" title="Maps" />
+                </button>
+                <button class="btn btn-link pulse-hover" @onclick="() => GotoPage(15)">
+                <img src="/img/icoMeteo.png" width="44" title="Climatology" />
+                </button>
+                <button class="btn btn-link pulse-hover" @onclick="() => GotoPage(16)">
+                <img src="/img/icoInfo.png" width="38" title="Help" />
+                </button>
+            </div>
+        <br />
+        <br />
+        <hr style="color:red;margin-top:30px;" />
+            <div style="text-align: center;margin-top:50px;">
+                <MudButton Variant="Variant.Filled"
+                       EndIcon="@Icons.Material.Filled.ArrowBack"
+                       Size="Size.Small"
+                       OnClick="@(() => GotoLogin())"
+                       Style="color:indianred;padding-left:60px;padding-right:60px">
+                Logout
+                </MudButton>
+            </div>
+        </div>
+    </div>
+
+
+@code
+{
+    private bool _firstRender = true;
+    User user = new User();
+    public int Spacing { get; set; } = 3;
+    string _cmd = "";
+
+    //LifeCycleEvents
+    protected override async Task OnInitializedAsync ()
+        {
+        appState.OnChange += TriggerRender;
+        if (Convert.ToInt32(appState.UserLoginStatus) != 1)
+            {
+            Navman.NavigateTo("/PgLogin");
+            }
+        }
+    protected async Task OnAfterRenderAsync ()
+        {
+        var result1 = await sessionStorage.GetAsync<string>("UserName");
+        if (result1.Success)
+            {
+            appState.SetUserName(result1.Value);
+            user.Username = appState.UserName;
+            StateHasChanged();
+            }
+        if (_firstRender)
+            {
+            _firstRender = false;
+            var result = await sessionStorage.GetAsync<int>("UserLoginStatus");
+            if (result.Success && result.Value == 1)
+                {
+                appState.SetUserLoginStatus(1);
+                appState.SetUserLoginStatus(result.Value);
+                }
+            else
+                {
+                Navman.NavigateTo("/PgLogin");
+                }
+            }
+        }
+    private void TriggerRender ()
+        {
+        InvokeAsync(StateHasChanged);
+        }
+    public void Dispose ()
+        {
+        appState.OnChange -= TriggerRender;
+        }
+    //methods
+    public void GotoLogin ()
+        {
+        Navman.NavigateTo("/PgLogin");
+        }
+    public void GotoGroupsStudents ()
+        {
+        Navman.NavigateTo("/T_Students");
+        }
+    public void GotoPage (int _pageId)
+        {
+        string page = _pageId switch
+            {
+                1 => "/PgTaxa",
+                2 => "/PgDatasets",
+                3 => "/PgSets",
+                4 => "/PgAnalysis",
+                5 => "/PgSettings",
+                6 => "/PgAdmin",
+                7 => "/PgNotebooks",
+                8 => "/PgStickyNotes",
+                9 => "/PgReports",
+                10 => "/PgAPL",
+                11 => "/PgPrints",
+                12 => "/PgSearch",
+                13 => "/PgLibrary",
+                14 => "/PgMaps",
+                15 => "/PgClimagraph",
+                16 => "/PgInfo"
+                };
+        Navman.NavigateTo(page);
+        }
+    public void GotoNotebooks ()
+        {
+        appState.SetReturnPage("/SwitchBoard");
+        Navman.NavigateTo("/E_NoteBooks");
+        }
+    public void BtnGotoAdminPage ()
+        {
+        appState.SetReturnPage("/SwitchBoard");
+        Navman.NavigateTo("/T_Admin");
+        }
+    public async Task BtnCreateNote ()
+        {
+        //ReferenceTypes 1:quicknote(s) 2:SectNote(s) 11:quicknote(t) 12:SectNote(t) 13:StudentNote(t) 14:GroupNote(t) 15:CourseNote(t) 16:ExamNote(t) 17:StudentExamNote(t)
+        appState.SetNoteRefId(Convert.ToInt32(appState.UserId)); //for quickNote(t): NoteReferenceId = UserId
+        appState.SetNoteRefType(11);
+        appState.SetCmd("CreateNote");
+        StateHasChanged();
+        //After the Modal_CreateNote is closed, HandleModalClose will refresh the list
+        //to handel close event, I added in the Modal_CreateNote: [Parameter] public EventCallback OnClose
+        }
+    public void ReportUserNotes ()
+        {
+        user.UserId = Convert.ToInt32(appState.UserId);
+        appState.SetReturnPage("/SwitchBoard");
+        Navman.NavigateTo($"/T_ReportNotes/11/{user.UserId}");
+        }
+    private void BtnChangeTeacherPassword ()
+        {
+        if ((Convert.ToInt32(appState.UserTags) & 2) == 2)
+            {
+            appState.SetUserLoginStatus(1);
+            Navman.NavigateTo("/ChangePassword");
+            }
+        else
+            {
+            Snackbar.Add("account limitted", Severity.Warning, opt => { opt.VisibleStateDuration = 1500; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+            }
+        }
+    private async Task HandleModalClose ()
+        {
+        StateHasChanged();
+        }
+    }

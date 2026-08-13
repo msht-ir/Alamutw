@@ -1,0 +1,181 @@
+﻿@page "/PgTaxa"
+@using System.Globalization
+@using AlamutB.Service
+@using System.Threading.Tasks
+@inject FeService feService
+@inject NavigationManager Navman
+@inject AppState appState
+@inject IJSRuntime JS
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<h5 style="text-align:center;padding-left:15px;">Taxonomy - <span style="font-size:smaller;text-align:center;color:indianred">@appState.UserNickname</span></h5>
+
+@if (_cmd == "ShowApgTree")
+    {
+    @* TREE 1 ApgGroups*@
+    <h3>APG Groups</h3>
+    <hr style="color:red" />
+        <div style="display: flex; justify-content: center; align-items: center;">
+            <MudPaper Width="700px" Elevation="1">
+                <MudTreeView T="string" Hover="true">
+                @foreach (ApgGroup apg in lstApgGroups)
+                    {
+                        <div style="display: grid; grid-template-columns: 1fr auto; align-items: center; width: 100%">
+                            <MudTreeViewItem Text="@apg.ApgGroupName" Expanded="false">
+                                <div style="justify-self: end;">
+                                <MudIconButton @onclick="() => EditGroup(apg)"
+                                               Icon="@Icons.Material.Filled.Edit"
+                                               Size="Size.Medium"
+                                               Color="Color.Tertiary"
+                                               title=@($"edit:  {@apg.ApgGroupName}") />
+                                </div>
+                            @foreach (Order ord in apg.Orders)
+                                {
+                                    <div style="display: grid; grid-template-columns: 1fr auto; align-items: center; width: 100%">
+                                    <MudTreeViewItem Text="@ord.OrderName" @onclick="() => ReadFamilies(ord)" />
+                                        <div style="justify-self: end;">
+                                        <MudIconButton @onclick="() => EditOrder(ord)"
+                                                       Icon="@Icons.Material.Filled.Edit"
+                                                       Size="Size.Medium"
+                                                       title=@($"edit:  {@ord.OrderName}")
+                                                       Color="Color.Inherit" />
+                                        </div>
+                                    </div>
+                                }
+                            </MudTreeViewItem>
+                        </div>
+                    }
+                </MudTreeView>
+            </MudPaper>
+        </div>
+    }
+else if (_cmd == "ShowFamilyTree")
+    {
+    @* TREE 2 Families*@
+    <h3>Order: @appState.OrderName</h3>
+    <hr style="color:red" />
+        <div style="display: flex; justify-content: center; align-items: center;">
+            <MudPaper Width="700px" Elevation="1">
+                <MudTreeView T="string" Hover="true">
+                @foreach (Family fam in lstFamilies)
+                    {
+                        <div style="display: grid; grid-template-columns: 1fr auto; align-items: center; width: 100%">
+                            <MudTreeViewItem Text="@fam.FamilyName" Expanded="false">
+                                <div style="justify-self: end;">
+                                <MudIconButton @onclick="() => EditFamily(fam)"
+                                               Icon="@Icons.Material.Filled.Edit"
+                                               Size="Size.Medium"
+                                               Color="Color.Tertiary"
+                                               title=@($"edit:  {@fam.FamilyName}") />
+                                </div>
+                            @foreach (Genus gen in fam.Genera)
+                                {
+                                    <div style="display: grid; grid-template-columns: 1fr auto; align-items: center; width: 100%">
+                                    <MudTreeViewItem Text="@gen.GenusName" @onclick="() => ReadSpecies(gen)" />
+                                        <div style="justify-self: end;">
+                                        <MudIconButton @onclick="() => EditGenus(gen)"
+                                                       Icon="@Icons.Material.Filled.Edit"
+                                                       Size="Size.Medium"
+                                                       title=@($"edit:  {@gen.GenusName}")
+                                                       Color="Color.Inherit" />
+                                        </div>
+                                    </div>
+                                }
+                            </MudTreeViewItem>
+                        </div>
+                    }
+                </MudTreeView>
+            </MudPaper>
+        </div>
+    }
+else if (_cmd == "ShowSpeciesTree")
+    {
+    @* TREE 3 Species*@
+    <h3>Genus: @appState.GenusName</h3>
+    <hr style="color:red" />
+        <div style="display: flex; justify-content: center; align-items: center;">
+            <MudPaper Width="700px" Elevation="1">
+                <MudTreeView T="string" Hover="true">
+                @foreach (Species spc in lstSpecies)
+                    {
+                        <div style="display: grid; grid-template-columns: 1fr auto; align-items: center; width: 100%">
+                            <MudTreeViewItem Text="@spc.SciName" Expanded="true">
+                            </MudTreeViewItem>
+                        </div>
+                    }
+                </MudTreeView>
+            </MudPaper>
+        </div>
+    }
+
+@code {
+    private List<ApgGroup> lstApgGroups = new();
+    private List<Family> lstFamilies = new();
+    private List<Species> lstSpecies = new();
+    bool _hasFetched = false;
+    private string _cmd = "ShowApgTree";
+
+    //LifeCycleEvents
+    protected override async Task OnInitializedAsync ()
+        {
+        appState.OnChange += TriggerRender;
+        appState.SetCmd("");
+        await ReadApgGroups();
+        _hasFetched = true;
+        }
+    private void TriggerRender ()
+        {
+        InvokeAsync(StateHasChanged);
+        }
+    public void Dispose ()
+        {
+        appState.OnChange -= TriggerRender;
+        }
+    //read data
+    private async Task ReadApgGroups ()
+        {
+        lstApgGroups = await feService.Read_ApgGroups();
+        StateHasChanged();
+        }
+    private async Task ReadFamilies (Order order)
+        {
+        appState.SetOrderName (order.OrderName);
+        _cmd = "ShowFamilyTree";
+        lstFamilies = await feService.Read_Families(order.OrderId);
+        StateHasChanged ();
+        }
+    private async Task ReadSpecies (Genus genus)
+        {
+        appState.SetGenusName (genus.GenusName);
+        _cmd = "ShowSpeciesTree";
+        lstSpecies = await feService.Read_Species(genus.GenusId);
+        StateHasChanged ();
+        }
+    //btns
+    private async Task EditGroup (ApgGroup apg)
+        {
+        Snackbar.Add($"APG = {apg.ApgGroupName}", Severity.Info, opt => { opt.VisibleStateDuration = 5000; opt.ShowTransitionDuration = 800; opt.HideTransitionDuration = 800; });
+
+        }
+    private async Task EditOrder (Order ord)
+        {
+        Snackbar.Add($"order = {ord.OrderName}", Severity.Info, opt => { opt.VisibleStateDuration = 5000; opt.ShowTransitionDuration = 800; opt.HideTransitionDuration = 800; });
+
+        }
+    private async Task EditFamily (Family fam)
+        {
+        Snackbar.Add($"APG = {fam.FamilyName}", Severity.Info, opt => { opt.VisibleStateDuration = 5000; opt.ShowTransitionDuration = 800; opt.HideTransitionDuration = 800; });
+
+        }
+    private async Task EditGenus (Genus gen)
+        {
+        Snackbar.Add($"order = {gen.GenusName}", Severity.Info, opt => { opt.VisibleStateDuration = 5000; opt.ShowTransitionDuration = 800; opt.HideTransitionDuration = 800; });
+
+        }
+    private async Task EditSpecies (Species spc)
+        {
+        Snackbar.Add($"order = {spc.Epithet}", Severity.Info, opt => { opt.VisibleStateDuration = 5000; opt.ShowTransitionDuration = 800; opt.HideTransitionDuration = 800; });
+
+        }
+    }

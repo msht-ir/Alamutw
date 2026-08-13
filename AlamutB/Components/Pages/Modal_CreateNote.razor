@@ -1,0 +1,304 @@
+﻿@using System.Globalization
+@using System.Reflection
+@inject FeService feService
+@inject AppState appState;
+@inject NavigationManager Navman
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+@if (IsOpen)
+    {
+    Title = (appState.Cmd == "UpdateNote") ? "Edit note" : "New note";
+    <div class="modal-backdrop fade show"></div>
+        <div class="modal show d-block">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h5 class="modal-title">@Title</h5>
+                    @* <button class="btn-close" @onclick="Close"></button> *@
+                    </div>
+                    <div class="modal-body">
+                    @ChildContent
+                        <div class="mt-3">
+                            <span style="color:royalblue; font-weight:bold;">
+                            @appState.NoteRefName
+                            </span>
+                            <MudContainer MaxWidth="MaxWidth.Small" Class="mt-2 px-0">
+                                <MudCard Class="mx-0">
+                                    <MudCardContent Style="background-color:whitesmoke;">
+                                        <div class="d-flex gap-4 mb-3">
+                                        <MudDatePicker Label="date"
+                                                       @bind-Date="_date"
+                                                       Culture="@_persianCulture"
+                                                       DateFormat="yyyy-MM-dd"
+                                                       Variant="Variant.Text"
+                                                       Elevation="12"
+                                                       Margin="Margin.Dense"
+                                                       Modal="true" />
+                                        <MudTimePicker Label="time"
+                                                       @bind-Time="_time"
+                                                       TimeFormat="HH:mm"
+                                                       Variant="Variant.Text"
+                                                       PickerVariant="PickerVariant.Dialog"
+                                                       Dense="true" />
+                                        </div>
+                                    <MudTextField T="string"
+                                                  Label="@($"{note.NoteText?.Length ?? 0} / 4000")"
+                                                  @bind-Value="note.NoteText"
+                                                  Immediate="true"
+                                                  Variant="Variant.Text"
+                                                  Lines="18"
+                                                  AutoResize="true"
+                                                  Style=@($"width:100%;font-size:13px; monospace;color:black;") />
+                                        <div class="d-flex gap-4 mb-3">
+                                            <MudCheckBox @bind-Value="note.IsTodo"
+                                                     Label="Todo"
+                                                     Color="Color.Secondary">
+                                            </MudCheckBox>
+                                        </div>
+                                    @* todo - set date and time *@
+                                    @if (note.IsTodo)
+                                        {
+                                        <hr style="color:red;" />
+                                            <div class="d-flex gap-4 mb-3">
+                                            <MudDatePicker Label="due date"
+                                                           @bind-Date="_dueDate"
+                                                           Culture="@_persianCulture"
+                                                           DateFormat="yyyy-MM-dd"
+                                                           Variant="Variant.Text"
+                                                           Elevation="12"
+                                                           Margin="Margin.Dense"
+                                                           Modal="true" />
+                                            <MudTimePicker Label="due time"
+                                                           @bind-Time="_dueTime"
+                                                           TimeFormat="HH:mm"
+                                                           Variant="Variant.Text"
+                                                           PickerVariant="PickerVariant.Dialog"
+                                                           Dense="true" />
+                                            </div>
+                                        }
+                                    @* Buttons *@
+                                    @if (appState.Cmd == "CreateNote")
+                                        {
+                                            <div class="d-flex gap-2 justify-content-center" style="text-align:center;margin-top:50px;">
+                                                <MudButton Variant="Variant.Outlined"
+                                                       Size="Size.Small"
+                                                       Color="Color.Primary"
+                                                       StartIcon="@Icons.Material.Filled.Save"
+                                                       @onclick="BtnCreateNote">
+                                                Save note
+                                                </MudButton>
+                                                <MudButton Variant="Variant.Outlined"
+                                                       Size="Size.Small"
+                                                       Color="Color.Secondary"
+                                                       StartIcon="@Icons.Material.Filled.Cancel"
+                                                       @onclick="BtnCancel">
+                                                Cancel
+                                                </MudButton>
+                                            </div>
+                                        }
+                                    else if (appState.Cmd == "UpdateNote")
+                                        {
+                                            <div class="d-flex gap-2 justify-content-center" style="text-align:center">
+                                                <MudButton Variant="Variant.Outlined"
+                                                       Size="Size.Small"
+                                                       Color="Color.Primary"
+                                                       StartIcon="@Icons.Material.Filled.Save"
+                                                       @onclick="BtnUpdateNote">
+                                                Update note
+                                                </MudButton>
+                                                <MudButton Variant="Variant.Outlined"
+                                                       Size="Size.Small"
+                                                       Color="Color.Secondary"
+                                                       StartIcon="@Icons.Material.Filled.Cancel"
+                                                       @onclick="BtnCancel">
+                                                Cancel
+                                                </MudButton>
+                                            </div>
+                                        }
+                                    </MudCardContent>
+                                </MudCard>
+                            </MudContainer>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+@code {
+    [Parameter]
+    public string Title
+        {
+        get; set;
+        }
+    [Parameter]
+    public RenderFragment ChildContent
+        {
+        get; set;
+        }
+    [Parameter]
+    public EventCallback OnClose
+        {
+        get; set;
+        }
+    public bool IsOpen { get; set; } = true;
+    private CultureInfo _persianCulture = new CultureInfo("fa-IR");
+    private MudTextField<string> refNoteText;
+    private MudTextField<string> refSearchNote;
+
+    User user = new User();
+    Note note = new Note();
+    bool _hasFetched;
+    string textDirection = "ltr";
+
+    private DateTime? _date = DateTime.Now;
+    private DateTime? _dueDate = DateTime.Now;
+    private TimeSpan? _time = DateTime.Now.TimeOfDay;
+    private TimeSpan? _dueTime = DateTime.Now.TimeOfDay;
+
+    int _PersianYear = 0;
+    int _PersianMonth = 0;
+    int _PersianDay = 0;
+
+    //LifeCycleEvents
+    protected override async Task OnInitializedAsync ()
+        {
+        appState.OnChange += TriggerRender;
+        if (Convert.ToInt32(appState.UserLoginStatus) != 1)
+            {
+            Navman.NavigateTo("/PgLogin");
+            }
+        //share edit and new modes
+        note.RefId = Convert.ToInt32(appState.NoteRefId);
+        note.RefType = Convert.ToInt32(appState.NoteRefType);
+        note.UserId = Convert.ToInt32(appState.UserId);
+        if (appState.NoteDateTimeDue == "1900-01-01 00:00")
+            {
+            appState.SetNoteDateTimeDue(DateTime.Now.ToString("yyyy-MM-dd HH:mm"));
+            }
+        //for edit mode
+        if (appState.Cmd == "UpdateNote")
+            {
+            // Console.WriteLine($"----- appState.NoteDateTime    = {appState.NoteDateTime}");
+            // Console.WriteLine($"----- appState.NoteDateTimeDue = {appState.NoteDateTimeDue}");
+            //DT1 (NoteDateTime)
+            DateTimeOffset dT1Offset = DateTimeOffset.Parse(appState.NoteDateTime);
+            _PersianYear = dT1Offset.Year;
+            _PersianMonth = dT1Offset.Month;
+            _PersianDay = dT1Offset.Day;
+            _date = dT1Offset.LocalDateTime;
+            _time = ((Convert.ToInt32(appState.UserTags) & 256) == 256) ? dT1Offset.TimeOfDay.Add(new TimeSpan(+3, +30, 0)) : dT1Offset.TimeOfDay; //I dont know why! but it works like this!
+            //DT2 (NoteDateTimeDue)
+            DateTimeOffset dT2Offset = DateTimeOffset.Parse(appState.NoteDateTimeDue);
+            _PersianYear = dT2Offset.Year;
+            _PersianMonth = dT2Offset.Month;
+            _PersianDay = dT2Offset.Day;
+            _dueDate = dT2Offset.LocalDateTime;
+            _dueTime = ((Convert.ToInt32(appState.UserTags) & 256) == 256) ? dT2Offset.TimeOfDay.Add(new TimeSpan(+3, +30, 0)) : dT2Offset.TimeOfDay; //I dont know why! but it works like this!
+            //END PARSE DATETIME
+            note.NoteText = appState.NoteText ?? "";
+            note.IsTodo = Convert.ToBoolean(appState.NoteIsTodo);
+            }
+        _persianCulture = ((Convert.ToInt32(appState.UserTags) & 256) == 256) ? new CultureInfo("fa-IR") : new CultureInfo("en-US");
+        _hasFetched = true;
+        }
+    private void TriggerRender ()
+        {
+        InvokeAsync(StateHasChanged);
+        }
+    public void Dispose ()
+        {
+        appState.OnChange -= TriggerRender;
+        }
+    public void Open () => IsOpen = true;
+    private async Task Close ()
+        {
+        if (OnClose.HasDelegate)
+            {
+            await OnClose.InvokeAsync();
+            IsOpen = false;
+            }
+        }
+    public void BtnClose ()
+        {
+        appState.SetCmd("");
+        IsOpen = false; //at top of page
+        }
+    //methods
+    public async Task BtnCreateNote ()
+        {
+        if (note.NoteText.Trim() == "")
+            {
+            Snackbar.Add("note is empty!", Severity.Info, opt => { opt.VisibleStateDuration = 1500; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+            return;
+            }
+        else
+            {
+            //ReferenceTypes 1:quicknote(s) 2:SectNote(s) 11:quicknote(t) 12:SectNote(t) 13:StudentNote(t) 14:GroupNote(t) 15:CourseNote(t) 16:ExamNote(t) 17:StudentExamNote(t)
+            DateTime _dt1 = _date.Value.Date + _time.Value;
+            DateTime _dt2 = _dueDate.Value.Date + _dueTime.Value;
+            note.NoteDateTime = _dt1.ToUniversalTime();   //convert time to utc
+            note.NoteDateTimeDue = (note.IsTodo) ? _dt2.ToUniversalTime () : null;
+            // _hasFetched = false;
+            bool result = await feService.Create_Note(note);
+            if (result)
+                {
+                Snackbar.Add("saved", Severity.Success, opt => { opt.VisibleStateDuration = 1500; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+                user.UserId = Convert.ToInt32(appState.UserId);
+                appState.SetCmd("");
+                await Close();
+                }
+            else
+                {
+                Snackbar.Add("failed to save note", Severity.Error, opt => { opt.VisibleStateDuration = 1500; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+                }
+            // _hasFetched = true;
+            }
+        }
+    public async Task BtnUpdateNote ()
+        {
+        if (note.RefId == 0)
+            {
+            Snackbar.Add("failed... try again", Severity.Error, opt => { opt.VisibleStateDuration = 1500; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+            return;
+            }
+        if (note.NoteText.Trim() == "")
+            {
+            Snackbar.Add("note is empty", Severity.Info);
+            return;
+            }
+        else
+            {
+            //ReferenceTypes 1:quicknote(s) 2:SectNote(s) 11:quicknote(t) 12:SectNote(t) 13:StudentNote(t) 14:GroupNote(t) 15:CourseNote(t) 16:ExamNote(t) 17:StudentExamNote(t)
+            note.NoteId = Convert.ToInt32(appState.SelectedNoteId);
+            note.RefId = Convert.ToInt32(appState.NoteRefId);
+            note.RefType = Convert.ToInt32(appState.NoteRefType);
+            DateTime _dt1 = _date.Value.Date + _time.Value;
+            DateTime _dt2 = _dueDate.Value.Date + _dueTime.Value;
+            note.NoteDateTime = _dt1.ToUniversalTime();      //convert time to utc;
+            note.NoteDateTimeDue = (note.IsTodo) ? _dt2.ToUniversalTime() : null;
+            //not neccessary, but just to ensure everything is ok:
+            _hasFetched = false;
+            bool result = await feService.Update_Note(note);
+            if (result)
+                {
+                Snackbar.Add("updated", Severity.Success);
+                user.UserId = Convert.ToInt32(appState.UserId);
+                appState.SetCmd("");
+                await Close();
+                }
+            else
+                {
+                Snackbar.Add("failed to update note", Severity.Error, opt => { opt.VisibleStateDuration = 1500; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+                }
+            _hasFetched = true;
+            }
+        }
+    //calendar
+    public void BtnCancel ()
+        {
+        appState.SetCmd("");
+        Close();
+        }
+    }

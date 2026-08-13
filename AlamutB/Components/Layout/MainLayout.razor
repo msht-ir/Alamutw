@@ -1,0 +1,60 @@
+﻿@inherits LayoutComponentBase
+@inject ProtectedSessionStorage sessionStorage
+@inject AppState appState
+@inject NavigationManager Navman
+
+<div class="page">
+        <div class="sidebar">
+        @if (Navman.Uri.Contains("/S_StudentExamTests"))
+            {
+            <NavMenuS_StudentExamTests />
+            }
+        else if (Navman.Uri.Contains("/S_StudentExamTest"))
+            {
+            <NavMenuS_StudentExamTest />
+            }
+        else if (Navman.Uri.Contains("/S_StudentCourseTest"))
+            {
+            <NavMenuS_Back2S_Student />
+            }
+        else if (Navman.Uri.Contains("/S_Student"))
+            {
+            <NavMenuS_Student />
+            }
+        else if (Navman.Uri.Contains("/S_ReportStudent"))
+            {
+            <NavMenuS_Student />
+            }
+        else if (Navman.Uri.Contains("/Login"))
+            {
+            <NavMenuLogin />
+            }
+        else
+            {
+            <NavMenuDefault />
+            }
+        </div>
+        <main>
+        @* Required *@
+        <MudThemeProvider />
+        <MudPopoverProvider />
+        @* Needed for dialogs *@
+        <MudDialogProvider />
+        @* Needed for snackbars *@
+        <MudSnackbarProvider />
+
+            <div class="top-row px-4">
+            @if (appState.UserLoginStatus == 1)
+                {
+                <a href="/PgLogin">Logout</a>
+                }
+            else
+                {
+                <a href="https://msht.ir">msht.ir</a>
+                }
+            </div>
+            <article class="content px-4">
+            @Body
+            </article>
+        </main>
+    </div>

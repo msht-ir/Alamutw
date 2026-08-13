@@ -1,0 +1,84 @@
+MUD
+
+-------------- Dialog -------------
+@inject IDialogService DialogService
+var message = new MarkupString($"<hr><span style='color:indianred'>Delete</span> message?<br><br><div style='text-align:center'><img src='/img/icoxx.png' width='70'/></div><br><hr>");
+bool? confirmResult = await DialogService.ShowMessageBox(title: "Confirm", markupMessage: message, yesText: "Yes", cancelText: "No");
+if (confirmResult == true)
+ {  }
+
+------------- Snackbar -------------
+@inject ISnackbar Snackbar
+Snackbar.Add("", Severity.Success); //Severity.Warning | .Error | .Info | .Success --needs: @inject ISnackbar Snackbar
+
+-------------- card ----------------
+<MudContainer MaxWidth="MaxWidth.Small" Class="mt-2 px-0">
+    <MudCard Class="mx-0">
+        <MudCardContent Style="background-color:whitesmoke;">
+
+        </MudCardContent>
+    </MudCard>
+</MudContainer>
+
+------------ Grid ------------------
+<MudGrid Style="@style">
+    <!-- Left column -->
+    <MudItem xs="10">
+    </MudItem>
+    <!-- Right column -->
+    <MudItem xs="2">
+    </MudItem>
+</MudGrid>
+
+
+----------- Page Width ------------
+style="max-width:500px; margin: 0 auto;"
+
+
+----------- Text Input ------------
+<MudTextField @ref="" @bind-Value="" Label="" Variant="Variant.Outlined" Autocomplete="off" Dense="true" Margin="Margin.Dense" Class="my-textfield" />
+@code:
+private MudTextField<string> refUser;
+
+
+-------------- Select -------------
+<MudSelect T="int" Label="Exam آزمون" @bind-Value="intExamId" Class="w-auto my-select" Variant="Variant.Outlined" Dense="true" Margin="Margin.Dense" Style="color:royalblue;width:140px;font-size:small;">
+   <MudSelectItem Value="0">Select an Exam...</MudSelectItem>
+   @foreach (Exam exam in lstExams) { <MudSelectItem Value="@exam.ExamId">@exam.ExamTitle</MudSelectItem> }
+</MudSelect>
+
+
+-------------- Date and Time -------------
+<MudDatePicker Label="Calendar تقويم" @bind-Date="_date" Culture="@GetPersianCulture()" DateFormat="yyyy-MM-dd" Variant="Variant.Outlined" Dense="true" />
+<MudTimePicker Label="Time ساعت" @bind-Time="_time" TimeFormat="HH:mm" Variant="Variant.Outlined" Dense="true"/>
+
+    public CultureInfo GetPersianCulture()
+        {
+        var culture = new CultureInfo("fa-IR");
+        DateTimeFormatInfo formatInfo = culture.DateTimeFormat;
+        formatInfo.AbbreviatedDayNames = new[] { "ی", "د", "س", "چ", "پ", "ج", "ش" };
+        formatInfo.DayNames = new[] { "یکشنبه", "دوشنبه", "سه شنبه", "چهار شنبه", "پنجشنبه", "جمعه", "شنبه" };
+        var monthNames = new[]
+        { "فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور", "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند", "", };
+        formatInfo.AbbreviatedMonthNames =
+            formatInfo.MonthNames =
+                formatInfo.MonthGenitiveNames = formatInfo.AbbreviatedMonthGenitiveNames = monthNames;
+        formatInfo.AMDesignator = "ق.ظ";
+        formatInfo.PMDesignator = "ب.ظ";
+        formatInfo.ShortDatePattern = "yyyy-MM-dd";
+        formatInfo.LongDatePattern = "yyyy-MM-dd dddd";
+        formatInfo.FirstDayOfWeek = DayOfWeek.Saturday;
+        Calendar cal = new PersianCalendar();
+        FieldInfo fieldInfo = culture.GetType().GetField("calendar", BindingFlags.NonPublic | BindingFlags.Instance);
+        if (fieldInfo != null)
+            fieldInfo.SetValue(culture, cal);
+        FieldInfo info = formatInfo.GetType().GetField("calendar", BindingFlags.NonPublic | BindingFlags.Instance);
+        if (info != null)
+            info.SetValue(formatInfo, cal);
+        culture.NumberFormat.NumberDecimalSeparator = ".";
+        culture.NumberFormat.DigitSubstitution = DigitShapes.NativeNational;
+        culture.NumberFormat.NumberNegativePattern = 0;
+        return culture;
+        }
+
+-------------- xxxx -------------
