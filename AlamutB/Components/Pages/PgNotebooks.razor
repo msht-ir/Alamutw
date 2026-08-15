@@ -1,4 +1,4 @@
-﻿@page "/PgNotebooks/{mode:int}/{Id:int}"
+﻿@page "/PgNotebooks"
 @using System.Globalization
 @using AlamutB.Service
 @using System.Threading.Tasks
@@ -266,7 +266,7 @@ else
     <script>
     window.scrollToTop = () => { window.scrollTo({ top: 0, behavior: 'smooth' }); };
     </script>
-    }
+
 
 @code {
     [Parameter]
@@ -298,7 +298,7 @@ else
         appState.OnChange += TriggerRender;
         if (Convert.ToInt32(appState.UserLoginStatus) != 1)
             {
-            Navman.NavigateTo("/PgLogin");
+            Navman.NavigateTo("/Login");
             }
         appState.SetCmd("");
         user.UserId = Convert.ToInt32(appState.UserId);

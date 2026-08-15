@@ -31,6 +31,7 @@ namespace AlamutB.Services2Backend
         #region TAXONOMY-ORDER
         Task<bool> Create_OrderAsync (Order order);
         Task<List<Order>> Read_OrdersAsync (int apgGroupId);
+        Task<List<Order>> Read_OrdersBySearchAsync (string orderKeyword);
         Task<Order> Read_OrderAsync (int orderId);
         Task<bool> Update_OrderAsync (Order order);
         Task<bool> Delete_OrderAsync (int orderId);
@@ -38,6 +39,7 @@ namespace AlamutB.Services2Backend
         #region TAXONOMY-FAMILY
         Task<bool> Create_FamilyAsync (Family family);
         Task<List<Family>> Read_FamiliesAsync (int orderId);
+        Task<List<Family>> Read_FamiliesBySearchAsync (string familyKeyword);
         Task<Family> Read_FamilyAsync (int familyId);
         Task<bool> Update_FamilyAsync (Family family);
         Task<bool> Delete_FamilyAsync (int familyId);
@@ -45,6 +47,7 @@ namespace AlamutB.Services2Backend
         #region TAXONOMY-GENUS
         Task<bool> Create_GenusAsync (Genus genus);
         Task<List<Genus>> Read_GeneraAsync (int familyId);
+        Task<List<Genus>> Read_GeneraBySearchAsync (string genusKeyword);
         Task<Genus> Read_GenusAsync (int genusId);
         Task<bool> Update_GenusAsync (Genus genus);
         Task<bool> Delete_GenusAsync (int genusId);
@@ -52,6 +55,8 @@ namespace AlamutB.Services2Backend
         #region TAXONOMY-SPECIES
         Task<bool> Create_SpeciesAsync (Species species);
         Task<List<Species>> Read_SpeciesAsync (int genusId);
+        Task<List<Species>> Read_SubspeciesAsync (string genusName, string epithet);
+        Task<List<Species>> Read_SpeciesByDatasetLMIdAsync (int datasetLMId);
         Task<Species> Read_SpeciesByIdAsync (int speciesId);
         Task<bool> Update_SpeciesAsync (Species species);
         Task<bool> Delete_SpeciesAsync (int speciesId);

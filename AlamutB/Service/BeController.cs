@@ -128,6 +128,12 @@ namespace AlamutB.Backend
             var result = await _BeService.Read_OrdersAsync (apgGroupId);
             return Ok (result);
             }
+        [HttpPost ("Read_OrdersBySearch")]
+        public async Task<ActionResult<List<Order>>> Read_OrdersBySearch ([FromBody] string orderKeyword)
+            {
+            var result = await _BeService.Read_OrdersBySearchAsync (orderKeyword);
+            return Ok (result);
+            }
         [HttpPost ("Update_Order")]
         public async Task<ActionResult<bool>> Update_Order ([FromBody] Order order)
             {
@@ -154,6 +160,12 @@ namespace AlamutB.Backend
             var result = await _BeService.Read_FamiliesAsync (orderId);
             return Ok (result);
             }
+        [HttpPost ("Read_FamiliesBySearch")]
+        public async Task<ActionResult<List<Family>>> Read_FamiliesBySearch ([FromBody] string familyKeyword)
+            {
+            var result = await _BeService.Read_FamiliesBySearchAsync (familyKeyword);
+            return Ok (result);
+            }
         [HttpPost ("Update_Family")]
         public async Task<ActionResult<bool>> Update_Family ([FromBody] Family family)
             {
@@ -177,7 +189,13 @@ namespace AlamutB.Backend
         [HttpPost ("Read_Genera")]
         public async Task<ActionResult<List<Genus>>> Read_Genera ([FromBody] int familyId)
             {
-            var result = await _BeService.Read_FamiliesAsync (familyId);
+            var result = await _BeService.Read_GeneraAsync (familyId);
+            return Ok (result);
+            }
+        [HttpPost ("Read_GeneraBySearch")]
+        public async Task<ActionResult<List<Genus>>> Read_GeneraBySearch ([FromBody] string genusKeyword)
+            {
+            var result = await _BeService.Read_GeneraBySearchAsync (genusKeyword);
             return Ok (result);
             }
         [HttpPost ("Update_Genus")]
@@ -204,6 +222,18 @@ namespace AlamutB.Backend
         public async Task<ActionResult<List<Species>>> Read_Species ([FromBody] int genusId)
             {
             var result = await _BeService.Read_SpeciesAsync (genusId);
+            return Ok (result);
+            }
+        [HttpPost ("Read_Subspecies")]
+        public async Task<ActionResult<List<Species>>> Read_Subspecies ([FromBody] string genusName, [FromQuery] string epithet)
+            {
+            var result = await _BeService.Read_SubspeciesAsync (genusName, epithet);
+            return Ok (result);
+            }
+        [HttpPost ("Read_SpeciesByDatasetLMId")]
+        public async Task<ActionResult<List<Species>>> Read_SpeciesByDatasetLMId ([FromBody] int datasetLMId)
+            {
+            var result = await _BeService.Read_SpeciesByDatasetLMIdAsync (datasetLMId);
             return Ok (result);
             }
         [HttpPost ("Read_SpeciesById")]

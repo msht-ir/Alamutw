@@ -142,6 +142,7 @@ namespace AlamutS.Models
         public string Lifeform { get; set; } = "";
         public bool IsHybrid { get; set; } = false;
         public string SciName { get; set; } = "";
+        public bool IsSelected { get; set; } = false;
         }
     //DATA
     public class DatasetDataFL

@@ -1,128 +1,554 @@
 ﻿@page "/PgTaxa"
-@using System.Globalization
+@using ClosedXML.Excel
+@using Microsoft.Extensions.Hosting
+@using ClosedXML
 @using AlamutB.Service
 @using System.Threading.Tasks
-@inject FeService feService
 @inject NavigationManager Navman
 @inject AppState appState
+@inject FeService feService
 @inject IJSRuntime JS
+@implements IDisposable
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 
-<h5 style="text-align:center;padding-left:15px;">Taxonomy - <span style="font-size:smaller;text-align:center;color:indianred">@appState.UserNickname</span></h5>
 
-@if (_cmd == "ShowApgTree")
+@if (!_hasFetched)
     {
-    @* TREE 1 ApgGroups*@
-    <h3>APG Groups</h3>
-    <hr style="color:red" />
-        <div style="display: flex; justify-content: center; align-items: center;">
-            <MudPaper Width="700px" Elevation="1">
-                <MudTreeView T="string" Hover="true">
-                @foreach (ApgGroup apg in lstApgGroups)
-                    {
-                        <div style="display: grid; grid-template-columns: 1fr auto; align-items: center; width: 100%">
-                            <MudTreeViewItem Text="@apg.ApgGroupName" Expanded="false">
-                                <div style="justify-self: end;">
-                                <MudIconButton @onclick="() => EditGroup(apg)"
-                                               Icon="@Icons.Material.Filled.Edit"
-                                               Size="Size.Medium"
-                                               Color="Color.Tertiary"
-                                               title=@($"edit:  {@apg.ApgGroupName}") />
-                                </div>
-                            @foreach (Order ord in apg.Orders)
+    <_Loading />
+    }
+else if (appState.Cmd == "CreateNote")
+    {
+    <Modal_CreateNote />
+    }
+else
+    {
+        <div style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+        <h2 style="color:royalblue; font-style:italic">Taxa</h2>
+        @* ---------------------------------------------------------------------------------- 1 APG Groups *@
+            <MudContainer MaxWidth="MaxWidth.Small" Class="mt-2 px-0">
+                <MudCard Class="mx-auto">
+                    <MudCardContent Style="background-color:rgba(249,249,249);">
+                        <div class="d-flex align-content-center align-items-center">
+                            <MudSelect T="int"
+                                   @ref="refApgGroups"
+                                   Label="APG Groups"
+                                   Value="_apgGroupId"
+                                   ValueChanged="OnApgGroupChanged"
+                                   Class="w-auto my-select"
+                                   Variant="Variant.Text"
+                                   Margin="Margin.Dense"
+                                   Adornment="Adornment.End"
+                                   AdornmentIcon="@Icons.Material.Filled.List"
+                                   Style="color:royalblue;width:140px;font-size:small;">
+                            <MudSelectItem Value="0">select</MudSelectItem>
+                            @foreach (var apgGroup in lstApgGroups)
                                 {
-                                    <div style="display: grid; grid-template-columns: 1fr auto; align-items: center; width: 100%">
-                                    <MudTreeViewItem Text="@ord.OrderName" @onclick="() => ReadFamilies(ord)" />
-                                        <div style="justify-self: end;">
-                                        <MudIconButton @onclick="() => EditOrder(ord)"
-                                                       Icon="@Icons.Material.Filled.Edit"
-                                                       Size="Size.Medium"
-                                                       title=@($"edit:  {@ord.OrderName}")
-                                                       Color="Color.Inherit" />
-                                        </div>
-                                    </div>
+                                <MudSelectItem Value="@apgGroup.ApgGroupId"><span style="font-size:small;font-family:Tahoma;">@apgGroup.ApgGroupName</span></MudSelectItem>
                                 }
-                            </MudTreeViewItem>
+                            </MudSelect>
+                        @* MENU *@
+                            <MudMenu Label="Menu"
+                                 Variant="Variant.Text"
+                                 Color="Color.Tertiary"
+                                 EndIcon="@Icons.Material.Filled.KeyboardArrowDown"
+                                 Size="Size.Small"
+                                 Style="margin-top:15px;margin-left:15px;"
+                                 Dense="true">
+                                <MudMenuItem @onclick='() => BtnCreateNote(_apgGroupId, 14)'>
+                                    <button class="btn btn-link" Title="add note about this group">
+                                    <img src="/img/icoNoteStickyAdd.png" width="22" />
+                                    </button>
+                                new note
+                                </MudMenuItem>
+                                <MudMenuItem @onclick='() => BtnCreateNote(_apgGroupId, 14)'>
+                                    <button class="btn btn-link" Title="add note about this group">
+                                    <img src="/img/icoNoteSticky2.png" width="22" />
+                                    </button>
+                                show notes
+                                </MudMenuItem>
+                            </MudMenu>
                         </div>
-                    }
-                </MudTreeView>
-            </MudPaper>
-        </div>
-    }
-else if (_cmd == "ShowFamilyTree")
-    {
-    @* TREE 2 Families*@
-    <h3>Order: @appState.OrderName</h3>
-    <hr style="color:red" />
-        <div style="display: flex; justify-content: center; align-items: center;">
-            <MudPaper Width="700px" Elevation="1">
-                <MudTreeView T="string" Hover="true">
-                @foreach (Family fam in lstFamilies)
-                    {
-                        <div style="display: grid; grid-template-columns: 1fr auto; align-items: center; width: 100%">
-                            <MudTreeViewItem Text="@fam.FamilyName" Expanded="false">
-                                <div style="justify-self: end;">
-                                <MudIconButton @onclick="() => EditFamily(fam)"
-                                               Icon="@Icons.Material.Filled.Edit"
-                                               Size="Size.Medium"
-                                               Color="Color.Tertiary"
-                                               title=@($"edit:  {@fam.FamilyName}") />
+                    </MudCardContent>
+                </MudCard>
+
+            </MudContainer>
+        @* ---------------------------------------------------------------------------------- 2 Orders *@
+            <MudContainer MaxWidth="MaxWidth.Small" Class="mt-2 px-0">
+                <MudCard Class="mx-auto">
+                    <MudCardContent Style="background-color:rgba(249,249,249);">
+                        <div class="d-flex align-content-center align-items-center">
+                        @if (_cmd == "cmdSearchOrders")
+                            {
+                            <br />
+                            <MudTextField T="string"
+                                          @ref="refSearchOrder"
+                                          @bind-Value="_orderSearchText"
+                                          OnKeyDown="HandleKey_SearchboxOrders"
+                                          Label="Search Orders"
+                                          Variant="Variant.Text"
+                                          Margin="Margin.Dense"
+                                          Immediate="true"
+                                          Adornment="Adornment.End"
+                                          AdornmentIcon="@Icons.Material.Filled.Search"
+                                          OnAdornmentClick='()=>SearchOrders(_orderSearchText)'
+                                          Style="font-family:Tahoma;"
+                                          Class="my-textfield" />
+                            }
+                        else
+                            {
+                                <MudSelect T="int"
+                                       @ref="refOrders"
+                                       Label="orders"
+                                       Value="_orderId"
+                                       ValueChanged="OnOrderChanged"
+                                       Class="w-auto my-select"
+                                       Variant="Variant.Text"
+                                       Margin="Margin.Dense"
+                                       Adornment="Adornment.End"
+                                       AdornmentIcon="@Icons.Material.Filled.Search"
+                                       OnAdornmentClick='@(() => BtnSearch("order"))'
+                                       Style="color:royalblue;width:140px;font-size:small;">
+                                <MudSelectItem Value="0">select</MudSelectItem>
+                                @foreach (Order order in lstOrders)
+                                    {
+                                    <MudSelectItem Value="@order.OrderId"><span style="font-size:small;font-family:Tahoma;">@order.OrderName</span></MudSelectItem>
+                                    }
+                                </MudSelect>
+                            @* MENU *@
+                                <MudMenu Label="Menu"
+                                     Variant="Variant.Text"
+                                     Color="Color.Tertiary"
+                                     EndIcon="@Icons.Material.Filled.KeyboardArrowDown"
+                                     Size="Size.Small"
+                                     Style="margin-top:15px;margin-left:15px;"
+                                     Dense="true">
+                                    <MudMenuItem @onclick='() => BtnCreateNote(_apgGroupId, 14)'>
+                                        <button class="btn btn-link" Title="add note about this group">
+                                        <img src="/img/icoNoteStickyAdd.png" width="22" />
+                                        </button>
+                                    Add New Note
+                                    </MudMenuItem>
+                                    <MudMenuItem @onclick='() => BtnCreateNote(_apgGroupId, 14)'>
+                                        <button class="btn btn-link" Title="add note about this group">
+                                        <img src="/img/icoNoteSticky2.png" width="22" />
+                                        </button>
+                                    Show Notes
+                                    </MudMenuItem>
+                                </MudMenu>
+                            }
+                        </div>
+                    </MudCardContent>
+                </MudCard>
+            </MudContainer>
+        @* ---------------------------------------------------------------------------------- 3 Families *@
+            <MudContainer MaxWidth="MaxWidth.Small" Class="mt-2 px-0">
+                <MudCard Class="mx-auto">
+                    <MudCardContent Style="background-color:rgba(249,249,249);">
+                    @if (_cmd == "cmdSearchFamilies")
+                        {
+                        <MudTextField T="string"
+                                      @ref="refSearchFamily"
+                                      @bind-Value="_familySearchText"
+                                      OnKeyDown="HandleKey_SearchboxFamilies"
+                                      Label="Search Families"
+                                      Variant="Variant.Text"
+                                      Margin="Margin.Dense"
+                                      Immediate="true"
+                                      Adornment="Adornment.End"
+                                      AdornmentIcon="@Icons.Material.Filled.Search"
+                                      OnAdornmentClick='()=>SearchFamilies(_familySearchText)'
+                                      Style="font-family:Tahoma;"
+                                      Class="my-textfield" />
+                        }
+                    else if (_cmd == "EditFamily")
+                        {
+                            <div class="d-flex">
+                            <MudTextField @ref="refNewFamily"
+                                          @bind-Value="strFamilyName"
+                                          Label="edit family"
+                                          Variant="Variant.Text"
+                                          Margin="Margin.Dense"
+                                          Autocomplete="off"
+                                          Adornment="Adornment.End"
+                                          AdornmentIcon="@Icons.Material.Filled.Save"
+                                          Class="my-textfield" />
+                                <button class="btn btn-link" style="margin-left:20px;" Title="cancel" @onclick="BtnCancel">
+                                <img src="/img/icoCancel.png" width="20" />
+                                </button>
+                            </div>
+                        }
+                    else
+                        {
+                            <div class="d-flex align-content-center align-items-center">
+                                <MudSelect T="int"
+                                       @ref="refFamilies"
+                                       Label="Families"
+                                       Value="_familyId"
+                                       ValueChanged="OnFamilyChanged"
+                                       Class="w-auto my-select"
+                                       Variant="Variant.Text"
+                                       Margin="Margin.Dense"
+                                       Adornment="Adornment.End"
+                                       AdornmentIcon="@Icons.Material.Filled.Search"
+                                       OnAdornmentClick='@(() => BtnSearch("family"))'
+                                       Style="color:royalblue;width:140px;font-size:small;">
+                                <MudSelectItem Value="0">select</MudSelectItem>
+                                @foreach (var family in lstFamilies)
+                                    {
+                                    <MudSelectItem Value="@family.FamilyId"><span style="font-size:small;font-family:Tahoma;">@family.FamilyName</span></MudSelectItem>
+                                    }
+                                </MudSelect>
+                            @* MENU *@
+                                <MudMenu Label="Menu"
+                                     Variant="Variant.Text"
+                                     Color="Color.Tertiary"
+                                     EndIcon="@Icons.Material.Filled.KeyboardArrowDown"
+                                     Size="Size.Small"
+                                     Style="margin-top:15px;margin-left:15px;"
+                                     Dense="true">
+                                    <MudMenuItem @onclick='() => BtnEditFamily(_familyId)'>
+                                        <button class="btn btn-link" Title="add note about this group">
+                                        <img src="/img/icoRename.png" width="26" />
+                                        </button>
+                                    Edit Family
+                                    </MudMenuItem>
+                                    <MudMenuItem @onclick='() => BtnCreateNote(_apgGroupId, 14)'>
+                                        <button class="btn btn-link" Title="add note about this group">
+                                        <img src="/img/icoNoteStickyAdd.png" width="22" />
+                                        </button>
+                                    Add New Note
+                                    </MudMenuItem>
+                                    <MudMenuItem @onclick='() => BtnCreateNote(_apgGroupId, 14)'>
+                                        <button class="btn btn-link" Title="add note about this group">
+                                        <img src="/img/icoNoteSticky2.png" width="22" />
+                                        </button>
+                                    Show Notes
+                                    </MudMenuItem>
+                                </MudMenu>
+                            </div>
+                        }
+                    </MudCardContent>
+                </MudCard>
+            </MudContainer>
+        @* ---------------------------------------------------------------------------------- 4 Genera *@
+            <MudContainer MaxWidth="MaxWidth.Small" Class="mt-2 px-0">
+                <MudCard Class="mx-auto">
+                    <MudCardContent Style="background-color:rgba(249,249,249);">
+                        <div class="d-flex align-content-center align-items-center">
+                        @if (_cmd == "cmdSearchGenera")
+                            {
+                            <MudTextField T="string"
+                                          @ref="refSearchGenus"
+                                          @bind-Value="_genusSearchText"
+                                          OnKeyDown="HandleKey_SearchboxGenera"
+                                          Label="Search Genera"
+                                          Variant="Variant.Text"
+                                          Margin="Margin.Dense"
+                                          Immediate="true"
+                                          Adornment="Adornment.End"
+                                          AdornmentIcon="@Icons.Material.Filled.Search"
+                                          OnAdornmentClick='()=>SearchGenera(_genusSearchText)'
+                                          Style="font-family:Tahoma;"
+                                          Class="my-textfield" />
+                            }
+                        else
+                            {
+                                <MudSelect T="int"
+                                       @ref="refGenera"
+                                       Label="Genera"
+                                       Value="_genusId"
+                                       ValueChanged="OnGenusChanged"
+                                       Class="w-auto my-select"
+                                       Variant="Variant.Text"
+                                       Margin="Margin.Dense"
+                                       Adornment="Adornment.End"
+                                       AdornmentIcon="@Icons.Material.Filled.Search"
+                                       OnAdornmentClick="@(() => BtnSearchGenera())"
+                                       Style="color:royalblue;width:140px;font-size:small;">
+                                <MudSelectItem Value="0">select</MudSelectItem>
+                                @foreach (var genus in lstGenera)
+                                    {
+                                    <MudSelectItem Value="@genus.GenusId"><span style="font-size:small;font-family:Tahoma;">@genus.GenusName</span></MudSelectItem>
+                                    }
+                                </MudSelect>
+                            @* MENU *@
+                                <MudMenu Label="Menu"
+                                     Variant="Variant.Text"
+                                     Color="Color.Tertiary"
+                                     EndIcon="@Icons.Material.Filled.KeyboardArrowDown"
+                                     Size="Size.Small"
+                                     Style="margin-top:15px;margin-left:15px;"
+                                     Dense="true">
+                                    <MudMenuItem @onclick='() => BtnCreateNote(_genusId, 14)'>
+                                        <button class="btn btn-link" Title="add note about this group">
+                                        <img src="/img/icoNoteStickyAdd.png" width="22" />
+                                        </button>
+                                    Add New Note
+                                    </MudMenuItem>
+                                    <MudMenuItem @onclick='() => BtnShowNotes(_genusId)'>
+                                        <button class="btn btn-link" Title="add note about this group">
+                                        <img src="/img/icoNoteSticky2.png" width="22" />
+                                        </button>
+                                    Show Notes
+                                    </MudMenuItem>
+                                </MudMenu>
+                            }
+                        </div>
+                    </MudCardContent>
+                </MudCard>
+            </MudContainer>
+
+        @* ---------------------------------------------------------------------------------- 5 Dataset ML *@
+            <MudContainer MaxWidth="MaxWidth.Small" Class="mt-2 px-0">
+                <MudCard Class="mx-auto">
+                    <MudCardContent Style="background-color:rgba(249,249,249);">
+                    @if (_cmd == "AddNewDatasetML")
+                        {
+                            <div class="d-flex">
+                            <MudTextField @ref="refNewDatasetLM"
+                                          @bind-Value="strDatasetLMName"
+                                          Label="new group"
+                                          Variant="Variant.Text"
+                                          Margin="Margin.Dense"
+                                          Autocomplete="off"
+                                          Adornment="Adornment.End"
+                                          AdornmentIcon="@Icons.Material.Filled.Save"
+                                          Class="my-textfield" />
+                                <button class="btn btn-link" style="margin-left:20px;" Title="cancel" @onclick="BtnCancel">
+                                <img src="/img/icoCancel.png" width="20" />
+                                </button>
+                            </div>
+                        }
+                    else if (_cmd == "EditDatasetML")
+                        {
+                            <div class="d-flex">
+                            <MudTextField @ref="refNewDatasetLM"
+                                          @bind-Value="strDatasetLMName"
+                                          Label="edit DatasetLM"
+                                          Variant="Variant.Text"
+                                          Margin="Margin.Dense"
+                                          Autocomplete="off"
+                                          Adornment="Adornment.End"
+                                          AdornmentIcon="@Icons.Material.Filled.Save"
+                                          Class="my-textfield" />
+                                <button class="btn btn-link" style="margin-left:20px;" Title="cancel" @onclick="BtnCancel">
+                                <img src="/img/icoCancel.png" width="20" />
+                                </button>
+                            </div>
+                        }
+                    else
+                        {
+                            <div class="d-flex align-content-center align-items-center">
+                                <MudAutocomplete T="int"
+                                             Label="Datasets"
+                                             @bind-Value="_datasetLMId"
+                                             @bind-Value:event="onValueChanged"
+                                             ValueChanged="@OnDatasetLMChanged"
+                                             SearchFunc="@SearchDatasetsLM"
+                                             ToStringFunc="GetDatasetLMName"
+                                             Variant="Variant.Text"
+                                             Margin="Margin.Dense"
+                                             style="font-family:tahoma;text-align:right;font-size:small;color:royalblue;"
+                                             Adornment="Adornment.End"
+                                             OnAdornmentClick="@(() => BtnEditDatasetLM(_datasetLMId))"
+                                             AdornmentIcon="@Icons.Material.Filled.Add">
+                                </MudAutocomplete>
+                            @* MENU *@
+                                <MudMenu Label="Menu"
+                                     Variant="Variant.Text"
+                                     Color="Color.Tertiary"
+                                     EndIcon="@Icons.Material.Filled.KeyboardArrowDown"
+                                     Size="Size.Small"
+                                     Style="margin-top:15px;margin-left:15px;"
+                                     Dense="true">
+                                    <MudMenuItem @onclick="BtnAddNewDatasetLM">
+                                        <button class="btn btn-link" Title="add new DatasetLM">
+                                        <img src="/img/icoAdd0.png" width="20" />
+                                        </button>
+                                    New Dataset
+                                    </MudMenuItem>
+                                    <MudMenuItem @onclick='() => BtnEditDatasetLM(_datasetLMId)'>
+                                        <button class="btn btn-link" Title="add note about this group">
+                                        <img src="/img/icoRename.png" width="26" />
+                                        </button>
+                                    Edit Dataset
+                                    </MudMenuItem>
+                                    <MudMenuItem @onclick='() => BtnCreateNote(_datasetLMId, 14)'>
+                                        <button class="btn btn-link" Title="add note about this group">
+                                        <img src="/img/icoNoteStickyAdd.png" width="22" />
+                                        </button>
+                                    Add New Note
+                                    </MudMenuItem>
+                                    <MudMenuItem @onclick='() => BtnShowNotes(_genusId)'>
+                                        <button class="btn btn-link" Title="add note about this group">
+                                        <img src="/img/icoNoteSticky2.png" width="22" />
+                                        </button>
+                                    Show Notes
+                                    </MudMenuItem>
+                                </MudMenu>
+                            </div>
+                        }
+                    </MudCardContent>
+                </MudCard>
+            </MudContainer>
+        @* ---------------------------------------------------------------------------------- 6 LIST Species *@
+        @if (lstSpecies.Count > 0)
+            {
+                <MudContainer MaxWidth="MaxWidth.Small" Class="mt-2 px-0">
+                    <MudCard Class="mx-0">
+                        <MudCardContent Style="background-color:rgba(249,249,249);">
+                        <h6 style="text-align:center;color:royalblue">List of Species</h6>
+                        <hr style="color:indianred" />
+                            <div class="d-flex gap-2" style="margin-top:25px;margin-bottom:15px">
+                            <MudIconButton Icon="@Icons.Material.Filled.DoneAll"
+                                           Color="Color.Primary"
+                                           Size="Size.Medium"
+                                           OnClick="BtnSelectAllSpecies"
+                                           Title="Select all" />
+                            <MudIconButton Icon="@Icons.Material.Filled.Rule"
+                                           Color="Color.Primary"
+                                           Size="Size.Medium"
+                                           OnClick="BtnInvertSelection"
+                                           Title="Invert Selection" />
+                            </div>
+                        @foreach (Species species in lstSpecies)
+                            {
+                                <div class="d-flex align-items-center mb-1">
+                                <input class="form-check-input"
+                                       style="margin-left:1px;margin-right:1px;"
+                                       type="checkbox"
+                                       @bind="species.IsSelected" />
+                                    <button type="button"
+                                        class="btn btn-link"
+                                        style="margin-left:1px"
+                                        @onclick='() => BtnReportSpecies(species.SpeciesId)'
+                                        Title="Edit Species">
+                                    <img src="/img/icoFolderS.png" width="22" />
+                                    </button>
+                                    <button type="button"
+                                        class="btn btn-link"
+                                        style="margin-left:1px"
+                                        @onclick='() => BtnShowSubspecies(species)'
+                                        Title="Show sub-Species">
+                                    <img src="/img/icoList.png" width="24" />
+                                    </button>
+                                    <button type="button"
+                                        class="btn btn-link"
+                                        style="margin-left:1px"
+                                        @onclick='() => BtnCreateNoteForSpecies(species.SpeciesId)'
+                                        Title="Note for Species">
+                                    <img src="/img/icoNoteStickyAdd.png" width="20" />
+                                    </button>
+                                <span style="font-size:x-small">@species.SciName</span>
                                 </div>
-                            @foreach (Genus gen in fam.Genera)
-                                {
-                                    <div style="display: grid; grid-template-columns: 1fr auto; align-items: center; width: 100%">
-                                    <MudTreeViewItem Text="@gen.GenusName" @onclick="() => ReadSpecies(gen)" />
-                                        <div style="justify-self: end;">
-                                        <MudIconButton @onclick="() => EditGenus(gen)"
-                                                       Icon="@Icons.Material.Filled.Edit"
-                                                       Size="Size.Medium"
-                                                       title=@($"edit:  {@gen.GenusName}")
-                                                       Color="Color.Inherit" />
-                                        </div>
-                                    </div>
-                                }
-                            </MudTreeViewItem>
-                        </div>
-                    }
-                </MudTreeView>
-            </MudPaper>
+                            }
+                        </MudCardContent>
+                    </MudCard>
+                </MudContainer>
+            }
+        </div>
+    @* ---------------------------------------------------------------------------------- FOOTER *@
+    <br />
+    <br />
+    <hr />
+    <br />
+        <div class="gap-4" style="display: flex;  justify-content: center; align-items: center;">
+        <MudIconButton OnClick="BtnBack"
+                       Icon="@Icons.Material.Filled.Menu"
+                       Color="Color.Warning"
+                       Size="Size.Large"
+                       Title="Switchboard" />
+        <MudIconButton OnClick='() => BtnGotoPage("N")'
+                       Icon="@Icons.Material.Filled.StickyNote2"
+                       Color="Color.Primary"
+                       Size="Size.Large"
+                       Title="Notes" />
+        <MudIconButton OnClick="BtnHelpSignupNewTeacher"
+                       Icon="@Icons.Material.Filled.HelpCenter"
+                       Color="Color.Tertiary"
+                       Size="Size.Large"
+                       Title="Help" />
         </div>
     }
-else if (_cmd == "ShowSpeciesTree")
-    {
-    @* TREE 3 Species*@
-    <h3>Genus: @appState.GenusName</h3>
-    <hr style="color:red" />
-        <div style="display: flex; justify-content: center; align-items: center;">
-            <MudPaper Width="700px" Elevation="1">
-                <MudTreeView T="string" Hover="true">
-                @foreach (Species spc in lstSpecies)
-                    {
-                        <div style="display: grid; grid-template-columns: 1fr auto; align-items: center; width: 100%">
-                            <MudTreeViewItem Text="@spc.SciName" Expanded="true">
-                            </MudTreeViewItem>
-                        </div>
-                    }
-                </MudTreeView>
-            </MudPaper>
-        </div>
-    }
+    <script>
+    window.addEventListener('load', () => { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+    </script>
 
 @code {
-    private List<ApgGroup> lstApgGroups = new();
-    private List<Family> lstFamilies = new();
-    private List<Species> lstSpecies = new();
-    bool _hasFetched = false;
-    private string _cmd = "ShowApgTree";
+    private MudTextField<string> reftxtSearch;
+    string strSearch = "";
+    private MudNumericField<int> txtPageNumber;
+    int intPageNumber = 0;
+    //apg
+    private MudTextField<string> refNewApgGroup;
+    private MudSelect<int> refApgGroups;
+    List<ApgGroup> lstApgGroups = new();
+    ApgGroup apgGroup = new ApgGroup();
+    string strApgGroupName = "";
+    private int _apgGroupId = 0;
+    //order
+    private MudTextField<string> refNewOrder;
+    private MudTextField<string> refSearchOrder;
+    private MudSelect<int> refOrders;
+    List<Order> lstOrders = new();
+    Order order = new Order();
+    string strOrderName = "";
+    int _orderId = 0;
+    string _orderSearchText = "";
+    //family
+    private MudTextField<string> refNewFamily;
+    private MudTextField<string> refSearchFamily;
+    private MudSelect<int> refFamilies;
+    List<Family> lstFamilies = new();
+    Family family = new Family();
+    string strFamilyName = "";
+    int _familyId = 0;
+    string _familySearchText = "";
+    //genus
+    private MudTextField<string> refNewGenus;
+    private MudTextField<string> refSearchGenus;
+    private MudSelect<int> refGenera;
+    List<Genus> lstGenera = new();
+    Genus genus = new Genus();
+    string strGenusName = "";
+    int _genusId = 0;
+    string _genusSearchText = "";
+    //dataset
+    private MudTextField<string> refNewDatasetLM;
+    private MudSelect<int> refDatasetsLM;
+    List<Dataset>? lstDatasetsLM = new();
+    Dataset datasetLM = new Dataset();
+    string strDatasetLMName = "";
+    int _datasetLMId = 0;
+    //species
+    List<Species> lstSpecies = new();
+    Species species = new Species();
+    string strSpeciesName = "";
+    int SpeciesId = 0;
+    //misc vars
+    int i = 0;
+    string _cmd = "";
+    public bool _hasFetched = false;
+    public bool requestFeedback { get; set; } = false;
 
     //LifeCycleEvents
     protected override async Task OnInitializedAsync ()
         {
         appState.OnChange += TriggerRender;
-        appState.SetCmd("");
-        await ReadApgGroups();
+        appState.SetMessage("");
+        if (Convert.ToInt32(appState.UserLoginStatus) != 1)
+            {
+            Navman.NavigateTo("/Login");
+            }
+        //on second rener, user.UserId will get its value
+        lstApgGroups = await feService.Read_ApgGroups();
+        int userId = Convert.ToInt32(appState.UserId);
+        //lstDatasetsLM = await feService.Read_Datasets(userId);
         _hasFetched = true;
+        }
+    protected override async Task OnAfterRenderAsync (bool firstRender)
+        {
         }
     private void TriggerRender ()
         {
@@ -132,50 +558,379 @@ else if (_cmd == "ShowSpeciesTree")
         {
         appState.OnChange -= TriggerRender;
         }
-    //read data
-    private async Task ReadApgGroups ()
+    //ApgGroup
+    private async Task OnApgGroupChanged (int newValue)
         {
-        lstApgGroups = await feService.Read_ApgGroups();
+        var oldValue = _apgGroupId;
+        _apgGroupId = newValue;
+        if (_apgGroupId != 0)
+            {
+            lstOrders = await feService.Read_Orders(_apgGroupId);
+            }
         StateHasChanged();
         }
-    private async Task ReadFamilies (Order order)
+    private async Task BtnAddNewApgGroup ()
         {
-        appState.SetOrderName (order.OrderName);
-        _cmd = "ShowFamilyTree";
-        lstFamilies = await feService.Read_Families(order.OrderId);
-        StateHasChanged ();
-        }
-    private async Task ReadSpecies (Genus genus)
-        {
-        appState.SetGenusName (genus.GenusName);
-        _cmd = "ShowSpeciesTree";
-        lstSpecies = await feService.Read_Species(genus.GenusId);
-        StateHasChanged ();
-        }
-    //btns
-    private async Task EditGroup (ApgGroup apg)
-        {
-        Snackbar.Add($"APG = {apg.ApgGroupName}", Severity.Info, opt => { opt.VisibleStateDuration = 5000; opt.ShowTransitionDuration = 800; opt.HideTransitionDuration = 800; });
 
         }
-    private async Task EditOrder (Order ord)
+    private async Task BtnEditApgGroup (int _apgGroupId)
         {
-        Snackbar.Add($"order = {ord.OrderName}", Severity.Info, opt => { opt.VisibleStateDuration = 5000; opt.ShowTransitionDuration = 800; opt.HideTransitionDuration = 800; });
 
         }
-    private async Task EditFamily (Family fam)
+    //Order
+    private async Task OnOrderChanged (int newValue)
         {
-        Snackbar.Add($"APG = {fam.FamilyName}", Severity.Info, opt => { opt.VisibleStateDuration = 5000; opt.ShowTransitionDuration = 800; opt.HideTransitionDuration = 800; });
+        var oldValue = _orderId;
+        _orderId = newValue;
+        if (_orderId != 0)
+            {
+            lstFamilies = await feService.Read_Families(_orderId);
+            }
+        StateHasChanged();
+        }
+    private string GetOrderName (int id)
+        {
+        if (id == 0 || lstOrders == null)
+            return "";
+        var order = lstOrders.FirstOrDefault(a => a.OrderId == id);
+        return order != null ? order.OrderName : "";
+        }
+    private async Task BtnAddNewOrder (int apgGroupId)
+        {
+        //add new order
+        }
+    private async Task BtnEditOrder (int OrderId)
+        {
 
         }
-    private async Task EditGenus (Genus gen)
+    private async Task<IEnumerable<int>> SearchOrders (string value, CancellationToken ct)
         {
-        Snackbar.Add($"order = {gen.GenusName}", Severity.Info, opt => { opt.VisibleStateDuration = 5000; opt.ShowTransitionDuration = 800; opt.HideTransitionDuration = 800; });
+        if (string.IsNullOrEmpty(value))
+            {
+            return lstOrders.Select(x => x.OrderId);
+            }
+        else
+            {
+            return lstOrders
+                .Where(x => x.OrderName.Contains(value, StringComparison.OrdinalIgnoreCase))
+                .Select(x => x.OrderId);
+            }
+        }
+    private async Task SearchOrders (string orderKeyword)
+        {
+        if (string.IsNullOrWhiteSpace(orderKeyword))
+            {
+            _cmd = "";
+            StateHasChanged();
+            }
+        else
+            {
+            _orderId = 0;
+            _orderSearchText = orderKeyword; //keep the search text
+            lstFamilies = new();
+            lstGenera = new();
+            lstSpecies = new();
+            lstOrders = await feService.Read_OrdersBySearch(orderKeyword);
+            _cmd = "";
+            StateHasChanged();
+            }
+        }
+    //Fam
+    private async Task OnFamilyChanged (int newValue)
+        {
+        var oldValue = _familyId;
+        _familyId = newValue;
+        if (_familyId != 0)
+            {
+            lstGenera = await feService.Read_Genera(_familyId);
+            }
+        StateHasChanged();
+        }
+    private async Task<IEnumerable<int>> SearchFamilies (string value, CancellationToken ct)
+        {
+        // If nothing is typed, return all authors or a subset
+        if (string.IsNullOrEmpty(value))
+            return lstFamilies.Select(x => x.FamilyId);
+        // Filter the list
+        return lstFamilies
+            .Where(x => x.FamilyName.Contains(value, StringComparison.OrdinalIgnoreCase))
+            .Select(x => x.FamilyId);
+        }
+    private string GetFamilyName (int id)
+        {
+        if (id == 0 || lstFamilies == null)
+            return "";
+        var family = lstFamilies.FirstOrDefault(a => a.FamilyId == id);
+        return family != null ? family.FamilyName : "";
+        }
+    private void BtnEditFamily (int Id)
+        {
 
         }
-    private async Task EditSpecies (Species spc)
+    private async Task BtnAddNewFamily ()
         {
-        Snackbar.Add($"order = {spc.Epithet}", Severity.Info, opt => { opt.VisibleStateDuration = 5000; opt.ShowTransitionDuration = 800; opt.HideTransitionDuration = 800; });
 
         }
+    private async Task BtnSearchFamilies ()
+        {
+        _cmd = "cmdSearchFamilies";
+        StateHasChanged();
+        }
+    private async Task SearchFamilies (string familyKeyword)
+        {
+        _familyId = 0;
+        _familySearchText = familyKeyword; //keep the search text
+        lstOrders = new();
+        lstGenera = new();
+        lstSpecies = new();
+        lstFamilies = await feService.Read_FamiliesBySearch(familyKeyword);
+        _cmd = "";
+        StateHasChanged();
+        }
+    //Gen
+    private async Task OnGenusChanged (int newValue)
+        {
+        if (_genusId != newValue)
+            {
+            _genusId = newValue;
+            if (_genusId != 0)
+                {
+                lstSpecies = await feService.Read_Species(_genusId);
+                }
+            else
+                {
+                lstSpecies = new();
+                }
+            StateHasChanged();
+            }
+        }
+    private void BtnEditGenus (int Id)
+        {
+        //
+        }
+    private async Task BtnAddNewGenus ()
+        {
+
+        }
+    private string GetGenusName (int id)
+        {
+        if (id == 0 || lstGenera == null)
+            return "";
+        var genus = lstGenera.FirstOrDefault(a => a.GenusId == id);
+        return genus != null ? genus.GenusName : "";
+        }
+    private async Task<IEnumerable<int>> SearchGenera (string value, CancellationToken ct)
+        {
+        // If nothing is typed, return all authors or a subset
+        if (string.IsNullOrEmpty(value))
+            return lstGenera.Select(x => x.GenusId);
+        // Filter the list
+        return lstGenera
+            .Where(x => x.GenusName.Contains(value, StringComparison.OrdinalIgnoreCase))
+            .Select(x => x.GenusId);
+        }
+    private async Task BtnSearchGenera ()
+        {
+        _cmd = "cmdSearchGenera";
+        StateHasChanged();
+        }
+    private async Task SearchGenera (string genusKeyword)
+        {
+        _genusId = 0;
+        _genusSearchText = genusKeyword; //keep the search text
+        lstSpecies = new();
+        lstGenera = await feService.Read_GeneraBySearch(genusKeyword);
+        _cmd = "";
+        StateHasChanged();
+        }
+    //DatasetLM
+    private async Task OnDatasetLMChanged (int newValue)
+        {
+        var oldValue = _datasetLMId;
+        _datasetLMId = newValue;
+        if (_datasetLMId != 0)
+            {
+            lstSpecies = await feService.Read_Species(_datasetLMId);
+            }
+        StateHasChanged();
+        }
+    private string GetDatasetLMName (int i)
+        {
+        return "";
+        }
+    private async Task<IEnumerable<int>> SearchDatasetsLM (string value, CancellationToken ct)
+        {
+        // If nothing is typed, return all authors or a subset
+        if (string.IsNullOrEmpty(value))
+            return lstDatasetsLM.Select(x => x.DatasetId);
+        // Filter the list
+        return lstDatasetsLM
+            .Where(x => x.DatasetName.Contains(value, StringComparison.OrdinalIgnoreCase))
+            .Select(x => x.DatasetId);
+        }
+    private async Task BtnAddNewDatasetLM ()
+        {
+
+        }
+    private void BtnEditDatasetLM (int Id)
+        {
+        //
+        }
+    //List Species
+    public async Task BtnReadSpecies (string mode, int Id)
+        {
+        if (Id > 0)
+            {
+            lstSpecies = await feService.Read_Species(Id);
+            Snackbar.Add($"{lstSpecies.Count} species listed", Severity.Info);
+            }
+        }
+    public async Task BtnSelectAllSpecies ()
+        {
+        foreach (Species species in lstSpecies)
+            {
+            species.IsSelected = true;
+            }
+        StateHasChanged();
+        }
+    public async Task BtnInvertSelection ()
+        {
+        foreach (Species species in lstSpecies)
+            {
+            species.IsSelected = (species.IsSelected) ? false : true;
+            }
+        StateHasChanged();
+        }
+    public async Task BtnReportSpecies (string Id)
+        {
+
+        }
+    public async Task BtnShowSubspecies (Species species)
+        {
+        var words = species.SciName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (words.Length < 2)
+            {
+            return;
+            }
+        else
+            {
+            lstSpecies = await feService.Read_Subspecies(words [0], words [1]);
+            StateHasChanged();
+            }
+        }
+    //methods
+    //handle Keys
+    private async Task BtnSearch (string mode)
+        {
+        switch (mode)
+            {
+            case "order":
+                    {
+                    _cmd = "cmdSearchOrders";
+                    break;
+                    }
+            case "family":
+                    {
+                    _cmd = "cmdSearchFamilies";
+                    break;
+                    }
+            case "genus":
+                    {
+                    _cmd = "cmdSearchGenera";
+                    break;
+                    }
+            }
+        StateHasChanged();
+        }
+    private async Task HandleKey_SearchboxOrders (KeyboardEventArgs e)
+        {
+        if (e.Key == "Enter")
+            {
+            //await BtnReadStudentsBySearch();
+            return;
+            }
+        if (e.Key == "Escape")
+            {
+            strSearch = "";
+            await InvokeAsync(StateHasChanged);
+            await refSearchOrder.FocusAsync();
+            }
+        }
+    private async Task HandleKey_SearchboxFamilies (KeyboardEventArgs e)
+        {
+        if (e.Key == "Enter")
+            {
+            //await BtnReadStudentsBySearch();
+            return;
+            }
+        if (e.Key == "Escape")
+            {
+            strSearch = "";
+            await InvokeAsync(StateHasChanged);
+            await refSearchFamily.FocusAsync();
+            }
+        }
+    private async Task HandleKey_SearchboxGenera (KeyboardEventArgs e)
+        {
+        if (e.Key == "Enter")
+            {
+            //await BtnReadStudentsBySearch();
+            return;
+            }
+        if (e.Key == "Escape")
+            {
+            strSearch = "";
+            await InvokeAsync(StateHasChanged);
+            await refSearchGenus.FocusAsync();
+            }
+        }
+    //Note
+    private async Task BtnCreateNote (int refId, int Id)
+        {
+        //
+        }
+    private async Task BtnCreateNoteForSpecies (string refId)
+        {
+        //
+        }
+    private async Task BtnShowNotes (int refId)
+        {
+        //
+        }
+    //Cancel
+    public void BtnHelpSignupNewTeacher ()
+        {
+        _cmd = _cmd == "help" ? "" : "help";
+        StateHasChanged();
+        }
+    public void BtnCancelGuide ()
+        {
+        _cmd = "";
+        StateHasChanged();
+        }
+    public void BtnCancel ()
+        {
+        _cmd = "";
+        StateHasChanged();
+        }
+    //Back
+    public void BtnBack ()
+        {
+        Navman.NavigateTo("/SwitchBoard");
+        }
+    private void BtnGotoPage (string page)
+        {
+        string pg = page switch
+            {
+                "N" => "/PgNotebooks",
+                "A" => "/PgAPL"
+                };
+        appState.SetReturnPage("/Switchboard");
+        Navman.NavigateTo(pg);
+        }
+    private async Task BtnGotoPageReportSpecies (Species x)
+        {
+
+        }
+
     }

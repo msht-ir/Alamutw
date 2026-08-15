@@ -224,7 +224,7 @@ your email:<br>{user.UserEmail}<br><br><hr style=color:blue>
                 bool? confirmResult = await DialogService.ShowMessageBox(title: "Alamut accounts", markupMessage: message, yesText: "OK");
                 if (confirmResult == true)
                     {
-                    Navman.NavigateTo("/PgLogin");
+                    Navman.NavigateTo("/Login");
                     Snackbar.Add("account created", Severity.Success);
                     BtnCancel();
                     }
@@ -263,7 +263,7 @@ your email:<br>{user.UserEmail}<br><br><hr style=color:blue>
         }
     public void BtnCancel ()
         {
-        Navman.NavigateTo("/PgLogin");
+        Navman.NavigateTo("/Login");
         }
     void ButtonTestclick ()
         {

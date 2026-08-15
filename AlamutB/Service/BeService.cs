@@ -435,8 +435,6 @@ namespace AlamutB.Services2Backend
             }
         public async Task<List<Order>> Read_OrdersAsync (int apgGroupId)
             {
-            //parentTypes: 1:apgGroup 2:Subclass
-
             string? connString = _config.GetConnectionString ("cnni");
             string sql = "TX.Read_Orders";
             using SqlConnection cnn = new (connString);
@@ -446,6 +444,40 @@ namespace AlamutB.Services2Backend
                 SqlCommand cmd = new (sql, cnn);
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue ("@ApgGroupId", apgGroupId);
+                SqlDataReader reader = await cmd.ExecuteReaderAsync ();
+                List<Order> lstOrders = new List<Order> ();
+                while (await reader.ReadAsync ())
+                    {
+                    lstOrders.Add (new Order
+                        {
+                        OrderId = reader.GetInt32 (0),
+                        ApgGroupId = reader.GetInt32 (1),
+                        OrderName = reader.GetString (2),
+                        OrderSequence = reader.GetInt16 (3),
+                        OrderNote = reader.GetString (4)
+                        });
+                    }
+                await cnn.CloseAsync ();
+                return lstOrders;
+                }
+            catch (Exception ex)
+                {
+                Console.WriteLine ("error: " + ex.Message);
+                cnn.Close ();
+                return new List<Order> ();
+                }
+            }
+        public async Task<List<Order>> Read_OrdersBySearchAsync (string orderKeyword)
+            {
+            string? connString = _config.GetConnectionString ("cnni");
+            string sql = "TX.Read_OrdersBySearch";
+            using SqlConnection cnn = new (connString);
+            try
+                {
+                await cnn.OpenAsync ();
+                SqlCommand cmd = new (sql, cnn);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue ("@OrderKeyword", orderKeyword);
                 SqlDataReader reader = await cmd.ExecuteReaderAsync ();
                 List<Order> lstOrders = new List<Order> ();
                 while (await reader.ReadAsync ())
@@ -603,10 +635,47 @@ namespace AlamutB.Services2Backend
                         });
                     }
                 await cnn.CloseAsync ();
-                foreach (Family fam in lstFamilies)
+                //foreach (Family fam in lstFamilies)
+                //    {
+                //    fam.Genera = await Read_GeneraAsync (fam.FamilyId);
+                //    }
+                return lstFamilies;
+                }
+            catch (Exception ex)
+                {
+                Console.WriteLine ("error: " + ex.Message);
+                cnn.Close ();
+                return new List<Family> ();
+                }
+            }
+        public async Task<List<Family>> Read_FamiliesBySearchAsync (string familyKeyword)
+            {
+            string? connString = _config.GetConnectionString ("cnni");
+            string sql = "TX.Read_FamiliesBySearch";
+            using SqlConnection cnn = new (connString);
+            try
+                {
+                await cnn.OpenAsync ();
+                SqlCommand cmd = new (sql, cnn);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue ("@FamilyKeyword", familyKeyword);
+                SqlDataReader reader = await cmd.ExecuteReaderAsync ();
+                List<Family> lstFamilies = new List<Family> ();
+                while (await reader.ReadAsync ())
                     {
-                    fam.Genera = await Read_GeneraAsync (fam.FamilyId);
+                    lstFamilies.Add (new Family
+                        {
+                        FamilyId = reader.GetInt32 (0),
+                        OrderId = reader.GetInt32 (1),
+                        FamilyName = reader.GetString (2),
+                        FamilyAut = reader.GetString (3),
+                        Protolog = reader.GetString (4),
+                        DeltaNote = reader.GetString (5),
+                        FlowerFormula = reader.GetString (6),
+                        FamilyTags = reader.GetInt32 (7)
+                        });
                     }
+                await cnn.CloseAsync ();
                 return lstFamilies;
                 }
             catch (Exception ex)
@@ -736,6 +805,39 @@ namespace AlamutB.Services2Backend
                 SqlCommand cmd = new (sql, cnn);
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue ("@FamilyId", familyId);
+                SqlDataReader reader = await cmd.ExecuteReaderAsync ();
+                List<Genus> lstGenera = new List<Genus> ();
+                while (await reader.ReadAsync ())
+                    {
+                    lstGenera.Add (new Genus
+                        {
+                        GenusId = reader.GetInt32 (0),
+                        FamilyId = reader.GetInt32 (1),
+                        GenusName = reader.GetString (2),
+                        GenusAut = reader.GetString (3)
+                        });
+                    }
+                await cnn.CloseAsync ();
+                return lstGenera;
+                }
+            catch (Exception ex)
+                {
+                Console.WriteLine ("error: " + ex.Message);
+                cnn.Close ();
+                return new List<Genus> ();
+                }
+            }
+        public async Task<List<Genus>> Read_GeneraBySearchAsync (string genusKeyword)
+            {
+            string? connString = _config.GetConnectionString ("cnni");
+            string sql = "TX.Read_GeneraBySearch";
+            using SqlConnection cnn = new (connString);
+            try
+                {
+                await cnn.OpenAsync ();
+                SqlCommand cmd = new (sql, cnn);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue ("@GenusKeyword", genusKeyword);
                 SqlDataReader reader = await cmd.ExecuteReaderAsync ();
                 List<Genus> lstGenera = new List<Genus> ();
                 while (await reader.ReadAsync ())
@@ -913,6 +1015,95 @@ namespace AlamutB.Services2Backend
                 return new List<Species> ();
                 }
             }
+        public async Task<List<Species>> Read_SubspeciesAsync (string genusName, string epithet)
+            {
+            string? connString = _config.GetConnectionString ("cnni");
+            string sql = "TX.Read_Subspecies";
+            using SqlConnection cnn = new (connString);
+            try
+                {
+                await cnn.OpenAsync ();
+                SqlCommand cmd = new (sql, cnn);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue ("@GenusName", genusName);
+                cmd.Parameters.AddWithValue ("@Epithet", epithet);
+                SqlDataReader reader = await cmd.ExecuteReaderAsync ();
+                List<Species> lstSpecies = new List<Species> ();
+                while (await reader.ReadAsync ())
+                    {
+                    lstSpecies.Add (new Species
+                        {
+                        SpeciesId = reader.GetString (0),
+                        AcceptedId = reader.GetString (1),
+                        GenusId = reader.GetInt32 (2),
+                        Epithet = reader.GetString (3),
+                        Rank = reader.GetInt32 (4),
+                        InfraEpithet = reader.GetString (5),
+                        Author = reader.GetString (6),
+                        NomStatus = reader.GetInt32 (7),
+                        TaxStatus = reader.GetInt32 (8),
+                        ConsStatus = reader.GetInt32 (9),
+                        Characters = reader.GetInt32 (10),
+                        Chorotype = reader.GetString (11),
+                        Lifeform = reader.GetString (12),
+                        IsHybrid = reader.GetBoolean (13),
+                        SciName = reader.GetString (14)
+                        });
+                    }
+                await cnn.CloseAsync ();
+                return lstSpecies;
+                }
+            catch (Exception ex)
+                {
+                Console.WriteLine ("error: " + ex.Message);
+                cnn.Close ();
+                return new List<Species> ();
+                }
+            }
+        public async Task<List<Species>> Read_SpeciesByDatasetLMIdAsync (int datasetLMId)
+            {
+            string? connString = _config.GetConnectionString ("cnni");
+            string sql = "TX.Read_SpeciesByDatasetLMId";
+            using SqlConnection cnn = new (connString);
+            try
+                {
+                await cnn.OpenAsync ();
+                SqlCommand cmd = new (sql, cnn);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue ("@DatasetLMId", datasetLMId);
+                SqlDataReader reader = await cmd.ExecuteReaderAsync ();
+                List<Species> lstSpecies = new List<Species> ();
+                while (await reader.ReadAsync ())
+                    {
+                    lstSpecies.Add (new Species
+                        {
+                        SpeciesId = reader.GetString(0),
+                        AcceptedId = reader.GetString (1),
+                        GenusId = reader.GetInt32 (2),
+                        Epithet = reader.GetString (3),
+                        Rank = reader.GetInt32 (4),
+                        InfraEpithet = reader.GetString (5),
+                        Author = reader.GetString (6),
+                        NomStatus = reader.GetInt32 (7),
+                        TaxStatus = reader.GetInt32(8),
+                        ConsStatus = reader.GetInt32 (9),
+                        Characters = reader.GetInt32 (10),
+                        Chorotype = reader.GetString (11),
+                        Lifeform = reader.GetString (12),
+                        IsHybrid = reader.GetBoolean (13),
+                        SciName = reader.GetString (14)
+                        });
+                    }
+                await cnn.CloseAsync ();
+                return lstSpecies;
+                }
+            catch (Exception ex)
+                {
+                Console.WriteLine ("error: " + ex.Message);
+                cnn.Close ();
+                return new List<Species> ();
+                }
+            }
         public async Task<Species> Read_SpeciesByIdAsync (int speciesId)
             {
             string? connString = _config.GetConnectionString ("cnni");
@@ -1013,7 +1204,7 @@ namespace AlamutB.Services2Backend
         #region DATASET
         public async Task<bool> Create_DatasetAsync (Dataset dataset)
             {
-            string sql = "BS.Create_Dataset";
+            string sql = "DT.Create_Dataset";
             string? connstring = _config.GetConnectionString ("cnni");
             using SqlConnection cnn = new SqlConnection (connstring);
             try
@@ -1053,7 +1244,7 @@ namespace AlamutB.Services2Backend
         public async Task<List<Dataset>> Read_DatasetsAsync (int userId)
             {
             string? connString = _config.GetConnectionString ("cnni");
-            string sql = "BS.Read_Datasets";
+            string sql = "DT.Read_Datasets";
             using SqlConnection cnn = new (connString);
             try
                 {
@@ -1102,7 +1293,7 @@ namespace AlamutB.Services2Backend
         public async Task<Dataset> Read_DatasetAsync (int datasetId)
             {
             string? connString = _config.GetConnectionString ("cnni");
-            string sql = "BS.Read_Datasets";
+            string sql = "DT.Read_Datasets";
             using SqlConnection cnn = new (connString);
             try
                 {
@@ -1147,7 +1338,7 @@ namespace AlamutB.Services2Backend
             }
         public async Task<bool> Update_DatasetAsync (Dataset dataset)
             {
-            string sql = "BS.Update_Dataset";
+            string sql = "DT.Update_Dataset";
             string? connstring = _config.GetConnectionString ("cnni");
             using SqlConnection cnn = new SqlConnection (connstring);
             try
@@ -1188,7 +1379,7 @@ namespace AlamutB.Services2Backend
         public async Task<bool> Delete_DatasetAsync (int DatasetId)
             {
             string? connString = _config.GetConnectionString ("cnni");
-            string sql = "BS.Delete_Dataset";
+            string sql = "DT.Delete_Dataset";
             using SqlConnection cnn = new (connString);
             try
                 {

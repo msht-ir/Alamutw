@@ -12,13 +12,13 @@
     }
 
 
-    <div class="container" style="max-width:500px; margin: 0 auto;">
+    <div class="container" style="max-width:600px; margin: 0 auto;">
         <div style="text-align: center;">
             <div style="text-align: center;margin-top:50px;margin-bottom:20px;">
             <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname</p>
             </div>
         <hr style="color:red;margin-bottom:50px;" />
-            <div class="d-flex gap-4 justify-content-center">
+            <div class="d-flex gap-5 justify-content-center">
                 <button class="btn btn-link pulse-animation" @onclick="() => GotoPage(1)">
                 <img src="/img/icoTaxonomy.png" width="38" title="Taxonomy" />
                 </button>
@@ -46,7 +46,7 @@
             </div>
         <br />
         <br />
-            <div class="d-flex gap-4 justify-content-center">
+            <div class="d-flex gap-5 justify-content-center">
                 <button class="btn btn-link pulse-hover" @onclick="() => GotoPage(7)">
                 <img src="/img/icoNoteBook.png" width="46" title="Notebooks" />
                 </button>
@@ -65,7 +65,7 @@
             </div>
         <br />
         <br />
-            <div class="d-flex gap-4 justify-content-center">
+            <div class="d-flex gap-5 justify-content-center">
                 <button class="btn btn-link pulse-hover" @onclick="() => GotoPage(12)">
                 <img src="/img/icoSearch.png" width="36" title="Search" />
                 </button>
@@ -111,7 +111,7 @@
         appState.OnChange += TriggerRender;
         if (Convert.ToInt32(appState.UserLoginStatus) != 1)
             {
-            Navman.NavigateTo("/PgLogin");
+            Navman.NavigateTo("/Login");
             }
         }
     protected async Task OnAfterRenderAsync ()
@@ -134,7 +134,7 @@
                 }
             else
                 {
-                Navman.NavigateTo("/PgLogin");
+                Navman.NavigateTo("/Login");
                 }
             }
         }
@@ -149,7 +149,7 @@
     //methods
     public void GotoLogin ()
         {
-        Navman.NavigateTo("/PgLogin");
+        Navman.NavigateTo("/Login");
         }
     public void GotoGroupsStudents ()
         {
@@ -167,7 +167,7 @@
                 6 => "/PgAdmin",
                 7 => "/PgNotebooks",
                 8 => "/PgStickyNotes",
-                9 => "/PgReports",
+                9 => "/PgReportGenerator",
                 10 => "/PgAPL",
                 11 => "/PgPrints",
                 12 => "/PgSearch",

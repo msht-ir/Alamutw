@@ -167,7 +167,7 @@
         appState.OnChange += TriggerRender;
         if (Convert.ToInt32(appState.UserLoginStatus) != 1)
             {
-            Navman.NavigateTo("/PgLogin");
+            Navman.NavigateTo("/Login");
             }
         //share edit and new modes
         note.RefId = Convert.ToInt32(appState.NoteRefId);

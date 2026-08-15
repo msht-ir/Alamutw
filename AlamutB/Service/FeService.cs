@@ -187,6 +187,19 @@ namespace AlamutB.Service
                 return new List<Order> ();
                 }
             }
+        public async Task<List<Order>> Read_OrdersBySearch (string orderKeyword)
+            {
+            var response = await _http.PostAsJsonAsync ($"api/Read_OrdersBySearch", orderKeyword);
+            if (response.IsSuccessStatusCode)
+                {
+                List<Order> lstOrders = await response.Content.ReadFromJsonAsync<List<Order>> ();
+                return lstOrders;
+                }
+            else
+                {
+                return new List<Order> ();
+                }
+            }
         public async Task<bool> Update_Order (Order order)
             {
             var response = await _http.PostAsJsonAsync ("api/Update_Order", order);
@@ -214,6 +227,19 @@ namespace AlamutB.Service
         public async Task<List<Family>> Read_Families ( int orderId)
             {
             var response = await _http.PostAsJsonAsync ($"api/Read_Families", orderId);
+            if (response.IsSuccessStatusCode)
+                {
+                List<Family> lstFamilies = await response.Content.ReadFromJsonAsync<List<Family>> ();
+                return lstFamilies;
+                }
+            else
+                {
+                return new List<Family> ();
+                }
+            }
+        public async Task<List<Family>> Read_FamiliesBySearch (string familyKeyword)
+            {
+            var response = await _http.PostAsJsonAsync ($"api/Read_FamiliesBySearch", familyKeyword);
             if (response.IsSuccessStatusCode)
                 {
                 List<Family> lstFamilies = await response.Content.ReadFromJsonAsync<List<Family>> ();
@@ -261,6 +287,19 @@ namespace AlamutB.Service
                 return new List<Genus> ();
                 }
             }
+        public async Task<List<Genus>> Read_GeneraBySearch (string genusKeyword)
+            {
+            var response = await _http.PostAsJsonAsync ("api/Read_GeneraBySearch", genusKeyword);
+            if (response.IsSuccessStatusCode)
+                {
+                List<Genus> lstGenera = await response.Content.ReadFromJsonAsync<List<Genus>> ();
+                return lstGenera;
+                }
+            else
+                {
+                return new List<Genus> ();
+                }
+            }
         public async Task<bool> Update_Genus (Genus genus)
             {
             var response = await _http.PostAsJsonAsync ("api/Update_Genus", genus);
@@ -288,6 +327,32 @@ namespace AlamutB.Service
         public async Task<List<Species>> Read_Species (int genusId)
             {
             var response = await _http.PostAsJsonAsync ("api/Read_Species", genusId);
+            if (response.IsSuccessStatusCode)
+                {
+                List<Species> lstSpecies = await response.Content.ReadFromJsonAsync<List<Species>> ();
+                return lstSpecies;
+                }
+            else
+                {
+                return new List<Species> ();
+                }
+            }
+        public async Task<List<Species>> Read_Subspecies (string genusName , string epithet)
+            {
+            var response = await _http.PostAsJsonAsync ($"api/Read_Subspecies?epithet={epithet}", genusName);
+            if (response.IsSuccessStatusCode)
+                {
+                List<Species> lstSpecies = await response.Content.ReadFromJsonAsync<List<Species>> ();
+                return lstSpecies;
+                }
+            else
+                {
+                return new List<Species> ();
+                }
+            }
+        public async Task<List<Species>> Read_SpeciesByDatasetLMId (int datasetLMId)
+            {
+            var response = await _http.PostAsJsonAsync ("api/Read_SpeciesByDatasetLMId", datasetLMId);
             if (response.IsSuccessStatusCode)
                 {
                 List<Species> lstSpecies = await response.Content.ReadFromJsonAsync<List<Species>> ();
