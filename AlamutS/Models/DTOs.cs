@@ -166,7 +166,7 @@ namespace AlamutS.Models
         {
         public int DatasetDataLMId { get; set; } = 0;
         public int DatasetId { get; set; } = 0;
-        public int SpeciesId { get; set; } = 0;
+        public string SpeciesId { get; set; } = "";
         }
     public class DatasetDataST
         {
@@ -191,7 +191,7 @@ namespace AlamutS.Models
         {
         public int DatasetId { get; set; } = 0;
         public int UserId { get; set; } = 0;
-        public int DatasetType { get; set; } = 0;
+        public int DatasetType { get; set; } = 0; //1:FL 2:CN 3:LM 4:ST
         public string DatasetAbbr { get; set; } = "";
         public string DatasetName { get; set; } = "";
         public string DatasetRef { get; set; } = "";

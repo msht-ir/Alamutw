@@ -56,14 +56,15 @@ namespace AlamutB.Services2Backend
         Task<bool> Create_SpeciesAsync (Species species);
         Task<List<Species>> Read_SpeciesAsync (int genusId);
         Task<List<Species>> Read_SubspeciesAsync (string genusName, string epithet);
-        Task<List<Species>> Read_SpeciesByDatasetLMIdAsync (int datasetLMId);
+        Task<List<Species>> Read_SpeciesByDatasetIdAsync (int datasetType, int datasetLMId);
         Task<Species> Read_SpeciesByIdAsync (int speciesId);
         Task<bool> Update_SpeciesAsync (Species species);
         Task<bool> Delete_SpeciesAsync (int speciesId);
         #endregion
         #region DATASET
         Task<bool> Create_DatasetAsync (Dataset dataset);
-        Task<List<Dataset>> Read_DatasetsAsync (int userId);
+        Task<List<Dataset>> Read_DatasetsAsync (int userId, int datasetType);
+        Task<List<Dataset>> Read_DatasetsBySearchAsync (int userId, int datasetType, string datasetKeyword);
         Task<Dataset> Read_DatasetAsync (int datasetId);
         Task<bool> Update_DatasetAsync (Dataset dataset);
         Task<bool> Delete_DatasetAsync (int DatasetId);

@@ -350,9 +350,9 @@ namespace AlamutB.Service
                 return new List<Species> ();
                 }
             }
-        public async Task<List<Species>> Read_SpeciesByDatasetLMId (int datasetLMId)
+        public async Task<List<Species>> Read_SpeciesByDatasetId (int datasetType, int datasetId)
             {
-            var response = await _http.PostAsJsonAsync ("api/Read_SpeciesByDatasetLMId", datasetLMId);
+            var response = await _http.PostAsJsonAsync ($"api/Read_SpeciesByDatasetId?datasetType={datasetType}", datasetId);
             if (response.IsSuccessStatusCode)
                 {
                 List<Species> lstSpecies = await response.Content.ReadFromJsonAsync<List<Species>> ();
@@ -400,9 +400,22 @@ namespace AlamutB.Service
                 return false;
                 }
             }
-        public async Task<List<Dataset>> Read_Datasets (int userId)
+        public async Task<List<Dataset>> Read_Datasets (int userId, int datasetType)
             {
-            var response = await _http.PostAsJsonAsync ("api/Read_Datasets", userId);
+            var response = await _http.PostAsJsonAsync ($"api/Read_Datasets?datasetType={datasetType}", userId);
+            if (response.IsSuccessStatusCode)
+                {
+                List<Dataset> lstDatasets = await response.Content.ReadFromJsonAsync<List<Dataset>> ();
+                return lstDatasets;
+                }
+            else
+                {
+                return new List<Dataset> ();
+                }
+            }
+        public async Task<List<Dataset>> Read_DatasetsBySearch (int userId, int datasetType, string datasetKeyword)
+            {
+            var response = await _http.PostAsJsonAsync ($"api/Read_DatasetsBySearch?userId={userId}&datasetType={datasetType}", datasetKeyword);
             if (response.IsSuccessStatusCode)
                 {
                 List<Dataset> lstDatasets = await response.Content.ReadFromJsonAsync<List<Dataset>> ();

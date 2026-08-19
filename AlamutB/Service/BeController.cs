@@ -230,10 +230,10 @@ namespace AlamutB.Backend
             var result = await _BeService.Read_SubspeciesAsync (genusName, epithet);
             return Ok (result);
             }
-        [HttpPost ("Read_SpeciesByDatasetLMId")]
-        public async Task<ActionResult<List<Species>>> Read_SpeciesByDatasetLMId ([FromBody] int datasetLMId)
+        [HttpPost ("Read_SpeciesByDatasetId")]
+        public async Task<ActionResult<List<Species>>> Read_SpeciesByDatasetId ([FromBody] int datasetId, [FromQuery] int datasetType)
             {
-            var result = await _BeService.Read_SpeciesByDatasetLMIdAsync (datasetLMId);
+            var result = await _BeService.Read_SpeciesByDatasetIdAsync (datasetType, datasetId);
             return Ok (result);
             }
         [HttpPost ("Read_SpeciesById")]
@@ -264,9 +264,15 @@ namespace AlamutB.Backend
             return Ok (result);
             }
         [HttpPost ("Read_Datasets")]
-        public async Task<ActionResult<List<Dataset>>> Read_Datasets ([FromBody] int userId)
+        public async Task<ActionResult<List<Dataset>>> Read_Datasets ([FromBody] int userId, [FromQuery] int datasetType)
             {
-            var result = await _BeService.Read_DatasetsAsync (userId);
+            var result = await _BeService.Read_DatasetsAsync (userId, datasetType);
+            return Ok (result);
+            }
+        [HttpPost ("Read_DatasetsBySearch")]
+        public async Task<ActionResult<List<Dataset>>> Read_DatasetsBySearch ([FromQuery] int userId, [FromQuery] int datasetType, [FromBody] string datasetKeyword)
+            {
+            var result = await _BeService.Read_DatasetsBySearchAsync (userId, datasetType, datasetKeyword);
             return Ok (result);
             }
         [HttpPost ("Read_Dataset")]
@@ -347,7 +353,7 @@ namespace AlamutB.Backend
             var result = await _BeService.Create_DatasetDataLMAsync (datasetDataLM);
             return Ok (result);
             }
-        [HttpPost ("Read_DatasetDataLMs")]
+        [HttpPost ("Read_DatasetDataLM")]
         public async Task<ActionResult<List<DatasetDataLM>>> Read_DatasetDataLM ([FromBody] int datasetId)
             {
             var result = await _BeService.Read_DatasetDataLMAsync (datasetId);
@@ -367,7 +373,7 @@ namespace AlamutB.Backend
             }
         #endregion
         #region STATION
-        [HttpPost ("Create_DatasetDataLM")]
+        [HttpPost ("Create_Station")]
         public async Task<ActionResult<bool>> Create_Station ([FromBody] Station station)
             {
             var result = await _BeService.Create_StationAsync (station);
@@ -393,7 +399,7 @@ namespace AlamutB.Backend
             }
         #endregion
         #region DATASETDATA-ST
-        [HttpPost ("Create_DatasetDataLM")]
+        [HttpPost ("Create_DatasetDataST")]
         public async Task<ActionResult<bool>> Create_DatasetDataST ([FromBody] DatasetDataST datasetDataST)
             {
             var result = await _BeService.Create_DatasetDataSTAsync (datasetDataST);

@@ -17,10 +17,10 @@
 <PageTitle>Alamut Home</PageTitle>
 @* LOGIN *@
     <div style="display: flex; flex-direction: column; justify-content: center; align-items: center;margin-top:20px;">
-        <EditForm Model="user" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+        <EditForm Model="user" style="display: flex; flex-direction: column; justify-content: center; align-items: center;margin:40px;">
         @* <DataAnnotationsValidator></DataAnnotationsValidator> *@
             <div style="display: flex; justify-content: flex-end;margin-bottom:20px;">
-            <img src="/img/_logoAlamut.png" width="180" style="margin-right:10px" />
+            <img src="/img/_logoAlamut.png" width="150" style="margin-right:10px" />
             </div>
             <MudContainer Class="mt-2 px-0">
                 <MudCard Class="mx-0">
@@ -176,7 +176,6 @@
                         }
                     }
                 }
-            //navigate
             await Task.Delay(1);
             Navman.NavigateTo("/Switchboard");
             Snackbar.Add($"\n\nwelcome {user.UserNickname}!", Severity.Success, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });

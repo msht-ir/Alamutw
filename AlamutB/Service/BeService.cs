@@ -84,7 +84,7 @@ namespace AlamutB.Services2Backend
                 {
                 Console.WriteLine ("LoginAsTeacher error: " + ex.Message);
                 cnn.Close ();
-                return new User();
+                return new User ();
                 }
             }
         public async Task<List<User>> Read_UsersAsync ()
@@ -988,7 +988,7 @@ namespace AlamutB.Services2Backend
                     {
                     lstSpecies.Add (new Species
                         {
-                        SpeciesId = reader.GetString(0),
+                        SpeciesId = reader.GetString (0),
                         AcceptedId = reader.GetString (1),
                         GenusId = reader.GetInt32 (2),
                         Epithet = reader.GetString (3),
@@ -996,7 +996,7 @@ namespace AlamutB.Services2Backend
                         InfraEpithet = reader.GetString (5),
                         Author = reader.GetString (6),
                         NomStatus = reader.GetInt32 (7),
-                        TaxStatus = reader.GetInt32(8),
+                        TaxStatus = reader.GetInt32 (8),
                         ConsStatus = reader.GetInt32 (9),
                         Characters = reader.GetInt32 (10),
                         Chorotype = reader.GetString (11),
@@ -1060,24 +1060,25 @@ namespace AlamutB.Services2Backend
                 return new List<Species> ();
                 }
             }
-        public async Task<List<Species>> Read_SpeciesByDatasetLMIdAsync (int datasetLMId)
+        public async Task<List<Species>> Read_SpeciesByDatasetIdAsync (int datasetType, int datasetId)
             {
             string? connString = _config.GetConnectionString ("cnni");
-            string sql = "TX.Read_SpeciesByDatasetLMId";
+            string sql = "TX.Read_SpeciesByDatasetId";
             using SqlConnection cnn = new (connString);
             try
                 {
                 await cnn.OpenAsync ();
                 SqlCommand cmd = new (sql, cnn);
                 cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue ("@DatasetLMId", datasetLMId);
+                cmd.Parameters.AddWithValue ("@DatasetType", datasetType);
+                cmd.Parameters.AddWithValue ("@DatasetId", datasetId);
                 SqlDataReader reader = await cmd.ExecuteReaderAsync ();
                 List<Species> lstSpecies = new List<Species> ();
                 while (await reader.ReadAsync ())
                     {
                     lstSpecies.Add (new Species
                         {
-                        SpeciesId = reader.GetString(0),
+                        SpeciesId = reader.GetString (0),
                         AcceptedId = reader.GetString (1),
                         GenusId = reader.GetInt32 (2),
                         Epithet = reader.GetString (3),
@@ -1085,7 +1086,7 @@ namespace AlamutB.Services2Backend
                         InfraEpithet = reader.GetString (5),
                         Author = reader.GetString (6),
                         NomStatus = reader.GetInt32 (7),
-                        TaxStatus = reader.GetInt32(8),
+                        TaxStatus = reader.GetInt32 (8),
                         ConsStatus = reader.GetInt32 (9),
                         Characters = reader.GetInt32 (10),
                         Chorotype = reader.GetString (11),
@@ -1241,7 +1242,7 @@ namespace AlamutB.Services2Backend
                 return false;
                 }
             }
-        public async Task<List<Dataset>> Read_DatasetsAsync (int userId)
+        public async Task<List<Dataset>> Read_DatasetsAsync (int userId, int datasetType)
             {
             string? connString = _config.GetConnectionString ("cnni");
             string sql = "DT.Read_Datasets";
@@ -1252,6 +1253,7 @@ namespace AlamutB.Services2Backend
                 SqlCommand cmd = new (sql, cnn);
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue ("@UserId", userId);
+                cmd.Parameters.AddWithValue ("@DatasetType", datasetType);
                 SqlDataReader reader = await cmd.ExecuteReaderAsync ();
                 List<Dataset> lstDatasets = new List<Dataset> ();
                 while (await reader.ReadAsync ())
@@ -1273,10 +1275,61 @@ namespace AlamutB.Services2Backend
                         AltMax = reader.GetInt32 (12),
                         AltMin = reader.GetInt32 (13),
                         AltAver = reader.GetInt32 (14),
-                        TempMax = reader.GetInt32 (15),
-                        TempMin = reader.GetInt32 (16),
-                        TempAver = reader.GetInt32 (17),
-                        Precipitation = reader.GetInt32 (18),
+                        TempMax = reader.GetDecimal (15),
+                        TempMin = reader.GetDecimal (16),
+                        TempAver = reader.GetDecimal (17),
+                        Precipitation = reader.GetDecimal (18),
+                        DatasetTags = reader.GetInt32 (19)
+                        });
+                    }
+                await cnn.CloseAsync ();
+                return lstDatasets;
+                }
+            catch (Exception ex)
+                {
+                Console.WriteLine ("error: " + ex.Message);
+                cnn.Close ();
+                return new List<Dataset> ();
+                }
+            }
+        public async Task<List<Dataset>> Read_DatasetsBySearchAsync (int userId, int datasetType, string datasetKeyword)
+            {
+            string? connString = _config.GetConnectionString ("cnni");
+            string sql = "DT.Read_DatasetsBySearch";
+            using SqlConnection cnn = new (connString);
+            try
+                {
+                await cnn.OpenAsync ();
+                SqlCommand cmd = new (sql, cnn);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue ("@UserId", userId);
+                cmd.Parameters.AddWithValue ("@DatasetType", datasetType);
+                cmd.Parameters.AddWithValue ("@DatasetKeyword", datasetKeyword);
+                SqlDataReader reader = await cmd.ExecuteReaderAsync ();
+                List<Dataset> lstDatasets = new List<Dataset> ();
+                while (await reader.ReadAsync ())
+                    {
+                    lstDatasets.Add (new Dataset
+                        {
+                        DatasetId = reader.GetInt32 (0),
+                        UserId = reader.GetInt32 (1),
+                        DatasetType = reader.GetInt32 (2),
+                        DatasetAbbr = reader.GetString (3),
+                        DatasetName = reader.GetString (4),
+                        DatasetRef = reader.GetString (5),
+                        RefYear = reader.GetInt32 (6),
+                        RefLang = reader.GetString (7),
+                        DatasetManager = reader.GetString (8),
+                        AreaHa = reader.GetInt32 (9),
+                        ProvinceId = reader.GetInt32 (10),
+                        Coords = reader.GetString (11),
+                        AltMax = reader.GetInt32 (12),
+                        AltMin = reader.GetInt32 (13),
+                        AltAver = reader.GetInt32 (14),
+                        TempMax = reader.GetDecimal (15),
+                        TempMin = reader.GetDecimal (16),
+                        TempAver = reader.GetDecimal (17),
+                        Precipitation = reader.GetDecimal (18),
                         DatasetTags = reader.GetInt32 (19)
                         });
                     }
@@ -1619,7 +1672,8 @@ namespace AlamutB.Services2Backend
         #region DATASETDATA-LM
         public async Task<bool> Create_DatasetDataLMAsync (DatasetDataLM datasetDataLM)
             {
-            string sql = "BS.Create_DatasetDataLM";
+            Console.WriteLine ($"datasetDataLM.DatasetId= {datasetDataLM.DatasetId} , datasetDataLM.SpeciesId= {datasetDataLM.SpeciesId}");
+            string sql = "DT.Create_DatasetDataLM";
             string? connstring = _config.GetConnectionString ("cnni");
             using SqlConnection cnn = new SqlConnection (connstring);
             try
@@ -1633,8 +1687,9 @@ namespace AlamutB.Services2Backend
                 await cnn.CloseAsync ();
                 return true;
                 }
-            catch
+            catch (Exception ex)
                 {
+                Console.WriteLine ($"BE Error (in Create_DatasetDataLMAsync): \n {ex}");
                 await cnn.CloseAsync ();
                 return false;
                 }
@@ -1658,7 +1713,7 @@ namespace AlamutB.Services2Backend
                         {
                         DatasetDataLMId = reader.GetInt32 (0),
                         DatasetId = reader.GetInt32 (1),
-                        SpeciesId = reader.GetInt32 (2)
+                        SpeciesId = reader.GetString (2)
                         });
                     }
                 await cnn.CloseAsync ();
