@@ -1,4 +1,4 @@
-﻿@page "/PgSets/{mode:int}/{Id:int}"
+﻿@page "/PgSets"
 @using System.Globalization
 @using AlamutB.Service
 @using System.Threading.Tasks
@@ -302,8 +302,8 @@ else
             }
         appState.SetCmd("");
         user.UserId = Convert.ToInt32(appState.UserId);
-        user.Username = appState.UserName;
-        lstNotes = await feService.Read_Notes(user.UserId);
+        user.Username = appState.Username;
+        lstNotes = await feService.Read_Notes(12, user.UserId);
         await GetListOfNotebooks(user.UserId, _ShowNotebooksMode);
         _hasFetched = true;
         }
@@ -359,7 +359,7 @@ else
                 Snackbar.Add("note moved to notebook", Severity.Success); 
                 _cmd = "";
                 appState.SetCmd("");
-                lstNotes = await feService.Read_Notes(user.UserId);
+                lstNotes = await feService.Read_Notes(12, user.UserId);
                 StateHasChanged();
                 }
             else
@@ -446,7 +446,7 @@ else
                 user.UserId = Convert.ToInt32(appState.UserId);
                 _hasFetched = false;
                 lstNotes.Clear();
-                lstNotes = await feService.Read_Notes(user.UserId);
+                lstNotes = await feService.Read_Notes(12, user.UserId);
                 _hasFetched = true;
                 appState.SetCmd("");
                 StateHasChanged();
@@ -461,7 +461,7 @@ else
         {
         _hasFetched = false;
         lstNotes.Clear();
-        lstNotes = await feService.Read_Notes(Id);
+        lstNotes = await feService.Read_Notes(12, Id);
         _hasFetched = true;
         StateHasChanged();
         }

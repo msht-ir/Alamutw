@@ -490,15 +490,15 @@ namespace AlamutB.Backend
             return Ok (result);
             }
         [HttpPost ("Read_Notes")]
-        public async Task<ActionResult<List<Note>>> Read_Notes ([FromBody] int userId)
+        public async Task<ActionResult<List<Note>>> Read_Notes ([FromBody] int userId, [FromQuery] int refType)
             {
-            var result = await _BeService.Read_NotesAsync (userId);
+            var result = await _BeService.Read_NotesAsync (userId, refType);
             return Ok (result);
             }
-        [HttpPost ("Read_DueNotes")]
-        public async Task<ActionResult<List<Note>>> Read_DueNotes ([FromBody] int userId, [FromQuery] int days)
+        [HttpPost ("Read_NotesDue")]
+        public async Task<ActionResult<List<Note>>> Read_NotesDue ([FromBody] int userId, [FromQuery] int days)
             {
-            var result = await _BeService.Read_DueNotesAsync (userId, days);
+            var result = await _BeService.Read_NotesDueAsync (userId, days);
             return Ok (result);
             }
         [HttpPost ("Read_Note")]
@@ -511,6 +511,12 @@ namespace AlamutB.Backend
         public async Task<ActionResult<bool>> Update_Note ([FromBody] Note note)
             {
             var result = await _BeService.Update_NoteAsync (note);
+            return Ok (result);
+            }
+        [HttpPost ("Delete_Notes")]
+        public async Task<ActionResult<bool>> Delete_Notes ([FromQuery] int refType, [FromBody] int refId)
+            {
+            var result = await _BeService.Delete_NotesAsync (refType, refId);
             return Ok (result);
             }
         [HttpPost ("Delete_Note")]

@@ -119,8 +119,8 @@
         var result1 = await sessionStorage.GetAsync<string>("UserName");
         if (result1.Success)
             {
-            appState.SetUserName(result1.Value);
-            user.Username = appState.UserName;
+            appState.SetUsername(result1.Value);
+            user.Username = appState.Username;
             StateHasChanged();
             }
         if (_firstRender)

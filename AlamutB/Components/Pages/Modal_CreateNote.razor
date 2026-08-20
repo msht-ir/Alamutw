@@ -8,13 +8,30 @@
 
 @if (IsOpen)
     {
-    Title = (appState.Cmd == "UpdateNote") ? "Edit note" : "New note";
+    string @title = (appState.Cmd == "cmdUpdateNote") ? "Edit note" : "New note";
+    title += appState.NoteRefType switch
+        {
+            1 =>  " : apg group",
+            2 =>  " : order",
+            3 =>  " : family",
+            4 =>  " : genus",
+            5 =>  " : species",
+            6 =>  " : floristic dataset",
+            7 =>  " : checkname dataset",
+            8 =>  " : listmaker dataset",
+            9 =>  " : station",
+            10 => " : set",
+            11 => " : set item",
+            12 => " : user's note",
+            _ => " ?"
+            };
+    Title = @title;
     <div class="modal-backdrop fade show"></div>
         <div class="modal show d-block">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                    <h5 class="modal-title">@Title</h5>
+                    <h6 class="modal-title">@Title</h6>
                     @* <button class="btn-close" @onclick="Close"></button> *@
                     </div>
                     <div class="modal-body">
@@ -50,10 +67,19 @@
                                                   Lines="18"
                                                   AutoResize="true"
                                                   Style=@($"width:100%;font-size:13px; monospace;color:black;") />
-                                        <div class="d-flex gap-4 mb-3">
+                                    @* Tags *@
+                                        <div class="d-flex gap-4 mb-3 justify-content-center align-items-center">
+                                            <MudCheckBox @bind-Value="note.IsRtl"
+                                                     Label="Rtl"
+                                                     Color="Color.Primary">
+                                            </MudCheckBox>
+                                            <MudCheckBox @bind-Value="note.IsShared"
+                                                     Label="Shared"
+                                                     Color="Color.Secondary">
+                                            </MudCheckBox>
                                             <MudCheckBox @bind-Value="note.IsTodo"
                                                      Label="Todo"
-                                                     Color="Color.Secondary">
+                                                     Color="Color.Dark">
                                             </MudCheckBox>
                                         </div>
                                     @* todo - set date and time *@
@@ -78,7 +104,7 @@
                                             </div>
                                         }
                                     @* Buttons *@
-                                    @if (appState.Cmd == "CreateNote")
+                                    @if (appState.Cmd == "cmdCreateNote")
                                         {
                                             <div class="d-flex gap-2 justify-content-center" style="text-align:center;margin-top:50px;">
                                                 <MudButton Variant="Variant.Outlined"
@@ -97,7 +123,7 @@
                                                 </MudButton>
                                             </div>
                                         }
-                                    else if (appState.Cmd == "UpdateNote")
+                                    else if (appState.Cmd == "cmdUpdateNote")
                                         {
                                             <div class="d-flex gap-2 justify-content-center" style="text-align:center">
                                                 <MudButton Variant="Variant.Outlined"
@@ -169,35 +195,35 @@
             {
             Navman.NavigateTo("/Login");
             }
-        //share edit and new modes
-        note.RefId = Convert.ToInt32(appState.NoteRefId);
-        note.RefType = Convert.ToInt32(appState.NoteRefType);
+        //shared by edit-new
         note.UserId = Convert.ToInt32(appState.UserId);
+        note.RefType = Convert.ToInt32(appState.NoteRefType);
+        note.RefId = Convert.ToInt32(appState.NoteRefId);
         if (appState.NoteDateTimeDue == "1900-01-01 00:00")
             {
             appState.SetNoteDateTimeDue(DateTime.Now.ToString("yyyy-MM-dd HH:mm"));
             }
-        //for edit mode
-        if (appState.Cmd == "UpdateNote")
+        //edit mode
+        if (appState.Cmd == "cmdUpdateNote")
             {
-            // Console.WriteLine($"----- appState.NoteDateTime    = {appState.NoteDateTime}");
-            // Console.WriteLine($"----- appState.NoteDateTimeDue = {appState.NoteDateTimeDue}");
             //DT1 (NoteDateTime)
             DateTimeOffset dT1Offset = DateTimeOffset.Parse(appState.NoteDateTime);
             _PersianYear = dT1Offset.Year;
             _PersianMonth = dT1Offset.Month;
             _PersianDay = dT1Offset.Day;
             _date = dT1Offset.LocalDateTime;
-            _time = ((Convert.ToInt32(appState.UserTags) & 256) == 256) ? dT1Offset.TimeOfDay.Add(new TimeSpan(+3, +30, 0)) : dT1Offset.TimeOfDay; //I dont know why! but it works like this!
+            _time = ((Convert.ToInt32(appState.UserTags) & 256) == 256) ? dT1Offset.TimeOfDay.Add(new TimeSpan(+3, +30, 0)) : dT1Offset.TimeOfDay;
             //DT2 (NoteDateTimeDue)
             DateTimeOffset dT2Offset = DateTimeOffset.Parse(appState.NoteDateTimeDue);
             _PersianYear = dT2Offset.Year;
             _PersianMonth = dT2Offset.Month;
             _PersianDay = dT2Offset.Day;
             _dueDate = dT2Offset.LocalDateTime;
-            _dueTime = ((Convert.ToInt32(appState.UserTags) & 256) == 256) ? dT2Offset.TimeOfDay.Add(new TimeSpan(+3, +30, 0)) : dT2Offset.TimeOfDay; //I dont know why! but it works like this!
+            _dueTime = ((Convert.ToInt32(appState.UserTags) & 256) == 256) ? dT2Offset.TimeOfDay.Add(new TimeSpan(+3, +30, 0)) : dT2Offset.TimeOfDay;
             //END PARSE DATETIME
             note.NoteText = appState.NoteText ?? "";
+            note.IsRtl = Convert.ToBoolean(appState.NoteIsRtl);
+            note.IsShared = Convert.ToBoolean(appState.NoteIsShared);
             note.IsTodo = Convert.ToBoolean(appState.NoteIsTodo);
             }
         _persianCulture = ((Convert.ToInt32(appState.UserTags) & 256) == 256) ? new CultureInfo("fa-IR") : new CultureInfo("en-US");
@@ -235,14 +261,13 @@
             }
         else
             {
-            //ReferenceTypes 1:quicknote(s) 2:SectNote(s) 11:quicknote(t) 12:SectNote(t) 13:StudentNote(t) 14:GroupNote(t) 15:CourseNote(t) 16:ExamNote(t) 17:StudentExamNote(t)
             DateTime _dt1 = _date.Value.Date + _time.Value;
             DateTime _dt2 = _dueDate.Value.Date + _dueTime.Value;
             note.NoteDateTime = _dt1.ToUniversalTime();   //convert time to utc
-            note.NoteDateTimeDue = (note.IsTodo) ? _dt2.ToUniversalTime () : null;
+            note.NoteDateTimeDue = (note.IsTodo) ? _dt2.ToUniversalTime() : null;
             // _hasFetched = false;
-            bool result = await feService.Create_Note(note);
-            if (result)
+            int result = await feService.Create_Note(note);
+            if (result > 0)
                 {
                 Snackbar.Add("saved", Severity.Success, opt => { opt.VisibleStateDuration = 1500; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
                 user.UserId = Convert.ToInt32(appState.UserId);

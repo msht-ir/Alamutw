@@ -696,39 +696,146 @@ namespace AlamutB.Service
             return (response.IsSuccessStatusCode) ? true : false;
             }
         #endregion
-        #region NOTE
-        public async Task<bool> Create_Note (Note note)
+        #region NOTEBOOK
+        public async Task<int> Create_Notebook (Notebook notebook)
             {
-            var response = await _http.PostAsJsonAsync ("api/Create_Note", note);
+            var response = await _http.PostAsJsonAsync ($"api/Create_Notebook", notebook);
+            return response.IsSuccessStatusCode ? 1 : 0;
+            }
+        public async Task<List<Notebook>> Read_Notebooks (int userId)
+            {
+            var response = await _http.PostAsJsonAsync ($"api/Read_Notebooks", userId);
             if (response.IsSuccessStatusCode)
                 {
-                return true;
+                List<Notebook>? lstNotebooks = await response.Content.ReadFromJsonAsync<List<Notebook>> ();
+                return lstNotebooks ?? new List<Notebook> ();
                 }
             else
                 {
-                return false;
+                return new List<Notebook> ();
                 }
             }
-        public async Task<List<Note>> Read_Notes (int userId)
+        public async Task<Notebook> Read_Notebook (int notebookId, bool readNotes)
             {
-            var response = await _http.PostAsJsonAsync ("api/Read_Notes", userId);
+            var response = await _http.PostAsJsonAsync ($"api/Read_Notebook?readNotes={readNotes}", notebookId);
             if (response.IsSuccessStatusCode)
                 {
-                List<Note> lstNotes = await response.Content.ReadFromJsonAsync<List<Note>> ();
-                return lstNotes;
+                Notebook? notebook = await response.Content.ReadFromJsonAsync<Notebook> ();
+                return notebook ?? new Notebook ();
+                }
+            else
+                {
+                return new Notebook ();
+                }
+            }
+        public async Task<bool> Update_Notebook (Notebook notebook)
+            {
+            var response = await _http.PostAsJsonAsync ("api/Update_Notebook", notebook);
+            return response.IsSuccessStatusCode ? true : false;
+            }
+        public async Task<bool> Delete_Notebooks (int userId)
+            {
+            var response = await _http.PostAsJsonAsync ($"api/Delete_Notebooks", userId);
+            return response.IsSuccessStatusCode ? true : false;
+            }
+        public async Task<bool> Delete_Notebook (int notebookId)
+            {
+            var response = await _http.PostAsJsonAsync ($"api/Delete_Notebook", notebookId);
+            return response.IsSuccessStatusCode ? true : false;
+            }
+        #endregion
+        #region SECTION
+        public async Task<int> Create_Section (Section section)
+            {
+            var response = await _http.PostAsJsonAsync ($"api/Create_section", section);
+            return response.IsSuccessStatusCode ? 1 : 0;
+            }
+        public async Task<List<Section>> Read_Sections (int notebookId)
+            {
+            var response = await _http.PostAsJsonAsync ($"api/Read_Sections", notebookId);
+            if (response.IsSuccessStatusCode)
+                {
+                List<Section>? lstSections = await response.Content.ReadFromJsonAsync<List<Section>> ();
+                return lstSections ?? new List<Section> ();
+                }
+            else
+                {
+                return new List<Section> ();
+                }
+            }
+        public async Task<Section> Read_Section (int SectionId, bool readNotes)
+            {
+            var response = await _http.PostAsJsonAsync ($"api/Read_Section?readNotes={readNotes}", SectionId);
+            if (response.IsSuccessStatusCode)
+                {
+                Section? section = await response.Content.ReadFromJsonAsync<Section> ();
+                return section ?? new Section ();
+                }
+            else
+                {
+                return new Section ();
+                }
+            }
+        public async Task<bool> Update_Section (Section Section)
+            {
+            var response = await _http.PostAsJsonAsync ("api/Update_Section", Section);
+            return response.IsSuccessStatusCode ? true : false;
+            }
+        public async Task<bool> Update_SectionParent (Section Section)
+            {
+            var response = await _http.PostAsJsonAsync ("api/Update_SectionParent", Section);
+            return response.IsSuccessStatusCode ? true : false;
+            }
+        public async Task<bool> Delete_Sections (int notebookId)
+            {
+            var response = await _http.PostAsJsonAsync ($"api/Delete_Sections", notebookId);
+            return response.IsSuccessStatusCode ? true : false;
+            }
+        public async Task<bool> Delete_Section (int SectionId)
+            {
+            var response = await _http.PostAsJsonAsync ($"api/Delete_Section", SectionId);
+            return response.IsSuccessStatusCode ? true : false;
+            }
+        #endregion
+        #region NOTE
+        public async Task<int> Create_Note (Note note)
+            {
+            var response = await _http.PostAsJsonAsync ($"api/Create_Note", note);
+            return response.IsSuccessStatusCode ? 1 : 0;
+            }
+        public async Task<List<Note>> Read_Notes (int refType, int userId)
+            {
+            var response = await _http.PostAsJsonAsync ($"api/Read_Notes?refType={refType}", userId);
+            if (response.IsSuccessStatusCode)
+                {
+                List<Note>? lstNotes = await response.Content.ReadFromJsonAsync<List<Note>> ();
+                return lstNotes ?? new List<Note> ();
                 }
             else
                 {
                 return new List<Note> ();
                 }
             }
-        public async Task<List<Note>> Read_DueNotes (int userId, int _days)
+        public async Task<List<Note>> Read_NotesDue (int userId, int nDays)
             {
-            var response = await _http.PostAsJsonAsync ($"api/Read_DueNotes?days={_days}", userId);
+            var response = await _http.PostAsJsonAsync ($"api/Read_NotesDue?nDays={nDays}", userId);
             if (response.IsSuccessStatusCode)
                 {
-                List<Note> lstNotes = await response.Content.ReadFromJsonAsync<List<Note>> ();
-                return lstNotes;
+                List<Note>? lstDueNotes = await response.Content.ReadFromJsonAsync<List<Note>> ();
+                return lstDueNotes ?? new List<Note> ();
+                }
+            else
+                {
+                return new List<Note> ();
+                }
+            }
+        public async Task<List<Note>> Read_NotesBySearchKey (string searchKey, int parentId, int mode)
+            {
+            var response = await _http.PostAsJsonAsync ($"api/Read_NotesBySearchKey?mode={mode}&searchKey={searchKey}", parentId);
+            if (response.IsSuccessStatusCode)
+                {
+                List<Note>? lstNotes = await response.Content.ReadFromJsonAsync<List<Note>> ();
+                return lstNotes ?? new List<Note> ();
                 }
             else
                 {
@@ -737,11 +844,11 @@ namespace AlamutB.Service
             }
         public async Task<Note> Read_Note (int noteId)
             {
-            var response = await _http.PostAsJsonAsync ("api/Read_Note", noteId);
+            var response = await _http.PostAsJsonAsync ($"api/Read_Note", noteId);
             if (response.IsSuccessStatusCode)
                 {
-                Note note = await response.Content.ReadFromJsonAsync<Note> ();
-                return note;
+                Note? note = await response.Content.ReadFromJsonAsync<Note> ();
+                return note ?? new Note ();
                 }
             else
                 {
@@ -751,14 +858,26 @@ namespace AlamutB.Service
         public async Task<bool> Update_Note (Note note)
             {
             var response = await _http.PostAsJsonAsync ("api/Update_Note", note);
-            return (response.IsSuccessStatusCode) ? true : false;
+            return response.IsSuccessStatusCode ? true : false;
+            }
+        public async Task<bool> Update_NoteRef (Note note)
+            {
+            var response = await _http.PostAsJsonAsync ("api/Update_NoteRef", note);
+            return response.IsSuccessStatusCode ? true : false;
+            }
+        public async Task<bool> Delete_Notes (int refId, int refType)
+            {
+            var response = await _http.PostAsJsonAsync ($"api/Delete_Notes?refType={refType}", refId);
+            return response.IsSuccessStatusCode ? true : false;
             }
         public async Task<bool> Delete_Note (int noteId)
             {
-            var response = await _http.PostAsJsonAsync ("api/Delete_Note", noteId);
-            return (response.IsSuccessStatusCode) ? true : false;
+            var response = await _http.PostAsJsonAsync ($"api/Delete_Note", noteId);
+            return response.IsSuccessStatusCode ? true : false;
             }
         #endregion
+
+
         #region ANALYSIS
         #endregion
         #region REPORT

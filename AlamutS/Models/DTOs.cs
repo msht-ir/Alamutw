@@ -239,11 +239,12 @@ namespace AlamutS.Models
         public int UserId { get; set; } = 0;
         public int RefType { get; set; } = 0;
         public int RefId { get; set; } = 0;
+        public string RefName { get; set; } = "";
         public DateTimeOffset NoteDateTime { get; set; } = new DateTimeOffset ();
         public DateTimeOffset? NoteDateTimeDue { get; set; } = new DateTimeOffset ();
         public string NoteText { get; set; } = "";
         public int NoteTags { get; set; } = 0;
-        public bool IsRead
+        public bool IsRtl
             {
             get => (NoteTags & 1) == 1;
             set
@@ -254,7 +255,7 @@ namespace AlamutS.Models
                     NoteTags &= ~1;
                 }
             }
-        public bool IsTodo
+        public bool IsShared
             {
             get => (NoteTags & 2) == 2;
             set
@@ -265,7 +266,7 @@ namespace AlamutS.Models
                     NoteTags &= ~2;
                 }
             }
-        public bool IsDone
+        public bool IsBookmarked
             {
             get => (NoteTags & 4) == 4;
             set
@@ -274,6 +275,39 @@ namespace AlamutS.Models
                     NoteTags |= 4;
                 else
                     NoteTags &= ~4;
+                }
+            }
+        public bool IsTodo
+            {
+            get => (NoteTags & 8) == 8;
+            set
+                {
+                if (value)
+                    NoteTags |= 8;
+                else
+                    NoteTags &= ~8;
+                }
+            }
+        public bool IsRead
+            {
+            get => (NoteTags & 16) == 16;
+            set
+                {
+                if (value)
+                    NoteTags |= 16;
+                else
+                    NoteTags &= ~16;
+                }
+            }
+        public bool IsDone
+            {
+            get => (NoteTags & 32) == 32;
+            set
+                {
+                if (value)
+                    NoteTags |= 32;
+                else
+                    NoteTags &= ~32;
                 }
             }
         }

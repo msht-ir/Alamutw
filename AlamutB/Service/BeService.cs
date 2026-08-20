@@ -2296,7 +2296,8 @@ namespace AlamutB.Services2Backend
         #region NOTE
         public async Task<bool> Create_NoteAsync (Note note)
             {
-            string sql = "BS.Create_Note";
+            note.NoteDateTimeDue ??= new DateTimeOffset (1753, 1, 1, 0, 0, 0, TimeSpan.Zero);
+            string sql = "DT.Create_Note";
             string? connstring = _config.GetConnectionString ("cnni");
             using SqlConnection cnn = new SqlConnection (connstring);
             try
@@ -2315,16 +2316,17 @@ namespace AlamutB.Services2Backend
                 await cnn.CloseAsync ();
                 return true;
                 }
-            catch
+            catch (Exception ex)
                 {
+                Console.WriteLine ($"BE Error Create Note : ============================== \n {ex}");
                 await cnn.CloseAsync ();
                 return false;
                 }
             }
-        public async Task<List<Note>> Read_NotesAsync (int userId)
+        public async Task<List<Note>> Read_NotesAsync (int userId, int refType)
             {
             string? connString = _config.GetConnectionString ("cnni");
-            string sql = "BS.Read_Notes";
+            string sql = "DT.Read_Notes";
             using SqlConnection cnn = new (connString);
             try
                 {
@@ -2332,6 +2334,7 @@ namespace AlamutB.Services2Backend
                 SqlCommand cmd = new (sql, cnn);
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue ("@UserId", userId);
+                cmd.Parameters.AddWithValue ("@RefType", refType);
                 SqlDataReader reader = await cmd.ExecuteReaderAsync ();
                 List<Note> lstNotes = new List<Note> ();
                 while (await reader.ReadAsync ())
@@ -2358,10 +2361,10 @@ namespace AlamutB.Services2Backend
                 return new List<Note> ();
                 }
             }
-        public async Task<List<Note>> Read_DueNotesAsync (int userId, int _days)
+        public async Task<List<Note>> Read_NotesDueAsync (int userId, int _days)
             {
             string? connString = _config.GetConnectionString ("cnni");
-            string sql = "BS.Read_DueNotes";
+            string sql = "DT.Read_DueNotes";
             using SqlConnection cnn = new (connString);
             try
                 {
@@ -2399,7 +2402,7 @@ namespace AlamutB.Services2Backend
         public async Task<Note> Read_NoteAsync (int noteId)
             {
             string? connString = _config.GetConnectionString ("cnni");
-            string sql = "BS.Read_Notes";
+            string sql = "DT.Read_Note";
             using SqlConnection cnn = new (connString);
             try
                 {
@@ -2432,7 +2435,7 @@ namespace AlamutB.Services2Backend
             }
         public async Task<bool> Update_NoteAsync (Note note)
             {
-            string sql = "BS.Update_Note";
+            string sql = "DT.Update_Note";
             string? connstring = _config.GetConnectionString ("cnni");
             using SqlConnection cnn = new SqlConnection (connstring);
             try
@@ -2458,10 +2461,33 @@ namespace AlamutB.Services2Backend
                 return false;
                 }
             }
+        public async Task<bool> Delete_NotesAsync (int refType, int refId)
+            {
+            string? connString = _config.GetConnectionString ("cnni");
+            string sql = "DT.Delete_Note";
+            using SqlConnection cnn = new (connString);
+            try
+                {
+                await cnn.OpenAsync ();
+                SqlCommand cmd = new (sql, cnn);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue ("@RefType", refType);
+                cmd.Parameters.AddWithValue ("@RefId", refId);
+                var i = await cmd.ExecuteNonQueryAsync ();
+                await cnn.CloseAsync ();
+                return true;
+                }
+            catch (Exception ex)
+                {
+                Console.WriteLine ("error: " + ex.Message);
+                cnn.Close ();
+                return false;
+                }
+            }
         public async Task<bool> Delete_NoteAsync (int noteId)
             {
             string? connString = _config.GetConnectionString ("cnni");
-            string sql = "BS.Delete_Note";
+            string sql = "DT.Delete_Note";
             using SqlConnection cnn = new (connString);
             try
                 {

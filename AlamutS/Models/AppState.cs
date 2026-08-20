@@ -22,10 +22,10 @@
         //user
         public int? UserId { get; private set; }
         public void SetUserId (int _UserId) { UserId = _UserId; OnChange?.Invoke (); }
-        public string? UserName { get; private set; }
-        public void SetUserName (string _userName) { UserName = _userName; OnChange?.Invoke (); }
-        public string? UserPass { get; private set; }
-        public void SetUserPass (string _userPass) { UserPass = _userPass; OnChange?.Invoke (); }
+        public string? Username { get; private set; }
+        public void SetUsername (string _username) { Username = _username; OnChange?.Invoke (); }
+        public string? Password { get; private set; }
+        public void SetPassword (string _password) { Password = _password; OnChange?.Invoke (); }
         public string? UserNickname { get; private set; }
         public void SetUserNickname (string _userNickname) { UserNickname = _userNickname; OnChange?.Invoke (); }
         public int? UserTags { get; private set; }
@@ -54,6 +54,8 @@
         public void SetNoteUserId (int _NoteUserId) { NoteUserId = _NoteUserId; OnChange?.Invoke (); }
         public bool NoteIsRtl { get; private set; }
         public void SetNoteIsRtl (bool _NoteIsRtl) { NoteIsRtl = _NoteIsRtl; OnChange?.Invoke (); }
+        public bool NoteIsShared { get; private set; }
+        public void SetNoteIsShared (bool _NoteIsShared) { NoteIsShared = _NoteIsShared; OnChange?.Invoke (); }
         public bool NoteIsTodo { get; private set; }
         public void SetNoteIsTodo (bool _NoteIsTodo) { NoteIsTodo = _NoteIsTodo; OnChange?.Invoke (); }
         //Notebook

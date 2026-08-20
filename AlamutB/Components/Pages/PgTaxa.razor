@@ -16,14 +16,14 @@
     {
     <_Loading />
     }
-else if (appState.Cmd == "CreateNote")
+else if (appState.Cmd == "cmdCreateNote")
     {
     <Modal_CreateNote />
     }
 else
     {
         <div style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
-        <h2 style="color:royalblue; font-style:italic">Taxa</h2>
+        <h2 style="color:royalblue; font-style:italic">Taxa and Datasets</h2>
         @* ---------------------------------------------------------------------------------- 1 APG Groups *@
             <MudContainer MaxWidth="MaxWidth.Small" Class="mt-2 px-0">
                 <MudCard Class="mx-auto">
@@ -32,7 +32,7 @@ else
                             <MudSelect T="int"
                                    @ref="refApgGroups"
                                    @bind-Text="_apgGroupName"
-                                   Label="APG Groups"
+                                   Label="groups"
                                    Value="_apgGroupId"
                                    ValueChanged="OnApgGroupChanged"
                                    Class="w-auto my-select"
@@ -55,13 +55,13 @@ else
                                  Size="Size.Small"
                                  Style="margin-top:15px;margin-left:15px;"
                                  Dense="true">
-                                <MudMenuItem @onclick='() => BtnCreateNote(_apgGroupId, 14)'>
+                                <MudMenuItem @onclick='() => BtnCreateStickyNote(1, _apgGroupId)'>
                                     <button class="btn btn-link" Title="add note about this group">
                                     <img src="/img/icoNoteStickyAdd.png" width="22" />
                                     </button>
                                 new note
                                 </MudMenuItem>
-                                <MudMenuItem @onclick='() => BtnCreateNote(_apgGroupId, 14)'>
+                                <MudMenuItem @onclick='() => BtnShowNotes(_apgGroupId, 14)'>
                                     <button class="btn btn-link" Title="add note about this group">
                                     <img src="/img/icoNoteSticky2.png" width="22" />
                                     </button>
@@ -108,7 +108,7 @@ else
                                        Margin="Margin.Dense"
                                        Adornment="Adornment.End"
                                        AdornmentIcon="@Icons.Material.Filled.Search"
-                                       OnAdornmentClick='@(() => BtnSearch("order"))'
+                                       OnAdornmentClick='@(() => BtnSearchOrders())'
                                        Style="color:royalblue;width:140px;font-size:small;">
                                 <MudSelectItem Value="0">select</MudSelectItem>
                                 @foreach (Order order in lstOrders)
@@ -124,13 +124,13 @@ else
                                      Size="Size.Small"
                                      Style="margin-top:15px;margin-left:15px;"
                                      Dense="true">
-                                    <MudMenuItem @onclick='() => BtnCreateNote(_apgGroupId, 14)'>
+                                    <MudMenuItem @onclick='() => BtnCreateStickyNote(2, _orderId)'>
                                         <button class="btn btn-link" Title="add note about this group">
                                         <img src="/img/icoNoteStickyAdd.png" width="22" />
                                         </button>
                                     Add New Note
                                     </MudMenuItem>
-                                    <MudMenuItem @onclick='() => BtnCreateNote(_apgGroupId, 14)'>
+                                    <MudMenuItem @onclick='() => BtnShowNotes(_orderId, 2)'>
                                         <button class="btn btn-link" Title="add note about this group">
                                         <img src="/img/icoNoteSticky2.png" width="22" />
                                         </button>
@@ -193,7 +193,7 @@ else
                                        Margin="Margin.Dense"
                                        Adornment="Adornment.End"
                                        AdornmentIcon="@Icons.Material.Filled.Search"
-                                       OnAdornmentClick='@(() => BtnSearch("family"))'
+                                       OnAdornmentClick='@(() => BtnSearchFamilies())'
                                        Style="color:royalblue;width:140px;font-size:small;">
                                 <MudSelectItem Value="0">select</MudSelectItem>
                                 @foreach (var family in lstFamilies)
@@ -215,13 +215,13 @@ else
                                         </button>
                                     Edit Family
                                     </MudMenuItem>
-                                    <MudMenuItem @onclick='() => BtnCreateNote(_apgGroupId, 14)'>
+                                    <MudMenuItem @onclick='() => BtnCreateStickyNote(3, _familyId)'>
                                         <button class="btn btn-link" Title="add note about this group">
                                         <img src="/img/icoNoteStickyAdd.png" width="22" />
                                         </button>
                                     Add New Note
                                     </MudMenuItem>
-                                    <MudMenuItem @onclick='() => BtnCreateNote(_apgGroupId, 14)'>
+                                    <MudMenuItem @onclick='() => BtnShowNotes(_apgGroupId, 14)'>
                                         <button class="btn btn-link" Title="add note about this group">
                                         <img src="/img/icoNoteSticky2.png" width="22" />
                                         </button>
@@ -259,7 +259,7 @@ else
                                 <MudSelect T="int"
                                        @ref="refGenera"
                                        @bind-Text="_genusName"
-                                       Label="Genera"
+                                       Label="genera"
                                        Value="_genusId"
                                        ValueChanged="OnGenusChanged"
                                        Class="w-auto my-select"
@@ -289,7 +289,7 @@ else
                                         </button>
                                     Search Genera
                                     </MudMenuItem>
-                                    <MudMenuItem @onclick='() => BtnCreateNote(_genusId, 14)'>
+                                    <MudMenuItem @onclick='() => BtnCreateStickyNote(4, _genusId)'>
                                         <button class="btn btn-link" Title="add note about this group">
                                         <img src="/img/icoNoteStickyAdd.png" width="22" />
                                         </button>
@@ -370,7 +370,7 @@ else
                                 <MudSelect T="int"
                                        @ref="refDatasetsLM"
                                        @bind-Text="_datasetLMName"
-                                       Label="Datasets"
+                                       Label="datasets"
                                        Value="_datasetLMId"
                                        ValueChanged="OnDatasetLMChanged"
                                        Class="w-auto my-select"
@@ -426,7 +426,7 @@ else
                                     Add Species to Dataset
                                     </MudMenuItem>
                                 <hr>
-                                    <MudMenuItem @onclick='() => BtnCreateNote(_datasetLMId, 14)'>
+                                    <MudMenuItem @onclick='() => BtnCreateStickyNote(8, _datasetLMId)'>
                                         <button class="btn btn-link" Title="add note for dataset">
                                         <img src="/img/icoNoteStickyAdd.png" width="22" />
                                         </button>
@@ -452,7 +452,7 @@ else
                         <MudCardContent Style="background-color:rgba(249,249,249);">
                         <h6 style="text-align:center;color:royalblue">@_SpeciesListType<span style="font-size:x-small;color:indianred"> ( @lstSpecies.Count() )</span></h6>
                         <hr style="color:indianred" />
-                            <div class="d-flex gap-2" style="margin-top:25px;margin-bottom:15px">
+                            <div class="d-flex gap-3 justify-content-center align-items-center" style="margin-top:15px;margin-bottom:15px;">
                             <MudIconButton Icon="@Icons.Material.Filled.DoneAll"
                                            Color="Color.Primary"
                                            Size="Size.Medium"
@@ -463,7 +463,31 @@ else
                                            Size="Size.Medium"
                                            OnClick="BtnInvertSelection"
                                            Title="Invert Selection" />
+                            <MudIconButton Icon="@Icons.Material.Filled.FilterList"
+                                           Color="Color.Secondary"
+                                           Size="Size.Medium"
+                                           OnClick="BtnFilterSpeciesList"
+                                           Title="Filter Species List" />
                             </div>
+                        @if (_cmd == "cmdFilterSpeciesList")
+                            {
+                                <div class="d-flex">
+                                <MudTextField @ref="refFilterSpeciesList"
+                                              @bind-Value="_speciesListFilter"
+                                              Label="filter species list"
+                                              Variant="Variant.Text"
+                                              Margin="Margin.Dense"
+                                              Autocomplete="off"
+                                              Adornment="Adornment.End"
+                                              AdornmentIcon="@Icons.Material.Filled.Search"
+                                              OnAdornmentClick="@(() => FilterSpeciesList (_speciesListFilter))"
+                                              Class="my-textfield" />
+                                    <button class="btn btn-link" style="margin-left:20px;" Title="cancel" @onclick="BtnCancel">
+                                    <img src="/img/icoCancel.png" width="20" />
+                                    </button>
+                                </div>
+                            }
+
                         @foreach (Species species in lstSpecies)
                             {
                                 <div class="d-flex align-items-center mb-1">
@@ -575,10 +599,12 @@ else
     public string _datasetLMName = "";
     public string _datasetLMSearchText = "";
     //species
+    public MudTextField<string> refFilterSpeciesList;
     List<Species> lstSpecies = new();
     Species species = new Species();
     private string _speciesId = "";
     private string _speciesName = "";
+    private string _speciesListFilter = "";
     //misc vars
     public int i = 0;
     public string _cmd = "";
@@ -638,6 +664,12 @@ else
             }
         StateHasChanged();
         }
+    private async Task BtnSearchOrders ()
+        {
+        _cmd = "cmdSearchOrders";
+        StateHasChanged();
+        }
+
     private async Task SearchOrders (string orderKeyword)
         {
         if (string.IsNullOrWhiteSpace(orderKeyword))
@@ -668,7 +700,7 @@ else
             }
         StateHasChanged();
         }
-    private void BtnSearchFamilies ()
+    private async Task BtnSearchFamilies ()
         {
         _cmd = "cmdSearchFamilies";
         StateHasChanged();
@@ -738,6 +770,7 @@ else
         {
         _cmd = "cmdSearchGenera";
         StateHasChanged();
+        await refSearchGenus.FocusAsync();
         }
     private async Task SearchGenera (string genusKeyword)
         {
@@ -949,6 +982,17 @@ else
             }
         StateHasChanged();
         }
+    public async Task BtnFilterSpeciesList ()
+        {
+        _cmd = "cmdFilterSpeciesList";
+        StateHasChanged();
+        }
+    public async Task FilterSpeciesList (string _speciesListFilter)
+        {
+        lstSpecies = lstSpecies.Where(s => s.Epithet?.Contains(_speciesListFilter, StringComparison.OrdinalIgnoreCase) == true).ToList();
+        _SpeciesListType = "Filtered";
+        StateHasChanged();
+        }
     public async Task BtnShowSubspecies (Species species)
         {
         var words = species.SciName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
@@ -976,29 +1020,7 @@ else
             }
         }
     //methods
-    //btnSearch, handle Keys
-    private async Task BtnSearch (string mode)
-        {
-        switch (mode)
-            {
-            case "order":
-                    {
-                    _cmd = "cmdSearchOrders";
-                    break;
-                    }
-            case "family":
-                    {
-                    _cmd = "cmdSearchFamilies";
-                    break;
-                    }
-            case "genus":
-                    {
-                    _cmd = "cmdSearchGenera";
-                    break;
-                    }
-            }
-        StateHasChanged();
-        }
+    //handle Keys
     private async Task HandleKey_SearchboxOrders (KeyboardEventArgs e)
         {
         if (e.Key == "Enter")
@@ -1056,13 +1078,32 @@ else
             }
         }
     //Note
-    private async Task BtnCreateNote (int refId, int Id)
+    public async Task BtnCreateStickyNote (int refType, int refId)
         {
-        //
+        if (refId > 0)
+            {
+            // 1:ApgGroup 2:Order 3 ّFamily 4:Genus 5:Species 6:DatasetFL 7:DatasetCN 8:DatasetLM 9:Station 10:Set 11:SetData 12:User'sNote
+            appState.SetNoteRefId(refId);
+            appState.SetNoteRefType(refType);
+            appState.SetCmd("cmdCreateNote");
+            StateHasChanged();
+            //After the Modal_CreateNote is closed, HandleModalClose will refresh the list
+            //to handel close event, I added in the Modal_CreateNote: [Parameter] public EventCallback OnClose
+            }
+        else
+            {
+            Snackbar.Add($"select an item first", Severity.Warning);
+            }
         }
     private async Task BtnCreateNoteForSpecies (string refId)
         {
-        //
+        //-- 1:ApgGroup 2:Order 3 ّFamily 4:Genus 5:Species 6:DatasetFL 7:DatasetCN 8:DatasetLM 9:Station 10:Set 11:SetData 12:User'sNote
+        // appState.SetNoteRefId(refId);
+        // appState.SetNoteRefType(5);
+        // appState.SetCmd("cmdCreateNote");
+        // StateHasChanged();
+        //--After the Modal_CreateNote is closed, HandleModalClose will refresh the list
+        //--to handel close event, I added in the Modal_CreateNote: [Parameter] public EventCallback OnClose
         }
     private async Task BtnShowNotes (int refType, int refId)
         {
