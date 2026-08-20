@@ -20,28 +20,28 @@ else
     {
     @if (lstNotes.Count > 0)
         {
-            <div style="text-align: center; margin:15px;">
-                <button class="btn btn-link" @onclick="BtnBack">
-                <img src="/img/icoBack3.png" width="40" title="back" />
+            <div class="flex gap-4" style="text-align: center; margin:15px;">
+                <button class="btn btn-link pulse-hover" @onclick="BtnBack">
+                <img src="/img/icoList.png" width="28" title="back" />
                 </button>
-                <button class="btn btn-link" @onclick="() => GotoNotebooks()">
-                <img src="/img/icoNoteBook.png" style="width:44px" title="goto Notebooks" />
+                <button class="btn btn-link pulse-hover" @onclick="() => GotoNotebooks()">
+                <img src="/img/icoNoteBook.png" style="width:36px" title="goto Notebooks" />
                 </button>
                 <button class="btn btn-link pulse-animation" @onclick="CreateNote">
-                <img src="/img/icoNewNote3.png" width="28" title="add new quick-note" />
+                <img src="/img/icoNoteStickyAdd.png" width="28" title="add new quick-note" />
                 </button>
             </div>
         }
         <EditForm Model="lstNotes">
-        @if (appState.Cmd == "ShowNoteInDialog")
+        @if (appState.Cmd == "cmdShowNoteInDialog")
             {
             <Modal_ShowNote OnClose="HandleModalClose" />
             }
-        else if (appState.Cmd == "UpdateNote")
+        else if (appState.Cmd == "cmdUpdateNote")
             {
             <Modal_CreateNote OnClose="HandleModalClose" />
             }
-        else if (appState.Cmd == "CreateNote")
+        else if (appState.Cmd == "cmdCreateNote")
             {
             <Modal_CreateNote OnClose="HandleModalClose" />
             }
@@ -49,198 +49,118 @@ else
             {
             @foreach (Note notex in lstNotes)
                 {
-                @if ((notex.NoteTags & 1) == 1)
-                    {
-                    @* RTL *@
-                        <div class="mt-3 text-end">
-                            <MudContainer MaxWidth="MaxWidth.Small" Class="mt-2 px-0">
-                                <MudCard Class="mx-0">
-                                    <MudCardContent Style="background-color:whitesmoke;">
-                                        <span class="d-flex align-items-center" style="text-align:center; color:indianred; font-weight:bold; font-size:smaller;margin:0px; ">
-                                        @if (notex.IsTodo)
-                                            {
-                                            <img class="pulse-hover" src="/img/icoClock2.png" width="20" style="margin-right:7px" />
-                                            @PersianDate(notex.NoteDateTimeDue)
-                                            }
-                                        else
-                                            {
-                                            @PersianDate(notex.NoteDateTime)
-                                            }
-                                        </span>
-                                    <hr />
-                                        <div style="white-space: pre-wrap; font-weight:normal; font-family:'Segoe UI';font-size:small">
-                                        @if (notex.NoteText.Length > 100)
-                                            {
-                                            <div> @notex.NoteText.Substring(0, 100) <span style="font-size:xx-small;font-weight:bold;color:indianred">[...]</span></div>
-                                            }
-                                        else
-                                            {
-                                            <div style="font-weight:normal;font-family:'Segoe UI'"> @notex.NoteText</div>
-                                            }
-                                        </div>
-                                    <hr />
-                                    @if ((_cmd == "MoveNoteToNotebook") & (Convert.ToInt32(appState.NoteId) == notex.NoteId))
+                var isRtl = (notex.NoteTags & 1) == 1;
+                var isLongText = notex.NoteText.Length > 100;
+                var isMoving = (_cmd == "cmdMoveNoteToNotebook") && (Convert.ToInt32(appState.NoteId) == notex.NoteId);
+                var dateToShow = notex.IsTodo ? PersianDate(notex.NoteDateTimeDue) : PersianDate(notex.NoteDateTime);
+                var fontFamily = isRtl ? "'Segoe UI'" : "Courier New, Courier, monospace";
+                var textAlign = isRtl ? "text-end" : "text-start";
+                    <div class="mt-3 @textAlign">
+                        <MudContainer MaxWidth="MaxWidth.Small" Class="mt-2 px-0">
+                            <MudCard Class="mx-0">
+                                <MudCardContent Style="background-color:whitesmoke;">
+                                <!-- Date/Time -->
+                                    <span class="d-flex align-items-center" style="text-align:center; color:indianred; font-weight:bold; font-size:smaller; margin:0px;">
+                                    @if (notex.IsTodo)
                                         {
-                                        <h6 style="color:indianred;text-align:center;">move to:</h6>
-                                        @* COMBO Notebooks *@
-                                            <div class="d-flex">
-                                                <MudSelect T="int" @ref="refNotebooks" Label="Notebook" Value="NotebookId" ValueChanged="OnNotebookChanged" Class="w-auto my-select" Variant="Variant.Outlined" Margin="Margin.Dense" Style="color:royalblue;width:140px;font-size:small;">
-                                                <MudSelectItem Value="0">Select a Notebook...</MudSelectItem>
-                                                @foreach (var notebook in lstNotebooks)
-                                                    {
-                                                    <MudSelectItem Value="@notebook.NotebookId">@notebook.NotebookName</MudSelectItem>
-                                                    }
-                                                </MudSelect>
-                                            </div>
-                                        @* COMBO Sections *@
-                                            <div class="d-flex align-content-center align-items-center align-content-md-center">
-                                                <MudSelect T="int" @ref="refSections" Label="Section" Value="SectionId" ValueChanged="OnSectionChanged" Class="w-auto my-select" Variant="Variant.Outlined" Margin="Margin.Dense" Style="color:royalblue;width:140px;font-size:small;">
-                                                <MudSelectItem Value="0">Select a Section...</MudSelectItem>
-                                                @foreach (var section in lstSections)
-                                                    {
-                                                    <MudSelectItem Value="@section.SectionId">@section.SectionName</MudSelectItem>
-                                                    }
-                                                </MudSelect>
-                                                <button class="btn btn-link pulse-animation" Title="move!" @onclick='() => BtnMovetoSelectSection(SectionId, notex.NoteId)'>
-                                                <img src="/img/icoMoveToNoteBook.png" width="34" />
-                                                </button>
-                                                <button class="btn btn-link pulse-hover" Title="cancel" @onclick='() => BtnCancel()'>
-                                                <img src="/img/icoCancel.png" width="20" />
-                                                </button>
-                                            </div>
+                                        <img class="pulse-hover" src="/img/icoClock2.png" width="20" style="margin-right:7px" />
+                                        }
+                                    @dateToShow
+                                    </span>
+                                <hr />
+
+                                <!-- Note Text -->
+                                    <div style="white-space: pre-wrap; font-family:@fontFamily; font-size:small; @(isRtl ? "font-weight:normal" : "font-weight:bold")">
+                                    @if (isLongText)
+                                        {
+                                        <div>@notex.NoteText.Substring(0, 100) <span style="font-size:xx-small;font-weight:bold;color:indianred">[...]</span></div>
                                         }
                                     else
                                         {
-                                            <div class="d-flex align-items-center" style="color:indianred; font-weight:bold;font-size:small">
-                                                <MudMenu Label="actions" Variant="Variant.Outlined" Color="Color.Tertiary" StartIcon="@Icons.Material.Filled.Menu" EndIcon="@Icons.Material.Filled.KeyboardArrowDown" Size="Size.Small" Dense="true">
-                                                    <MudMenuItem @onclick="() => BtnEditNoteInDialog(notex)">
-                                                        <button class="btn btn-link pulse-animation">
-                                                        <img src="/img/icoRename.png" width="28" title="ويرايش يادداشت" />
-                                                        </button>
-                                                    edit
-                                                    </MudMenuItem>
-                                                    <MudMenuItem @onclick="() => BtnMoveNote(notex.NoteId)">
-                                                        <button class="btn btn-link">
-                                                        <img src="/img/icoMoveToNoteBook.png" width="32" title="انتقال يادداشت به دفترچه" />
-                                                        </button>
-                                                    move to notebook
-                                                    </MudMenuItem>
-                                                    <MudMenuItem @onclick="() => BtnDeleteNote(notex.NoteId)">
-                                                        <button class="btn btn-link">
-                                                        <img src="/img/icoDelete1.png" width="22" title="حذف يادداشت" />
-                                                        </button>
-                                                    delete note
-                                                    </MudMenuItem>
-                                                </MudMenu>
-                                            @if (notex.NoteText.Length > 100)
-                                                {
-                                                    <button class="btn btn-link pulse-animation" @onclick="() => BtnShowNoteInDialog(notex)">
-                                                    <img src="/img/icoNoteReport.png" width="22" title="نمايش يادداشت در صفحه" />
-                                                    </button>
-                                                }
-                                            </div>
+                                        <div>@notex.NoteText</div>
                                         }
-                                    </MudCardContent>
-                                </MudCard>
-                            </MudContainer>
-                        </div>
-                    }
-                else
-                    {
-                    @* LTR *@
-                        <div class="mt-3 text-start">
-                            <MudContainer MaxWidth="MaxWidth.Small" Class="mt-2 px-0">
-                                <MudCard Class="mx-0">
-                                    <MudCardContent Style="background-color:whitesmoke;">
-                                        <span class="d-flex align-items-center" style="text-align:center; color:indianred; font-weight:bold;font-size:smaller;margin:0px;">
-                                        @if (notex.IsTodo)
+                                    </div>
+                                <hr />
+
+                                @if (isMoving)
+                                    {
+                                    <h6 style="color:indianred;text-align:center;">move to:</h6>
+                                        <div class="d-flex">
+                                            <MudSelect T="int"
+                                                   @ref="refNotebooks"
+                                                   Label="Notebook"
+                                                   Value="NotebookId"
+                                                   ValueChanged="OnNotebookChanged"
+                                                   Class="w-auto my-select"
+                                                   Variant="Variant.Text"
+                                                   Margin="Margin.Dense"
+                                                   Style="color:royalblue;width:140px;font-size:small;">
+                                            <MudSelectItem Value="0">Select a Notebook...</MudSelectItem>
+                                            @foreach (var notebook in lstNotebooks)
+                                                {
+                                                <MudSelectItem Value="@notebook.NotebookId">@notebook.NotebookName</MudSelectItem>
+                                                }
+                                            </MudSelect>
+                                        </div>
+                                        <div class="d-flex align-content-center align-items-center align-content-md-center">
+                                            <MudSelect T="int"
+                                                   @ref="refSections"
+                                                   Label="Section"
+                                                   Value="SectionId"
+                                                   ValueChanged="OnSectionChanged"
+                                                   Class="w-auto my-select"
+                                                   Variant="Variant.Text"
+                                                   Margin="Margin.Dense"
+                                                   Style="color:royalblue;width:140px;font-size:small;">
+                                            <MudSelectItem Value="0">Select a Section...</MudSelectItem>
+                                            @foreach (var section in lstSections)
+                                                {
+                                                <MudSelectItem Value="@section.SectionId">@section.SectionName</MudSelectItem>
+                                                }
+                                            </MudSelect>
+                                            <button class="btn btn-link pulse-animation" Title="move!" @onclick='() => BtnMovetoSelectSection(SectionId, notex)'>
+                                            <img src="/img/icoMoveToNoteBook.png" width="34" />
+                                            </button>
+                                            <button class="btn btn-link pulse-hover" Title="cancel" @onclick='() => BtnCancel()'>
+                                            <img src="/img/icoCancel.png" width="20" />
+                                            </button>
+                                        </div>
+                                    }
+                                else
+                                    {
+                                        <div class="d-flex align-items-center" style="color:indianred; font-weight:bold;font-size:small">
+                                            <MudMenu Label="actions" Variant="Variant.Outlined" Color="Color.Tertiary" StartIcon="@Icons.Material.Filled.Menu" EndIcon="@Icons.Material.Filled.KeyboardArrowDown" Size="Size.Small" Dense="true">
+                                                <MudMenuItem @onclick="() => BtnEditNoteInDialog(notex)">
+                                                    <button class="btn btn-link pulse-animation">
+                                                    <img src="/img/icoRename.png" width="28" title="ويرايش يادداشت" />
+                                                    </button>
+                                                edit
+                                                </MudMenuItem>
+                                                <MudMenuItem @onclick="() => BtnMoveNote(notex.NoteId)">
+                                                    <button class="btn btn-link">
+                                                    <img src="/img/icoMoveToNoteBook.png" width="32" title="انتقال يادداشت به دفترچه" />
+                                                    </button>
+                                                move to notebook
+                                                </MudMenuItem>
+                                                <MudMenuItem @onclick="() => BtnDeleteNote(notex.NoteId)">
+                                                    <button class="btn btn-link">
+                                                    <img src="/img/icoDelete1.png" width="22" title="حذف يادداشت" />
+                                                    </button>
+                                                delete note
+                                                </MudMenuItem>
+                                            </MudMenu>
+                                        @if (isLongText)
                                             {
-                                            <img class="pulse-hover" src="/img/icoClock2.png" width="20" style="margin-right:7px" />
-                                            @PersianDate(notex.NoteDateTimeDue)
-                                            }
-                                        else
-                                            {
-                                            @PersianDate(notex.NoteDateTime)
-                                            }
-                                        </span>
-                                    <hr />
-                                        <div style="white-space: pre-wrap; font-family:Courier New, Courier, monospace;font-size:small">
-                                        @if (notex.NoteText.Length > 100)
-                                            {
-                                            <div style="font-weight:bold;"> @notex.NoteText.Substring(0, 100) <span style="font-size:xx-small;font-weight:bold;color:indianred">[...]</span></div>
-                                            }
-                                        else
-                                            {
-                                            <div style="font-weight:bold;"> @notex.NoteText</div>
+                                                <button class="btn btn-link pulse-animation" @onclick="() => BtnShowNoteInDialog(notex)">
+                                                <img src="/img/icoNoteReport.png" width="22" title="نمايش يادداشت در صفحه" />
+                                                </button>
                                             }
                                         </div>
-                                    <hr />
-                                    @if ((_cmd == "MoveNoteToNotebook") & (Convert.ToInt32(appState.NoteId) == notex.NoteId))
-                                        {
-                                        <h6 style="color:indianred;text-align:center;">move to:</h6>
-                                        @* COMBO Notebooks *@
-                                            <div class="d-flex">
-                                                <MudSelect T="int" @ref="refNotebooks" Label="Notebook" Value="NotebookId" ValueChanged="OnNotebookChanged" Class="w-auto my-select" Variant="Variant.Outlined" Margin="Margin.Dense" Style="color:royalblue;width:140px;font-size:small;">
-                                                <MudSelectItem Value="0">Select a Notebook...</MudSelectItem>
-                                                @foreach (var notebook in lstNotebooks)
-                                                    {
-                                                    <MudSelectItem Value="@notebook.NotebookId">@notebook.NotebookName</MudSelectItem>
-                                                    }
-                                                </MudSelect>
-                                            </div>
-                                        @* COMBO Sections *@
-                                            <div class="d-flex align-content-center align-items-center align-content-md-center">
-                                                <MudSelect T="int" @ref="refSections" Label="Section" Value="SectionId" ValueChanged="OnSectionChanged" Class="w-auto my-select" Variant="Variant.Outlined" Margin="Margin.Dense" Style="color:royalblue;width:140px;font-size:small;">
-                                                <MudSelectItem Value="0">Select a Section...</MudSelectItem>
-                                                @foreach (var section in lstSections)
-                                                    {
-                                                    <MudSelectItem Value="@section.SectionId">@section.SectionName</MudSelectItem>
-                                                    }
-                                                </MudSelect>
-                                                <button class="btn btn-link pulse-animation" Title="move!" @onclick='() => BtnMovetoSelectSection(SectionId, notex.NoteId)'>
-                                                <img src="/img/icoMoveToNoteBook.png" width="34" />
-                                                </button>
-                                                <button class="btn btn-link pulse-hover" Title="cancel" @onclick='() => BtnCancel()'>
-                                                <img src="/img/icoCancel.png" width="20" />
-                                                </button>
-                                            </div>
-                                        }
-                                    else
-                                        {
-                                            <div class="d-flex align-items-center" style="color:indianred; font-weight:bold;font-size:small">
-                                                <MudMenu Label="actions" Variant="Variant.Outlined" Color="Color.Tertiary" StartIcon="@Icons.Material.Filled.Menu" EndIcon="@Icons.Material.Filled.KeyboardArrowDown" Size="Size.Small" Dense="true">
-                                                    <MudMenuItem @onclick="() => BtnEditNoteInDialog(notex)">
-                                                        <button class="btn btn-link pulse-animation">
-                                                        <img src="/img/icoRename.png" width="28" title="ويرايش يادداشت" />
-                                                        </button>
-                                                    edit
-                                                    </MudMenuItem>
-                                                    <MudMenuItem @onclick="() => BtnMoveNote(notex.NoteId)">
-                                                        <button class="btn btn-link">
-                                                        <img src="/img/icoMoveToNoteBook.png" width="32" title="انتقال يادداشت به دفترچه" />
-                                                        </button>
-                                                    move to notebook
-                                                    </MudMenuItem>
-                                                    <MudMenuItem @onclick="() => BtnDeleteNote(notex.NoteId)">
-                                                        <button class="btn btn-link">
-                                                        <img src="/img/icoDelete1.png" width="22" title="حذف يادداشت" />
-                                                        </button>
-                                                    delete note
-                                                    </MudMenuItem>
-                                                </MudMenu>
-                                            @if (notex.NoteText.Length > 100)
-                                                {
-                                                    <button class="btn btn-link pulse-animation" @onclick="() => BtnShowNoteInDialog(notex)">
-                                                    <img src="/img/icoNoteReport.png" width="22" title="نمايش يادداشت در صفحه" />
-                                                    </button>
-                                                }
-                                            </div>
-                                        }
-                                    </MudCardContent>
-                                </MudCard>
-                            </MudContainer>
-                        </div>
-                    }
+                                    }
+                                </MudCardContent>
+                            </MudCard>
+                        </MudContainer>
+                    </div>
                 }
             }
         </EditForm>
@@ -250,35 +170,26 @@ else
 @if (lstNotes.Count > 0)
     {
         <div style="text-align:center">
-            <button class="btn btn-link" @onclick="BtnBack">
-            <img src="/img/icoBack3.png" width="40" />
+            <button class="btn btn-link pulse-hover" @onclick="BtnBack">
+            <img src="/img/icoList.png" width="28" />
             </button>
         </div>
     }
 else
     {
         <div style="text-align:center">
-            <button class="btn btn-link" @onclick="BtnBack">
+            <button class="btn btn-link pulse-hover" @onclick="BtnBack">
             <img src="/img/gifUserLogin.gif" width="70" />
             </button>
         </div>
     }
+    
     <script>
     window.scrollToTop = () => { window.scrollTo({ top: 0, behavior: 'smooth' }); };
     </script>
 
 
 @code {
-    [Parameter]
-    public int mode
-        {
-        get; set;
-        }
-    [Parameter]
-    public int Id
-        {
-        get; set;
-        }
     private MudSelect<int> refNotebooks;
     private MudSelect<int> refSections;
     int NotebookId = 0;
@@ -303,7 +214,7 @@ else
         appState.SetCmd("");
         user.UserId = Convert.ToInt32(appState.UserId);
         user.Username = appState.Username;
-        lstNotes = await feService.Read_Notes(12, user.UserId); //=================================
+        lstNotes = await feService.Read_Notes(13, user.UserId);
         await GetListOfNotebooks(user.UserId, _ShowNotebooksMode);
         _hasFetched = true;
         }
@@ -318,8 +229,8 @@ else
     //btns
     public void GotoNotebooks ()
         {
-        appState.SetReturnPage($"T_ReportNotes/{mode}/{Id}");
-        Navman.NavigateTo("/E_NoteBooks");
+        appState.SetReturnPage($"PgStickyNotes");
+        Navman.NavigateTo("/PgNoteBooks");
         }
     private async Task OnNotebookChanged (int newValue)
         {
@@ -339,37 +250,38 @@ else
         {
         if (Convert.ToInt32(appState.NoteId) == noteId)
             {
-            _cmd = (_cmd == "MoveNoteToNotebook") ? "" : "MoveNoteToNotebook";
+            _cmd = (_cmd == "cmdMoveNoteToNotebook") ? "" : "cmdMoveNoteToNotebook";
             }
         else
             {
             appState.SetNoteId(noteId);
-            _cmd = "MoveNoteToNotebook";
+            _cmd = "cmdMoveNoteToNotebook";
             }
         StateHasChanged();
         }
-    private async Task BtnMovetoSelectSection (int sectionId, int noteid)
+    private async Task BtnMovetoSelectSection (int sectionId, Note notex)
         {
         if (sectionId > 0)
             {
-            Note _note = new Note { NoteId = noteid, RefType = 3, RefId = sectionId };
-            bool result = await feService.Update_Note(_note);
+            notex.RefType = 12;
+            notex.RefId = sectionId;
+            bool result = await feService.Update_Note(notex);
             if (result)
                 {
-                Snackbar.Add("note moved to notebook", Severity.Success); 
+                Snackbar.Add("note moved to notebook", Severity.Success);
                 _cmd = "";
                 appState.SetCmd("");
-                lstNotes = await feService.Read_Notes(12, user.UserId); //===============================
+                lstNotes = await feService.Read_Notes(13, user.UserId);
                 StateHasChanged();
                 }
             else
                 {
-                Snackbar.Add("failed", Severity.Warning); 
+                Snackbar.Add("failed", Severity.Warning);
                 }
             }
         else
             {
-            Snackbar.Add("select notebook and section", Severity.Info); 
+            Snackbar.Add("select notebook and section", Severity.Info);
             }
         }
     private void BtnCancel ()
@@ -396,10 +308,9 @@ else
     //methods
     public async Task CreateNote ()
         {
-        //ReferenceTypes 1:quicknote(s) 2:SectNote(s) 11:quicknote(t) 12:SectNote(t) 13:StudentNote(t) 14:GroupNote(t) 15:CourseNote(t) 16:ExamNote(t) 17:StudentExamNote(t)
-        appState.SetNoteRefType(1);
+        appState.SetNoteRefType(13);
         appState.SetNoteRefId(Convert.ToInt32(appState.UserId));
-        appState.SetCmd("CreateNote");
+        appState.SetCmd("cmdCreateNote");
         StateHasChanged();
         //After the Modal_CreateNote is closed, HandleModalClose will refresh the list
         //to handel close event, I added in the Modal_CreateNote: [Parameter] public EventCallback OnClose
@@ -410,10 +321,10 @@ else
         appState.SetNoteDateTime(note.NoteDateTime.ToString("yyyy-MM-dd HH:mm"));
         appState.SetNoteDateTimeDue(note.NoteDateTimeDue?.ToString("yyyy-MM-dd HH:mm")); //use ? becuse note.NoteDateTimeDue is nullable
         appState.SetNoteText(note.NoteText);
-        appState.SetNoteIsTodo(note.IsTodo);
+        appState.SetNoteTags(note.NoteTags);
         appState.SetNoteRefId(note.RefId);
         appState.SetNoteRefType(note.RefType);
-        appState.SetCmd("ShowNoteInDialog");
+        appState.SetCmd("cmdShowNoteInDialog");
         StateHasChanged();
         //After the Modal_ShowNote is closed, HandleModalClose will refresh the list
         //to handel close event, I added in the Modal_ShowNote: [Parameter] public EventCallback OnClose
@@ -424,36 +335,42 @@ else
         appState.SetNoteDateTime(note.NoteDateTime.ToString("yyyy-MM-dd HH:mm"));
         appState.SetNoteDateTimeDue(note.NoteDateTimeDue?.ToString("yyyy-MM-dd HH:mm")); //use ? becuse note.NoteDateTimeDue is nullable
         appState.SetNoteText(note.NoteText);
-        appState.SetNoteIsTodo(note.IsTodo);
-        appState.SetNoteRefId(  note.RefId);
+        appState.SetNoteTags(note.NoteTags);
+        appState.SetNoteRefId(note.RefId);
         appState.SetNoteRefType(note.RefType);
         // appState.SetNoteRefName(note.RefName);
-        appState.SetCmd("UpdateNote");
+        appState.SetCmd("cmdUpdateNote");
         StateHasChanged();
         //After the Modal_CreateNote is closed, HandleModalClose will refresh the list
         //to handel close event, I added in the Modal_CreateNote: [Parameter] public EventCallback OnClose
         }
     public async Task BtnDeleteNote (int noteId)
         {
-        var message = new MarkupString($"<hr><span style='color:indianred'>Delete</span> note? Are you sure?<br><br> <div style='text-align:center'><img src='/img/icoDelete1.png' width='40'/></div><br><hr>");
-        bool? confirmResult = await DialogService.ShowMessageBox(title: "Confirm", markupMessage: message, yesText: "Yes", cancelText: "No");
+        var message = new MarkupString($@"
+        <hr><span style='color:indianred'>Delete</span>
+        note ? Are you sure ?
+        < br >
+        < br > < div style = 'text-align:center' >< img src = '/img/icoDelete1.png' width = '40' /></ div >
+        < br >
+        < hr > ");
+        bool ? confirmResult = await DialogService.ShowMessageBox(title: "Confirm", markupMessage: message, yesText: "Yes", cancelText: "No");
         if (confirmResult == true)
             {
             bool result = await feService.Delete_Note(noteId);
             if (result)
                 {
-                Snackbar.Add($"deleted", Severity.Warning); 
+                Snackbar.Add($"deleted", Severity.Warning);
                 user.UserId = Convert.ToInt32(appState.UserId);
                 _hasFetched = false;
                 lstNotes.Clear();
-                lstNotes = await feService.Read_Notes(12, user.UserId);//=============================
+                lstNotes = await feService.Read_Notes(13, user.UserId);
                 _hasFetched = true;
                 appState.SetCmd("");
                 StateHasChanged();
                 }
             else
                 {
-                Snackbar.Add($"Failed to delete note!", Severity.Error, opt => { opt.VisibleStateDuration = 1500; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; }); 
+                Snackbar.Add($"Failed to delete note!", Severity.Error, opt => { opt.VisibleStateDuration = 1500; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
                 }
             }
         }
@@ -461,7 +378,7 @@ else
         {
         _hasFetched = false;
         lstNotes.Clear();
-        lstNotes = await feService.Read_Notes(12, Id); //=========================
+        lstNotes = await feService.Read_Notes(13, user.UserId);
         _hasFetched = true;
         StateHasChanged();
         }
@@ -469,7 +386,7 @@ else
         {
         _hasFetched = false;
         lstNotebooks.Clear();
-        //lstNotebooks = await feService.Read_Notebooks(userId, mode);
+        lstNotebooks = await feService.Read_Notebooks(userId);
         _hasFetched = true;
         }
     private async Task FilterSections (int notebookId)
@@ -485,3 +402,4 @@ else
             }
         }
     }
+    

@@ -303,7 +303,7 @@ else
         appState.SetCmd("");
         user.UserId = Convert.ToInt32(appState.UserId);
         user.Username = appState.Username;
-        lstNotes = await feService.Read_Notes(12, user.UserId);//==================
+        lstNotes = await feService.Read_Notes(13, user.UserId);
         await GetListOfNotebooks(user.UserId, _ShowNotebooksMode);
         _hasFetched = true;
         }
@@ -359,7 +359,7 @@ else
                 Snackbar.Add("note moved to notebook", Severity.Success); 
                 _cmd = "";
                 appState.SetCmd("");
-                lstNotes = await feService.Read_Notes(12, user.UserId);
+                lstNotes = await feService.Read_Notes(13, user.UserId);
                 StateHasChanged();
                 }
             else
@@ -410,7 +410,7 @@ else
         appState.SetNoteDateTime(note.NoteDateTime.ToString("yyyy-MM-dd HH:mm"));
         appState.SetNoteDateTimeDue(note.NoteDateTimeDue?.ToString("yyyy-MM-dd HH:mm")); //use ? becuse note.NoteDateTimeDue is nullable
         appState.SetNoteText(note.NoteText);
-        appState.SetNoteIsTodo(note.IsTodo);
+        appState.SetNoteTags(note.NoteTags);
         appState.SetNoteRefId(note.RefId);
         appState.SetNoteRefType(note.RefType);
         appState.SetCmd("ShowNoteInDialog");
@@ -424,8 +424,8 @@ else
         appState.SetNoteDateTime(note.NoteDateTime.ToString("yyyy-MM-dd HH:mm"));
         appState.SetNoteDateTimeDue(note.NoteDateTimeDue?.ToString("yyyy-MM-dd HH:mm")); //use ? becuse note.NoteDateTimeDue is nullable
         appState.SetNoteText(note.NoteText);
-        appState.SetNoteIsTodo(note.IsTodo);
-        appState.SetNoteRefId(  note.RefId);
+        appState.SetNoteTags(note.NoteTags);
+        appState.SetNoteRefId(note.RefId);
         appState.SetNoteRefType(note.RefType);
         // appState.SetNoteRefName(note.RefName);
         appState.SetCmd("UpdateNote");
@@ -446,7 +446,7 @@ else
                 user.UserId = Convert.ToInt32(appState.UserId);
                 _hasFetched = false;
                 lstNotes.Clear();
-                lstNotes = await feService.Read_Notes(12, user.UserId);
+                lstNotes = await feService.Read_Notes(13, user.UserId);
                 _hasFetched = true;
                 appState.SetCmd("");
                 StateHasChanged();

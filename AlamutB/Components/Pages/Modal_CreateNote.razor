@@ -66,7 +66,7 @@
                                                   Variant="Variant.Text"
                                                   Lines="18"
                                                   AutoResize="true"
-                                                  Style=@($"width:100%;font-size:13px; monospace;color:black;") />
+                                                  Style=@($"width:100%;direction:{(note.IsRtl ? "rtl" : "ltr")};font-size:13px;font-family:{(note.IsRtl ? "'Segoe UI'" : "'Courier New', Courier, monospace")};color:black;") />
                                     @* Tags *@
                                         <div class="d-flex gap-4 mb-3 justify-content-center align-items-center">
                                             <MudCheckBox @bind-Value="note.IsRtl"
@@ -172,17 +172,14 @@
     private CultureInfo _persianCulture = new CultureInfo("fa-IR");
     private MudTextField<string> refNoteText;
     private MudTextField<string> refSearchNote;
-
     User user = new User();
     Note note = new Note();
     bool _hasFetched;
     string textDirection = "ltr";
-
     private DateTime? _date = DateTime.Now;
     private DateTime? _dueDate = DateTime.Now;
     private TimeSpan? _time = DateTime.Now.TimeOfDay;
     private TimeSpan? _dueTime = DateTime.Now.TimeOfDay;
-
     int _PersianYear = 0;
     int _PersianMonth = 0;
     int _PersianDay = 0;
@@ -222,9 +219,9 @@
             _dueTime = ((Convert.ToInt32(appState.UserTags) & 256) == 256) ? dT2Offset.TimeOfDay.Add(new TimeSpan(+3, +30, 0)) : dT2Offset.TimeOfDay;
             //END PARSE DATETIME
             note.NoteText = appState.NoteText ?? "";
-            note.IsRtl = Convert.ToBoolean(appState.NoteIsRtl);
-            note.IsShared = Convert.ToBoolean(appState.NoteIsShared);
-            note.IsTodo = Convert.ToBoolean(appState.NoteIsTodo);
+            note.IsRtl = Convert.ToBoolean(appState.NoteTags & 1);
+            note.IsShared = Convert.ToBoolean(appState.NoteTags & 2);
+            note.IsTodo = Convert.ToBoolean(appState.NoteTags & 8);
             }
         _persianCulture = ((Convert.ToInt32(appState.UserTags) & 256) == 256) ? new CultureInfo("fa-IR") : new CultureInfo("en-US");
         _hasFetched = true;
@@ -295,13 +292,12 @@
             }
         else
             {
-            //ReferenceTypes 1:quicknote(s) 2:SectNote(s) 11:quicknote(t) 12:SectNote(t) 13:StudentNote(t) 14:GroupNote(t) 15:CourseNote(t) 16:ExamNote(t) 17:StudentExamNote(t)
             note.NoteId = Convert.ToInt32(appState.SelectedNoteId);
             note.RefId = Convert.ToInt32(appState.NoteRefId);
             note.RefType = Convert.ToInt32(appState.NoteRefType);
             DateTime _dt1 = _date.Value.Date + _time.Value;
             DateTime _dt2 = _dueDate.Value.Date + _dueTime.Value;
-            note.NoteDateTime = _dt1.ToUniversalTime();      //convert time to utc;
+            note.NoteDateTime = _dt1.ToUniversalTime();   //convert time to utc;
             note.NoteDateTimeDue = (note.IsTodo) ? _dt2.ToUniversalTime() : null;
             //not neccessary, but just to ensure everything is ok:
             _hasFetched = false;

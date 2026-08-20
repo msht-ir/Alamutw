@@ -482,6 +482,76 @@ namespace AlamutB.Backend
             return Ok (result);
             }
         #endregion
+        #region NOTEBOOK
+        [HttpPost ("Create_Notebook")]
+        public async Task<ActionResult<bool>> Create_Notebook ([FromBody] Notebook notebook)
+            {
+            var result = await _BeService.Create_NotebookAsync (notebook);
+            return Ok (result);
+            }
+        [HttpPost ("Read_Notebooks")]
+        public async Task<ActionResult<List<Notebook>>> Read_Notebooks ([FromBody] int userId)
+            {
+            var result = await _BeService.Read_NotebooksAsync (userId);
+            return Ok (result);
+            }
+        [HttpPost ("Read_Notebook")]
+        public async Task<ActionResult<Notebook>> Read_Notebook ([FromBody] int notebookId)
+            {
+            var result = await _BeService.Read_NotebookAsync (notebookId);
+            return Ok (result);
+            }
+        [HttpPost ("Update_Notebook")]
+        public async Task<ActionResult<bool>> Update_Notebook ([FromBody] Notebook notebook)
+            {
+            var result = await _BeService.Update_NotebookAsync (notebook);
+            return Ok (result);
+            }
+        [HttpPost ("Delete_Notebook")]
+        public async Task<ActionResult<bool>> Delete_Notebook ([FromBody] int notebookId)
+            {
+            var result = await _BeService.Delete_NotebookAsync (notebookId);
+            return Ok (result);
+            }
+        #endregion
+        #region SECTION
+        [HttpPost ("Create_Section")]
+        public async Task<ActionResult<bool>> Create_Section ([FromBody] Section section)
+            {
+            var result = await _BeService.Create_SectionAsync (section);
+            return Ok (result);
+            }
+        [HttpPost ("Read_Sections")]
+        public async Task<ActionResult<List<Section>>> Read_Sections ([FromBody] int notebookId, [FromQuery] bool readNotes)
+            {
+            var result = await _BeService.Read_SectionsAsync (notebookId, readNotes);
+            return Ok (result);
+            }
+        [HttpPost ("Read_Section")]
+        public async Task<ActionResult<Section>> Read_Section ([FromBody] int SectionId, [FromQuery] bool readNotes)
+            {
+            var result = await _BeService.Read_SectionAsync (SectionId,readNotes);
+            return Ok (result);
+            }
+        [HttpPost ("Update_Section")]
+        public async Task<ActionResult<bool>> Update_Section ([FromBody] Section section)
+            {
+            var result = await _BeService.Update_SectionAsync (section);
+            return Ok (result);
+            }
+        [HttpPost ("Update_SectionParent")]
+        public async Task<ActionResult<bool>> Update_SectionPaernt ([FromBody] Section section)
+            {
+            var result = await _BeService.Update_SectionParentAsync (section);
+            return Ok (result);
+            }
+        [HttpPost ("Delete_Section")]
+        public async Task<ActionResult<bool>> Delete_Section ([FromBody] int sectionId)
+            {
+            var result = await _BeService.Delete_SectionAsync (sectionId);
+            return Ok (result);
+            }
+        #endregion
         #region NOTE
         [HttpPost ("Create_Note")]
         public async Task<ActionResult<bool>> Create_Note ([FromBody] Note note)

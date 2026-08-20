@@ -283,14 +283,14 @@ else
                                         {
                                             <div style="text-align: center;">
                                                 <button class="btn btn-link pulse-hover" @onclick="() => BtnAddNewSection(notebook.NotebookId)">
-                                                <img src="/img/icoAddSection1.png" width="28" title="add new section" />
+                                                <img src="/img/icoBookmarkAdd.png" width="28" title="add new section" />
                                                 </button>
                                                 <button class="btn btn-link pulse-hover" type="button" @onclick="() => BtnEditNotebook(notebook.NotebookId)">
                                                 <img src="/img/icoRename.png" width="34" title="edit notebook" />
                                                 </button>
                                             <hr style="color:red" />
                                             </div>
-                                        @if ((appState.Cmd == "AddNewSection") && (appState.NotebookId == notebook.NotebookId))
+                                        @if ((appState.Cmd == "cmdAddNewSection") && (appState.NotebookId == notebook.NotebookId))
                                             {
                                                 <div>
                                                     <div class="d-flex mb-3">
@@ -390,7 +390,7 @@ else
                                                                     @* SECTION BUTTONS *@
                                                                         <div style="text-align:center">
                                                                             <button class="btn btn-link pulse-animation" @onclick="() => BtnCreateNewSectionNote(section)">
-                                                                            <img src="/img/icoNewNote3.png" width="24" title="new note" />
+                                                                            <img src="/img/icoNoteStickyAdd.png" width="24" title="new note" />
                                                                             </button>
                                                                             <button class="btn btn-link pulse-hover" type="button" @onclick="() => BtnEditSection(section.SectionId)">
                                                                             <img src="/img/icoRename.png" width="30" title="edit section" />
@@ -412,7 +412,7 @@ else
                                                                                                 <div class="d-flex align-items-center" style="text-align:center; color:indianred; font-weight:bold;font-size:small">
                                                                                                 @if (notex.IsTodo)
                                                                                                     {
-                                                                                                    <img class="pulse-hover" src="/img/icoClock2.png" width="20" style="margin-right:7px" />
+                                                                                                    <img class="pulse-hover" src="/img/icoClockRed.png" width="20" style="margin-right:7px" />
                                                                                                     @PersianDate(notex.NoteDateTimeDue)
                                                                                                     }
                                                                                                 else
@@ -421,7 +421,7 @@ else
                                                                                                     }
                                                                                                 </div>
                                                                                             <hr />
-                                                                                            @if ((_cmd == "MoveNoteToNotebook") & (Convert.ToInt32(appState.NoteId) == notex.NoteId))
+                                                                                            @if ((_cmd == "cmdMoveNoteToNotebook") & (Convert.ToInt32(appState.NoteId) == notex.NoteId))
                                                                                                 {
                                                                                                 <h6 style="color:indianred;text-align:center;">replace to:</h6>
                                                                                                 @* COMBO Notebooks *@
@@ -485,7 +485,7 @@ else
                                                                                                         <MudMenu Label="actions" Variant="Variant.Outlined" Color="Color.Tertiary" StartIcon="@Icons.Material.Filled.Menu" EndIcon="@Icons.Material.Filled.KeyboardArrowDown" Size="Size.Small" Dense="true">
                                                                                                             <MudMenuItem @onclick="() => BtnCopyToStickyNotes(notex, section)">
                                                                                                                 <button class="btn btn-link pulse-hover">
-                                                                                                                <img src="/img/icoCopyToNoteReport.png" width="26" title="copy to quick note" />
+                                                                                                                <img src="/img/icoNoteStickyCopyTo.png" width="26" title="copy to quick note" />
                                                                                                                 </button>
                                                                                                             copy to quick notes
                                                                                                             </MudMenuItem>
@@ -521,9 +521,9 @@ else
                                                                             }
                                                                         @if (lstSPNotes.Count > 0)
                                                                             {
-                                                                                <div style="text-align:center;margin-top:8px;">
+                                                                                <div style="text-align:center;margin-top:12px;">
                                                                                     <button class="btn btn-link pulse-hover" @onclick="() => BtnCreateNewSectionNote(section)">
-                                                                                    <img src="/img/icoNewNote3.png" width="28" title="add new note" />
+                                                                                    <img src="/img/icoNoteStickyAdd.png" width="28" title="add new note" />
                                                                                     </button>
                                                                                 </div>
                                                                             }
@@ -946,7 +946,7 @@ else
         // 1:ApgGroup 2:Order 3 ّFamily 4:Genus 5:Species 6:DatasetFL 7:DatasetCN 8:DatasetLM 9:Station 10:Set 11:SetData 12:User'sNote
         appState.SetUserId(Convert.ToInt32(appState.UserId));
         appState.SetNoteRefId(Convert.ToInt32(appState.UserId));
-        appState.SetNoteRefType(12);
+        appState.SetNoteRefType(13);
         appState.SetCmd("cmdCreateNote");
         StateHasChanged();
         //After the Modal_CreateNote is closed, HandleModalClose will refresh the list
@@ -955,8 +955,7 @@ else
     //Notes
     public async Task BtnCreateNewSectionNote (Section section)
         {
-        //ReferenceTypes 1:quicknote(s) 2:SectNote(s) 11:quicknote(t) 12:SectNote(t) 13:StudentNote(t) 14:GroupNote(t) 15:CourseNote(t) 16:ExamNote(t) 17:StudentExamNote(t)
-        appState.SetNoteRefType(0);
+        appState.SetNoteRefType(12);
         appState.SetNoteRefId(section.SectionId);
         appState.SetNotebookId(section.NotebookId);
         appState.SetCmd("cmdCreateNote");
@@ -965,9 +964,10 @@ else
     public async Task BtnReadSectionNotes (Section section)
         {
         appState.SetNotebookId(section.NotebookId);
-        appState.SetNoteRefType(0);
+        appState.SetNoteRefType(12);
         appState.SetNoteRefId(section.SectionId);
-        lstSPNotes = await feService.Read_Notes(12, 1); //===================
+        int userid = Convert.ToInt32 (appState.UserId);
+        lstSPNotes = await feService.Read_Notes (12, userid);
         StateHasChanged();
         }
     public async Task BtnReadNotesDue ()
@@ -988,12 +988,12 @@ else
         appState.SetSelectedNoteId(note.NoteId);
         appState.SetNoteRefId(note.RefId);
         appState.SetNoteRefName(note.RefName);
-        appState.SetNoteRefType(0);
+        appState.SetNoteRefType(12);
         appState.SetNoteDateTime(note.NoteDateTime.ToString("yyyy-MM-dd HH:mm"));
         appState.SetNoteDateTimeDue(note.NoteDateTimeDue?.ToString("yyyy-MM-dd HH:mm")); //use ? becuse note.NoteDateTimeDue is nullable
         appState.SetNoteText(note.NoteText);
         appState.SetNoteUserId(note.UserId);
-        appState.SetNoteIsTodo(note.IsTodo);
+        appState.SetNoteTags(note.NoteTags);
         appState.SetCmd("cmdUpdateNote");
         StateHasChanged();
         //After the Modal_CreateNote is closed, HandleModalClose will refresh the list
@@ -1009,7 +1009,7 @@ else
         appState.SetNoteDateTimeDue(note.NoteDateTimeDue?.ToString("yyyy-MM-dd HH:mm")); //use ? becuse note.NoteDateTimeDue is nullable
         appState.SetNoteText(note.NoteText);
         appState.SetNoteUserId(note.UserId);
-        appState.SetNoteIsTodo(note.IsTodo);
+        appState.SetNoteTags(note.NoteTags);
         appState.SetCmd("cmdShowNoteInDialog");
         StateHasChanged();
         }
@@ -1027,17 +1027,16 @@ else
         }
     public async Task BtnCopyToStickyNotes (Note note, Section section)
         {
-        var message = new MarkupString($"<hr><span style='color:DarkGreen'>COPY</span> this note to Quick-Notes?<br><br><div style='text-align:center'><img src='/img/icoCopyToNoteReport.png' width='70'/></div><br><hr>");
+        var message = new MarkupString($"<hr><span style='color:DarkGreen'>COPY</span> this note to Quick-Notes?<br><br><div style='text-align:center'><img src='/img/icoNoteStickyCopyTo.png' width='70'/></div><br><hr>");
         bool? confirmResult = await DialogService.ShowMessageBox(title: "Confirm", markupMessage: message, yesText: "Yes", cancelText: "No");
         if (confirmResult == true)
             {
-            //ReferenceTypes 1:quicknote(s) 2:SectNote(s) 11:quicknote(t) 12:SectNote(t) 13:StudentNote(t) 14:GroupNote(t) 15:CourseNote(t) 16:ExamNote(t) 17:StudentExamNote(t)
             appState.SetNotebookId(section.NotebookId);
             Note newNote = new Note()
                 {
                 NoteId = 1,
                 RefId = Convert.ToInt32(appState.UserId),
-                RefType = 1,
+                RefType = 13,
                 NoteDateTime = DateTime.Now, // note.NoteDateTime,
                 NoteDateTimeDue = note.NoteDateTimeDue, // note.NoteDateTime,
                 NoteText = $"[COPY from NoteBook Section '{section.SectionName}'] \n" + note.NoteText,

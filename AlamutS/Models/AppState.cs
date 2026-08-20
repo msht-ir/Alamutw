@@ -52,12 +52,8 @@
         public void SetNoteText (string _NoteText) { NoteText = _NoteText; OnChange?.Invoke (); }
         public int? NoteUserId {get; private set;}
         public void SetNoteUserId (int _NoteUserId) { NoteUserId = _NoteUserId; OnChange?.Invoke (); }
-        public bool NoteIsRtl { get; private set; }
-        public void SetNoteIsRtl (bool _NoteIsRtl) { NoteIsRtl = _NoteIsRtl; OnChange?.Invoke (); }
-        public bool NoteIsShared { get; private set; }
-        public void SetNoteIsShared (bool _NoteIsShared) { NoteIsShared = _NoteIsShared; OnChange?.Invoke (); }
-        public bool NoteIsTodo { get; private set; }
-        public void SetNoteIsTodo (bool _NoteIsTodo) { NoteIsTodo = _NoteIsTodo; OnChange?.Invoke (); }
+        public int? NoteTags {get; private set;}
+        public void SetNoteTags (int _NoteTags) { NoteTags = _NoteTags; OnChange?.Invoke (); }
         //Notebook
         public int? NotebookId { get; private set; }
         public void SetNotebookId (int _NotebookId) { NotebookId = _NotebookId; OnChange?.Invoke (); }

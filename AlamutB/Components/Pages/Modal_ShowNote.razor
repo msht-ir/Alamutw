@@ -21,7 +21,7 @@
                     </h6>
                 </div>
                 <div class="modal-body">
-                        @if(Convert.ToBoolean(appState.NoteIsRtl))
+                        @if(Convert.ToBoolean(appState.NoteTags & 1))
                         {
                         <div class="mt-3 text-end">
                             <MudContainer Class="mt-2 px-0">

@@ -786,11 +786,11 @@ namespace AlamutB.Service
             var response = await _http.PostAsJsonAsync ("api/Update_SectionParent", Section);
             return response.IsSuccessStatusCode ? true : false;
             }
-        public async Task<bool> Delete_Sections (int notebookId)
-            {
-            var response = await _http.PostAsJsonAsync ($"api/Delete_Sections", notebookId);
-            return response.IsSuccessStatusCode ? true : false;
-            }
+        //public async Task<bool> Delete_Sections (int notebookId)
+        //    {
+        //    var response = await _http.PostAsJsonAsync ($"api/Delete_Sections", notebookId);
+        //    return response.IsSuccessStatusCode ? true : false;
+        //    }
         public async Task<bool> Delete_Section (int SectionId)
             {
             var response = await _http.PostAsJsonAsync ($"api/Delete_Section", SectionId);

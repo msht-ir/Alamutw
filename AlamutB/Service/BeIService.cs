@@ -113,6 +113,21 @@ namespace AlamutB.Services2Backend
         Task<bool> Update_SetDataAsync (SetData setData);
         Task<bool> Delete_SetDataAsync (int setDataId);
         #endregion
+        #region NOTEBOOK
+        Task<int> Create_NotebookAsync (Notebook notebook);
+        Task<List<Notebook>> Read_NotebooksAsync (int userId);
+        Task<Notebook> Read_NotebookAsync (int notebookId);
+        Task<bool> Update_NotebookAsync (Notebook notebook);
+        Task<bool> Delete_NotebookAsync (int notebookId);
+        #endregion
+        #region SECTION
+        Task<int> Create_SectionAsync (Section section);
+        Task<List<Section>> Read_SectionsAsync (int notebookId, bool readNotes);
+        Task<Section> Read_SectionAsync (int sectionId, bool readNotes);
+        Task<bool> Update_SectionAsync (Section section);
+        Task<bool> Update_SectionParentAsync (Section section);
+        Task<bool> Delete_SectionAsync (int subProjectId);
+        #endregion
         #region NOTE
         Task<bool> Create_NoteAsync (Note note);
         Task<List<Note>> Read_NotesAsync (int userId, int refType);

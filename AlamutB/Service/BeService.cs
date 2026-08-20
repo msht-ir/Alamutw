@@ -2293,6 +2293,224 @@ namespace AlamutB.Services2Backend
                 }
             }
         #endregion
+        #region NOTEBOOK
+        public async Task<int> Create_NotebookAsync (Notebook notebook)
+            {
+            string sql = "DT.Create_Notebook";
+            string? connString = _config.GetConnectionString ("cnni");
+            using SqlConnection cnn = new (connString);
+            //Create
+            await cnn.OpenAsync ();
+            SqlCommand cmd2 = new SqlCommand (sql, cnn);
+            cmd2.CommandType = CommandType.StoredProcedure;
+            cmd2.Parameters.AddWithValue ("@UserId", notebook.UserId);
+            cmd2.Parameters.AddWithValue ("@NotebookName", notebook.NotebookName);
+            cmd2.Parameters.AddWithValue ("@NotebookTags", notebook.NotebookTags);
+            await cmd2.ExecuteNonQueryAsync ();
+            await cnn.CloseAsync ();
+            return 1;
+            }
+        public async Task<List<Notebook>> Read_NotebooksAsync (int userId)
+            {
+            List<Notebook> lstNotebooks = new List<Notebook> ();
+            string sql = "DT.Read_Notebooks";
+            string? connString = _config.GetConnectionString ("cnni");
+            using SqlConnection cnn = new SqlConnection (connString);
+            await cnn.OpenAsync ();
+            SqlCommand cmd = new SqlCommand (sql, cnn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue ("@UserId", userId);
+            SqlDataReader reader = await cmd.ExecuteReaderAsync ();
+            lstNotebooks.Clear ();
+            while (await reader.ReadAsync ())
+                {
+                lstNotebooks.Add (new Notebook
+                    {
+                    NotebookId = reader.GetInt32 (0),
+                    UserId = reader.GetInt32 (1),
+                    NotebookName = reader.GetString (2),
+                    NotebookTags = reader.GetInt32 (3),
+                    Sections = new List<Section> ()
+                    });
+                }
+            await cnn.CloseAsync ();
+            foreach (Notebook nbook in lstNotebooks)
+                {
+                nbook.Sections = await Read_SectionsAsync (nbook.NotebookId, false);
+                }
+            return lstNotebooks;
+            }
+        public async Task<Notebook> Read_NotebookAsync (int notebookId)
+            {
+            string sql = "DT.Read_Notebook";
+            string? connString = _config.GetConnectionString ("cnni");
+            using SqlConnection cnn = new SqlConnection (connString);
+            await cnn.OpenAsync ();
+            SqlCommand cmd = new SqlCommand (sql, cnn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue ("@NotebookId", notebookId);
+            SqlDataReader reader = await cmd.ExecuteReaderAsync ();
+            Notebook notebook = new Notebook ();
+            while (await reader.ReadAsync ())
+                {
+                notebook.NotebookId = reader.GetInt32 (0);
+                notebook.UserId = reader.GetInt32 (1);
+                notebook.UserId = reader.GetInt32 (2);
+                notebook.NotebookName = reader.GetString (3);
+                notebook.NotebookTags = reader.GetInt32 (4);
+                notebook.Sections = new List<Section> ();
+                }
+            await cnn.CloseAsync ();
+            notebook.Sections = await Read_SectionsAsync (notebook.NotebookId, false);
+            return notebook;
+            }
+        public async Task<bool> Update_NotebookAsync (Notebook notebook)
+            {
+            string sql = "DT.Update_Notebook";
+            string? connString = _config.GetConnectionString ("cnni");
+            using SqlConnection cnn = new (connString);
+            await cnn.OpenAsync ();
+            SqlCommand cmd = new SqlCommand (sql, cnn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue ("@NotebookId", notebook.NotebookId);
+            cmd.Parameters.AddWithValue ("@UserId", notebook.UserId);
+            cmd.Parameters.AddWithValue ("@NotebookName", notebook.NotebookName);
+            cmd.Parameters.AddWithValue ("@NotebookTags", notebook.NotebookTags);
+            await cmd.ExecuteNonQueryAsync ();
+            await cnn.CloseAsync ();
+            return true;
+            }
+        public async Task<bool> Delete_NotebookAsync (int notebookId)
+            {
+            string sql = @"DT.Delete_Notebook";
+            string? connString = _config.GetConnectionString ("cnni");
+            using SqlConnection cnn = new (connString);
+            await cnn.OpenAsync ();
+            SqlCommand cmd = new SqlCommand (sql, cnn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue ("@NotebookId", notebookId);
+            await cmd.ExecuteNonQueryAsync ();
+            await cnn.CloseAsync ();
+            return true;
+            }
+        #endregion
+        #region SECTION
+        public async Task<int> Create_SectionAsync (Section section)
+            {
+            string sql = "DT.Create_Section";
+            string? connString = _config.GetConnectionString ("cnni");
+            using SqlConnection cnn = new (connString);
+            await cnn.OpenAsync ();
+            SqlCommand cmd2 = new SqlCommand (sql, cnn);
+            cmd2.CommandType = CommandType.StoredProcedure;
+            cmd2.Parameters.AddWithValue ("@NotebookId", section.NotebookId);
+            cmd2.Parameters.AddWithValue ("@SectionName", section.SectionName);
+            cmd2.Parameters.AddWithValue ("@SectionTags", section.SectionTags);
+            await cmd2.ExecuteNonQueryAsync ();
+            await cnn.CloseAsync ();
+            return 1;
+            }
+        public async Task<List<Section>> Read_SectionsAsync (int notebookId, bool readNotes)
+            {
+            List<Section> lstSections = new List<Section> ();
+            string sql = "DT.Read_Sections";
+            string? connString = _config.GetConnectionString ("cnni");
+            using SqlConnection cnn = new SqlConnection (connString);
+            await cnn.OpenAsync ();
+            SqlCommand cmd = new SqlCommand (sql, cnn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue ("@NotebookId", notebookId);
+            SqlDataReader reader = await cmd.ExecuteReaderAsync ();
+            lstSections.Clear ();
+            while (await reader.ReadAsync ())
+                {
+                lstSections.Add (new Section
+                    {
+                    SectionId = reader.GetInt32 (0),
+                    NotebookId = reader.GetInt32 (1),
+                    SectionName = reader.GetString (2),
+                    Notes = new List<Note> ()
+                    });
+                }
+            await cnn.CloseAsync ();
+            if (readNotes)
+                {
+                foreach (Section sect in lstSections)
+                    {
+                    sect.Notes = await Read_NotesAsync (12, sect.SectionId);
+                    }
+                }
+            return lstSections;
+            }
+        public async Task<Section> Read_SectionAsync (int sectionId, bool readNotes)
+            {
+            string sql = "DT.Read_Section";
+            string? connString = _config.GetConnectionString ("cnni");
+            using SqlConnection cnn = new SqlConnection (connString);
+            await cnn.OpenAsync ();
+            SqlCommand cmd = new SqlCommand (sql, cnn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue ("@SectionId", sectionId);
+            SqlDataReader reader = await cmd.ExecuteReaderAsync ();
+            Section section = new Section ();
+            while (await reader.ReadAsync ())
+                {
+                section.SectionId = reader.GetInt32 (0);
+                section.NotebookId = reader.GetInt32 (1);
+                section.SectionName = reader.GetString (2);
+                section.Notes = new List<Note> ();
+                }
+            await cnn.CloseAsync ();
+            if (readNotes)
+                {
+                section.Notes = await Read_NotesAsync (13, section.SectionId);
+                }
+            return section;
+            }
+        public async Task<bool> Update_SectionAsync (Section section)
+            {
+            string sql = "DT.Update_Section";
+            string? connString = _config.GetConnectionString ("cnni");
+            using SqlConnection cnn = new (connString);
+            await cnn.OpenAsync ();
+            SqlCommand cmd = new SqlCommand (sql, cnn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue ("@SectionId",   section.SectionId);
+            cmd.Parameters.AddWithValue ("@NotebookId", section.NotebookId);
+            cmd.Parameters.AddWithValue ("@SectionName", section.SectionName);
+            cmd.Parameters.AddWithValue ("@SectionTags", section.SectionTags);
+            await cmd.ExecuteNonQueryAsync ();
+            await cnn.CloseAsync ();
+            return true;
+            }
+        public async Task<bool> Update_SectionParentAsync (Section section)
+            {
+            string sql = "dbo.sp_UpdateSectionParent";
+            string? connString = _config.GetConnectionString ("cnni");
+            using SqlConnection cnn = new (connString);
+            await cnn.OpenAsync ();
+            SqlCommand cmd = new SqlCommand (sql, cnn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue ("@NotebookId", section.NotebookId);
+            cmd.Parameters.AddWithValue ("@SectionId", section.SectionId);
+            await cmd.ExecuteNonQueryAsync ();
+            await cnn.CloseAsync ();
+            return true;
+            }
+        public async Task<bool> Delete_SectionAsync (int subProjectId)
+            {
+            string sql = "dbo.sp_DeleteSubproject";
+            string? connString = _config.GetConnectionString ("cnni");
+            using SqlConnection cnn = new SqlConnection (connString);
+            await cnn.OpenAsync ();
+            SqlCommand cmd = new SqlCommand (sql, cnn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue ("@subprojectid", subProjectId);
+            int i = await cmd.ExecuteNonQueryAsync ();
+            await cnn.CloseAsync ();
+            return true;
+            }
+        #endregion
         #region NOTE
         public async Task<bool> Create_NoteAsync (Note note)
             {
@@ -2435,6 +2653,7 @@ namespace AlamutB.Services2Backend
             }
         public async Task<bool> Update_NoteAsync (Note note)
             {
+            note.NoteDateTimeDue ??= new DateTimeOffset (1753, 1, 1, 0, 0, 0, TimeSpan.Zero);
             string sql = "DT.Update_Note";
             string? connstring = _config.GetConnectionString ("cnni");
             using SqlConnection cnn = new SqlConnection (connstring);
@@ -2455,8 +2674,9 @@ namespace AlamutB.Services2Backend
                 await cnn.CloseAsync ();
                 return true;
                 }
-            catch
+            catch (Exception ex)
                 {
+                Console.WriteLine ($"BE error ========== \n {ex}");
                 await cnn.CloseAsync ();
                 return false;
                 }
