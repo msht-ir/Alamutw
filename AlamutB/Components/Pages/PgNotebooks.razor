@@ -137,8 +137,8 @@ else
         else
             {
             @* due Notes *@
-            var collapseId_due = $"collapse";
-            _clpsP = "collapse";
+            var collapseId_due = $"collapseSearch";
+            _clpsNtbk = "collapse";
                 <div class="accordion-item mt-2 mb-1" style="max-width:500px; margin: 0 auto;">
                     <h4 class="accordion-header" style="background-color:rgba(252,252,252)">
                         <button class="accordion-button collapsed"
@@ -233,8 +233,8 @@ else
                 @* 2.1 NOTEBOOKS *@
                 @foreach (Notebook notebook in lstNotebooks)
                     {
-                    var collapseId = $"collapse{notebook.NotebookId}";
-                    _clpsP = ((appState.NotebookId) != notebook.NotebookId) ? "collapse" : "collapse show";
+                    var collapseId = $"collapseNtbk{notebook.NotebookId}";
+                    _clpsNtbk = ((appState.NotebookId) != notebook.NotebookId) ? "collapse" : "collapse show";
                         <div class="accordion-item mb-1">
                             <h4 class="accordion-header" style="background-color:rgba(252,252,252)">
                                 <button class="accordion-button collapsed"
@@ -247,10 +247,10 @@ else
                                     <button class="btn btn-link pulse-hover" @onclick="() => BtnReadNotebookNotes(notebook)">
                                     <img class="pulse-hover" src="img/icoNoteBook.png" width="38" style="margin-right:10px;" />
                                     </button>
-                                <h3 style="color:indigo">@notebook.NotebookName</h3>
+                                <h5 style="color:indigo">@notebook.NotebookName</h5>
                                 </button>
                             </h4>
-                            <div id="@collapseId" class="accordion-collapse @_clpsP" data-bs-parent="#accordionNotebooks">
+                            <div id="@collapseId" class="accordion-collapse @_clpsNtbk" data-bs-parent="#accordionNotebooks">
                                 <div class="accordion-body" style="background-color:rgba(250,250,250)">
                                     <div id="T1">
                                     @if ((appState.Cmd == "cmdEditNotebook") && (appState.NotebookId == notebook.NotebookId))
@@ -317,8 +317,8 @@ else
                                                 <div class="accordion" id="accordionSections-@notebook.NotebookId">
                                                 @foreach (Section section in notebook.Sections)
                                                     {
-                                                    var collapseId2 = $"collapse{section.SectionId}";
-                                                    _clpsSP = (appState.NoteRefId != section.SectionId) ? "collapse" : "collapse show";
+                                                    var collapseId2 = $"collapseSect{section.SectionId}";
+                                                    _clpsSect = (appState.NoteRefId != section.SectionId) ? "collapse" : "collapse show";
                                                         <div class="accordion-item mb-1">
                                                             <h4 class="accordion-header">
                                                                 <button class="accordion-button collapsed"
@@ -328,12 +328,12 @@ else
                                                                     aria-expanded="true"
                                                                     aria-controls="@collapseId2" @onclick="() => BtnReadSectionNotes(section)">
                                                                     <button class="btn btn-link pulse-hover">
-                                                                    <img class="pulse-animation" src="img/icoBookmark1.png" width="22" style="margin-right:5px;" />
+                                                                    <img class="pulse-animation" src="img/icoBookmark1.png" width="20" style="margin-right:5px;" />
                                                                     </button>
-                                                                <h6 style="margin-left:5px;">@section.SectionName</h6>
+                                                                <h6 style="margin-left:5px;color:cornflowerblue">@section.SectionName</h6>
                                                                 </button>
                                                             </h4>
-                                                            <div id="@collapseId2" class="accordion-collapse @_clpsSP" data-bs-parent="#accordionSections-@notebook.NotebookId">
+                                                            <div id="@collapseId2" class="accordion-collapse @_clpsSect" data-bs-parent="#accordionSections-@notebook.NotebookId">
                                                                 <div class="accordion-body" style="background-color:rgba(252,252,252)">
                                                                 @if ((appState.Cmd == "cmdEditSection") && (appState.SectionId == section.SectionId))
                                                                     {
@@ -358,7 +358,7 @@ else
                                                                             </button>
                                                                         </div>
                                                                     }
-                                                                else if ((_cmd == "MoveSectionToNotebook") & (Convert.ToInt32(appState.SectionId) == section.SectionId))
+                                                                else if ((_cmd == "cmdMoveSectionToNotebook") & (Convert.ToInt32(appState.SectionId) == section.SectionId))
                                                                     {
                                                                     @* MOVE SECTION To A NOTEBOOK *@
                                                                         <div class="d-flex justyfy-content-center align-items-center" style="text-align: left;margin-bottom:15px;">
@@ -611,21 +611,14 @@ else
     public string dirx = "";
     public bool _hasFetched = false;
     private bool shouldFocusNewNotebook = false;
-    bool _IsMessageTypeFeedback = true;
-    bool _tag01 = true;
-    bool _tag02 = false;
-    bool _tag04 = false;
-    bool _tag08 = false;
-    bool _tag16 = false;
-    bool _tag32 = false;
     string txtNewSectionTitle = "";
     int i = 0;
     string _cmd = "";
     string _ShowNotebooksMode = "active";
     private DateTime? _date = DateTime.Now;
     private TimeSpan? _time = DateTime.Now.TimeOfDay;
-    public string _clpsP = "";  //collapse Accardion Notebooks
-    public string _clpsSP = ""; //collapse Accardion Sections
+    public string _clpsNtbk = "";  //collapse Accardion Notebooks
+    public string _clpsSect = "";  //collapse Accardion Sections
 
     //LifeCycleEvents
     protected override async Task OnInitializedAsync ()
@@ -840,10 +833,10 @@ else
             Snackbar.Add($"failed to create new section", Severity.Error, opt => { opt.VisibleStateDuration = 1500; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
             }
         }
-    public async Task BtnEditSection (int SectionId)
+    public async Task BtnEditSection (int sectionId)
         {
         appState.SetCmd("cmdEditSection");
-        appState.SetSectionId(SectionId);
+        appState.SetSectionId(sectionId);
         StateHasChanged();
         await Task.Delay(1);
         await refSectionName.FocusAsync();
@@ -896,21 +889,17 @@ else
             Snackbar.Add($"failed to remove section!", Severity.Error, opt => { opt.VisibleStateDuration = 1500; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
             }
         }
-    public void BtnReportSection (Section section)
-        {
-        //Navman.NavigateTo ($"/T_ReportStudents/{mode}/{stdnt.UserId}");
-        }
     //replace section
     private void BtnReplaceSection (int sectionId)
         {
         if (Convert.ToInt32(appState.SectionId) == sectionId)
             {
-            _cmd = (_cmd == "MoveSectionToNotebook") ? "" : "MoveSectionToNotebook";
+            _cmd = (_cmd == "cmdMoveSectionToNotebook") ? "" : "cmdMoveSectionToNotebook";
             }
         else
             {
             appState.SetSectionId(sectionId);
-            _cmd = "MoveSectionToNotebook";
+            _cmd = "cmdMoveSectionToNotebook";
             }
         StateHasChanged();
         }
@@ -943,8 +932,8 @@ else
     public async Task CreateStickyNote ()
         {
         //refTypes: 1:ApgGroup 2:Order 3 ّFamily 4:Genus 5:Species 6:DatasetFL 7:DatasetCN 8:DatasetLM 9:Station 10:Set 11:SetData 12:Section 13:User'sNote
-        appState.SetNoteRefId(Convert.ToInt32(appState.UserId));
         appState.SetNoteRefType(13);
+        appState.SetNoteRefId(Convert.ToInt32(appState.UserId));
         appState.SetCmd("cmdCreateNote");
         StateHasChanged();
         //After the Modal_CreateNote is closed, HandleModalClose will refresh the list
@@ -964,8 +953,8 @@ else
         appState.SetNotebookId(section.NotebookId);
         appState.SetNoteRefType(12);
         appState.SetNoteRefId(section.SectionId);
-        int userid = Convert.ToInt32 (appState.UserId);
-        lstSPNotes = await feService.Read_Notes (12, userid);
+        int userid = Convert.ToInt32(appState.UserId);
+        lstSPNotes = await feService.Read_Notes(12, section.SectionId);
         StateHasChanged();
         }
     public async Task BtnReadNotesDue ()
@@ -980,6 +969,7 @@ else
         }
     public async Task BtnReadNotebookNotes (Notebook notebook)
         {
+        //
         }
     public async Task BtnEditNoteInDialog (Note note)
         {
@@ -1041,7 +1031,6 @@ else
                 NoteTags = note.NoteTags,
                 UserId = Convert.ToInt32(appState.UserId)
                 };
-            newNote.NoteTags |= 16; //16:Student-Note
             int result = await feService.Create_Note(newNote);
             if (result > 0)
                 {
@@ -1103,7 +1092,7 @@ else
         //delete all sections of a Notebook
         if (0 == 0)
             {
-            Snackbar.Add($"select a course", Severity.Success);
+            Snackbar.Add($"select an item", Severity.Success);
             return;
             }
         else

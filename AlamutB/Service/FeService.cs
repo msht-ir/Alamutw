@@ -803,9 +803,9 @@ namespace AlamutB.Service
             var response = await _http.PostAsJsonAsync ($"api/Create_Note", note);
             return response.IsSuccessStatusCode ? 1 : 0;
             }
-        public async Task<List<Note>> Read_Notes (int refType, int userId)
+        public async Task<List<Note>> Read_Notes (int refType, int refId)
             {
-            var response = await _http.PostAsJsonAsync ($"api/Read_Notes?refType={refType}", userId);
+            var response = await _http.PostAsJsonAsync ($"api/Read_Notes?refType={refType}", refId);
             if (response.IsSuccessStatusCode)
                 {
                 List<Note>? lstNotes = await response.Content.ReadFromJsonAsync<List<Note>> ();

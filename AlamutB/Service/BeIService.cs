@@ -130,8 +130,8 @@ namespace AlamutB.Services2Backend
         #endregion
         #region NOTE
         Task<bool> Create_NoteAsync (Note note);
-        Task<List<Note>> Read_NotesAsync (int userId, int refType);
-        Task<List<Note>> Read_NotesDueAsync (int userId, int _days);
+        Task<List<Note>> Read_NotesAsync (int refType, int refId);
+        Task<List<Note>> Read_NotesDueAsync (int userId, int nDays);
         Task<Note> Read_NoteAsync (int noteId);
         Task<bool> Update_NoteAsync (Note note);
         Task<bool> Delete_NotesAsync (int refType, int refId);

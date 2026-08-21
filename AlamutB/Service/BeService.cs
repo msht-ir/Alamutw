@@ -2514,7 +2514,6 @@ namespace AlamutB.Services2Backend
         #region NOTE
         public async Task<bool> Create_NoteAsync (Note note)
             {
-            note.NoteDateTimeDue ??= new DateTimeOffset (1753, 1, 1, 0, 0, 0, TimeSpan.Zero);
             string sql = "DT.Create_Note";
             string? connstring = _config.GetConnectionString ("cnni");
             using SqlConnection cnn = new SqlConnection (connstring);
@@ -2526,7 +2525,7 @@ namespace AlamutB.Services2Backend
                 cmd.Parameters.AddWithValue ("@RefType", note.RefType);
                 cmd.Parameters.AddWithValue ("@RefId", note.RefId);
                 cmd.Parameters.AddWithValue ("@NoteDateTime", note.NoteDateTime);
-                cmd.Parameters.AddWithValue ("@NoteDateTimeDue", note.NoteDateTimeDue);
+                cmd.Parameters.AddWithValue ("@NoteDateTimeDue", (object) note.NoteDateTimeDue ?? DBNull.Value); //using DBNull instead of null
                 cmd.Parameters.AddWithValue ("@NoteText", note.NoteText);
                 cmd.Parameters.AddWithValue ("@NoteTags", note.NoteTags);
                 await cnn.OpenAsync ();
@@ -2541,7 +2540,7 @@ namespace AlamutB.Services2Backend
                 return false;
                 }
             }
-        public async Task<List<Note>> Read_NotesAsync (int userId, int refType)
+        public async Task<List<Note>> Read_NotesAsync (int refType, int refId)
             {
             string? connString = _config.GetConnectionString ("cnni");
             string sql = "DT.Read_Notes";
@@ -2551,8 +2550,8 @@ namespace AlamutB.Services2Backend
                 await cnn.OpenAsync ();
                 SqlCommand cmd = new (sql, cnn);
                 cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue ("@UserId", userId);
                 cmd.Parameters.AddWithValue ("@RefType", refType);
+                cmd.Parameters.AddWithValue ("@RefId", refId);
                 SqlDataReader reader = await cmd.ExecuteReaderAsync ();
                 List<Note> lstNotes = new List<Note> ();
                 while (await reader.ReadAsync ())
@@ -2579,7 +2578,7 @@ namespace AlamutB.Services2Backend
                 return new List<Note> ();
                 }
             }
-        public async Task<List<Note>> Read_NotesDueAsync (int userId, int _days)
+        public async Task<List<Note>> Read_NotesDueAsync (int userId, int nDays)
             {
             string? connString = _config.GetConnectionString ("cnni");
             string sql = "DT.Read_NotesDue";
@@ -2590,7 +2589,7 @@ namespace AlamutB.Services2Backend
                 SqlCommand cmd = new (sql, cnn);
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue ("@UserId", userId);
-                cmd.Parameters.AddWithValue ("@Days", _days);
+                cmd.Parameters.AddWithValue ("@Days", nDays);
                 SqlDataReader reader = await cmd.ExecuteReaderAsync ();
                 List<Note> lstNotes = new List<Note> ();
                 while (await reader.ReadAsync ())
@@ -2653,7 +2652,6 @@ namespace AlamutB.Services2Backend
             }
         public async Task<bool> Update_NoteAsync (Note note)
             {
-            note.NoteDateTimeDue ??= new DateTimeOffset (1753, 1, 1, 0, 0, 0, TimeSpan.Zero);
             string sql = "DT.Update_Note";
             string? connstring = _config.GetConnectionString ("cnni");
             using SqlConnection cnn = new SqlConnection (connstring);
@@ -2666,7 +2664,7 @@ namespace AlamutB.Services2Backend
                 cmd.Parameters.AddWithValue ("@RefType", note.RefType);
                 cmd.Parameters.AddWithValue ("@RefId", note.RefId);
                 cmd.Parameters.AddWithValue ("@NoteDateTime", note.NoteDateTime);
-                cmd.Parameters.AddWithValue ("@NoteDateTimeDue", note.NoteDateTimeDue);
+                cmd.Parameters.AddWithValue ("@NoteDateTimeDue", (object) note.NoteDateTimeDue ?? DBNull.Value); //using DBNull instead of null
                 cmd.Parameters.AddWithValue ("@NoteText", note.NoteText);
                 cmd.Parameters.AddWithValue ("@NoteTags", note.NoteTags);
                 await cnn.OpenAsync ();

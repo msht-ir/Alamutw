@@ -560,15 +560,15 @@ namespace AlamutB.Backend
             return Ok (result);
             }
         [HttpPost ("Read_Notes")]
-        public async Task<ActionResult<List<Note>>> Read_Notes ([FromBody] int userId, [FromQuery] int refType)
+        public async Task<ActionResult<List<Note>>> Read_Notes ([FromBody] int refId, [FromQuery] int refType)
             {
-            var result = await _BeService.Read_NotesAsync (userId, refType);
+            var result = await _BeService.Read_NotesAsync (refType, refId);
             return Ok (result);
             }
         [HttpPost ("Read_NotesDue")]
-        public async Task<ActionResult<List<Note>>> Read_NotesDue ([FromBody] int userId, [FromQuery] int days)
+        public async Task<ActionResult<List<Note>>> Read_NotesDue ([FromBody] int userId, [FromQuery] int nDays)
             {
-            var result = await _BeService.Read_NotesDueAsync (userId, days);
+            var result = await _BeService.Read_NotesDueAsync (userId, nDays);
             return Ok (result);
             }
         [HttpPost ("Read_Note")]
