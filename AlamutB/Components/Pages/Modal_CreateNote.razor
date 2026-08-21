@@ -67,7 +67,7 @@
                                                   Lines="18"
                                                   AutoResize="true"
                                                   Style=@($"width:100%;direction:{(note.IsRtl ? "rtl" : "ltr")};font-size:13px;font-family:{(note.IsRtl ? "'Segoe UI'" : "'Courier New', Courier, monospace")};color:black;") />
-                                    @* Tags *@
+                                    @* noteTags (checkbox) *@
                                         <div class="d-flex gap-4 mb-3 justify-content-center align-items-center">
                                             <MudCheckBox @bind-Value="note.IsRtl"
                                                      Label="Rtl"
@@ -82,7 +82,7 @@
                                                      Color="Color.Dark">
                                             </MudCheckBox>
                                         </div>
-                                    @* todo - set date and time *@
+                                    @* todo - date and time *@
                                     @if (note.IsTodo)
                                         {
                                         <hr style="color:red;" />
@@ -258,6 +258,7 @@
             }
         else
             {
+            note.UserId = Convert.ToInt32 (appState.UserId);
             DateTime _dt1 = _date.Value.Date + _time.Value;
             DateTime _dt2 = _dueDate.Value.Date + _dueTime.Value;
             note.NoteDateTime = _dt1.ToUniversalTime();   //convert time to utc
@@ -293,12 +294,14 @@
         else
             {
             note.NoteId = Convert.ToInt32(appState.SelectedNoteId);
-            note.RefId = Convert.ToInt32(appState.NoteRefId);
+            note.UserId = Convert.ToInt32(appState.UserId);
             note.RefType = Convert.ToInt32(appState.NoteRefType);
+            note.RefId = Convert.ToInt32(appState.NoteRefId);
             DateTime _dt1 = _date.Value.Date + _time.Value;
             DateTime _dt2 = _dueDate.Value.Date + _dueTime.Value;
             note.NoteDateTime = _dt1.ToUniversalTime();   //convert time to utc;
             note.NoteDateTimeDue = (note.IsTodo) ? _dt2.ToUniversalTime() : null;
+            //notice: noteText and noteTags are bind
             //not neccessary, but just to ensure everything is ok:
             _hasFetched = false;
             bool result = await feService.Update_Note(note);

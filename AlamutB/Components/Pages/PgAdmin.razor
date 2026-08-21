@@ -396,8 +396,8 @@ else
     //methods
     public async Task CreateNote ()
         {
-        //ReferenceTypes 1:quicknote(s) 2:SectNote(s) 11:quicknote(t) 12:SectNote(t) 13:StudentNote(t) 14:GroupNote(t) 15:CourseNote(t) 16:ExamNote(t) 17:StudentExamNote(t)
-        appState.SetNoteRefType(1);
+        //refTypes: 1:ApgGroup 2:Order 3 ّFamily 4:Genus 5:Species 6:DatasetFL 7:DatasetCN 8:DatasetLM 9:Station 10:Set 11:SetData 12:Section 13:User'sNote
+        appState.SetNoteRefType(13);
         appState.SetNoteRefId(Convert.ToInt32(appState.UserId));
         appState.SetCmd("CreateNote");
         StateHasChanged();

@@ -8,7 +8,25 @@
 {
     NoteDateTime = appState.NoteDateTime;
     noteText = appState.NoteText;
-    Title = "notes";
+    string @title =  "note for";
+    title += appState.NoteRefType switch
+        {
+            1 => ": apg group",
+            2 => ": order",
+            3 => ": family",
+            4 => ": genus",
+            5 => ": species",
+            6 => ": floristic dataset",
+            7 => ": checkname dataset",
+            8 => ": listmaker dataset",
+            9 => ": station",
+            10 => ": set",
+            11 => ": set item",
+            12 => ": user's note",
+            _ => " ?"
+            };
+    Title = @title;
+
     <div class="modal-backdrop fade show"></div>
     <div class="modal show d-block">
         <div class="modal-dialog">

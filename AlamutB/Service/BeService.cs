@@ -2582,7 +2582,7 @@ namespace AlamutB.Services2Backend
         public async Task<List<Note>> Read_NotesDueAsync (int userId, int _days)
             {
             string? connString = _config.GetConnectionString ("cnni");
-            string sql = "DT.Read_DueNotes";
+            string sql = "DT.Read_NotesDue";
             using SqlConnection cnn = new (connString);
             try
                 {
@@ -2590,7 +2590,7 @@ namespace AlamutB.Services2Backend
                 SqlCommand cmd = new (sql, cnn);
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue ("@UserId", userId);
-                cmd.Parameters.AddWithValue ("@days", _days);
+                cmd.Parameters.AddWithValue ("@Days", _days);
                 SqlDataReader reader = await cmd.ExecuteReaderAsync ();
                 List<Note> lstNotes = new List<Note> ();
                 while (await reader.ReadAsync ())

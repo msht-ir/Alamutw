@@ -167,7 +167,7 @@ else
                                                     <div class="d-flex align-items-center" style="text-align:center; color:indianred; font-weight:bold;font-size:small">
                                                     @if (dueNotex.IsTodo)
                                                         {
-                                                        <img class="pulse-hover" src="/img/icoClock2.png" width="20" style="margin-right:7px" />
+                                                        <img class="pulse-hover" src="/img/icoClockRed.png" width="20" style="margin-right:7px" />
                                                         @PersianDate(dueNotex.NoteDateTimeDue)
                                                         }
                                                     else
@@ -190,7 +190,7 @@ else
                                                 @* dueNotes Buttons *@
                                                     <div class="d-flex align-items-center text-start" style="text-align:center; color:indianred; font-weight:bold;font-size:small">
                                                         <button class="btn btn-link pulse-hover" @onclick="() => BtnRemoveDueNoteTag(dueNotex)">
-                                                        <img src="/img/icoOn.png" width="26" title="edit note" />
+                                                        <img src="/img/icoOn.png" width="26" title="set as not-Todo" />
                                                         </button>
                                                         <button class="btn btn-link pulse-hover" @onclick="() => BtnEditNoteInDialog(dueNotex)">
                                                         <img src="/img/icoRename.png" width="28" title="edit note" />
@@ -647,7 +647,6 @@ else
             appState.SetNotebookId(0);
             appState.SetNoteRefId(0);
             await GetListOfNotebooks(user.UserId, _ShowNotebooksMode);
-            //lstSPNotes = await feService.Read_Notes (Convert.ToInt32(appState.SectionId), 2);
             await BtnReadNotesDue();
             _hasFetched = true;
             }
@@ -943,8 +942,7 @@ else
     //StickyNote
     public async Task CreateStickyNote ()
         {
-        // 1:ApgGroup 2:Order 3 ّFamily 4:Genus 5:Species 6:DatasetFL 7:DatasetCN 8:DatasetLM 9:Station 10:Set 11:SetData 12:User'sNote
-        appState.SetUserId(Convert.ToInt32(appState.UserId));
+        //refTypes: 1:ApgGroup 2:Order 3 ّFamily 4:Genus 5:Species 6:DatasetFL 7:DatasetCN 8:DatasetLM 9:Station 10:Set 11:SetData 12:Section 13:User'sNote
         appState.SetNoteRefId(Convert.ToInt32(appState.UserId));
         appState.SetNoteRefType(13);
         appState.SetCmd("cmdCreateNote");
@@ -976,7 +974,7 @@ else
         user.UserId = Convert.ToInt32(appState.UserId);
         if ((user.UserTags & 16) == 16)
             {
-            lstDueNotes = await feService.Read_NotesDue(user.UserId, ((user.UserTags & 32) == 32) ? 7 : 3);
+            lstDueNotes = await feService.Read_NotesDue(user.UserId, ((user.UserTags & 32) == 32) ? 14 : 7);
             }
         StateHasChanged();
         }
@@ -986,29 +984,29 @@ else
     public async Task BtnEditNoteInDialog (Note note)
         {
         appState.SetSelectedNoteId(note.NoteId);
+        appState.SetNoteUserId(note.UserId);
+        appState.SetNoteRefType(note.RefType);
         appState.SetNoteRefId(note.RefId);
         appState.SetNoteRefName(note.RefName);
-        appState.SetNoteRefType(12);
         appState.SetNoteDateTime(note.NoteDateTime.ToString("yyyy-MM-dd HH:mm"));
         appState.SetNoteDateTimeDue(note.NoteDateTimeDue?.ToString("yyyy-MM-dd HH:mm")); //use ? becuse note.NoteDateTimeDue is nullable
         appState.SetNoteText(note.NoteText);
-        appState.SetNoteUserId(note.UserId);
         appState.SetNoteTags(note.NoteTags);
         appState.SetCmd("cmdUpdateNote");
         StateHasChanged();
         //After the Modal_CreateNote is closed, HandleModalClose will refresh the list
-        //to handel close event, I added in the Modal_CreateNote: [Parameter] public EventCallback OnClose
+        //To handel close event, I added in the Modal_CreateNote: [Parameter] public EventCallback OnClose
         }
     public async Task BtnShowNoteInDialog (Note note)
         {
         appState.SetSelectedNoteId(note.NoteId);
-        appState.SetNoteRefId(note.RefId);
+        appState.SetNoteUserId(note.UserId);
         appState.SetNoteRefType(note.RefType);
+        appState.SetNoteRefId(note.RefId);
         appState.SetNoteRefName(note.RefName);
         appState.SetNoteDateTime(note.NoteDateTime.ToString("yyyy-MM-dd HH:mm"));
         appState.SetNoteDateTimeDue(note.NoteDateTimeDue?.ToString("yyyy-MM-dd HH:mm")); //use ? becuse note.NoteDateTimeDue is nullable
         appState.SetNoteText(note.NoteText);
-        appState.SetNoteUserId(note.UserId);
         appState.SetNoteTags(note.NoteTags);
         appState.SetCmd("cmdShowNoteInDialog");
         StateHasChanged();
@@ -1064,11 +1062,11 @@ else
         if (confirmResult == true)
             {
             appState.SetNoteRefId(note.RefId);
-            note.NoteTags &= ~2;
+            note.NoteTags &= ~8;
             bool result = await feService.Update_Note(note);
             if (result)
                 {
-                lstDueNotes = await feService.Read_NotesDue(user.UserId, ((user.UserTags & 32) == 32) ? 7 : 3);
+                lstDueNotes = await feService.Read_NotesDue(user.UserId, ((user.UserTags & 32) == 32) ? 14 : 7);
                 StateHasChanged();
                 }
             else
@@ -1246,7 +1244,7 @@ else
             }
         if ((user.UserTags & 16) == 16)
             {
-            lstDueNotes = await feService.Read_NotesDue(user.UserId, ((user.UserTags & 32) == 32) ? 7 : 3);
+            lstDueNotes = await feService.Read_NotesDue(user.UserId, ((user.UserTags & 32) == 32) ? 14 : 7);
             }
         StateHasChanged();
         }
