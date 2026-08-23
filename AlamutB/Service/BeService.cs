@@ -1,9 +1,4 @@
 ﻿using AlamutS.Models;
-using DocumentFormat.OpenXml.Bibliography;
-using DocumentFormat.OpenXml.Drawing.Charts;
-using DocumentFormat.OpenXml.ExtendedProperties;
-using DocumentFormat.OpenXml.Spreadsheet;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Data.SqlClient;
 using System.Data;
 using Order = AlamutS.Models.Order;
@@ -2475,7 +2470,7 @@ namespace AlamutB.Services2Backend
             await cnn.OpenAsync ();
             SqlCommand cmd = new SqlCommand (sql, cnn);
             cmd.CommandType = CommandType.StoredProcedure;
-            cmd.Parameters.AddWithValue ("@SectionId",   section.SectionId);
+            cmd.Parameters.AddWithValue ("@SectionId", section.SectionId);
             cmd.Parameters.AddWithValue ("@NotebookId", section.NotebookId);
             cmd.Parameters.AddWithValue ("@SectionName", section.SectionName);
             cmd.Parameters.AddWithValue ("@SectionTags", section.SectionTags);
@@ -2485,14 +2480,14 @@ namespace AlamutB.Services2Backend
             }
         public async Task<bool> Update_SectionParentAsync (Section section)
             {
-            string sql = "dbo.sp_UpdateSectionParent";
+            string sql = "DT.Update_SectionParent";
             string? connString = _config.GetConnectionString ("cnni");
             using SqlConnection cnn = new (connString);
             await cnn.OpenAsync ();
             SqlCommand cmd = new SqlCommand (sql, cnn);
             cmd.CommandType = CommandType.StoredProcedure;
-            cmd.Parameters.AddWithValue ("@NotebookId", section.NotebookId);
             cmd.Parameters.AddWithValue ("@SectionId", section.SectionId);
+            cmd.Parameters.AddWithValue ("@NotebookId", section.NotebookId);
             await cmd.ExecuteNonQueryAsync ();
             await cnn.CloseAsync ();
             return true;

@@ -5,29 +5,29 @@
 
 <div class="page">
         <div class="sidebar">
-        @if (Navman.Uri.Contains("/S_StudentExamTests"))
-            {
-            <NavMenuS_StudentExamTests />
-            }
-        else if (Navman.Uri.Contains("/S_StudentExamTest"))
-            {
-            <NavMenuS_StudentExamTest />
-            }
-        else if (Navman.Uri.Contains("/S_StudentCourseTest"))
-            {
-            <NavMenuS_Back2S_Student />
-            }
-        else if (Navman.Uri.Contains("/S_Student"))
-            {
-            <NavMenuS_Student />
-            }
-        else if (Navman.Uri.Contains("/S_ReportStudent"))
-            {
-            <NavMenuS_Student />
-            }
-        else if (Navman.Uri.Contains("/Login"))
+        @if (Navman.Uri.Contains("/Login"))
             {
             <NavMenuLogin />
+            }
+        else if (Navman.Uri.Contains("/Switchboard"))
+            {
+            <NavMenuSwitchboard />
+            }
+        else if (Navman.Uri.Contains("/PgTaxa"))
+            {
+            <NavMenuPgTaxa />
+            }
+        else if (Navman.Uri.Contains("/PgNotebooks"))
+            {
+            <NavMenuPgNotebooks />
+            }
+        else if (Navman.Uri.Contains("/PgStickyNotes"))
+            {
+            <NavMenuPgStickyNotes />
+            }
+        else if (Navman.Uri.Contains("/Pg"))
+            {
+            <NavMenuPgMisc />
             }
         else
             {

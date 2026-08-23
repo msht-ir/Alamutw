@@ -10,7 +10,7 @@
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 
-<h5 style="text-align:center;padding-left:15px;">stickys Notes - <span style="font-size:smaller;text-align:center;color:indianred">@appState.UserNickname</span></h5>
+<h5 style="text-align:center;padding-left:15px;">Analysis - <span style="font-size:smaller;text-align:center;color:indianred">@appState.UserNickname</span></h5>
 <hr style="color:red" />
     @if (!_hasFetched)
     {
@@ -18,60 +18,28 @@
     }
 else
     {
-    @if (lstNotes.Count > 0)
-        {
-            <div style="text-align: center; margin:15px;">
-                <button class="btn btn-link" @onclick="BtnBack">
-                <img src="/img/icoBack3.png" width="40" title="back" />
-                </button>
-                <button class="btn btn-link" @onclick="() => GotoNotebooks()">
-                <img src="/img/icoNoteBook.png" style="width:44px" title="goto Notebooks" />
-                </button>
-                <button class="btn btn-link pulse-animation" @onclick="CreateNote">
-                <img src="/img/icoNewNote3.png" width="28" title="add new quick-note" />
-                </button>
-            </div>
-        }
+        <div style="text-align: center; margin:15px;">
+            <button class="btn btn-link" @onclick="BtnBack">
+            <img src="/img/icoBack3.png" width="40" title="back" />
+            </button>
+        </div>
         <EditForm Model="lstNotes">
         @if (appState.Cmd == "ShowNoteInDialog")
             {
             <Modal_ShowNote OnClose="HandleModalClose" />
             }
-        else if (appState.Cmd == "UpdateNote")
-            {
-            <Modal_CreateNote OnClose="HandleModalClose" />
-            }
-        else if (appState.Cmd == "CreateNote")
-            {
-            <Modal_CreateNote OnClose="HandleModalClose" />
-            }
         else
             {
+
             }
         </EditForm>
     }
 <br />
 <br />
-@if (lstNotes.Count > 0)
-    {
-        <div style="text-align:center">
-            <button class="btn btn-link" @onclick="BtnBack">
-            <img src="/img/icoBack3.png" width="40" />
-            </button>
-        </div>
-    }
-else
-    {
-        <div style="text-align:center">
-            <button class="btn btn-link" @onclick="BtnBack">
-            <img src="/img/gifUserLogin.gif" width="70" />
-            </button>
-        </div>
-    }
+
     <script>
     window.scrollToTop = () => { window.scrollTo({ top: 0, behavior: 'smooth' }); };
     </script>
-    }
 
 @code {
     [Parameter]
@@ -108,8 +76,6 @@ else
         appState.SetCmd("");
         user.UserId = Convert.ToInt32(appState.UserId);
         user.Username = appState.Username;
-        lstNotes = await feService.Read_Notes(13, user.UserId);
-        await GetListOfNotebooks(user.UserId, _ShowNotebooksMode);
         _hasFetched = true;
         }
     private void TriggerRender ()
@@ -121,62 +87,6 @@ else
         appState.OnChange -= TriggerRender;
         }
     //btns
-    public void GotoNotebooks ()
-        {
-        appState.SetReturnPage($"T_ReportNotes/{mode}/{Id}");
-        Navman.NavigateTo("/E_NoteBooks");
-        }
-    private async Task OnNotebookChanged (int newValue)
-        {
-        NotebookId = newValue;
-        //appState.SetNotebookId(NotebookId);
-        SectionId = 0;
-        await FilterSections(NotebookId);
-        StateHasChanged();
-        }
-    private async Task OnSectionChanged (int newValue)
-        {
-        SectionId = newValue;
-        //appState.SetSectionId(SectionId);
-        StateHasChanged();
-        }
-    private void BtnMoveNote (int noteId)
-        {
-        if (Convert.ToInt32(appState.NoteId) == noteId)
-            {
-            _cmd = (_cmd == "MoveNoteToNotebook") ? "" : "MoveNoteToNotebook";
-            }
-        else
-            {
-            appState.SetNoteId(noteId);
-            _cmd = "MoveNoteToNotebook";
-            }
-        StateHasChanged();
-        }
-    private async Task BtnMovetoSelectSection (int sectionId, int noteid)
-        {
-        if (sectionId > 0)
-            {
-            Note _note = new Note { NoteId = noteid, RefType = 3, RefId = sectionId };
-            bool result = await feService.Update_Note(_note);
-            if (result)
-                {
-                Snackbar.Add("note moved to notebook", Severity.Success); 
-                _cmd = "";
-                appState.SetCmd("");
-                lstNotes = await feService.Read_Notes(13, user.UserId);
-                StateHasChanged();
-                }
-            else
-                {
-                Snackbar.Add("failed", Severity.Warning); 
-                }
-            }
-        else
-            {
-            Snackbar.Add("select notebook and section", Severity.Info); 
-            }
-        }
     private void BtnCancel ()
         {
         _cmd = "";
@@ -184,7 +94,7 @@ else
         }
     public void BtnBack ()
         {
-        Navman.NavigateTo("/SwitchBoard");
+        Navman.NavigateTo("/Switchboard");
         }
     //convert date
     public string PersianDate (DateTimeOffset? dt)
@@ -199,69 +109,6 @@ else
             }
         }
     //methods
-    public async Task CreateNote ()
-        {
-        //refTypes: 1:ApgGroup 2:Order 3 ّFamily 4:Genus 5:Species 6:DatasetFL 7:DatasetCN 8:DatasetLM 9:Station 10:Set 11:SetData 12:Section 13:User'sNote
-        appState.SetNoteRefType(1);
-        appState.SetNoteRefId(Convert.ToInt32(appState.UserId));
-        appState.SetCmd("CreateNote");
-        StateHasChanged();
-        //After the Modal_CreateNote is closed, HandleModalClose will refresh the list
-        //to handel close event, I added in the Modal_CreateNote: [Parameter] public EventCallback OnClose
-        }
-    public async Task BtnShowNoteInDialog (Note note)
-        {
-        appState.SetSelectedNoteId(note.NoteId);
-        appState.SetNoteDateTime(note.NoteDateTime.ToString("yyyy-MM-dd HH:mm"));
-        appState.SetNoteDateTimeDue(note.NoteDateTimeDue?.ToString("yyyy-MM-dd HH:mm")); //use ? becuse note.NoteDateTimeDue is nullable
-        appState.SetNoteText(note.NoteText);
-        appState.SetNoteTags(note.NoteTags);
-        appState.SetNoteRefId(note.RefId);
-        appState.SetNoteRefType(note.RefType);
-        appState.SetCmd("ShowNoteInDialog");
-        StateHasChanged();
-        //After the Modal_ShowNote is closed, HandleModalClose will refresh the list
-        //to handel close event, I added in the Modal_ShowNote: [Parameter] public EventCallback OnClose
-        }
-    public async Task BtnEditNoteInDialog (Note note)
-        {
-        appState.SetSelectedNoteId(note.NoteId);
-        appState.SetNoteDateTime(note.NoteDateTime.ToString("yyyy-MM-dd HH:mm"));
-        appState.SetNoteDateTimeDue(note.NoteDateTimeDue?.ToString("yyyy-MM-dd HH:mm")); //use ? becuse note.NoteDateTimeDue is nullable
-        appState.SetNoteText(note.NoteText);
-        appState.SetNoteTags(note.NoteTags);
-        appState.SetNoteRefId(  note.RefId);
-        appState.SetNoteRefType(note.RefType);
-        // appState.SetNoteRefName(note.RefName);
-        appState.SetCmd("UpdateNote");
-        StateHasChanged();
-        //After the Modal_CreateNote is closed, HandleModalClose will refresh the list
-        //to handel close event, I added in the Modal_CreateNote: [Parameter] public EventCallback OnClose
-        }
-    public async Task BtnDeleteNote (int noteId)
-        {
-        var message = new MarkupString($"<hr><span style='color:indianred'>Delete</span> note? Are you sure?<br><br> <div style='text-align:center'><img src='/img/icoDelete1.png' width='40'/></div><br><hr>");
-        bool? confirmResult = await DialogService.ShowMessageBox(title: "Confirm", markupMessage: message, yesText: "Yes", cancelText: "No");
-        if (confirmResult == true)
-            {
-            bool result = await feService.Delete_Note(noteId);
-            if (result)
-                {
-                Snackbar.Add($"deleted", Severity.Warning); 
-                user.UserId = Convert.ToInt32(appState.UserId);
-                _hasFetched = false;
-                lstNotes.Clear();
-                lstNotes = await feService.Read_Notes(13, user.UserId);
-                _hasFetched = true;
-                appState.SetCmd("");
-                StateHasChanged();
-                }
-            else
-                {
-                Snackbar.Add($"Failed to delete note!", Severity.Error, opt => { opt.VisibleStateDuration = 1500; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; }); 
-                }
-            }
-        }
     private async Task HandleModalClose ()
         {
         _hasFetched = false;
@@ -269,24 +116,5 @@ else
         lstNotes = await feService.Read_Notes(12, Id);
         _hasFetched = true;
         StateHasChanged();
-        }
-    public async Task GetListOfNotebooks (int userId, string mode)
-        {
-        _hasFetched = false;
-        lstNotebooks.Clear();
-        //lstNotebooks = await feService.Read_Notebooks(userId, mode);
-        _hasFetched = true;
-        }
-    private async Task FilterSections (int notebookId)
-        {
-        lstSections.Clear();
-        foreach (Notebook notebook in lstNotebooks)
-            {
-            if (notebook.NotebookId == notebookId)
-                {
-                lstSections = notebook.Sections;
-                return;
-                }
-            }
         }
     }

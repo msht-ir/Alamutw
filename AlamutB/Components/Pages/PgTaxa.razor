@@ -23,7 +23,7 @@ else if (appState.Cmd == "cmdCreateNote")
 else
     {
         <div style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
-        <h2 style="color:royalblue; font-style:italic">Taxa and Datasets</h2>
+        <h2 style="color:royalblue; font-style:italic">Taxa and Datasets (ListMaker)</h2>
         @* ---------------------------------------------------------------------------------- 1 APG Groups *@
             <MudContainer MaxWidth="MaxWidth.Small" Class="mt-2 px-0">
                 <MudCard Class="mx-auto">
@@ -408,7 +408,7 @@ else
                                     </MudMenuItem>
                                     <MudMenuItem @onclick='() => ListAllDatasetsLM()'>
                                         <button class="btn btn-link" Title="list all datasets">
-                                        <img src="/img/icoList.png" width="22" />
+                                        <img src="/img/icoList1.png" width="22" />
                                         </button>
                                     List All Datasets
                                     </MudMenuItem>
@@ -507,7 +507,7 @@ else
                                         style="margin-left:1px"
                                         @onclick='() => BtnShowSubspecies(species)'
                                         Title="Show sub-Species">
-                                    <img src="/img/icoList.png" width="24" />
+                                    <img src="/img/icoList1.png" width="24" />
                                     </button>
                                     <button type="button"
                                         class="btn btn-link"
@@ -535,16 +535,14 @@ else
                        Color="Color.Warning"
                        Size="Size.Large"
                        Title="Switchboard" />
-        <MudIconButton OnClick='() => BtnGotoPage("N")'
-                       Icon="@Icons.Material.Filled.StickyNote2"
-                       Color="Color.Primary"
-                       Size="Size.Large"
-                       Title="Notes" />
         <MudIconButton OnClick="BtnHelpSignupNewUser"
                        Icon="@Icons.Material.Filled.HelpCenter"
                        Color="Color.Tertiary"
                        Size="Size.Large"
                        Title="Help" />
+            <button class="btn btn-link pulse-hover" @onclick="ScrollToTop">
+            <img src="/img/icoGotoTop1.png" width="28" />
+            </button>
         </div>
     }
     <script>
@@ -806,7 +804,7 @@ else
         //lstSpecies = new();
         // if (_datasetLMId != 0)
         //     {
-        //     var message = new MarkupString($"<hr><span style='color:indianred'>Show</span> Species in this Dataset?<br><br> <div style='text-align:center'><img src='/img/icoList.png' width='40'/></div><br><hr>");
+        //     var message = new MarkupString($"<hr><span style='color:indianred'>Show</span> Species in this Dataset?<br><br> <div style='text-align:center'><img src='/img/icoList1.png' width='40'/></div><br><hr>");
         //     bool? confirmResult = await DialogService.ShowMessageBox(title: "Confirm", markupMessage: message, yesText: "Yes", cancelText: "No");
         //     if (confirmResult == true)
         //         {
@@ -1126,9 +1124,13 @@ else
         StateHasChanged();
         }
     //Back
+    private async Task ScrollToTop ()
+        {
+        await JS.InvokeVoidAsync("scrollToTop");
+        }
     public void BtnBack ()
         {
-        Navman.NavigateTo("/SwitchBoard");
+        Navman.NavigateTo("/Switchboard");
         }
     private void BtnGotoPage (string page)
         {

@@ -1,5 +1,5 @@
-﻿using Microsoft.Data.SqlClient;
-using AlamutS.Models;
+﻿using AlamutS.Models;
+using Microsoft.Data.SqlClient;
 namespace AlamutB.Services2Backend
     {
     public interface BeIService

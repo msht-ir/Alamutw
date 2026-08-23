@@ -10,7 +10,7 @@
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 
-<h5 style="text-align:center;padding-left:15px;">stickys Notes - <span style="font-size:smaller;text-align:center;color:indianred">@appState.UserNickname</span></h5>
+<h5 style="text-align:center;padding-left:5px;">stickys Notes - <span style="font-size:smaller;text-align:center;color:indianred">@appState.UserNickname</span></h5>
 <hr style="color:red" />
     @if (!_hasFetched)
     {
@@ -20,12 +20,10 @@ else
     {
     @if (lstNotes.Count > 0)
         {
+        @* <div style="max-width:500px; margin: 0 auto;"> *@
             <div class="flex gap-4" style="text-align: center; margin:15px;">
                 <button class="btn btn-link pulse-hover" @onclick="BtnBack">
-                <img src="/img/icoList.png" width="28" title="back" />
-                </button>
-                <button class="btn btn-link pulse-hover" @onclick="() => GotoNotebooks()">
-                <img src="/img/icoNoteBook.png" style="width:36px" title="goto Notebooks" />
+                <img src="/img/icoList1.png" width="28" title="back" />
                 </button>
                 <button class="btn btn-link pulse-animation" @onclick="CreateNote">
                 <img src="/img/icoNoteStickyAdd.png" width="28" title="add new quick-note" />
@@ -63,7 +61,7 @@ else
                                     <span class="d-flex align-items-center" style="text-align:center; color:indianred; font-weight:bold; font-size:smaller; margin:0px;">
                                     @if (notex.IsTodo)
                                         {
-                                        <img class="pulse-hover" src="/img/icoClock2.png" width="20" style="margin-right:7px" />
+                                        <img class="pulse-hover" src="/img/icoClockRed.png" width="20" style="margin-right:7px" />
                                         }
                                     @dateToShow
                                     </span>
@@ -152,7 +150,7 @@ else
                                         @if (isLongText)
                                             {
                                                 <button class="btn btn-link pulse-animation" @onclick="() => BtnShowNoteInDialog(notex)">
-                                                <img src="/img/icoNoteReport.png" width="22" title="نمايش يادداشت در صفحه" />
+                                                <img src="/img/icoNoteSticky2.png" width="22" title="نمايش يادداشت در صفحه" />
                                                 </button>
                                             }
                                         </div>
@@ -170,26 +168,31 @@ else
 @if (lstNotes.Count > 0)
     {
         <div style="text-align:center">
+        @* <div style="max-width:500px; margin: 0 auto;"> *@
             <button class="btn btn-link pulse-hover" @onclick="BtnBack">
-            <img src="/img/icoList.png" width="28" />
+            <img src="/img/icoList1.png" width="28" />
+            </button>
+            <button class="btn btn-link pulse-hover" @onclick="ScrollToTop">
+            <img src="/img/icoGotoTop1.png" width="28" />
             </button>
         </div>
     }
 else
     {
-        <div style="text-align:center">
+        <div style="max-width:500px; margin: 0 auto;">
+        @* <div style="text-align:center"> *@
             <button class="btn btn-link pulse-hover" @onclick="BtnBack">
             <img src="/img/gifUserLogin.gif" width="70" />
             </button>
         </div>
     }
-    
     <script>
     window.scrollToTop = () => { window.scrollTo({ top: 0, behavior: 'smooth' }); };
     </script>
 
 
 @code {
+    private ElementReference topElement;
     private MudSelect<int> refNotebooks;
     private MudSelect<int> refSections;
     int NotebookId = 0;
@@ -291,7 +294,7 @@ else
         }
     public void BtnBack ()
         {
-        Navman.NavigateTo("/SwitchBoard");
+        Navman.NavigateTo("/Switchboard");
         }
     //convert date
     public string PersianDate (DateTimeOffset? dt)
@@ -305,7 +308,11 @@ else
             return dt?.ToString("yyyy-MM-dd HH:mm");
             }
         }
-    //methods
+    //
+    private async Task ScrollToTop ()
+        {
+        await JS.InvokeVoidAsync("scrollToTop");
+        }
     public async Task CreateNote ()
         {
         appState.SetNoteRefType(13);
@@ -353,7 +360,7 @@ else
         < br > < div style = 'text-align:center' >< img src = '/img/icoDelete1.png' width = '40' /></ div >
         < br >
         < hr > ");
-        bool ? confirmResult = await DialogService.ShowMessageBox(title: "Confirm", markupMessage: message, yesText: "Yes", cancelText: "No");
+        bool? confirmResult = await DialogService.ShowMessageBox(title: "Confirm", markupMessage: message, yesText: "Yes", cancelText: "No");
         if (confirmResult == true)
             {
             bool result = await feService.Delete_Note(noteId);
@@ -402,4 +409,5 @@ else
             }
         }
     }
+
     

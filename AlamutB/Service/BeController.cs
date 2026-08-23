@@ -1,6 +1,6 @@
 ﻿using AlamutB.Services2Backend;
-using Microsoft.AspNetCore.Mvc;
 using AlamutS.Models;
+using Microsoft.AspNetCore.Mvc;
 namespace AlamutB.Backend
     {
     [ApiController]
@@ -530,7 +530,7 @@ namespace AlamutB.Backend
         [HttpPost ("Read_Section")]
         public async Task<ActionResult<Section>> Read_Section ([FromBody] int SectionId, [FromQuery] bool readNotes)
             {
-            var result = await _BeService.Read_SectionAsync (SectionId,readNotes);
+            var result = await _BeService.Read_SectionAsync (SectionId, readNotes);
             return Ok (result);
             }
         [HttpPost ("Update_Section")]

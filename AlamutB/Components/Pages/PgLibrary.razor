@@ -1,0 +1,120 @@
+﻿@page "/PgLibrary"
+@using System.Globalization
+@using AlamutB.Service
+@using System.Threading.Tasks
+@inject FeService feService
+@inject NavigationManager Navman
+@inject AppState appState
+@inject IJSRuntime JS
+@implements IDisposable
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<h5 style="text-align:center;padding-left:15px;">Library - <span style="font-size:smaller;text-align:center;color:indianred">@appState.UserNickname</span></h5>
+<hr style="color:red" />
+    @if (!_hasFetched)
+    {
+    <_ScanSheets />
+    }
+else
+    {
+        <div style="text-align: center; margin:15px;">
+            <button class="btn btn-link" @onclick="BtnBack">
+            <img src="/img/icoBack3.png" width="40" title="back" />
+            </button>
+        </div>
+        <EditForm Model="lstNotes">
+        @if (appState.Cmd == "ShowNoteInDialog")
+            {
+            <Modal_ShowNote OnClose="HandleModalClose" />
+            }
+        else
+            {
+
+            }
+        </EditForm>
+    }
+<br />
+<br />
+
+    <script>
+    window.scrollToTop = () => { window.scrollTo({ top: 0, behavior: 'smooth' }); };
+    </script>
+
+@code {
+    [Parameter]
+    public int mode
+        {
+        get; set;
+        }
+    [Parameter]
+    public int Id
+        {
+        get; set;
+        }
+    private MudSelect<int> refNotebooks;
+    private MudSelect<int> refSections;
+    int NotebookId = 0;
+    int SectionId = 0;
+    string _cmd = "";
+
+    User user = new User();
+    List<Note> lstNotes = new List<Note>();
+    List<Notebook> lstNotebooks = new List<Notebook>();
+    List<Section> lstSections = new List<Section>();
+    string _ShowNotebooksMode = "active";
+    public bool _hasFetched = false;
+
+    //LifeCycleEvents
+    protected override async Task OnInitializedAsync ()
+        {
+        appState.OnChange += TriggerRender;
+        if (Convert.ToInt32(appState.UserLoginStatus) != 1)
+            {
+            Navman.NavigateTo("/Login");
+            }
+        appState.SetCmd("");
+        user.UserId = Convert.ToInt32(appState.UserId);
+        user.Username = appState.Username;
+        _hasFetched = true;
+        }
+    private void TriggerRender ()
+        {
+        InvokeAsync(StateHasChanged);
+        }
+    public void Dispose ()
+        {
+        appState.OnChange -= TriggerRender;
+        }
+    //btns
+    private void BtnCancel ()
+        {
+        _cmd = "";
+        StateHasChanged();
+        }
+    public void BtnBack ()
+        {
+        Navman.NavigateTo("/Switchboard");
+        }
+    //convert date
+    public string PersianDate (DateTimeOffset? dt)
+        {
+        if ((Convert.ToInt32(appState.UserTags) & 256) == 256)
+            {
+            return feService.ToPersianDate(dt.ToString());
+            }
+        else
+            {
+            return dt?.ToString("yyyy-MM-dd HH:mm");
+            }
+        }
+    //methods
+    private async Task HandleModalClose ()
+        {
+        _hasFetched = false;
+        lstNotes.Clear();
+        lstNotes = await feService.Read_Notes(12, Id);
+        _hasFetched = true;
+        StateHasChanged();
+        }
+    }
