@@ -85,7 +85,7 @@ namespace AlamutB.Services2Backend
         Task<bool> Create_DatasetDataLMAsync (DatasetDataLM datasetDataLM);
         Task<List<DatasetDataLM>> Read_DatasetDataLMAsync (int datasetId);
         Task<bool> Update_DatasetDataLMAsync (DatasetDataLM datasetDataLM);
-        Task<bool> Delete_DatasetDataLMAsync (int datasetDataLMId);
+        Task<bool> Delete_DatasetDataLMAsync (int datasetLMId, string speciesId);
         #endregion
         #region STATION
         Task<bool> Create_StationAsync (Station station);

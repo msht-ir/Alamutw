@@ -541,9 +541,10 @@ namespace AlamutB.Service
             var response = await _http.PostAsJsonAsync ("api/Update_DatasetDataLM", datasetDataLM);
             return (response.IsSuccessStatusCode) ? true : false;
             }
-        public async Task<bool> Delete_DatasetDataLM (int datasetDataLMId)
+        public async Task<bool> Delete_DatasetDataLM (int datasetLMId, string speciesId)
             {
-            var response = await _http.PostAsJsonAsync ("api/Delete_DatasetDataLM", datasetDataLMId);
+            //send both parameters as [FromQuery] because json was unable to serialize 'int' in Body 
+            var response = await _http.PostAsync ($"api/Delete_DatasetDataLM?datasetLMId={datasetLMId}&speciesId={speciesId}", null);
             return (response.IsSuccessStatusCode) ? true : false;
             }
         #endregion

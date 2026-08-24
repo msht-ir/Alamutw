@@ -366,9 +366,9 @@ namespace AlamutB.Backend
             return Ok (result);
             }
         [HttpPost ("Delete_DatasetDataLM")]
-        public async Task<ActionResult<bool>> Delete_DatasetDataLM ([FromBody] int datasetDataLMId)
+        public async Task<ActionResult<bool>> Delete_DatasetDataLM ([FromQuery] int datasetLMId, [FromQuery] string speciesId)
             {
-            var result = await _BeService.Delete_DatasetDataLMAsync (datasetDataLMId);
+            var result = await _BeService.Delete_DatasetDataLMAsync (datasetLMId, speciesId);
             return Ok (result);
             }
         #endregion

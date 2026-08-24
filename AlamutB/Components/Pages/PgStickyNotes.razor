@@ -20,11 +20,7 @@ else
     {
     @if (lstNotes.Count > 0)
         {
-        @* <div style="max-width:500px; margin: 0 auto;"> *@
             <div class="flex gap-4" style="text-align: center; margin:15px;">
-                <button class="btn btn-link pulse-hover" @onclick="BtnBack">
-                <img src="/img/icoList1.png" width="28" title="back" />
-                </button>
                 <button class="btn btn-link pulse-animation" @onclick="CreateNote">
                 <img src="/img/icoNoteStickyAdd.png" width="28" title="add new quick-note" />
                 </button>
@@ -169,11 +165,11 @@ else
     {
         <div style="text-align:center">
         @* <div style="max-width:500px; margin: 0 auto;"> *@
-            <button class="btn btn-link pulse-hover" @onclick="BtnBack">
+        @* <button class="btn btn-link pulse-hover" @onclick="BtnBack">
             <img src="/img/icoList1.png" width="28" />
-            </button>
+            </button> *@
             <button class="btn btn-link pulse-hover" @onclick="ScrollToTop">
-            <img src="/img/icoGotoTop1.png" width="28" />
+            <img src="/img/icoGotoTop2.png" width="28" />
             </button>
         </div>
     }

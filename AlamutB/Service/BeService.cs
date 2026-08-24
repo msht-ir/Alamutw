@@ -1744,17 +1744,18 @@ namespace AlamutB.Services2Backend
                 return false;
                 }
             }
-        public async Task<bool> Delete_DatasetDataLMAsync (int datasetDataLMId)
+        public async Task<bool> Delete_DatasetDataLMAsync (int datasetLMId, string speciesId)
             {
             string? connString = _config.GetConnectionString ("cnni");
-            string sql = "BS.Delete_DatasetDataLM";
+            string sql = "DT.Delete_DatasetDataLM";
             using SqlConnection cnn = new (connString);
             try
                 {
                 await cnn.OpenAsync ();
                 SqlCommand cmd = new (sql, cnn);
                 cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue ("@DatasetDataLMId", datasetDataLMId);
+                cmd.Parameters.AddWithValue ("@DatasetLMId", datasetLMId);
+                cmd.Parameters.AddWithValue ("@SpeciesId", speciesId);
                 var i = await cmd.ExecuteNonQueryAsync ();
                 await cnn.CloseAsync ();
                 return true;

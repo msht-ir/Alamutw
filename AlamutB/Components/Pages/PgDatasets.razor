@@ -18,28 +18,168 @@
     }
 else
     {
-        <div style="text-align: center; margin:15px;">
-            <button class="btn btn-link" @onclick="BtnBack">
-            <img src="/img/icoBack3.png" width="40" title="back" />
-            </button>
+        <div style="text-align: left; margin:15px;">
+        <MudIconButton OnClick="BtnBack"
+                       Icon="@Icons.Material.Filled.Menu"
+                       Color="Color.Primary"
+                       Size="Size.Large"
+                       Title="Switchboard" />
         </div>
-        <EditForm Model="lstNotes">
+        <EditForm Model="lstDatasets">
         @if (appState.Cmd == "ShowNoteInDialog")
             {
             <Modal_ShowNote OnClose="HandleModalClose" />
             }
         else
             {
+                <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-2 px-0">
+                    <MudCard Class="mx-0">
+                        <MudCardContent Style="background-color:rgba(249,249,249);">
+                        <h6 style="text-align:center;color:royalblue">Dataset<span style="font-size:x-small;color:indianred"> ( @lstDatasets.Count() )</span></h6>
+                        <hr style="color:indianred" />
+                            <div class="d-flex">
+                            <MudTextField @ref="refFilterDatasets"
+                                          @bind-Value="_datasetFilter"
+                                          Label="filter datasets"
+                                          Variant="Variant.Text"
+                                          Margin="Margin.Dense"
+                                          Autocomplete="off"
+                                          Adornment="Adornment.End"
+                                          AdornmentIcon="@Icons.Material.Filled.Search"
+                                          OnAdornmentClick="@(() => FilterDatasets (_datasetFilter))"
+                                          Class="my-textfield" />
+                                <button class="btn btn-link" style="margin-left:20px;" Title="show all" @onclick="BtnShowAllDatasets">
+                                <img src="/img/icoList1.png" width="20" />
+                                </button>
+                            </div>
+                        @foreach (Dataset dataset in lstDatasets)
+                            {
+                                <div class="d-flex align-items-center mb-1">
+                                @* Select *@
+                                <input class="form-check-input"
+                                       style="margin-left:1px;margin-right:1px;"
+                                       type="checkbox"
+                                       @bind="dataset.IsSelected" />
+                                @* Edit *@
+                                    <button type="button"
+                                        class="btn btn-link"
+                                        style="margin-left:1px"
+                                        @onclick='() => BtnEditDataset(dataset)'
+                                        Title="Show sub-Species">
+                                    <img src="/img/icoRename.png" width="24" />
+                                    </button>
+                                @* View *@
+                                    <button type="button"
+                                        class="btn btn-link"
+                                        style="margin-left:1px"
+                                        @onclick='() => BtnShowDataset(dataset.DatasetId)'
+                                        Title="ShowDataset">
+                                    <img src="/img/icoReport0.png" width="18" />
+                                    </button>
+                                @* List taxa *@
+                                    <button type="button"
+                                        class="btn btn-link"
+                                        style="margin-left:1px"
+                                        @onclick='() => BtnListSpeciesOfDatasetsFL(dataset.DatasetId)'
+                                        Title="Show sub-Species">
+                                    <img src="/img/icoList1.png" width="22" />
+                                    </button>
+                                @* Note *@
+                                    <button type="button"
+                                        class="btn btn-link"
+                                        style="margin-left:1px"
+                                        @onclick='() => BtnCreateNoteForDataset(dataset.DatasetId)'
+                                        Title="Note for Dataset">
+                                    <img src="/img/icoNoteStickyAdd.png" width="22" />
+                                    </button>
+                                <span style="font-size:x-small">@dataset.DatasetName</span>
+                                </div>
+                            @if (_cmd == "cmdEditDataset")
+                                {
 
+                                }
+                            else if (_cmd == "cmdViewDataset")
+                                {
+
+                                }
+                            else if ((_cmd == "cmdListDatasetData") && (dataset.DatasetId == _datasetId))
+                                {
+                                    <MudCard Class="mx-0">
+                                        <MudCardContent Style="background-color:rgba(240,240,240);">
+                                        <h6 style="text-align:center;color:royalblue">Species <span style="font-size:x-small;color:indianred"> ( @lstSpecies.Count() )</span></h6>
+                                        <hr style="color:indianred" />
+                                        @* Filter *@
+                                            <div class="d-flex">
+                                            <MudTextField @ref="refFilterSpeciesList"
+                                                          @bind-Value="_speciesListFilter"
+                                                          Label="filter species"
+                                                          Variant="Variant.Text"
+                                                          Margin="Margin.Dense"
+                                                          Immediate="true"
+                                                          Adornment="Adornment.End"
+                                                          AdornmentIcon="@Icons.Material.Filled.Search"
+                                                          OnAdornmentClick='@(() => FilterSpeciesList(_speciesListFilter))'
+                                                          Class="my-textfield" />
+                                            </div>
+
+                                        @* Close the List *@
+                                            <button class="btn btn-link pulse-hover" @onclick="CloseSpeciesList">
+                                            <img src="/img/icoGotoTop2.png" width="32" />
+                                            </button>
+                                            @foreach (Species species in lstSpecies)
+                                            {
+                                                <div class="d-flex align-items-center mb-1" style=" margin-left:40px;">
+                                                <input class="form-check-input"
+                                                       style="margin-left:1px;margin-right:1px;"
+                                                       type="checkbox"
+                                                       @bind="species.IsSelected" />
+                                                    <button type="button"
+                                                        class="btn btn-link"
+                                                        style="margin-left:1px"
+                                                        @onclick='() => BtnShowSubspecies(species)'
+                                                        Title="Show sub-Species">
+                                                    <img src="/img/icoList1.png" width="24" />
+                                                    </button>
+                                                    <button type="button"
+                                                        class="btn btn-link"
+                                                        style="margin-left:1px"
+                                                        @onclick='() => BtnCreateNoteForSpecies(species.SpeciesId)'
+                                                        Title="Note for Species">
+                                                    <img src="/img/icoNoteStickyAdd.png" width="22" />
+                                                    </button>
+                                                <span style="font-size:x-small">@species.SciName</span>
+                                                </div>
+                                            }
+                                            @* Close the List *@
+                                            <button class="btn btn-link pulse-hover" @onclick="CloseSpeciesList">
+                                            <img src="/img/icoGotoTop2.png" width="32" />
+                                            </button>
+                                        </MudCardContent>
+                                    </MudCard>
+                                }
+                            }
+                        </MudCardContent>
+                    </MudCard>
+                </MudContainer>
+            <hr />
             }
         </EditForm>
+    <br />
+        <div class="gap-4" style="display: flex;  justify-content: center; align-items: center;">
+        <MudIconButton OnClick="BtnBack"
+                       Icon="@Icons.Material.Filled.Menu"
+                       Color="Color.Primary"
+                       Size="Size.Large"
+                       Title="Switchboard" />
+            <button class="btn btn-link pulse-hover" @onclick="ScrollToTop">
+            <img src="/img/icoGotoTop2.png" width="32" />
+            </button>
+        </div>
+
     }
 <br />
 <br />
-
-    <script>
-    window.scrollToTop = () => { window.scrollTo({ top: 0, behavior: 'smooth' }); };
-    </script>
+<script>window.scrollToTop = () => { window.scrollTo({ top: 0, behavior: 'smooth' }); };</script>
 
 @code {
     [Parameter]
@@ -52,18 +192,29 @@ else
         {
         get; set;
         }
-    private MudSelect<int> refNotebooks;
-    private MudSelect<int> refSections;
-    int NotebookId = 0;
-    int SectionId = 0;
     string _cmd = "";
-
     User user = new User();
-    List<Note> lstNotes = new List<Note>();
-    List<Notebook> lstNotebooks = new List<Notebook>();
-    List<Section> lstSections = new List<Section>();
-    string _ShowNotebooksMode = "active";
+    List<Dataset> lstDatasets = new List<Dataset>();
     public bool _hasFetched = false;
+    //mudBlazor table
+    private IEnumerable<Dataset> Elements = new List<Dataset>();
+    private string _searchString;
+    private bool _sortNameByLength;
+    private List<string> _events = new();
+
+    //species
+    public MudTextField<string> refFilterSpeciesList;
+    List<Species> lstSpecies = new();
+    Species species = new Species();
+    private string _speciesId = "";
+    private string _speciesName = "";
+    private string _speciesListFilter = "";
+
+    public MudTextField<string> refFilterDatasets;
+    Dataset dataset = new Dataset();
+    private int _datasetId = 0;
+    private string _datasetName = "";
+    private string _datasetFilter = "";
 
     //LifeCycleEvents
     protected override async Task OnInitializedAsync ()
@@ -76,6 +227,7 @@ else
         appState.SetCmd("");
         user.UserId = Convert.ToInt32(appState.UserId);
         user.Username = appState.Username;
+        lstDatasets = await feService.Read_Datasets(1, 1);
         _hasFetched = true;
         }
     private void TriggerRender ()
@@ -85,6 +237,42 @@ else
     public void Dispose ()
         {
         appState.OnChange -= TriggerRender;
+        }
+    //grid events
+    private Func<Dataset, object> _sortBy => x =>
+    {
+        if (_sortNameByLength)
+            return x.DatasetName.Length;
+        else
+            return x.DatasetName;
+    };
+    private Func<Dataset, bool> _quickFilter => x =>
+    {
+        if (string.IsNullOrWhiteSpace(_searchString))
+            return true;
+
+        if (x.DatasetName.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (x.DatasetName.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if ($"{x.DatasetName} {x.DatasetName} {x.DatasetName}".Contains(_searchString))
+            return true;
+
+        return false;
+    };
+    void RowClicked (DataGridRowClickEventArgs<Dataset> args)
+        {
+        _events.Insert(0, $"Event = RowClick, Index = {args.RowIndex}, Data = {System.Text.Json.JsonSerializer.Serialize(args.Item)}");
+        }
+    void RowRightClicked (DataGridRowClickEventArgs<Dataset> args)
+        {
+        _events.Insert(0, $"Event = RowRightClick, Index = {args.RowIndex}, Data = {System.Text.Json.JsonSerializer.Serialize(args.Item)}");
+        }
+    void SelectedItemsChanged (HashSet<Dataset> items)
+        {
+        _events.Insert(0, $"Event = SelectedItemsChanged, Data = {System.Text.Json.JsonSerializer.Serialize(items)}");
         }
     //btns
     private void BtnCancel ()
@@ -112,9 +300,119 @@ else
     private async Task HandleModalClose ()
         {
         _hasFetched = false;
-        lstNotes.Clear();
-        lstNotes = await feService.Read_Notes(12, Id);
+        lstDatasets.Clear();
+        lstDatasets = await feService.Read_Datasets(1, 1);
         _hasFetched = true;
         StateHasChanged();
         }
+
+    //list datasets
+    public async Task FilterDatasets (string _datasetsFilter)
+        {
+        lstDatasets = lstDatasets.Where(s => s.DatasetName?.Contains(_datasetFilter, StringComparison.OrdinalIgnoreCase) == true).ToList();
+        StateHasChanged();
+        }
+    public async Task BtnShowAllDatasets ()
+        {
+        lstDatasets = await feService.Read_Datasets(1, 1);
+        StateHasChanged();
+        }
+    public async Task BtnReportDatasets (int Id)
+        {
+
+        }
+    public async Task BtnShowDataset (int Id)
+        {
+
+        }
+    public async Task BtnEditDataset (Dataset ds)
+        {
+
+        }
+    private async Task BtnCreateNoteForDataset (int refId)
+        {
+        //refTypes: 1:ApgGroup 2:Order 3 ّFamily 4:Genus 5:Species 6:DatasetFL 7:DatasetCN 8:DatasetLM 9:Station 10:Set 11:SetData 12:Section 13:User'sNote
+        appState.SetNoteRefId(refId);
+        appState.SetNoteRefType(6);
+        appState.SetCmd("cmdCreateNote");
+        StateHasChanged();
+        //--After the Modal_CreateNote is closed, HandleModalClose will refresh the list
+        //--to handel close event, I added in the Modal_CreateNote: [Parameter] public EventCallback OnClose
+        }
+    private async Task ScrollToTop ()
+        {
+        await JS.InvokeVoidAsync("scrollToTop");
+        }
+    private async Task CloseSpeciesList ()
+        {
+        _cmd = "";
+        lstSpecies = new();
+        //await JS.InvokeVoidAsync("scrollToTop");
+        }
+
+    //List Species
+    public async Task BtnSelectAllSpecies ()
+        {
+        foreach (Species species in lstSpecies)
+            {
+            species.IsSelected = true;
+            }
+        StateHasChanged();
+        }
+    public async Task BtnInvertSelection ()
+        {
+        foreach (Species species in lstSpecies)
+            {
+            species.IsSelected = (species.IsSelected) ? false : true;
+            }
+        StateHasChanged();
+        }
+    public async Task FilterSpeciesList (string _speciesListFilter)
+        {
+        lstSpecies = lstSpecies.Where(s => s.SciName?.Contains(_speciesListFilter, StringComparison.OrdinalIgnoreCase) == true).ToList();
+        StateHasChanged();
+        }
+    public async Task BtnShowSubspecies (Species species)
+        {
+        var words = species.SciName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (words.Length < 2)
+            {
+            return;
+            }
+        else
+            {
+            lstSpecies = await feService.Read_Subspecies(words [0], words [1]);
+            StateHasChanged();
+            }
+        }
+    public async Task BtnReportSpecies (string Id)
+        {
+
+        }
+    private async Task BtnListSpeciesOfDatasetsFL (int datasetFLId)
+        {
+        if (datasetFLId != 0)
+            {
+            _cmd = "cmdListDatasetData";
+            _datasetId = datasetFLId;
+            lstSpecies = await feService.Read_SpeciesByDatasetId(1, datasetFLId);
+            StateHasChanged();
+            }
+        else
+            {
+            Snackbar.Add("Select a Dataset", Severity.Warning);
+            }
+        }
+
+    private async Task BtnCreateNoteForSpecies (string refId)
+        {
+        //refTypes: 1:ApgGroup 2:Order 3 ّFamily 4:Genus 5:Species 6:DatasetFL 7:DatasetCN 8:DatasetLM 9:Station 10:Set 11:SetData 12:Section 13:User'sNote
+        // appState.SetNoteRefId(refId);
+        // appState.SetNoteRefType(5);
+        // appState.SetCmd("cmdCreateNote");
+        // StateHasChanged();
+        //--After the Modal_CreateNote is closed, HandleModalClose will refresh the list
+        //--to handel close event, I added in the Modal_CreateNote: [Parameter] public EventCallback OnClose
+        }
+
     }

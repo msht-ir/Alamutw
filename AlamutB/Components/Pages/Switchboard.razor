@@ -152,15 +152,11 @@
         {
         Navman.NavigateTo("/Login");
         }
-    public void GotoGroupsStudents ()
-        {
-        Navman.NavigateTo("/T_Students");
-        }
     public void GotoPage (string _pageId)
         {
         string page = _pageId switch
             {
-                "TX"=> "/PgTaxa",
+                "TX"=> "/PgListMaker",
                 "CN"=> "/PgCheckName",
                 "DS"=> "/PgDatasets",
                 "SET"=> "/PgSets",

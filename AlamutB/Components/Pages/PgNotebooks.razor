@@ -565,14 +565,11 @@ else
                     {
                         <div style="max-width:500px; margin: 0 auto;">
                         <br />
-                            <button class="btn btn-link pulse-hover" @onclick="() => BtnBackToCallingPage()">
-                            <img src="/img/icoList1.png" style="width:28px" title="back" />
-                            </button>
-                            @* <button class="btn btn-link pulse-hover" @onclick="() => BtnGotoStickyNotes()">
-                            <img src="/img/icoNoteSticky2.png" width="28" title="goto: quick notes" />
-                            </button> *@
                             <button class="btn btn-link pulse-hover" @onclick="BtnAddNewNotebook">
                             <img src="/img/icoNotebookAdd.png" width="38" title="add new notebook" />
+                            </button>
+                            <button class="btn btn-link pulse-hover" @onclick="ScrollToTop">
+                            <img src="/img/icoGotoTop2.png" width="28" />
                             </button>
                         </div>
                     }
@@ -1213,6 +1210,10 @@ else
             }
         }
     //back
+    private async Task ScrollToTop ()
+        {
+        await JS.InvokeVoidAsync("scrollToTop");
+        }
     public void BtnGotoStickyNotes ()
         {
         //if: UserRole is teacher

@@ -1,5 +1,4 @@
-﻿@page "/PgDatasetDef/{mode:int}/{Id:int}"
-@using System.Globalization
+﻿@using System.Globalization
 @using AlamutB.Service
 @using System.Threading.Tasks
 @inject FeService feService
@@ -10,7 +9,7 @@
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 
-<h5 style="text-align:center;padding-left:15px;">DatasetDef - <span style="font-size:smaller;text-align:center;color:indianred">@appState.UserNickname</span></h5>
+<h5 style="text-align:center;padding-left:15px;">Report SpeciesList - <span style="font-size:smaller;text-align:center;color:indianred">@appState.UserNickname</span></h5>
 <hr style="color:red" />
     @if (!_hasFetched)
     {

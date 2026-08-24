@@ -209,6 +209,7 @@ namespace AlamutS.Models
         public Decimal TempAver { get; set; } = 0;
         public Decimal Precipitation { get; set; } = 0;
         public int DatasetTags { get; set; } = 0;
+        public bool IsSelected { get; set; } = false;
         }
     public class Station
         {
