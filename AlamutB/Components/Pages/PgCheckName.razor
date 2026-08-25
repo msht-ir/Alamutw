@@ -38,36 +38,22 @@ else
                        Size="Size.Large"
                        Title="Switchboard" />
             <button class="btn btn-link pulse-hover" @onclick="BtnAddNewDatasetCN">
-            <img src="/img/icoAdd1.png" width="26" />
+            <img src="/img/icoAdd1.png" width="24" />
             </button>
         </div>
         <EditForm Model="lstNotes">
         @* ADD NEW DATASET CN *@
         @if (_cmd == "cmdAddNewDatasetCN")
             {
-                <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-2 px-0">
+            <br />
+                <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-1 mb-4 px-0">
                     <MudCard Class="mx-0">
-                        <MudCardContent Style="background-color:rgba(249,249,249);">
-
-                            <div class="d-flex">
-                            <MudTextField @ref="refNewDatasetCN"
-                                          @bind-Value="_datasetCNName"
-                                          Label="new dataset"
-                                          Variant="Variant.Text"
-                                          Margin="Margin.Dense"
-                                          Autocomplete="off"
-                                          Adornment="Adornment.End"
-                                          AdornmentIcon="@Icons.Material.Filled.Save"
-                                          OnAdornmentClick="@(() => CreateDatasetCN (_datasetCNName))"
-                                          Class="my-textfield" />
-                                <button class="btn btn-link" style="margin-left:20px;" Title="cancel" @onclick="BtnCancel">
-                                <img src="/img/icoCancel.png" width="20" />
-                                </button>
-                            </div>
+                        <MudCardContent Style="background-color:rgba(240,240,240);">
+                        @* SHOW COMPONENT *@
+                        <CompDataset dataset="dataset" OnClose="CloseComponent" />
                         </MudCardContent>
                     </MudCard>
                 </MudContainer>
-
             }
         <hr style="border-color:red" />
         @* FILTER *@
@@ -112,14 +98,6 @@ else
                                     Title="Show sub-Species">
                                 <img src="/img/icoRename.png" width="24" />
                                 </button>
-                            @* View *@
-                                <button type="button"
-                                    class="btn btn-link"
-                                    style="margin-left:1px"
-                                    @onclick='() => BtnShowDataset(dataset.DatasetId)'
-                                    Title="ShowDataset">
-                                <img src="/img/icoReport0.png" width="18" />
-                                </button>
                             @* List taxa *@
                                 <button type="button"
                                     class="btn btn-link"
@@ -141,7 +119,7 @@ else
                         @if ((_cmd == "cmdImportDatasetDataCN") && (dataset.DatasetId == _datasetCNId))
                             {
                             <br />
-                                <MudContainer MaxWidth="MaxWidth.Small" Class="mt-1 mb-4 px-0">
+                                <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-1 mb-4 px-0">
                                     <MudCard Class="mx-0">
                                         <MudCardContent Style="background-color:rgba(240,240,240);">
                                             <div>
@@ -157,7 +135,7 @@ else
                         else if (_cmd == "ShowWorksheetNames")
                             {
                             <br />
-                                <MudContainer MaxWidth="MaxWidth.Small" Class="mt-2 px-0">
+                                <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-2 px-0">
                                     <MudCard Class="mx-0">
                                         <MudCardContent Style="background-color:rgba(240,240,240);">
                                         <br />
@@ -194,35 +172,17 @@ else
                         else if ((_cmd == "cmdEditDatasetCN") && (dataset.DatasetId == _datasetCNId))
                             {
                             <br />
-                                <MudContainer MaxWidth="MaxWidth.Small" Class="mt-1 mb-4 px-0">
+                                <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-1 mb-4 px-0">
                                     <MudCard Class="mx-0">
                                         <MudCardContent Style="background-color:rgba(240,240,240);">
-                                            <div class="d-flex">
-                                            <MudTextField @ref="refNewDatasetCN"
-                                                          @bind-Value="dataset.DatasetName"
-                                                          Label="edit dataset"
-                                                          Variant="Variant.Text"
-                                                          Margin="Margin.Dense"
-                                                          Autocomplete="off"
-                                                          Adornment="Adornment.End"
-                                                          AdornmentIcon="@Icons.Material.Filled.Save"
-                                                          OnAdornmentClick="@(() => UpdateDatasetCN (dataset))"
-                                                          Class="my-textfield" />
-                                                <button class="btn btn-link" style="margin-left:20px;" Title="cancel" @onclick="BtnCancel">
-                                                <img src="/img/icoCancel.png" width="20" />
-                                                </button>
-                                            </div>
+                                        @* SHOW COMPONENT *@
+                                        <CompDataset dataset="dataset" OnClose="CloseComponent" />
                                         </MudCardContent>
                                     </MudCard>
                                 </MudContainer>
-
                             }
 
-                        @if (_cmd == "cmdEditDataset")
-                            {
-
-                            }
-                        else if (_cmd == "cmdViewDataset")
+                        @if (_cmd == "cmdViewDataset")
                             {
 
                             }
@@ -561,22 +521,23 @@ else
             StateHasChanged();
             }
         }
-    public async Task BtnShowDataset (int Id)
-        {
-        //
-        }
     private void BtnEditDatasetCN (Dataset datasetCN)
         {
         if (datasetCN != null)
             {
             _datasetCNId = datasetCN.DatasetId;
-            _cmd = "cmdEditDatasetCN";
+            _cmd = (_cmd == "cmdEditDatasetCN") ? "" : "cmdEditDatasetCN";
             StateHasChanged();
             }
         else
             {
             Snackbar.Add("Select a Dataset first", Severity.Warning);
             }
+        }
+    private void CloseComponent ()
+        {
+        //RollBack of Component 'Dataset'
+        _cmd = "";
         }
     private async Task UpdateDatasetCN (Dataset _dataset)
         {

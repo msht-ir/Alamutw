@@ -9,59 +9,244 @@
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 
-<h5 style="text-align:center;padding-left:15px;">DatasetDef - <span style="font-size:smaller;text-align:center;color:indianred">@appState.UserNickname</span></h5>
-<hr style="color:red" />
+@* <hr style="color:red" /> *@
     @if (!_hasFetched)
     {
     <_ScanSheets />
     }
 else
     {
-        <div style="text-align: center; margin:15px;">
-            <button class="btn btn-link" @onclick="BtnBack">
-            <img src="/img/icoBack3.png" width="40" title="back" />
-            </button>
-        </div>
-        <EditForm Model="lstNotes">
-        @if (appState.Cmd == "ShowNoteInDialog")
+        <EditForm Model="dataset">
+        @* TITLE *@
+        @if (dataset.DatasetId == 0)
             {
-            <Modal_ShowNote OnClose="HandleModalClose" />
+            <h6 style="color:indianred">New Dataset</h6>
             }
         else
             {
-
+            <h6 style="color:indianred">Edit Dataset: <span style="color:darkslategray">@dataset.DatasetName</span> (id:@dataset.DatasetId) </h6>
             }
+            @* BODY *@
+            <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-1 mb-4 px-0">
+                <MudCard Class="mx-0">
+                    <MudCardContent Style="background-color:rgba(230,230,230);">
+                        <div class="flex">
+                            <div class="d-flex gap-3">
+                            @* Name *@
+                            <MudTextField @ref="refDatasetName"
+                                          @bind-Value="dataset.DatasetName"
+                                          Label="dataset name"
+                                          Variant="Variant.Text"
+                                          Margin="Margin.Dense"
+                                          Autocomplete="off"
+                                          Style="width:600px;color:royalblue;"
+                                          Class="my-textfield" />
+                            @* Abbr *@
+                            <MudTextField @ref="refDatasetAbbr"
+                                          @bind-Value="dataset.DatasetAbbr"
+                                          Label="abbreviation"
+                                          Variant="Variant.Text"
+                                          Margin="Margin.Dense"
+                                          Autocomplete="off"
+                                          Class="my-textfield" />
+                            </div>
+                            <div class="d-flex gap-3">
+                            @* Year *@
+                            <MudNumericField @ref="refRefYear"
+                                             @bind-Value="dataset.RefYear"
+                                             Label="year"
+                                             Variant="Variant.Text"
+                                             Margin="Margin.Dense"
+                                             Autocomplete="off"
+                                             Style="width:100px;color:indianred;"
+                                             Class="my-textfield" />
+                            @* Lang *@
+                            <MudTextField @ref="refRefLang"
+                                          @bind-Value="dataset.RefLang"
+                                          Label="language"
+                                          Variant="Variant.Text"
+                                          Margin="Margin.Dense"
+                                          Autocomplete="off"
+                                          Style="width:100px"
+                                          Class="my-textfield" />
+                            @* Manager *@
+                            <MudTextField @ref="refDatasetManager"
+                                          @bind-Value="dataset.DatasetManager"
+                                          Label="manager"
+                                          Variant="Variant.Text"
+                                          Margin="Margin.Dense"
+                                          Autocomplete="off"
+                                          Class="my-textfield" />
+                            </div>
+                            <div class="d-flex gap-3">
+                            @* Ref *@
+                            <MudTextField @ref="refDatasetRef"
+                                          @bind-Value="dataset.DatasetRef"
+                                          Label="reference"
+                                          Variant="Variant.Outlined"
+                                          Margin="Margin.Dense"
+                                          Autocomplete="off"
+                                          Style="color:royalblue;"
+                                          Lines="5"
+                                          Class="my-textfield" />
+                            </div>
+                            <div class="d-flex gap-3">
+                            @* Area *@
+                            <MudNumericField @ref="refAreaHa"
+                                             @bind-Value="dataset.AreaHa"
+                                             Label="area Ha"
+                                             Variant="Variant.Text"
+                                             Margin="Margin.Dense"
+                                             Autocomplete="off"
+                                             Style="width:100px"
+                                             Class="my-textfield" />
+                            @* Province *@
+                            <MudNumericField @ref="refProvinceId"
+                                             @bind-Value="dataset.ProvinceId"
+                                             Label="province"
+                                             Variant="Variant.Text"
+                                             Margin="Margin.Dense"
+                                             Autocomplete="off"
+                                             Style="width:300px"
+                                             Class="my-textfield" />
+                            @* Coords *@
+                            <MudTextField @ref="refCoords"
+                                          @bind-Value="dataset.Coords"
+                                          Label="coords"
+                                          Variant="Variant.Text"
+                                          Margin="Margin.Dense"
+                                          Autocomplete="off"
+                                          Style="width:270px"
+                                          Class="my-textfield" />
+                            @* PREC *@
+                            <MudNumericField @ref="refPrecipitation"
+                                             @bind-Value="dataset.Precipitation"
+                                             Label="precipitation mm"
+                                             Variant="Variant.Text"
+                                             Margin="Margin.Dense"
+                                             Autocomplete="off"
+                                             Style="width:140px"
+                                             Class="my-textfield" />
+                            </div>
+                        <hr style="color:red;" />
+                            <div class="d-flex gap-3">
+                            @* Alt MAX *@
+                            <MudNumericField @ref="refAltMax"
+                                             @bind-Value="dataset.AltMax"
+                                             Label="alt Max"
+                                             Variant="Variant.Text"
+                                             Margin="Margin.Dense"
+                                             Autocomplete="off"
+                                             Style="width:100px"
+                                             Class="my-textfield" />
+                            @* Alt MIN *@
+                            <MudNumericField @ref="refAltMin"
+                                             @bind-Value="dataset.AltMin"
+                                             Label="alt Min"
+                                             Variant="Variant.Text"
+                                             Margin="Margin.Dense"
+                                             Autocomplete="off"
+                                             Style="width:100px"
+                                             Class="my-textfield" />
+                            @* Alt AVER *@
+                            <MudNumericField @ref="refAltAver"
+                                             @bind-Value="dataset.AltAver"
+                                             Label="alt average"
+                                             Variant="Variant.Text"
+                                             Margin="Margin.Dense"
+                                             Autocomplete="off"
+                                             Style="width:100px"
+                                             Class="my-textfield" />
+                            </div>
+                            <div class="d-flex gap-3">
+                            @* Temp MAX *@
+                            <MudNumericField @ref="refTempMax"
+                                             @bind-Value="dataset.TempMax"
+                                             Label="temp Max"
+                                             Variant="Variant.Text"
+                                             Margin="Margin.Dense"
+                                             Autocomplete="off"
+                                             Style="width:100px"
+                                             Class="my-textfield" />
+                            @* Temp MIN *@
+                            <MudNumericField @ref="refTempMin"
+                                             @bind-Value="dataset.TempMin"
+                                             Label="temp Min"
+                                             Variant="Variant.Text"
+                                             Margin="Margin.Dense"
+                                             Autocomplete="off"
+                                             Style="width:100px"
+                                             Class="my-textfield" />
+                            @* Temp AVER *@
+                            <MudNumericField @ref="refTempAver"
+                                             @bind-Value="dataset.TempAver"
+                                             Label="temp average"
+                                             Variant="Variant.Text"
+                                             Margin="Margin.Dense"
+                                             Autocomplete="off"
+                                             Style="width:100px"
+                                             Class="my-textfield" />
+                            </div>
+                            <div class="d-flex gap-3">
+                            @* Tags *@
+                            <MudNumericField @ref="refDatasetTags"
+                                             @bind-Value="dataset.DatasetTags"
+                                             Label="tags"
+                                             Variant="Variant.Text"
+                                             Margin="Margin.Dense"
+                                             Autocomplete="off"
+                                             Class="my-textfield" />
+                            </div>
+                        </div>
+                    </MudCardContent>
+                </MudCard>
+            </MudContainer>
         </EditForm>
+    @* FOOTER *@
+        <div style="text-align: center; margin:10px;">
+            <button class="btn btn-link" @onclick="BtnSaveDataset">
+            <img src="/img/icoSave2.png" width="22" title="save / update" />
+            </button>
+            <button class="btn btn-link" style="margin-left:20px;" Title="cancel" @onclick="OnClose">
+            <img src="/img/icoCancel.png" width="20" />
+            </button>
+        </div>
     }
-<br />
-<br />
-
     <script>
     window.scrollToTop = () => { window.scrollTo({ top: 0, behavior: 'smooth' }); };
     </script>
 
 @code {
     [Parameter]
-    public int mode
+    public Dataset dataset
         {
         get; set;
         }
     [Parameter]
-    public int Id
+    public EventCallback OnClose
         {
         get; set;
         }
-    private MudSelect<int> refNotebooks;
-    private MudSelect<int> refSections;
-    int NotebookId = 0;
-    int SectionId = 0;
-    string _cmd = "";
-
     User user = new User();
-    List<Note> lstNotes = new List<Note>();
-    List<Notebook> lstNotebooks = new List<Notebook>();
-    List<Section> lstSections = new List<Section>();
-    string _ShowNotebooksMode = "active";
+    public MudTextField<string> refDatasetType;
+    public MudTextField<string> refDatasetAbbr;
+    public MudTextField<string> refDatasetName;
+    public MudTextField<string> refDatasetRef;
+    public MudNumericField<int> refRefYear;
+    public MudTextField<string> refRefLang;
+    public MudTextField<string> refDatasetManager;
+    public MudNumericField<int> refAreaHa;
+    public MudNumericField<int> refProvinceId;
+    public MudTextField<string> refCoords;
+    public MudNumericField<int> refAltMax;
+    public MudNumericField<int> refAltMin;
+    public MudNumericField<int> refAltAver;
+    public MudNumericField<decimal> refTempMax;
+    public MudNumericField<decimal> refTempMin;
+    public MudNumericField<decimal> refTempAver;
+    public MudNumericField<decimal> refPrecipitation;
+    public MudNumericField<int> refDatasetTags;
+    string _cmd = "";
     public bool _hasFetched = false;
 
     //LifeCycleEvents
@@ -85,17 +270,32 @@ else
         {
         appState.OnChange -= TriggerRender;
         }
-    //btns
-    private void BtnCancel ()
+    private async Task OnCloseClick ()
         {
-        _cmd = "";
-        StateHasChanged();
+        await OnClose.InvokeAsync();
         }
-    public void BtnBack ()
+    //Dataset
+    private async Task BtnSaveDataset ()
         {
-        Navman.NavigateTo("/Switchboard");
+        bool result;
+        if (dataset.DatasetId > 0)
+            {
+            result = await feService.Update_Dataset(dataset);
+            }
+        else
+            {
+            result = await feService.Create_Dataset(dataset);
+            }
+        if (result)
+            {
+            Snackbar.Add("saved", Severity.Success);
+            _cmd = "";
+            StateHasChanged();
+            await OnCloseClick();
+            }
         }
-    //convert date
+
+    //methods
     public string PersianDate (DateTimeOffset? dt)
         {
         if ((Convert.ToInt32(appState.UserTags) & 256) == 256)
@@ -107,13 +307,10 @@ else
             return dt?.ToString("yyyy-MM-dd HH:mm");
             }
         }
-    //methods
-    private async Task HandleModalClose ()
+    private void BtnCancel ()
         {
-        _hasFetched = false;
-        lstNotes.Clear();
-        lstNotes = await feService.Read_Notes(12, Id);
-        _hasFetched = true;
+        _cmd = "";
         StateHasChanged();
         }
+
     }

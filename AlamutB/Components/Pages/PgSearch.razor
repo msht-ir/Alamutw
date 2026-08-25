@@ -18,11 +18,14 @@
     }
 else
     {
-        <div style="text-align: center; margin:15px;">
-            <button class="btn btn-link" @onclick="BtnBack">
-            <img src="/img/icoBack3.png" width="40" title="back" />
-            </button>
+        <div style="text-align: left; margin:15px;">
+        <MudIconButton OnClick="BtnBack"
+                       Icon="@Icons.Material.Filled.Menu"
+                       Color="Color.Primary"
+                       Size="Size.Large"
+                       Title="Switchboard" />
         </div>
+    <hr />
         <EditForm Model="lstNotes">
         @if (appState.Cmd == "ShowNoteInDialog")
             {
@@ -40,6 +43,7 @@ else
     <script>
     window.scrollToTop = () => { window.scrollTo({ top: 0, behavior: 'smooth' }); };
     </script>
+
 
 @code {
     [Parameter]
