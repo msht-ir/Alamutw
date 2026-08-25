@@ -147,7 +147,9 @@ else
                                                         Title="Note for Species">
                                                     <img src="/img/icoNoteStickyAdd.png" width="22" />
                                                     </button>
-                                                <span style="font-size:x-small">@species.SciName</span>
+                                                <span style="font-size:smaller">@species.SciName </span>
+                                                <span style="font-size:x-small;color:indianred">@((species.NomStatus == 1) ? " -- valid " : "") </span>
+                                                <span style="font-size:x-small;color:indianred">@((species.TaxStatus == 1) ? " -- accepted " : "") </span>
                                                 </div>
                                             }
                                             @* Close the List *@
@@ -183,24 +185,13 @@ else
 
 @code {
     [Parameter]
-    public int mode
-        {
-        get; set;
-        }
+    public int mode {get; set;}
     [Parameter]
-    public int Id
-        {
-        get; set;
-        }
+    public int Id {get; set;}
     string _cmd = "";
     User user = new User();
     List<Dataset> lstDatasets = new List<Dataset>();
     public bool _hasFetched = false;
-    //mudBlazor table
-    private IEnumerable<Dataset> Elements = new List<Dataset>();
-    private string _searchString;
-    private bool _sortNameByLength;
-    private List<string> _events = new();
 
     //species
     public MudTextField<string> refFilterSpeciesList;
@@ -237,42 +228,6 @@ else
     public void Dispose ()
         {
         appState.OnChange -= TriggerRender;
-        }
-    //grid events
-    private Func<Dataset, object> _sortBy => x =>
-    {
-        if (_sortNameByLength)
-            return x.DatasetName.Length;
-        else
-            return x.DatasetName;
-    };
-    private Func<Dataset, bool> _quickFilter => x =>
-    {
-        if (string.IsNullOrWhiteSpace(_searchString))
-            return true;
-
-        if (x.DatasetName.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
-            return true;
-
-        if (x.DatasetName.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
-            return true;
-
-        if ($"{x.DatasetName} {x.DatasetName} {x.DatasetName}".Contains(_searchString))
-            return true;
-
-        return false;
-    };
-    void RowClicked (DataGridRowClickEventArgs<Dataset> args)
-        {
-        _events.Insert(0, $"Event = RowClick, Index = {args.RowIndex}, Data = {System.Text.Json.JsonSerializer.Serialize(args.Item)}");
-        }
-    void RowRightClicked (DataGridRowClickEventArgs<Dataset> args)
-        {
-        _events.Insert(0, $"Event = RowRightClick, Index = {args.RowIndex}, Data = {System.Text.Json.JsonSerializer.Serialize(args.Item)}");
-        }
-    void SelectedItemsChanged (HashSet<Dataset> items)
-        {
-        _events.Insert(0, $"Event = SelectedItemsChanged, Data = {System.Text.Json.JsonSerializer.Serialize(items)}");
         }
     //btns
     private void BtnCancel ()

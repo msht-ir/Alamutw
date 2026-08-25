@@ -9,45 +9,323 @@
 @implements IDisposable
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
-
+@using ClosedXML.Excel
+@using Microsoft.Extensions.Hosting
+@using ClosedXML
+@using Microsoft.VisualBasic
+@using OfficeOpenXml;
 
 <h5 style="text-align:center;padding-left:15px;">CheckName - <span style="font-size:smaller;text-align:center;color:indianred">@appState.UserNickname</span></h5>
 <hr style="color:red" />
-    @if (!_hasFetched)
+@if (!_hasFetched)
     {
     <_ScanSheets />
     }
+else if (appState.Cmd == "cmdCreateNote")
+    {
+    <Modal_CreateNote />
+    }
 else
     {
+    @if (appState.Cmd == "ShowNoteInDialog")
+        {
+        <Modal_ShowNote OnClose="HandleModalClose" />
+        }
         <div style="text-align: left; margin:15px;">
         <MudIconButton OnClick="BtnBack"
                        Icon="@Icons.Material.Filled.Menu"
                        Color="Color.Primary"
                        Size="Size.Large"
                        Title="Switchboard" />
+            <button class="btn btn-link pulse-hover" @onclick="BtnAddNewDatasetCN">
+            <img src="/img/icoAdd1.png" width="26" />
+            </button>
         </div>
-        <hr />
         <EditForm Model="lstNotes">
-        @if (appState.Cmd == "ShowNoteInDialog")
+        @* ADD NEW DATASET CN *@
+        @if (_cmd == "cmdAddNewDatasetCN")
             {
-            <Modal_ShowNote OnClose="HandleModalClose" />
+                <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-2 px-0">
+                    <MudCard Class="mx-0">
+                        <MudCardContent Style="background-color:rgba(249,249,249);">
+
+                            <div class="d-flex">
+                            <MudTextField @ref="refNewDatasetCN"
+                                          @bind-Value="_datasetCNName"
+                                          Label="new dataset"
+                                          Variant="Variant.Text"
+                                          Margin="Margin.Dense"
+                                          Autocomplete="off"
+                                          Adornment="Adornment.End"
+                                          AdornmentIcon="@Icons.Material.Filled.Save"
+                                          OnAdornmentClick="@(() => CreateDatasetCN (_datasetCNName))"
+                                          Class="my-textfield" />
+                                <button class="btn btn-link" style="margin-left:20px;" Title="cancel" @onclick="BtnCancel">
+                                <img src="/img/icoCancel.png" width="20" />
+                                </button>
+                            </div>
+                        </MudCardContent>
+                    </MudCard>
+                </MudContainer>
+
             }
-        else
-            {
+        <hr style="border-color:red" />
+        @* FILTER *@
+            <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-2 px-0">
+                <MudCard Class="mx-0">
+                    <MudCardContent Style="background-color:rgba(249,249,249);">
+                    <h6 style="text-align:center;color:royalblue">Dataset<span style="font-size:x-small;color:indianred"> ( @lstDatasetsCN.Count() )</span></h6>
+                    <hr style="color:indianred" />
+                        <div class="d-flex">
+                        <MudTextField @ref="refFilterDatasets"
+                                      @bind-Value="_datasetFilter"
+                                      Label="filter datasets"
+                                      Variant="Variant.Text"
+                                      Margin="Margin.Dense"
+                                      Autocomplete="off"
+                                      Adornment="Adornment.End"
+                                      AdornmentIcon="@Icons.Material.Filled.Search"
+                                      OnAdornmentClick="@(() => FilterDatasets (_datasetFilter))"
+                                      Class="my-textfield" />
+                            <button class="btn btn-link" style="margin-left:20px;" Title="show all" @onclick="BtnShowAllDatasets">
+                            <img src="/img/icoList1.png" width="20" />
+                            </button>
+                        </div>
+                    @* LIST DataSets CN *@
+                    @foreach (Dataset dataset in lstDatasetsCN)
+                        {
+                            <div class="d-flex align-items-center mb-1">
+                            @* Select *@
+                            <input class="form-check-input"
+                                   style="margin-left:1px;margin-right:1px;"
+                                   type="checkbox"
+                                   @bind="dataset.IsSelected" />
+                            @* Import *@
+                                <button class="btn btn-link" @onclick="() => BtnImportFromExcelFile(dataset.DatasetId)">
+                                <img src="/img/icoFileExcel.png" width="20" title="import tests from excel" />
+                                </button>
+                            @* Edit *@
+                                <button type="button"
+                                    class="btn btn-link"
+                                    style="margin-left:1px"
+                                    @onclick='() => BtnEditDatasetCN(dataset)'
+                                    Title="Show sub-Species">
+                                <img src="/img/icoRename.png" width="24" />
+                                </button>
+                            @* View *@
+                                <button type="button"
+                                    class="btn btn-link"
+                                    style="margin-left:1px"
+                                    @onclick='() => BtnShowDataset(dataset.DatasetId)'
+                                    Title="ShowDataset">
+                                <img src="/img/icoReport0.png" width="18" />
+                                </button>
+                            @* List taxa *@
+                                <button type="button"
+                                    class="btn btn-link"
+                                    style="margin-left:1px"
+                                    @onclick='() => BtnListSpeciesOfDatasetsCN(dataset.DatasetId)'
+                                    Title="Show sub-Species">
+                                <img src="/img/icoList1.png" width="22" />
+                                </button>
+                            @* Note *@
+                                <button type="button"
+                                    class="btn btn-link"
+                                    style="margin-left:1px"
+                                    @onclick='() => BtnCreateNoteForDataset(dataset.DatasetId)'
+                                    Title="Note for Dataset">
+                                <img src="/img/icoNoteStickyAdd.png" width="22" />
+                                </button>
+                            <span style="font-size:small;font-weight:bold;margin-left:10px;">@dataset.DatasetName</span>
+                            </div>
+                        @if ((_cmd == "cmdImportDatasetDataCN") && (dataset.DatasetId == _datasetCNId))
+                            {
+                            <br />
+                                <MudContainer MaxWidth="MaxWidth.Small" Class="mt-1 mb-4 px-0">
+                                    <MudCard Class="mx-0">
+                                        <MudCardContent Style="background-color:rgba(240,240,240);">
+                                            <div>
+                                            <span style="font-size:smaller">Import data for: <span style="color:indianred">@dataset.DatasetName</span></span>
+                                            <br />
+                                            <br />
+                                            <InputFile OnChange="HandleFileSelected" title="Refer to Examiner guide for correct Excel format" />
+                                            </div>
+                                        </MudCardContent>
+                                    </MudCard>
+                                </MudContainer>
+                            }
+                        else if (_cmd == "ShowWorksheetNames")
+                            {
+                            <br />
+                                <MudContainer MaxWidth="MaxWidth.Small" Class="mt-2 px-0">
+                                    <MudCard Class="mx-0">
+                                        <MudCardContent Style="background-color:rgba(240,240,240);">
+                                        <br />
+                                            <div class="d-flex">
+                                                <MudSelect T="string"
+                                                       @ref="refWorksheets"
+                                                       Label="Worksheet"
+                                                       Value="WorksheetName"
+                                                       ValueChanged="@((string worcksheetname) => OnWorksheetChanged(worcksheetname))"
+                                                       Class="w-auto"
+                                                       Variant="Variant.Outlined"
+                                                       Margin="Margin.Dense"
+                                                       Style="font-size:small;">
+                                                @foreach (string ws in lstWorksheets)
+                                                    {
+                                                    <MudSelectItem Value="@ws">@ws</MudSelectItem>
+                                                    }
+                                                </MudSelect>
+                                                <button class="btn btn-link" Title="import from excel" @onclick="() => ReadExcelAsync()">
+                                                <img src="/img/icoGo1.png" width="36" />
+                                                </button>
+                                            </div>
+                                        <br /><br />
+                                        <hr />
+                                            <div style="text-align:center">
+                                                <button class="btn btn-link" style="margin-right:20px;" @onclick="BtnCancel">
+                                                <img src="/img/icoCancel.png" width="24" />
+                                                </button>
+                                            </div>
+                                        </MudCardContent>
+                                    </MudCard>
+                                </MudContainer>
+                            }
+                        else if ((_cmd == "cmdEditDatasetCN") && (dataset.DatasetId == _datasetCNId))
+                            {
+                            <br />
+                                <MudContainer MaxWidth="MaxWidth.Small" Class="mt-1 mb-4 px-0">
+                                    <MudCard Class="mx-0">
+                                        <MudCardContent Style="background-color:rgba(240,240,240);">
+                                            <div class="d-flex">
+                                            <MudTextField @ref="refNewDatasetCN"
+                                                          @bind-Value="dataset.DatasetName"
+                                                          Label="edit dataset"
+                                                          Variant="Variant.Text"
+                                                          Margin="Margin.Dense"
+                                                          Autocomplete="off"
+                                                          Adornment="Adornment.End"
+                                                          AdornmentIcon="@Icons.Material.Filled.Save"
+                                                          OnAdornmentClick="@(() => UpdateDatasetCN (dataset))"
+                                                          Class="my-textfield" />
+                                                <button class="btn btn-link" style="margin-left:20px;" Title="cancel" @onclick="BtnCancel">
+                                                <img src="/img/icoCancel.png" width="20" />
+                                                </button>
+                                            </div>
+                                        </MudCardContent>
+                                    </MudCard>
+                                </MudContainer>
 
+                            }
 
+                        @if (_cmd == "cmdEditDataset")
+                            {
 
+                            }
+                        else if (_cmd == "cmdViewDataset")
+                            {
 
+                            }
+                        else if ((_cmd == "cmdListDatasetData") && (dataset.DatasetId == _datasetId))
+                            {
+                            @* LIST SPECIES *@
+                                <MudCard Class="mx-0">
+                                    <MudCardContent Style="background-color:rgba(240,240,240);">
+                                    <h6 style="text-align:center;color:royalblue">Species <span style="font-size:x-small;color:indianred"> ( @lstSpecies.Count() )</span></h6>
+                                    <hr style="color:indianred" />
+                                    @* Filter *@
+                                        <div class="d-flex">
+                                        <MudTextField @ref="refFilterSpeciesList"
+                                                      @bind-Value="_speciesListFilter"
+                                                      Label="filter species"
+                                                      Variant="Variant.Text"
+                                                      Margin="Margin.Dense"
+                                                      Immediate="true"
+                                                      Adornment="Adornment.End"
+                                                      AdornmentIcon="@Icons.Material.Filled.Search"
+                                                      OnAdornmentClick='@(() => FilterSpeciesList(_speciesListFilter))'
+                                                      Class="my-textfield" />
+                                        </div>
 
-            }
+                                    @* Close the List (TOP) *@
+                                        <button class="btn btn-link pulse-hover" @onclick="CloseSpeciesList">
+                                        <img src="/img/icoGotoTop2.png" width="32" />
+                                        </button>
+                                    @foreach (Species species in lstSpecies)
+                                        {
+                                            <div class="d-flex align-items-center mb-1" style=" margin-left:40px;">
+                                            <input class="form-check-input"
+                                                   style="margin-left:1px;margin-right:1px;"
+                                                   type="checkbox"
+                                                   @bind="species.IsSelected" />
+                                                <button type="button"
+                                                    class="btn btn-link"
+                                                    style="margin-left:1px"
+                                                    @onclick='() => BtnShowSubspecies(species)'
+                                                    Title="Show sub-Species">
+                                                <img src="/img/icoList1.png" width="24" />
+                                                </button>
+                                                <button type="button"
+                                                    class="btn btn-link"
+                                                    style="margin-left:1px"
+                                                    @onclick='() => BtnCreateNoteForSpecies(species.SpeciesId)'
+                                                    Title="Note for Species">
+                                                <img src="/img/icoNoteStickyAdd.png" width="22" />
+                                                </button>
+                                            <span style="font-size:smaller">@species.SciName </span>
+                                            <span style="font-size:x-small;color:indianred">@((species.NomStatus == 1) ? " -- valid " : "") </span>
+                                            <span style="font-size:x-small;color:indianred">@((species.TaxStatus == 1) ? " -- accepted " : "") </span>
+                                            </div>
+                                        }
+                                    @* Close the List (BOTTOM) *@
+                                        <button class="btn btn-link pulse-hover" @onclick="CloseSpeciesList">
+                                        <img src="/img/icoGotoTop2.png" width="32" />
+                                        </button>
+                                    </MudCardContent>
+                                </MudCard>
+                            }
+                        }
+                    </MudCardContent>
+                </MudCard>
+            </MudContainer>
+        <br />
+        <br />
+        @* FOOTER *@
+            <div class="gap-4" style="display: flex;  justify-content: center; align-items: center;">
+            <MudIconButton OnClick="BtnBack"
+                           Icon="@Icons.Material.Filled.Menu"
+                           Color="Color.Primary"
+                           Size="Size.Large"
+                           Title="Switchboard" />
+            <MudIconButton OnClick="BtnHelp"
+                           Icon="@Icons.Material.Filled.HelpCenter"
+                           Color="Color.Tertiary"
+                           Size="Size.Large"
+                           Title="Help" />
+                <button class="btn btn-link pulse-hover" @onclick="ScrollToTop">
+                <img src="/img/icoGotoTop2.png" width="32" />
+                </button>
+            </div>
         </EditForm>
-    }
-<br />
-<br />
+    <br />
+    <br />
 
-    <script>
-    window.scrollToTop = () => { window.scrollTo({ top: 0, behavior: 'smooth' }); };
-    </script>
+        <script>
+        window.scrollToTop = () => { window.scrollTo({ top: 0, behavior: 'smooth' }); };
+        </script>
+        <script>
+        function showLoading() {
+            document.getElementById("loadingOverlay").style.display = "block";
+            document.querySelectorAll("button").forEach(btn => btn.disabled = true);
+        }
+        </script>
+        <script>
+        document.getElementById("txtSearch").focus();
+        </script>
+        <script>
+        window.addEventListener('load', () => { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+        </script>
+    }
 
 @code {
     [Parameter]
@@ -60,17 +338,50 @@ else
         {
         get; set;
         }
-    private MudSelect<int> refNotebooks;
-    private MudSelect<int> refSections;
-    int NotebookId = 0;
-    int SectionId = 0;
-    string _cmd = "";
-
     User user = new User();
     List<Note> lstNotes = new List<Note>();
-    List<Notebook> lstNotebooks = new List<Notebook>();
-    List<Section> lstSections = new List<Section>();
-    string _ShowNotebooksMode = "active";
+    List<Dataset> lstDatasetsCN = new List<Dataset>();
+    List<DatasetDataCN> lstDatasetDataCN = new List<DatasetDataCN>();
+    DatasetDataCN datasetDataCN = new DatasetDataCN();
+
+    public Dataset datasetCN = new Dataset();
+    public int _datasetCNId = 0;
+    public string _datasetCNName = "";
+    public string _datasetCNSearchText = "";
+
+    //species
+    public MudTextField<string> refFilterSpeciesList;
+    List<Species> lstSpecies = new();
+    Species species = new Species();
+    private string _speciesId = "";
+    private string _speciesName = "";
+    private string _speciesListFilter = "";
+
+    public MudSelect<int> refDatasetsCN;
+    public MudTextField<string> refNewDatasetCN;
+    public MudTextField<string> refSearchDatasetCN;
+    public MudTextField<string> refFilterDatasets;
+    Dataset dataset = new Dataset();
+    private int _datasetId = 0;
+    private string _datasetName = "";
+    private string _datasetFilter = "";
+
+    IBrowserFile? excelFile;
+    MemoryStream stream = new MemoryStream();
+    private MudAutocomplete<int> refCourseTopics;
+    private MudSelect<string> refWorksheets;
+    private MudNumericField<int> refPageNumber;
+    private MudTextField<string> txtSearch;
+    List<string> lstWorksheets = new List<string>();
+    private string WorksheetName = "";
+    public string strSearch = "";
+    public int intPageNumber = 1;
+    public int _courseTopicId = 0;
+    private int intPendingPageNumber = 1; //value typed in the input (prevent changing i (index number) of tests in list)
+    public string strExcelFile = "";
+
+    public int i = 0;
+    string _cmd = "";
     public bool _hasFetched = false;
 
     //LifeCycleEvents
@@ -84,6 +395,7 @@ else
         appState.SetCmd("");
         user.UserId = Convert.ToInt32(appState.UserId);
         user.Username = appState.Username;
+        await BtnShowAllDatasets();
         _hasFetched = true;
         }
     private void TriggerRender ()
@@ -94,17 +406,276 @@ else
         {
         appState.OnChange -= TriggerRender;
         }
-    //btns
-    private void BtnCancel ()
+
+    //Excel
+    public void BtnImportFromExcelFile (int datasetId)
         {
-        _cmd = "";
+        _cmd = ((_cmd == "cmdImportDatasetDataCN") && (datasetId == _datasetCNId)) ? "" : "cmdImportDatasetDataCN";
+        _datasetCNId = datasetId;
+        }
+    private async Task HandleFileSelected (InputFileChangeEventArgs e)
+        {
+        /*
+        method 1: Save excel file to server folder
+        mothod 2: Parse directly in memory
+        method 3: EPPlus package (fast!)
+        */
+        try
+            {
+            _hasFetched = false;
+            excelFile = e.File;
+            ExcelPackage.License.SetNonCommercialPersonal("Majid SharifiTehrani"); //for non commertial use of package EPPlus
+            // Copy stream (same as before)
+            await excelFile.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024).CopyToAsync(stream);
+            stream.Position = 0;
+
+            // Use EPPlus to read worksheet names
+            using var package = new ExcelPackage(stream);
+            lstWorksheets = package.Workbook.Worksheets
+                .Select(ws => ws.Name)
+                .ToList();
+
+            StateHasChanged();
+            Snackbar.Add("Excel worksheets listed", Severity.Success);
+            _cmd = "ShowWorksheetNames";
+            _hasFetched = true;
+            }
+        catch (Exception ex)
+            {
+            Console.WriteLine($"--------Error\n{ex}");
+            appState.SetCmd("");
+            _hasFetched = true;
+            return;
+            }
+        /*
+        old method wo epplus (takes more time)
+        try
+        {
+            _hasFetched = false;
+            excelFile = e.File;
+            //using var memoryStream = new MemoryStream();
+            await excelFile.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024).CopyToAsync(stream);
+            stream.Position = 0;
+            using var workbook = new XLWorkbook(stream);
+            int i = 0;
+            foreach (IXLWorksheet ws in workbook.Worksheets)
+            {
+                lstWorksheets.Add(ws.Worksheet.Name);
+                }
+            StateHasChanged();
+            Snackbar.Add("excel worksheets listed", Severity.Success);
+            appState.SetCmd("importexcelworksheets");
+            _hasFetched = true;
+            }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"--------Error\n{ex}");
+            appState.SetCmd("");
+            _hasFetched = true;
+            return;
+            }
+        */
+        }
+    private async Task OnWorksheetChanged (string newValue)
+        {
+        WorksheetName = newValue;
+        await Task.Delay(1);
+        await refWorksheets.FocusAsync();
         StateHasChanged();
         }
-    public void BtnBack ()
+    private async Task ReadExcelAsync ()
         {
-        Navman.NavigateTo("/Switchboard");
+        if (WorksheetName == "")
+            {
+            Snackbar.Add("select a worksheet", Severity.Warning);
+            return;
+            }
+        else
+            {
+            _hasFetched = false;
+            var message = new MarkupString($"<hr>CONFIRM: <br><br>Tests in the <span style='color:indianred'>Selected</span><span style='color:royalblue'> Excel Worksheet</span> will be imported <br><br><span style='font-weight:bold'>Duplicate tests</span><br>are imported without warning! <span style='color:indianred'><br><br>Continue .... </span>?<br><br><div style='text-align:center'><img src='/img/icoExcel1.png' width='70'/></div><br><hr>");
+            bool? confirmResult = await DialogService.ShowMessageBox(title: "Confirm", markupMessage: message, yesText: "Yes", cancelText: "No");
+            if (confirmResult == true)
+                {
+                _hasFetched = false;
+                int datasetId = Convert.ToInt32(appState.DatasetId);
+                stream.Position = 0;
+                try
+                    {
+                    List<DatasetDataCN> lstDatasetDataCN = await feService.Read_DatasetDataCN(datasetId);
+                    using var wb = new XLWorkbook(stream);
+                    var worksheet = wb.Worksheet($"{WorksheetName}");
+                    //ExcelColumns: 1: 2: 3:
+                    foreach (var row in worksheet.RowsUsed().Skip(1)) //skip header
+                        {
+                        DatasetDataCN datasetDataCN = new DatasetDataCN();
+                        datasetDataCN.DatasetDataCNId = datasetDataCN.DatasetDataCNId;
+                        datasetDataCN.LineString = row.Cell(1).GetString();
+                        //Create
+                        bool result = await feService.Create_DatasetDataCN(datasetDataCN);
+                        }
+                    }
+                catch (Exception ex)
+                    {
+                    Console.WriteLine($"Error in [ImportExcel]: {ex}");
+                    }
+                lstWorksheets.Clear();
+                lstDatasetDataCN.Clear();
+                lstDatasetDataCN = await feService.Read_DatasetDataCN(datasetId);
+                Snackbar.Add("data imported", Severity.Success);
+                _hasFetched = true;
+                appState.SetCmd("");
+                }
+            }
         }
-    //convert date
+
+    //DatasetCN
+    public async Task BtnShowAllDatasets ()
+        {
+        _cmd = "";
+        lstDatasetsCN = await feService.Read_Datasets(1, 2);
+        StateHasChanged();
+        }
+    private void BtnAddNewDatasetCN ()
+        {
+        _cmd = (_cmd == "cmdAddNewDatasetCN") ? "" : "cmdAddNewDatasetCN";
+        }
+    private async Task CreateDatasetCN (string datasetCNName)
+        {
+        //dataTypes: 1FL 2CN 3LM 4ST
+        int userId = Convert.ToInt32(appState.UserId);
+        Dataset datasetCN = (new Dataset
+            {
+            UserId = userId,
+            DatasetType = 2,
+            DatasetAbbr = "new CN List",
+            DatasetName = datasetCNName,
+            DatasetTags = 0
+            });
+        bool result = await feService.Create_Dataset(datasetCN);
+        if (result)
+            {
+            Snackbar.Add("dataset created", Severity.Success);
+            lstDatasetsCN = await feService.Read_Datasets(userId, 2);
+            _cmd = "";
+            StateHasChanged();
+            }
+        }
+    public async Task BtnShowDataset (int Id)
+        {
+        //
+        }
+    private void BtnEditDatasetCN (Dataset datasetCN)
+        {
+        if (datasetCN != null)
+            {
+            _datasetCNId = datasetCN.DatasetId;
+            _cmd = "cmdEditDatasetCN";
+            StateHasChanged();
+            }
+        else
+            {
+            Snackbar.Add("Select a Dataset first", Severity.Warning);
+            }
+        }
+    private async Task UpdateDatasetCN (Dataset _dataset)
+        {
+        bool result = await feService.Update_Dataset(_dataset);
+        if (result)
+            {
+            Snackbar.Add("dataset updated", Severity.Success);
+            int userId = Convert.ToInt32(appState.UserId);
+            lstDatasetsCN = await feService.Read_Datasets(userId, 2);
+            _cmd = "";
+            StateHasChanged();
+            }
+        }
+    private async Task BtnSearchDatasetsFL ()
+        {
+        _cmd = "cmdSearchDatasetsFL";
+        StateHasChanged();
+        }
+    public async Task FilterDatasets (string _datasetsFilter)
+        {
+        lstDatasetsCN = lstDatasetsCN.Where(s => s.DatasetName?.Contains(_datasetFilter, StringComparison.OrdinalIgnoreCase) == true).ToList();
+        StateHasChanged();
+        }
+    public async Task BtnReportDatasets (int Id)
+        {
+
+        }
+    private async Task BtnCreateNoteForDataset (int refId)
+        {
+        //refTypes: 1:ApgGroup 2:Order 3 ّFamily 4:Genus 5:Species 6:DatasetFL 7:DatasetCN 8:datasetCN 9:Station 10:Set 11:SetData 12:Section 13:User'sNote
+        appState.SetNoteRefId(refId);
+        appState.SetNoteRefType(8);
+        appState.SetCmd("cmdCreateNote");
+        StateHasChanged();
+        //--After the Modal_CreateNote is closed, HandleModalClose will refresh the list
+        //--to handel close event, I added in the Modal_CreateNote: [Parameter] public EventCallback OnClose
+        }
+    private async Task CloseSpeciesList ()
+        {
+        _cmd = "";
+        lstSpecies = new();
+        //await JS.InvokeVoidAsync("scrollToTop");
+        }
+
+    //List Species
+    public async Task BtnSelectAllSpecies ()
+        {
+        foreach (Species species in lstSpecies)
+            {
+            species.IsSelected = true;
+            }
+        StateHasChanged();
+        }
+    public async Task BtnInvertSelection ()
+        {
+        foreach (Species species in lstSpecies)
+            {
+            species.IsSelected = (species.IsSelected) ? false : true;
+            }
+        StateHasChanged();
+        }
+    public async Task FilterSpeciesList (string _speciesListFilter)
+        {
+        lstSpecies = lstSpecies.Where(s => s.SciName?.Contains(_speciesListFilter, StringComparison.OrdinalIgnoreCase) == true).ToList();
+        StateHasChanged();
+        }
+    public async Task BtnShowSubspecies (Species species)
+        {
+        var words = species.SciName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (words.Length < 2)
+            {
+            return;
+            }
+        else
+            {
+            lstSpecies = await feService.Read_Subspecies(words [0], words [1]);
+            StateHasChanged();
+            }
+        }
+    public async Task BtnReportSpecies (string Id)
+        {
+
+        }
+    private async Task BtnListSpeciesOfDatasetsCN (int datasetCNId)
+        {
+        if (datasetCNId != 0)
+            {
+            _cmd = "cmdListDatasetData";
+            _datasetId = datasetCNId;
+            lstSpecies = await feService.Read_SpeciesByDatasetId(1, datasetCNId);
+            StateHasChanged();
+            }
+        else
+            {
+            Snackbar.Add("Select a Dataset", Severity.Warning);
+            }
+        }
+
+    //methods
     public string PersianDate (DateTimeOffset? dt)
         {
         if ((Convert.ToInt32(appState.UserTags) & 256) == 256)
@@ -116,7 +687,16 @@ else
             return dt?.ToString("yyyy-MM-dd HH:mm");
             }
         }
-    //methods
+    private async Task BtnCreateNoteForSpecies (string refId)
+        {
+        //refTypes: 1:ApgGroup 2:Order 3 ّFamily 4:Genus 5:Species 6:DatasetFL 7:DatasetCN 8:datasetCN 9:Station 10:Set 11:SetData 12:Section 13:User'sNote
+        // appState.SetNoteRefId(refId);
+        // appState.SetNoteRefType(5);
+        // appState.SetCmd("cmdCreateNote");
+        // StateHasChanged();
+        //--After the Modal_CreateNote is closed, HandleModalClose will refresh the list
+        //--to handel close event, I added in the Modal_CreateNote: [Parameter] public EventCallback OnClose
+        }
     private async Task HandleModalClose ()
         {
         _hasFetched = false;
@@ -125,4 +705,24 @@ else
         _hasFetched = true;
         StateHasChanged();
         }
+    //btns
+    public void BtnHelp ()
+        {
+        _cmd = _cmd == "help" ? "" : "help";
+        StateHasChanged();
+        }
+    private async Task ScrollToTop ()
+        {
+        await JS.InvokeVoidAsync("scrollToTop");
+        }
+    private void BtnCancel ()
+        {
+        _cmd = "";
+        StateHasChanged();
+        }
+    public void BtnBack ()
+        {
+        Navman.NavigateTo("/Switchboard");
+        }
+
     }

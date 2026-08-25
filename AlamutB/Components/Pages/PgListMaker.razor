@@ -586,7 +586,9 @@ else
                                         <img src="/img/icoAdd1.png" width="16" />
                                         </button>
                                     }
-                                <span style="font-size:x-small">@species.SciName</span>
+                                <span style="font-size:smaller">@species.SciName </span>                                 
+                                <span style="font-size:x-small;color:indianred">@((species.NomStatus == 1)? " -- valid " : ""   ) </span>
+                                <span style="font-size:x-small;color:indianred">@((species.TaxStatus == 1)? " -- accepted " : "") </span>
                                 </div>
                             }
                         </MudCardContent>
@@ -605,7 +607,7 @@ else
                        Color="Color.Primary"
                        Size="Size.Large"
                        Title="Switchboard" />
-        <MudIconButton OnClick="BtnHelpSignupNewUser"
+        <MudIconButton OnClick="BtnHelp"
                        Icon="@Icons.Material.Filled.HelpCenter"
                        Color="Color.Tertiary"
                        Size="Size.Large"
@@ -981,7 +983,7 @@ else
             {
             UserId = userId,
             DatasetType = 3,
-            DatasetAbbr = "new List",
+            DatasetAbbr = "new LM List",
             DatasetName = datasetLMName,
             DatasetTags = 0
             });
@@ -1240,7 +1242,7 @@ else
         }
 
     //Cancel
-    public void BtnHelpSignupNewUser ()
+    public void BtnHelp ()
         {
         _cmd = _cmd == "help" ? "" : "help";
         StateHasChanged();
