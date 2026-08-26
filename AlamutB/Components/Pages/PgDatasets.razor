@@ -36,7 +36,7 @@ else
                     <MudCard Class="mx-0">
                         <MudCardContent Style="background-color:rgba(249,249,249);">
                         <h6 style="text-align:center;color:royalblue">Dataset<span style="font-size:x-small;color:indianred"> ( @lstDatasets.Count() )</span></h6>
-                        <hr style="color:indianred" />
+                        @* <hr style="color:indianred" /> *@
                             <div class="d-flex">
                             <MudTextField @ref="refFilterDatasets"
                                           @bind-Value="_datasetFilter"
@@ -72,7 +72,7 @@ else
                                     <button type="button"
                                         class="btn btn-link"
                                         style="margin-left:1px"
-                                        @onclick='() => BtnListSpeciesOfDatasetsFL(dataset.DatasetId)'
+                                        @onclick='() => BtnListSpeciesOfDatasetsFL(dataset.DatasetId, true)'
                                         Title="Show sub-Species">
                                     <img src="/img/icoList1.png" width="22" />
                                     </button>
@@ -120,12 +120,16 @@ else
                                                           AdornmentIcon="@Icons.Material.Filled.Search"
                                                           OnAdornmentClick='@(() => FilterSpeciesList(_speciesListFilter))'
                                                           Class="my-textfield" />
+                                            @* Refresh List of Taxa *@
+                                                <button type="button"
+                                                    class="btn btn-link"
+                                                    style="margin-left:1px"
+                                                    @onclick='() => BtnListSpeciesOfDatasetsFL(dataset.DatasetId, false)'
+                                                    Title="Show sub-Species">
+                                                <img src="/img/icoList1.png" width="22" />
+                                                </button>
                                             </div>
 
-                                        @* Close the List *@
-                                            <button class="btn btn-link pulse-hover" @onclick="CloseSpeciesList">
-                                            <img src="/img/icoGotoTop2.png" width="32" />
-                                            </button>
                                         @foreach (Species species in lstSpecies)
                                             {
                                                 <div class="d-flex align-items-center mb-1" style=" margin-left:40px;">
@@ -148,8 +152,8 @@ else
                                                     <img src="/img/icoNoteStickyAdd.png" width="22" />
                                                     </button>
                                                 <span style="font-size:smaller">@species.SciName </span>
-                                                <span style="font-size:x-small;color:indianred">@((species.NomStatus == 1) ? " -- valid " : "") </span>
-                                                <span style="font-size:x-small;color:indianred">@((species.TaxStatus == 1) ? " -- accepted " : "") </span>
+                                                <span style="font-size:x-small;color:indianred">&nbsp; @((species.NomStatus == 1) ? " valid " : "") </span>
+                                                <span style="font-size:x-small;color:indianred">&nbsp; @((species.TaxStatus == 1) ? " accepted " : "") </span>
                                                 </div>
                                             }
                                         @* Close the List *@
@@ -223,8 +227,8 @@ else
             }
         appState.SetCmd("");
         user.UserId = Convert.ToInt32(appState.UserId);
-        user.Username = appState.Username;
-        lstDatasets = await feService.Read_Datasets(1, 1);
+        user.Username = appState.Username ?? "";
+        lstDatasets = await feService.Read_Datasets(user.UserId, 1);
         _hasFetched = true;
         }
     private void TriggerRender ()
@@ -267,7 +271,7 @@ else
         {
         _hasFetched = false;
         lstDatasets.Clear();
-        lstDatasets = await feService.Read_Datasets(1, 1);
+        lstDatasets = await feService.Read_Datasets(user.UserId, 1);
         _hasFetched = true;
         StateHasChanged();
         }
@@ -280,7 +284,7 @@ else
         }
     public async Task BtnShowAllDatasets ()
         {
-        lstDatasets = await feService.Read_Datasets(1, 1);
+        lstDatasets = await feService.Read_Datasets(user.UserId, 1);
         StateHasChanged();
         }
     public async Task BtnReportDatasets (int Id)
@@ -289,9 +293,11 @@ else
         }
     public async Task BtnEditDataset (Dataset ds)
         {
-        if (dataset != null)
+        if (ds != null)
             {
             _cmd = (_cmd == "cmdEditDataset") ? "" : "cmdEditDataset";
+            if (_cmd != "")
+                lstDatasets.FirstOrDefault(ds2 => ds2.DatasetId == ds.DatasetId)?.IsSelected = true;
             _datasetId = ds.DatasetId;
             StateHasChanged();
             }
@@ -360,13 +366,26 @@ else
         {
 
         }
-    private async Task BtnListSpeciesOfDatasetsFL (int datasetFLId)
+    private async Task BtnListSpeciesOfDatasetsFL (int datasetFLId, bool toggle)
         {
         if (datasetFLId != 0)
             {
-            _cmd = "cmdListDatasetData";
+            if (!toggle)
+                {
+                _cmd = "";
+                }
+            //toggle
+            _cmd = (_cmd == "cmdListDatasetData") ? "" : "cmdListDatasetData";
             _datasetId = datasetFLId;
-            lstSpecies = await feService.Read_SpeciesByDatasetId(1, datasetFLId);
+            if (_cmd == "cmdListDatasetData")
+                {
+                lstDatasets.FirstOrDefault(ds => ds.DatasetId == datasetFLId)?.IsSelected = true;
+                lstSpecies = await feService.Read_SpeciesByDatasetId(1, datasetFLId);
+                }
+            else
+                {
+                await CloseSpeciesList();
+                }
             StateHasChanged();
             }
         else
@@ -374,7 +393,6 @@ else
             Snackbar.Add("Select a Dataset", Severity.Warning);
             }
         }
-
     private async Task BtnCreateNoteForSpecies (string refId)
         {
         //refTypes: 1:ApgGroup 2:Order 3 ّFamily 4:Genus 5:Species 6:DatasetFL 7:DatasetCN 8:DatasetLM 9:Station 10:Set 11:SetData 12:Section 13:User'sNote

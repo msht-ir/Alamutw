@@ -26,7 +26,7 @@ else
             {
             <h6 style="color:indianred">Edit Dataset: <span style="color:darkslategray">@dataset.DatasetName</span> (id:@dataset.DatasetId) </h6>
             }
-            @* BODY *@
+        @* BODY *@
             <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-1 mb-4 px-0">
                 <MudCard Class="mx-0">
                     <MudCardContent Style="background-color:rgba(230,230,230);">
@@ -90,6 +90,48 @@ else
                                           Lines="5"
                                           Class="my-textfield" />
                             </div>
+
+                            <div class="d-flex gap-3">
+                            @* Country *@
+                                <MudSelect T="int"
+                                       @ref="refCountries"
+                                       @bind-Text="_countryName"
+                                       Label="countries"
+                                       Value="_countryId"
+                                       ValueChanged="OnCountryChanged"
+                                       Class="w-auto my-select"
+                                       Variant="Variant.Text"
+                                       Margin="Margin.Dense"
+                                       Adornment="Adornment.Start"
+                                       AdornmentIcon="@Icons.Material.Filled.List"
+                                       AdornmentColor="Color.Secondary"
+                                       Style="color:royalblue;width:140px;font-size:small;">
+                                <MudSelectItem Value="0">select</MudSelectItem>
+                                @foreach (var country in lstCountries)
+                                    {
+                                    <MudSelectItem Value="@country.CountryId"><span style="font-size:small;font-family:Tahoma;">@country.CountryName</span></MudSelectItem>
+                                    }
+                                </MudSelect>
+                            @* Province *@
+                                <MudSelect T="int"
+                                       @ref="refProvinces"
+                                       @bind-Value="dataset.ProvinceId"
+                                       Label="provinces"
+                                       Class="w-auto my-select"
+                                       Variant="Variant.Text"
+                                       Margin="Margin.Dense"
+                                       Adornment="Adornment.Start"
+                                       AdornmentIcon="@Icons.Material.Filled.List"
+                                       AdornmentColor="Color.Secondary"
+                                       Style="color:royalblue;width:140px;font-size:small;">
+                                <MudSelectItem Value="0">select</MudSelectItem>
+                                @foreach (var province in lstProvinces)
+                                    {
+                                    <MudSelectItem Value="@province.ProvinceId"><span style="font-size:small;font-family:Tahoma;">@province.ProvinceName</span></MudSelectItem>
+                                    }
+                                </MudSelect>
+                            </div>
+                        <hr style="color:red;" />
                             <div class="d-flex gap-3">
                             @* Area *@
                             <MudNumericField @ref="refAreaHa"
@@ -98,16 +140,7 @@ else
                                              Variant="Variant.Text"
                                              Margin="Margin.Dense"
                                              Autocomplete="off"
-                                             Style="width:100px"
-                                             Class="my-textfield" />
-                            @* Province *@
-                            <MudNumericField @ref="refProvinceId"
-                                             @bind-Value="dataset.ProvinceId"
-                                             Label="province"
-                                             Variant="Variant.Text"
-                                             Margin="Margin.Dense"
-                                             Autocomplete="off"
-                                             Style="width:300px"
+                                             Style="width:130px"
                                              Class="my-textfield" />
                             @* Coords *@
                             <MudTextField @ref="refCoords"
@@ -116,7 +149,7 @@ else
                                           Variant="Variant.Text"
                                           Margin="Margin.Dense"
                                           Autocomplete="off"
-                                          Style="width:270px"
+                                          Style="width:290px"
                                           Class="my-textfield" />
                             @* PREC *@
                             <MudNumericField @ref="refPrecipitation"
@@ -189,13 +222,13 @@ else
                             </div>
                             <div class="d-flex gap-3">
                             @* Tags *@
-                            <MudNumericField @ref="refDatasetTags"
+                            @* <MudNumericField @ref="refDatasetTags"
                                              @bind-Value="dataset.DatasetTags"
                                              Label="tags"
                                              Variant="Variant.Text"
                                              Margin="Margin.Dense"
                                              Autocomplete="off"
-                                             Class="my-textfield" />
+                                             Class="my-textfield" /> *@
                             </div>
                         </div>
                     </MudCardContent>
@@ -236,6 +269,19 @@ else
     public MudTextField<string> refRefLang;
     public MudTextField<string> refDatasetManager;
     public MudNumericField<int> refAreaHa;
+
+    public MudSelect<int> refCountries;
+    private List<Country> lstCountries = new List<Country>();
+    Country country = new Country();
+    public int _countryId = 0;
+    public string _countryName = "";
+
+    public MudSelect<int> refProvinces;
+    private List<Province> lstProvinces = new List<Province>();
+    Province province = new Province();
+    public int _provinceId = 0;
+    public string _provinceName = "";
+
     public MudNumericField<int> refProvinceId;
     public MudTextField<string> refCoords;
     public MudNumericField<int> refAltMax;
@@ -246,6 +292,7 @@ else
     public MudNumericField<decimal> refTempAver;
     public MudNumericField<decimal> refPrecipitation;
     public MudNumericField<int> refDatasetTags;
+
     string _cmd = "";
     public bool _hasFetched = false;
 
@@ -260,6 +307,7 @@ else
         appState.SetCmd("");
         user.UserId = Convert.ToInt32(appState.UserId);
         user.Username = appState.Username;
+        await ReadCoutriesAndProvinces();
         _hasFetched = true;
         }
     private void TriggerRender ()
@@ -275,6 +323,12 @@ else
         await OnClose.InvokeAsync();
         }
     //Dataset
+    private async Task ReadCoutriesAndProvinces ()
+        {
+        lstCountries = await feService.Read_Countries();
+        lstProvinces = await feService.Read_Provinces(country.CountryId);
+        StateHasChanged();
+        }
     private async Task BtnSaveDataset ()
         {
         bool result;
@@ -296,6 +350,18 @@ else
         }
 
     //methods
+    private async Task OnCountryChanged (int newValue)
+        {
+        var oldValue = _countryId;
+        _countryId = newValue;
+        if (_countryId != 0)
+            {
+            _cmd = "";
+            dataset.ProvinceId = 0;
+            lstProvinces = await feService.Read_Provinces(_countryId);
+            }
+        StateHasChanged();
+        }
     public string PersianDate (DateTimeOffset? dt)
         {
         if ((Convert.ToInt32(appState.UserTags) & 256) == 256)

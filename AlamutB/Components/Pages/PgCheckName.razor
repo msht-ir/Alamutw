@@ -102,7 +102,7 @@ else
                                 <button type="button"
                                     class="btn btn-link"
                                     style="margin-left:1px"
-                                    @onclick='() => BtnListSpeciesOfDatasetsCN(dataset.DatasetId)'
+                                    @onclick='() => BtnListSpeciesOfDatasetsCN(dataset.DatasetId, true)'
                                     Title="Show sub-Species">
                                 <img src="/img/icoList1.png" width="22" />
                                 </button>
@@ -205,12 +205,15 @@ else
                                                       AdornmentIcon="@Icons.Material.Filled.Search"
                                                       OnAdornmentClick='@(() => FilterSpeciesList(_speciesListFilter))'
                                                       Class="my-textfield" />
+                                        @* Refresh List of Taxa *@
+                                            <button type="button"
+                                                class="btn btn-link"
+                                                style="margin-left:1px"
+                                                @onclick='() => BtnListSpeciesOfDatasetsCN(dataset.DatasetId, false)'
+                                                Title="Show sub-Species">
+                                            <img src="/img/icoList1.png" width="22" />
+                                            </button>
                                         </div>
-
-                                    @* Close the List (TOP) *@
-                                        <button class="btn btn-link pulse-hover" @onclick="CloseSpeciesList">
-                                        <img src="/img/icoGotoTop2.png" width="32" />
-                                        </button>
                                     @foreach (Species species in lstSpecies)
                                         {
                                             <div class="d-flex align-items-center mb-1" style=" margin-left:40px;">
@@ -370,6 +373,7 @@ else
     //Excel
     public void BtnImportFromExcelFile (int datasetId)
         {
+        //lstDatasetsCN.FirstOrDefault(ds => ds.DatasetId == datasetId)?.IsSelected = true;
         _cmd = ((_cmd == "cmdImportDatasetDataCN") && (datasetId == _datasetCNId)) ? "" : "cmdImportDatasetDataCN";
         _datasetCNId = datasetId;
         }
@@ -493,7 +497,7 @@ else
     public async Task BtnShowAllDatasets ()
         {
         _cmd = "";
-        lstDatasetsCN = await feService.Read_Datasets(1, 2);
+        lstDatasetsCN = await feService.Read_Datasets(user.UserId, 2);
         StateHasChanged();
         }
     private void BtnAddNewDatasetCN ()
@@ -526,6 +530,7 @@ else
         if (datasetCN != null)
             {
             _datasetCNId = datasetCN.DatasetId;
+            //lstDatasetsCN.FirstOrDefault(ds => ds.DatasetId == _datasetCNId)?.IsSelected = true;
             _cmd = (_cmd == "cmdEditDatasetCN") ? "" : "cmdEditDatasetCN";
             StateHasChanged();
             }
@@ -621,13 +626,25 @@ else
         {
 
         }
-    private async Task BtnListSpeciesOfDatasetsCN (int datasetCNId)
+    private async Task BtnListSpeciesOfDatasetsCN (int datasetCNId, bool toggle)
         {
         if (datasetCNId != 0)
             {
-            _cmd = "cmdListDatasetData";
+            if (!toggle)
+                {
+                _cmd = "";
+                }
+            _cmd = (_cmd == "cmdListDatasetData") ? "" : "cmdListDatasetData";
             _datasetId = datasetCNId;
-            lstSpecies = await feService.Read_SpeciesByDatasetId(1, datasetCNId);
+            if (_cmd == "cmdListDatasetData")
+                {
+                //lstDatasetsCN.FirstOrDefault(ds => ds.DatasetId == datasetCNId)?.IsSelected = true;
+                lstSpecies = await feService.Read_SpeciesByDatasetId(user.UserId, datasetCNId);
+                }
+            else
+                {
+                CloseSpeciesList();
+                }
             StateHasChanged();
             }
         else

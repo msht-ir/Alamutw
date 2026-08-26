@@ -299,6 +299,7 @@ namespace AlamutB.Services2Backend
                 await cnn.OpenAsync ();
                 SqlCommand cmd = new (sql, cnn);
                 cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue ("@CountryId", countryId);
                 SqlDataReader reader = await cmd.ExecuteReaderAsync ();
                 List<Province> lstProvinces = new List<Province> ();
                 while (await reader.ReadAsync ())
@@ -306,8 +307,8 @@ namespace AlamutB.Services2Backend
                     lstProvinces.Add (new Province
                         {
                         ProvinceId = reader.GetInt32 (0),
-                        CountryId = reader.GetInt32 (1),
-                        ProvinceName = reader.GetString (2),
+                        CountryId = reader.GetByte (1),
+                        ProvinceName = reader.GetString (2)
                         });
                     }
                 await cnn.CloseAsync ();

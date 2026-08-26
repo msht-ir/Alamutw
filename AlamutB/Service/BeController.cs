@@ -62,7 +62,7 @@ namespace AlamutB.Backend
             var result = await _BeService.Create_CountryAsync (country);
             return Ok (result);
             }
-        [HttpPost ("Read_Country")]
+        [HttpPost ("Read_Countries")]
         public async Task<ActionResult<List<Country>>> Read_Country ()
             {
             var result = await _BeService.Read_CountriesAsync ();

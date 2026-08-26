@@ -23,7 +23,7 @@ else if (appState.Cmd == "cmdCreateNote")
 else
     {
         <div style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
-        <h2 style="color:royalblue; font-style:italic">Taxa and Datasets (ListMaker)</h2>
+        <h2 style="color:royalblue; font-style:italic">ListMaker</h2>
         @* ---------------------------------------------------------------------------------- 1 APG Groups *@
             <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-2 px-0">
                 <MudCard Class="mx-auto">
@@ -351,21 +351,16 @@ else
                         }
                     else if (_cmd == "cmdEditDatasetLM")
                         {
-                            <div class="d-flex">
-                            <MudTextField @ref="refNewDatasetLM"
-                                          @bind-Value="_datasetLMName"
-                                          Label="edit dataset"
-                                          Variant="Variant.Text"
-                                          Margin="Margin.Dense"
-                                          Autocomplete="off"
-                                          Adornment="Adornment.End"
-                                          AdornmentIcon="@Icons.Material.Filled.Save"
-                                          OnAdornmentClick="@(() => UpdateDatasetLM (_datasetLMName))"
-                                          Class="my-textfield" />
-                                <button class="btn btn-link" style="margin-left:20px;" Title="cancel" @onclick="BtnCancel">
-                                <img src="/img/icoCancel.png" width="20" />
-                                </button>
-                            </div>
+                        <br />
+                            <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-1 mb-4 px-0">
+                                <MudCard Class="mx-0">
+                                    <MudCardContent Style="background-color:rgba(240,240,240);">
+                                    @* SHOW COMPONENT *@
+                                    <CompDataset dataset="datasetLM" OnClose="CloseComponent" />
+                                    </MudCardContent>
+                                </MudCard>
+                            </MudContainer>
+
                         }
                     else if (_cmd == "cmdSearchDatasetsFL")
                         {
@@ -1018,40 +1013,10 @@ else
             Snackbar.Add("Select a Dataset first", Severity.Warning);
             }
         }
-    private async Task UpdateDatasetLM (string datasetLMName)
+    private void CloseComponent ()
         {
-        Dataset _datasetLM = new()
-            {
-            DatasetId = datasetLM.DatasetId,
-            UserId = datasetLM.UserId,
-            DatasetType = datasetLM.DatasetType,
-            DatasetAbbr = datasetLM.DatasetAbbr,
-            DatasetName = datasetLMName,
-            DatasetRef = datasetLM.DatasetRef,
-            RefYear = datasetLM.RefYear,
-            RefLang = datasetLM.RefLang,
-            DatasetManager = datasetLM.DatasetManager,
-            AreaHa = datasetLM.AreaHa,
-            ProvinceId = datasetLM.ProvinceId,
-            Coords = datasetLM.Coords,
-            AltMax = datasetLM.AltMax,
-            AltMin = datasetLM.AltMin,
-            AltAver = datasetLM.AltAver,
-            TempMax = datasetLM.TempMax,
-            TempMin = datasetLM.TempMin,
-            TempAver = datasetLM.TempAver,
-            Precipitation = datasetLM.Precipitation,
-            DatasetTags = datasetLM.DatasetTags
-            };
-        bool result = await feService.Update_Dataset(_datasetLM);
-        if (result)
-            {
-            Snackbar.Add("dataset updated", Severity.Success);
-            int userId = Convert.ToInt32(appState.UserId);
-            lstDatasetsLM = await feService.Read_Datasets(userId, 3);
-            _cmd = "";
-            StateHasChanged();
-            }
+        //RollBack of Component 'Dataset'
+        _cmd = "";
         }
     private async Task BtnSearchDatasetsFL ()
         {
