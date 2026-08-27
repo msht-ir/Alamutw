@@ -21,16 +21,16 @@
     {
     <_ScanSheets />
     }
+else if (appState.Cmd == "ShowNoteInDialog")
+    {
+    <Modal_ShowNote OnClose="HandleModalClose" />
+    }
 else if (appState.Cmd == "cmdCreateNote")
     {
     <Modal_CreateNote />
     }
 else
     {
-    @if (appState.Cmd == "ShowNoteInDialog")
-        {
-        <Modal_ShowNote OnClose="HandleModalClose" />
-        }
         <div style="text-align: left; margin:15px;">
         <MudIconButton OnClick="BtnBack"
                        Icon="@Icons.Material.Filled.Menu"
@@ -236,8 +236,8 @@ else
                                                 <img src="/img/icoNoteStickyAdd.png" width="22" />
                                                 </button>
                                             <span style="font-size:smaller">@species.SciName </span>
-                                            <span style="font-size:x-small;color:indianred">@((species.NomStatus == 1) ? " -- valid " : "") </span>
-                                            <span style="font-size:x-small;color:indianred">@((species.TaxStatus == 1) ? " -- accepted " : "") </span>
+                                            <span style="font-size:smaller;color:forestgreen">&nbsp; @((species.NomStatus == 1) ? " -- valid " : "") </span>
+                                            <span style="font-size:smaller;color:darkgoldenrod">&nbsp; @((species.TaxStatus == 1) ? " -- accepted " : "") </span>
                                             </div>
                                         }
                                     @* Close the List (BOTTOM) *@
@@ -574,7 +574,7 @@ else
         {
         //refTypes: 1:ApgGroup 2:Order 3 ّFamily 4:Genus 5:Species 6:DatasetFL 7:DatasetCN 8:datasetCN 9:Station 10:Set 11:SetData 12:Section 13:User'sNote
         appState.SetNoteRefId(refId);
-        appState.SetNoteRefType(8);
+        appState.SetNoteRefType(7);
         appState.SetCmd("cmdCreateNote");
         StateHasChanged();
         //--After the Modal_CreateNote is closed, HandleModalClose will refresh the list

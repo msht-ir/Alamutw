@@ -876,8 +876,6 @@ namespace AlamutB.Service
             return response.IsSuccessStatusCode ? true : false;
             }
         #endregion
-
-
         #region ANALYSIS
         #endregion
         #region REPORT

@@ -582,8 +582,8 @@ else
                                         </button>
                                     }
                                 <span style="font-size:smaller">@species.SciName </span>                                 
-                                <span style="font-size:x-small;color:indianred">@((species.NomStatus == 1)? " -- valid " : ""   ) </span>
-                                <span style="font-size:x-small;color:indianred">@((species.TaxStatus == 1)? " -- accepted " : "") </span>
+                                <span style="font-size:smaller;color:forestgreen">&nbsp; @((species.NomStatus == 1) ? " valid " : "") </span>
+                                <span style="font-size:smaller;color:darkgoldenrod">&nbsp; @((species.TaxStatus == 1)? " accepted " : "") </span>
                                 </div>
                             }
                         </MudCardContent>

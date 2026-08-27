@@ -18,20 +18,24 @@
     }
 else
     {
-        <div style="text-align: left; margin:15px;">
-        <MudIconButton OnClick="BtnBack"
-                       Icon="@Icons.Material.Filled.Menu"
-                       Color="Color.Primary"
-                       Size="Size.Large"
-                       Title="Switchboard" />
-        </div>
-        <EditForm Model="lstDatasets">
-        @if (appState.Cmd == "ShowNoteInDialog")
-            {
-            <Modal_ShowNote OnClose="HandleModalClose" />
-            }
-        else
-            {
+    @if (appState.Cmd == "ShowNoteInDialog")
+        {
+        <Modal_ShowNote OnClose="HandleModalClose" />
+        }
+    else if (appState.Cmd == "cmdCreateNote")
+        {
+        <Modal_CreateNote />
+        }
+    else
+        {
+            <div style="text-align: left; margin:15px;">
+            <MudIconButton OnClick="BtnBack"
+                           Icon="@Icons.Material.Filled.Menu"
+                           Color="Color.Primary"
+                           Size="Size.Large"
+                           Title="Switchboard" />
+            </div>
+            <EditForm Model="lstDatasets">
                 <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-2 px-0">
                     <MudCard Class="mx-0">
                         <MudCardContent Style="background-color:rgba(249,249,249);">
@@ -152,8 +156,8 @@ else
                                                     <img src="/img/icoNoteStickyAdd.png" width="22" />
                                                     </button>
                                                 <span style="font-size:smaller">@species.SciName </span>
-                                                <span style="font-size:x-small;color:indianred">&nbsp; @((species.NomStatus == 1) ? " valid " : "") </span>
-                                                <span style="font-size:x-small;color:indianred">&nbsp; @((species.TaxStatus == 1) ? " accepted " : "") </span>
+                                                <span style="font-size:smaller;color:forestgreen">&nbsp; @((species.NomStatus == 1) ? " valid " : "") </span>
+                                                <span style="font-size:smaller;color:darkgoldenrod">&nbsp; @((species.TaxStatus == 1) ? " accepted " : "") </span>
                                                 </div>
                                             }
                                         @* Close the List *@
@@ -168,8 +172,8 @@ else
                     </MudCard>
                 </MudContainer>
             <hr />
-            }
-        </EditForm>
+            </EditForm>
+        }
     <br />
         <div class="gap-4" style="display: flex;  justify-content: center; align-items: center;">
         <MudIconButton OnClick="BtnBack"

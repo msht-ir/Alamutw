@@ -1,7 +1,8 @@
 ﻿@page "/PgSettings"
+@using System.ComponentModel.DataAnnotations
 @using System.Globalization
-@using AlamutB.Service
 @using System.Threading.Tasks
+@using AlamutB.Service
 @inject FeService feService
 @inject NavigationManager Navman
 @inject AppState appState
@@ -18,23 +19,125 @@
     }
 else
     {
-        <div style="text-align: left; margin:15px;">
-        <MudIconButton OnClick="BtnBack"
-                       Icon="@Icons.Material.Filled.Menu"
-                       Color="Color.Primary"
-                       Size="Size.Large"
-                       Title="Switchboard" />
-        </div>
-    <hr />
-        <EditForm Model="lstNotes">
-        @if (appState.Cmd == "ShowNoteInDialog")
-            {
-            <Modal_ShowNote OnClose="HandleModalClose" />
-            }
-        else
-            {
+        <EditForm Model="pass" OnValidSubmit="BtnChangePassword" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+        <DataAnnotationsValidator></DataAnnotationsValidator>
+        <ValidationSummary></ValidationSummary>
+            <div class="d-flex flex-column align-items-center justify-content-center text-center">
+                <div style="">
+                <img src="/img/icoKeys.png" width="40" style="margin:20px" />
+                </div>
+            <br />
+                <div class="card" style="width: 35rem;">
+                    <div class="card-body">
+                    <h6 style="color:royalblue">Change Password for <span style="color:indianred"> @appState.Username</span></h6>
+                    <br />
+                        <div class="mb-3">
+                        @* Nickname *@
+                        <MudTextField @ref="refNickname"
+                                      @bind-Value="pass.Nickname"
+                                      Label="nickname"
+                                      Variant="Variant.Text"
+                                      Margin="Margin.Dense"
+                                      Disabled="true"
+                                      Style="font-family:Tahoma;text-align:center;color:indianred"
+                                      Class="my-textfield" />
+                        </div>
+                        <div class="mb-2">
+                        @* Old Password *@
+                        <MudTextField @ref="refCurrent"
+                                      @bind-Value="pass.CurrentPass"
+                                      Label="current password"
+                                      Variant="Variant.Text"
+                                      Margin="Margin.Dense"
+                                      Autocomplete="off"
+                                      Class="my-textfield"
+                                      InputType="@PasswordInput"
+                                      Adornment="Adornment.End"
+                                      AdornmentIcon="@PasswordInputIcon"
+                                      OnAdornmentClick="BtnToggleShowPassword"
+                                      AdornmentAriaLabel="Show Password" />
+                        </div>
+                        <div class="mb-2">
+                        @* New Password *@
+                        <MudTextField @ref="refNew"
+                                      @bind-Value="pass.NewPass"
+                                      Label="new password"
+                                      Variant="Variant.Text"
+                                      Margin="Margin.Dense"
+                                      Autocomplete="off"
+                                      Class="my-textfield"
+                                      InputType="@PasswordInput"
+                                      Adornment="Adornment.End"
+                                      AdornmentIcon="@PasswordInputIcon"
+                                      OnAdornmentClick="BtnToggleShowPassword"
+                                      AdornmentAriaLabel="Show Password" />
+                        </div>
+                        <div class="mb-2">
+                        @* Repeat Password *@
+                        <MudTextField @ref="refRepeat"
+                                      @bind-Value="pass.RepeatPass"
+                                      Label="repeat password"
+                                      Variant="Variant.Text"
+                                      Margin="Margin.Dense"
+                                      Autocomplete="off"
+                                      Class="my-textfield"
+                                      InputType="@PasswordInput"
+                                      Adornment="Adornment.End"
+                                      AdornmentIcon="@PasswordInputIcon"
+                                      OnAdornmentClick="BtnToggleShowPassword"
+                                      AdornmentAriaLabel="Show Password" />
+                        </div>
+                        <div style="color:indianred; text-align:left">
+                        <ValidationSummary />
+                        </div>
+                        <div>
+                        @* Remind Due Notes *@
+                            <MudSwitch @bind-Value="_remindDueNotes"
+                                   Label="remind due notes"
+                                   Color="Color.Secondary"
+                                   Dense="true"
+                                   Style="margin-top:20px;font-family:Tahoma;"
+                                   title="نمايش يادآوري يادداشت هاي سررسيد شده">
+                            </MudSwitch>
+                        @* Due Notes +/-Days *@
+                            <MudSwitch @bind-Value="_dueNotesDays7"
+                                   Label="seek +- 14 days"
+                                   Color="Color.Success"
+                                   Dense="true"
+                                   Style="margin-top:5px;font-family:Tahoma;"
+                                   title="يادداشت هاي 14 روز گذشته و آينده">
+                            </MudSwitch>
+                        @* Persian Calendar *@
+                            <MudSwitch @bind-Value="_useFaCalendar"
+                                   Label="Persian calendar"
+                                   Color="Color.Primary"
+                                   Dense="true"
+                                   Style="margin-top:5px;font-family:Tahoma;"
+                                   title="Use Persian Calendar از تقويم شمسي استفاده مي کنم">
+                            </MudSwitch>
 
-            }
+                        </div>
+                    <hr />
+                        <MudButton Variant="Variant.Filled"
+                               EndIcon="@Icons.Material.Filled.Save"
+                               Size="Size.Large"
+                               Style="margin-top:20px;"
+                               OnClick="@(() => BtnChangePassword())"
+                               FullWidth>
+                        Update
+                        </MudButton>
+                    <br />
+                        <MudButton Variant="Variant.Filled"
+                               EndIcon="@Icons.Material.Filled.Logout"
+                               Size="Size.Small"
+                               OnClick="@(() => GotoLogin())"
+                               Style="margin-top:20px;margin-bottom:20px;color:indianred"
+                               FullWidth>
+                        Exit
+                        </MudButton>
+                    </div>
+                </div>
+            </div>
         </EditForm>
     }
 <br />
@@ -46,27 +149,34 @@ else
 
 
 @code {
-    [Parameter]
-    public int mode
+    private class Pass
         {
-        get; set;
+        [Required(ErrorMessage = "enter your name")]
+        public string Nickname { get; set; } = "";
+        [Required(ErrorMessage = "enter current password")]
+        public string CurrentPass { get; set; } = "";
+        [Required(ErrorMessage = "enter a new password")]
+        public string NewPass { get; set; } = "";
+        [Required(ErrorMessage = "repeat the new password")]
+        public string RepeatPass { get; set; } = "";
         }
-    [Parameter]
-    public int Id
-        {
-        get; set;
-        }
-    private MudSelect<int> refNotebooks;
-    private MudSelect<int> refSections;
-    int NotebookId = 0;
-    int SectionId = 0;
-    string _cmd = "";
-
+    InputType PasswordInput = InputType.Password;
+    string PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
+    int loginStatus = 0;
     User user = new User();
-    List<Note> lstNotes = new List<Note>();
-    List<Notebook> lstNotebooks = new List<Notebook>();
-    List<Section> lstSections = new List<Section>();
-    string _ShowNotebooksMode = "active";
+    private Pass pass = new Pass();
+    private MudTextField<string>? refNickname;
+    private MudTextField<string>? refCurrent;
+    private MudTextField<string>? refNew;
+    private MudTextField<string>? refRepeat;
+
+    private bool _remindDueNotes;
+    private bool _dueNotesDays7;
+    private bool _useFaCalendar;
+    private bool isShow;
+    private bool _firstRender = true;
+
+    string _cmd = "";
     public bool _hasFetched = false;
 
     //LifeCycleEvents
@@ -77,10 +187,30 @@ else
             {
             Navman.NavigateTo("/Login");
             }
-        appState.SetCmd("");
         user.UserId = Convert.ToInt32(appState.UserId);
-        user.Username = appState.Username;
+        user.Username = appState.Username ?? "";
+        pass.Nickname = appState.UserNickname ?? "";
+        pass.CurrentPass = "";
+        pass.NewPass = "";
+        pass.RepeatPass = "";
+        _remindDueNotes = ((Convert.ToInt32(appState.UserTags) & 16) == 16);
+        _dueNotesDays7 = ((Convert.ToInt32(appState.UserTags) & 32) == 32);
+        _useFaCalendar = ((Convert.ToInt32(appState.UserTags) & 256) == 256);
+        loginStatus = Convert.ToInt32(appState.UserLoginStatus);
+        appState.SetCmd("");
         _hasFetched = true;
+        }
+    protected override async Task OnAfterRenderAsync (bool firstRender)
+        {
+        if ((loginStatus == 0))
+            {
+            Navman.NavigateTo("/Login");
+            }
+        if (_firstRender)
+            {
+            _firstRender = false;
+            await refNickname.FocusAsync();
+            }
         }
     private void TriggerRender ()
         {
@@ -90,17 +220,83 @@ else
         {
         appState.OnChange -= TriggerRender;
         }
-    //btns
-    private void BtnCancel ()
+
+    //methods
+    public async Task BtnChangePassword ()
         {
-        _cmd = "";
-        StateHasChanged();
+        //user: a student or a teacher -- will be distinguished in SrvUpdate_UserPassword by user.UserRole
+        int userId = Convert.ToInt32(appState.UserId);
+        if (pass.NewPass.Trim() == "")
+            {
+            //when user doesn't wish to change current password->only check the correct pass is enterred
+            pass.NewPass = pass.CurrentPass;
+            pass.RepeatPass = pass.CurrentPass;
+            }
+        if ((pass.NewPass == pass.RepeatPass) && (pass.NewPass.Length > 3) && (pass.CurrentPass == appState.Password))
+            {
+            user.UserId = userId;
+            user.Username = appState.Username ?? "default name";
+            user.Password = pass.NewPass;
+            user.UserNickname = pass.Nickname;
+            user.UserTags = Convert.ToInt32(appState.UserTags);
+            //showDueNotes
+            if (_remindDueNotes)
+                {
+                user.UserTags |= 16;
+                }
+            else
+                {
+                user.UserTags &= ~16;
+                }
+            //dueNotesDays14
+            if (_dueNotesDays7)
+                {
+                user.UserTags |= 32;
+                }
+            else
+                {
+                user.UserTags &= ~32;
+                }
+            //calendarFa
+            if (_useFaCalendar)
+                {
+                user.UserTags |= 256;
+                }
+            else
+                {
+                user.UserTags &= ~256;
+                }
+            bool result = await feService.Update_User(user);
+            if (result)
+                {
+                Navman.NavigateTo("/Login");
+                Snackbar.Add("changes saved... please login", Severity.Success);
+                }
+            else
+                {
+                Snackbar.Add("failed", Severity.Error, opt => { opt.VisibleStateDuration = 1500; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+                }
+            }
+        else
+            {
+            Snackbar.Add("password incorrect or repeat not match", Severity.Warning, opt => { opt.VisibleStateDuration = 2000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+            }
         }
-    public void BtnBack ()
+    private void BtnToggleShowPassword ()
         {
-        Navman.NavigateTo("/Switchboard");
+        @if (isShow)
+            {
+            isShow = false;
+            PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
+            PasswordInput = InputType.Password;
+            }
+        else
+            {
+            isShow = true;
+            PasswordInputIcon = Icons.Material.Filled.Visibility;
+            PasswordInput = InputType.Text;
+            }
         }
-    //convert date
     public string PersianDate (DateTimeOffset? dt)
         {
         if ((Convert.ToInt32(appState.UserTags) & 256) == 256)
@@ -112,13 +308,9 @@ else
             return dt?.ToString("yyyy-MM-dd HH:mm");
             }
         }
-    //methods
-    private async Task HandleModalClose ()
+    public void GotoLogin ()
         {
-        _hasFetched = false;
-        lstNotes.Clear();
-        lstNotes = await feService.Read_Notes(12, Id);
-        _hasFetched = true;
-        StateHasChanged();
+        Navman.NavigateTo("/Login");
         }
+
     }

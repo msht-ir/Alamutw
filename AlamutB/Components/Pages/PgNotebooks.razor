@@ -33,12 +33,11 @@ else
     {
     <div style="font-size:larger; text-align:center;color:black">@appState.UserNickname</div>
         <div style="text-align:left; max-width:500px; margin: 0 auto;">
-            <button class="btn btn-link pulse-hover" @onclick="() => BtnBackToCallingPage()">
-            <img src="/img/icoList1.png" style="width:28px" title="back" />
-            </button>
-            @* <button class="btn btn-link pulse-hover" @onclick="() => BtnGotoStickyNotes()">
-            <img src="/img/icoNoteSticky2.png" style="width:28px" title="goto: quick notes" />
-            </button> *@
+        <MudIconButton OnClick="BtnBack"
+                       Icon="@Icons.Material.Filled.Menu"
+                       Color="Color.Primary"
+                       Size="Size.Large"
+                       Title="Switchboard" />
             <button class="btn btn-link pulse-hover" @onclick="CreateStickyNote">
             <img src="/img/icoNoteStickyAdd.png" width="28" title="add new quick-note" />
             </button>
@@ -1043,7 +1042,7 @@ else
         }
     public async Task BtnRemoveDueNoteTag (Note note)
         {
-        var message = new MarkupString($"<hr><span style='color:indianred'>Remove</span> Todo tag from this note?<br><br><span style='font-weight:bold'>This note</span> will be a <span style='color:indianred'> simple note</span>!<br><br><div style='text-align:center'><img src='/img/icoOff.png' width='50'/></div><br><hr>");
+        var message = new MarkupString($"<hr><span style='color:indianred'>Remove</span> reminder of this note?<br><br><span style='font-weight:bold'>Notice:<br> This note</span> will not be <span style='color:indianred'> reminded</span>!<br><br><div style='text-align:center'><img src='/img/icoOff.png' width='50'/></div><br><hr>");
         bool? confirmResult = await DialogService.ShowMessageBox(title: "Confirm", markupMessage: message, yesText: "Yes", cancelText: "No");
         if (confirmResult == true)
             {
@@ -1243,8 +1242,8 @@ else
         appState.SetCmd("");
         _cmd = "";
         }
-    public void BtnBackToCallingPage ()
+    public void BtnBack ()
         {
-        Navman.NavigateTo(appState.ReturnPage ?? "/Switchboard");
+        Navman.NavigateTo("/Switchboard");
         }
     }

@@ -11,7 +11,7 @@
 
 <br />
 <div class="d-flex flex-column align-items-center justify-content-center text-center">
-    <h4 style="color:royalblue">Terms of use</h4>
+    <h4 style="color:royalblue">Signup your free Alamut account</h4>
         <EditForm Model="teacher" OnValidSubmit="BtnSignupNewTeacher" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
         <DataAnnotationsValidator></DataAnnotationsValidator>
         <ValidationSummary></ValidationSummary>
@@ -19,21 +19,18 @@
                 <MudCard Class="mx-auto">
                     <MudCardContent Style="background-color:rgba(249,249,249);">
                         <div style="text-align:left">
-                        Here, your temporary teacher-account will be created immediately.<br />
+                        Your account will be created immediately.<br />
                         Contact via email if furture help is needed.<br />
-                        Preferably, setup Alamut app on your own server.<br />
+                        Preferably, setup Alamut app on your own server for best practice.<br />
                         You may contact for detailed info on database tables.<br />
                         <br />
                         <span style="font-weight:bold;color:indianred">notice:</span><br />
                             <ul>
                                 <li>
-                                use Alamut app for educational purposes<br />
+                                use Alamut for: educational/research purposes<br />
                                 </li>
                                 <li>
-                                free service for students<br />
-                                </li>
-                                <li>
-                                this server may be closed, backup your work<br />
+                                try setting up your own server (I will help you)<br />
                                 </li>
                             </ul>
                             <div class="form-check form-check-inline" style="padding-top:8px;">
@@ -59,7 +56,7 @@
                             <div class="mb-3">
                             <MudTextField @ref="refUsername"
                                           @bind-Value="teacher.Username"
-                                          Label="Username"
+                                          Label="username"
                                           Variant="Variant.Text"
                                           Margin="Margin.Dense"
                                           Class="my-textfield" />
@@ -67,7 +64,7 @@
                             <div class="mb-3">
                             <MudTextField @ref="refPassword"
                                           @bind-Value="teacher.Password"
-                                          Label="Password"
+                                          Label="password"
                                           Variant="Variant.Text"
                                           Margin="Margin.Dense" Autocomplete="off"
                                           Class="my-textfield"
@@ -80,7 +77,7 @@
                             <div class="mb-3">
                             <MudTextField @ref="refRepeatPass"
                                           @bind-Value="teacher.RepeatPass"
-                                          Label="Repeat Pass"
+                                          Label="repeat password"
                                           Variant="Variant.Text"
                                           Margin="Margin.Dense" Autocomplete="off"
                                           Class="my-textfield"
@@ -129,7 +126,7 @@
         </EditForm>
     </div>
 <br />
-@if (_cmd == "guide")
+@if (_cmd == "guide2")
     {
     <hr />
     <_Help />
@@ -210,15 +207,15 @@
             if (result)
                 {
                 var message = new MarkupString(@$"
-<span style='color:indianred'>Teacher</span> account created 
+<span style='color:indianred'>Your</span> account created! 
 <br><br><ul>
-<li>Your account must be activated by the admin </li>
+<li>Your account may require to be activated by the admin (check) </li>
 <li>Please don't create repeatitive accounts. </li>
-<li>Just contact admin by email at mshtir@gmail.com to verify your request</li>
+<li>Contact admin email at mshtir@gmail.com for more info</li>
 <br>
 your email:<br>{user.UserEmail}<br><br><hr style=color:blue>
 <span style='color:indianred'> You can login to </span> 
-<strong>' {user.Username} '</strong> as Teacher, after your account ia approved by the admin.
+<strong>' {user.Username} '</strong> account if your account is activated.
 <hr style=color:blue>
 ");
                 bool? confirmResult = await DialogService.ShowMessageBox(title: "Alamut accounts", markupMessage: message, yesText: "OK");

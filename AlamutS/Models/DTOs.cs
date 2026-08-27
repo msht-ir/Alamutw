@@ -25,9 +25,9 @@ namespace AlamutS.Models
                     UserTags &= ~1;
                 }
             }
-        public bool UseFaCalendar
+        public bool AdminAcc
             {
-            get => (UserTags & 128) == 2;
+            get => (UserTags & 2) == 2;
             set
                 {
                 if (value)
@@ -36,7 +36,7 @@ namespace AlamutS.Models
                     UserTags &= ~2;
                 }
             }
-        public bool SilverAcc
+        public bool GoldAcc
             {
             get => (UserTags & 4) == 4;
             set
@@ -47,7 +47,7 @@ namespace AlamutS.Models
                     UserTags &= ~4;
                 }
             }
-        public bool GoldAcc
+        public bool SilverAcc
             {
             get => (UserTags & 8) == 8;
             set
@@ -58,7 +58,7 @@ namespace AlamutS.Models
                     UserTags &= ~8;
                 }
             }
-        public bool AdminAcc
+        public bool RemindDueNotes
             {
             get => (UserTags & 16) == 16;
             set
@@ -67,6 +67,50 @@ namespace AlamutS.Models
                     UserTags |= 16;
                 else
                     UserTags &= ~16;
+                }
+            }
+        public bool DueNotesDays
+            {
+            get => (UserTags & 32) == 32;
+            set
+                {
+                if (value)
+                    UserTags |= 32;
+                else
+                    UserTags &= ~32;
+                }
+            }
+        public bool CanChangeNickname
+            {
+            get => (UserTags & 64) == 64;
+            set
+                {
+                if (value)
+                    UserTags |= 64;
+                else
+                    UserTags &= ~64;
+                }
+            }
+        public bool OnExpireInactive
+            {
+            get => (UserTags & 128) == 128;
+            set
+                {
+                if (value)
+                    UserTags |= 128;
+                else
+                    UserTags &= ~128;
+                }
+            }
+        public bool UseFaCalendar
+            {
+            get => (UserTags & 256) == 256;
+            set
+                {
+                if (value)
+                    UserTags |= 256;
+                else
+                    UserTags &= ~256;
                 }
             }
         public List<Set> StudentGroups { get; set; } = new List<Set> ();

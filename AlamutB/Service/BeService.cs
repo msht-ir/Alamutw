@@ -2532,7 +2532,7 @@ namespace AlamutB.Services2Backend
                 }
             catch (Exception ex)
                 {
-                Console.WriteLine ($"BE Error Create Note : ============================== \n {ex}");
+                Console.WriteLine ($"BE Error Create Note : ============== \n {ex}");
                 await cnn.CloseAsync ();
                 return false;
                 }
