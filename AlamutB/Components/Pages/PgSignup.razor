@@ -12,7 +12,7 @@
 <br />
 <div class="d-flex flex-column align-items-center justify-content-center text-center">
     <h4 style="color:royalblue">Signup your free Alamut account</h4>
-        <EditForm Model="teacher" OnValidSubmit="BtnSignupNewTeacher" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+        <EditForm Model="newUser" OnValidSubmit="BtnSignupNewUser" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
         <DataAnnotationsValidator></DataAnnotationsValidator>
         <ValidationSummary></ValidationSummary>
             <MudContainer MaxWidth="MaxWidth.Small" Class="mt-2 px-0">
@@ -49,13 +49,13 @@
             </MudContainer>
         @if (_cmd == "agreed")
             {
-            <h6 style="color:royalblue; margin-top:20px;">SIGN UP <span style="font-style:italic;color:gray"> (new teacher)</span></h6>
+            <h6 style="color:royalblue; margin-top:20px;">SIGN UP <span style="font-style:italic;color:gray"> (new user)</span></h6>
                 <MudContainer MaxWidth="MaxWidth.Small" Class="mt-2 px-0">
                     <MudCard Class="mx-auto">
                         <MudCardContent Style="background-color:rgba(249,249,249);">
                             <div class="mb-3">
                             <MudTextField @ref="refUsername"
-                                          @bind-Value="teacher.Username"
+                                          @bind-Value="newUser.Username"
                                           Label="username"
                                           Variant="Variant.Text"
                                           Margin="Margin.Dense"
@@ -63,7 +63,7 @@
                             </div>
                             <div class="mb-3">
                             <MudTextField @ref="refPassword"
-                                          @bind-Value="teacher.Password"
+                                          @bind-Value="newUser.Password"
                                           Label="password"
                                           Variant="Variant.Text"
                                           Margin="Margin.Dense" Autocomplete="off"
@@ -71,12 +71,12 @@
                                           InputType="@PasswordInput"
                                           Adornment="Adornment.End"
                                           AdornmentIcon="@PasswordInputIcon"
-                                          OnAdornmentClick="ButtonTestclick"
+                                          OnAdornmentClick="BtnShowPassword"
                                           AdornmentAriaLabel="Show Password" />
                             </div>
                             <div class="mb-3">
                             <MudTextField @ref="refRepeatPass"
-                                          @bind-Value="teacher.RepeatPass"
+                                          @bind-Value="newUser.RepeatPass"
                                           Label="repeat password"
                                           Variant="Variant.Text"
                                           Margin="Margin.Dense" Autocomplete="off"
@@ -84,7 +84,7 @@
                                           InputType="@PasswordInput"
                                           Adornment="Adornment.End"
                                           AdornmentIcon="@PasswordInputIcon"
-                                          OnAdornmentClick="ButtonTestclick"
+                                          OnAdornmentClick="BtnShowPassword"
                                           AdornmentAriaLabel="Show Password" />
                             </div>
                             <div style="color:indianred; text-align:left">
@@ -93,7 +93,7 @@
                         <hr />
                             <div class="mb-3">
                             <MudTextField @ref="refEmail"
-                                          @bind-Value="teacher.Email"
+                                          @bind-Value="newUser.Email"
                                           Label="email"
                                           Variant="Variant.Text"
                                           Margin="Margin.Dense"
@@ -109,13 +109,13 @@
                 <MudButton Variant="Variant.Filled"
                            EndIcon="@Icons.Material.Filled.CloudUpload"
                            Size="Size.Small"
-                           OnClick="@(() => BtnSignupNewTeacher())"
+                           OnClick="@(() => BtnSignupNewUser())"
                            Style="margin-right:20px">SIGN-UP </MudButton>
                 }
             <MudButton Variant="Variant.Filled"
                        EndIcon="@Icons.Material.Filled.Help"
                        Size="Size.Small"
-                       OnClick="@(() => BtnHelpSignupNewTeacher())"
+                       OnClick="@(() => BtnHelp())"
                        Style="margin-right:20px;color:forestgreen">Guide </MudButton>
             <MudButton Variant="Variant.Filled"
                        EndIcon="@Icons.Material.Filled.Cancel"
@@ -125,18 +125,21 @@
             </div>
         </EditForm>
     </div>
-<br />
-@if (_cmd == "guide2")
+@if (_cmd == "guide")
     {
-    <hr />
-    <_Help />
+    <br />
+    <CompInfoTech />
     <br />
         <div class="d-flex justify-content-center">
-        <MudButton Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.CheckCircle" Size="Size.Small" OnClick="@(() => BtnAgree(true))" Style="color:dimgray;">ok, got it</MudButton>
+            <MudButton Variant="Variant.Filled"
+                   EndIcon="@Icons.Material.Filled.CheckCircle"
+                   Size="Size.Small"
+                   OnClick="@(() => BtnAgree(true))"
+                   Style="color:dimgray;">
+            OK, Back
+            </MudButton>
         </div>
     }
-
-
 
 @code {
     bool isShow;
@@ -146,7 +149,7 @@
     string PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
     private User user = new User();
     private bool _firstRender = true;
-    private class Teacher
+    private class NewUser
         {
         [Required(ErrorMessage = "enter username")]
         public string Username { get; set; } = "";
@@ -157,7 +160,7 @@
         [Required(ErrorMessage = "enter email")]
         public string Email { get; set; } = "";
         }
-    private Teacher teacher = new Teacher();
+    private NewUser newUser = new NewUser();
     int loginStatus = 0;
     private MudTextField<string>? refUsername;
     private MudTextField<string>? refPassword;
@@ -168,9 +171,9 @@
     protected override async Task OnInitializedAsync ()
         {
         appState.OnChange += TriggerRender;
-        teacher.Password = "";
-        teacher.RepeatPass = "";
-        teacher.Username = "";
+        newUser.Password = "";
+        newUser.RepeatPass = "";
+        newUser.Username = "";
         }
     protected override async Task OnAfterRenderAsync (bool firstRender)
         {
@@ -188,36 +191,68 @@
         appState.OnChange -= TriggerRender;
         }
     //btns
-    public async Task BtnSignupNewTeacher ()
+    public void BtnAgree (bool agree)
+        {
+        if (agree)
+            {
+            _cmd = "agreed";
+            newUser.Username = "newuser";
+            newUser.Password = "";
+            newUser.RepeatPass = "";
+            newUser.Email = "newUser@mail.com";
+            checkAgree = true;
+            }
+        else
+            {
+            _cmd = "notagreed";
+            checkAgree = false;
+            }
+        }
+    void BtnShowPassword ()
+        {
+        @if (isShow)
+            {
+            isShow = false;
+            PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
+            PasswordInput = InputType.Password;
+            }
+        else
+            {
+            isShow = true;
+            PasswordInputIcon = Icons.Material.Filled.Visibility;
+            PasswordInput = InputType.Text;
+            }
+        }
+    public async Task BtnSignupNewUser ()
         {
         if ((!checkAgree))
             {
             Snackbar.Add("read terms of use", Severity.Info);
             return;
             }
-        if ((teacher.Password == teacher.RepeatPass) && (teacher.Password.Length > 3))
+        if ((newUser.Password == newUser.RepeatPass) && (newUser.Password.Length > 3))
             {
             user.UserId = 1; //just to prevent errors
-            user.Username = teacher.Username;
-            user.Password = teacher.Password;
-            user.UserNickname = teacher.Username;
-            user.UserEmail = teacher.Email;
+            user.Username = newUser.Username;
+            user.Password = newUser.Password;
+            user.UserNickname = newUser.Username;
+            user.UserEmail = newUser.Email;
             user.UserTags = 1;
             bool result = await feService.Create_User(user);
             if (result)
                 {
                 var message = new MarkupString(@$"
-<span style='color:indianred'>Your</span> account created! 
-<br><br><ul>
-<li>Your account may require to be activated by the admin (check) </li>
-<li>Please don't create repeatitive accounts. </li>
-<li>Contact admin email at mshtir@gmail.com for more info</li>
-<br>
-your email:<br>{user.UserEmail}<br><br><hr style=color:blue>
-<span style='color:indianred'> You can login to </span> 
-<strong>' {user.Username} '</strong> account if your account is activated.
-<hr style=color:blue>
-");
+                    <span style='color:indianred'>Your</span> account created! 
+                    <br><br><ul>
+                    <li>Your account may require to be activated by the admin (check) </li>
+                    <li>Please don't create repeatitive accounts. </li>
+                    <li>Contact admin email at mshtir@gmail.com for more info</li>
+                    <br>
+                    your email:<br>{user.UserEmail}<br><br><hr style=color:blue>
+                    <span style='color:indianred'> You can login to </span> 
+                    <strong>' {user.Username} '</strong> account if your account is activated.
+                    <hr style=color:blue>
+                    ");
                 bool? confirmResult = await DialogService.ShowMessageBox(title: "Alamut accounts", markupMessage: message, yesText: "OK");
                 if (confirmResult == true)
                     {
@@ -236,45 +271,13 @@ your email:<br>{user.UserEmail}<br><br><hr style=color:blue>
             Snackbar.Add("password error", Severity.Warning);
             }
         }
-    public void BtnHelpSignupNewTeacher ()
+    public void BtnHelp ()
         {
-        _cmd = "guide";
+        _cmd = (_cmd == "guide") ? "" : "guide";
         StateHasChanged();
-        }
-    public void BtnAgree (bool agree)
-        {
-        if (agree)
-            {
-            _cmd = "agreed";
-            teacher.Username = "user";
-            teacher.Password = "1234";
-            teacher.RepeatPass = "";
-            teacher.Email = "";
-            checkAgree = true;
-            }
-        else
-            {
-            _cmd = "notagreed";
-            checkAgree = false;
-            }
         }
     public void BtnCancel ()
         {
         Navman.NavigateTo("/Login");
-        }
-    void ButtonTestclick ()
-        {
-        @if (isShow)
-            {
-            isShow = false;
-            PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
-            PasswordInput = InputType.Password;
-            }
-        else
-            {
-            isShow = true;
-            PasswordInputIcon = Icons.Material.Filled.Visibility;
-            PasswordInput = InputType.Text;
-            }
         }
     }

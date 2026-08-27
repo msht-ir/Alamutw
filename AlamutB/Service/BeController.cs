@@ -269,6 +269,12 @@ namespace AlamutB.Backend
             var result = await _BeService.Read_DatasetsAsync (userId, datasetType);
             return Ok (result);
             }
+        [HttpPost ("Read_DatasetsBySetId")]
+        public async Task<ActionResult<List<Dataset>>> Read_DatasetsBySetId ([FromBody] int setId)
+            {
+            var result = await _BeService.Read_DatasetsBySetIdAsync (setId);
+            return Ok (result);
+            }
         [HttpPost ("Read_DatasetsBySearch")]
         public async Task<ActionResult<List<Dataset>>> Read_DatasetsBySearch ([FromQuery] int userId, [FromQuery] int datasetType, [FromBody] string datasetKeyword)
             {

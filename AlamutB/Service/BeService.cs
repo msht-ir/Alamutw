@@ -1288,6 +1288,55 @@ namespace AlamutB.Services2Backend
                 return new List<Dataset> ();
                 }
             }
+        public async Task<List<Dataset>> Read_DatasetsBySetIdAsync (int setId)
+            {
+            string? connString = _config.GetConnectionString ("cnni");
+            string sql = "DT.Read_DatasetsBySetId";
+            using SqlConnection cnn = new (connString);
+            try
+                {
+                await cnn.OpenAsync ();
+                SqlCommand cmd = new (sql, cnn);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue ("@SetId", setId);
+                SqlDataReader reader = await cmd.ExecuteReaderAsync ();
+                List<Dataset> lstDatasets = new List<Dataset> ();
+                while (await reader.ReadAsync ())
+                    {
+                    lstDatasets.Add (new Dataset
+                        {
+                        DatasetId = reader.GetInt32 (0),
+                        UserId = reader.GetInt32 (1),
+                        DatasetType = reader.GetInt32 (2),
+                        DatasetAbbr = reader.GetString (3),
+                        DatasetName = reader.GetString (4),
+                        DatasetRef = reader.GetString (5),
+                        RefYear = reader.GetInt32 (6),
+                        RefLang = reader.GetString (7),
+                        DatasetManager = reader.GetString (8),
+                        AreaHa = reader.GetInt32 (9),
+                        ProvinceId = reader.GetInt32 (10),
+                        Coords = reader.GetString (11),
+                        AltMax = reader.GetInt32 (12),
+                        AltMin = reader.GetInt32 (13),
+                        AltAver = reader.GetInt32 (14),
+                        TempMax = reader.GetDecimal (15),
+                        TempMin = reader.GetDecimal (16),
+                        TempAver = reader.GetDecimal (17),
+                        Precipitation = reader.GetDecimal (18),
+                        DatasetTags = reader.GetInt32 (19)
+                        });
+                    }
+                await cnn.CloseAsync ();
+                return lstDatasets;
+                }
+            catch (Exception ex)
+                {
+                Console.WriteLine ("error: " + ex.Message);
+                cnn.Close ();
+                return new List<Dataset> ();
+                }
+            }
         public async Task<List<Dataset>> Read_DatasetsBySearchAsync (int userId, int datasetType, string datasetKeyword)
             {
             string? connString = _config.GetConnectionString ("cnni");
@@ -2051,7 +2100,7 @@ namespace AlamutB.Services2Backend
         #region SET
         public async Task<bool> Create_SetAsync (Set set)
             {
-            string sql = "BS.Create_Set";
+            string sql = "DT.Create_Set";
             string? connstring = _config.GetConnectionString ("cnni");
             using SqlConnection cnn = new SqlConnection (connstring);
             try
@@ -2076,7 +2125,7 @@ namespace AlamutB.Services2Backend
         public async Task<List<Set>> Read_SetsAsync (int userId)
             {
             string? connString = _config.GetConnectionString ("cnni");
-            string sql = "BS.Read_Sets";
+            string sql = "DT.Read_Sets";
             using SqlConnection cnn = new (connString);
             try
                 {
@@ -2110,7 +2159,7 @@ namespace AlamutB.Services2Backend
         public async Task<Set> Read_SetAsync (int setId)
             {
             string? connString = _config.GetConnectionString ("cnni");
-            string sql = "BS.Read_Set";
+            string sql = "DT.Read_Set";
             using SqlConnection cnn = new (connString);
             try
                 {
@@ -2140,7 +2189,7 @@ namespace AlamutB.Services2Backend
             }
         public async Task<bool> Update_SetAsync (Set Set)
             {
-            string sql = "BS.Update_Set";
+            string sql = "DT.Update_Set";
             string? connstring = _config.GetConnectionString ("cnni");
             using SqlConnection cnn = new SqlConnection (connstring);
             try
@@ -2166,7 +2215,7 @@ namespace AlamutB.Services2Backend
         public async Task<bool> Delete_SetAsync (int setId)
             {
             string? connString = _config.GetConnectionString ("cnni");
-            string sql = "BS.Delete_Set";
+            string sql = "DT.Delete_Set";
             using SqlConnection cnn = new (connString);
             try
                 {

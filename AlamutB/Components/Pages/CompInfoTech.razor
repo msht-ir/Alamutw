@@ -1,0 +1,516 @@
+﻿@using System.Globalization
+@using AlamutB.Service
+@using System.Threading.Tasks
+@inject FeService feService
+@inject NavigationManager Navman
+@inject AppState appState
+@inject IJSRuntime JS
+@implements IDisposable
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+        <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f4f7fa;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            color: #1e293b;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.04);
+            padding: 2.5rem 2.8rem;
+        }
+
+        h1 {
+            font-size: 2.6rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            background: linear-gradient(145deg, #0b3b3c, #1b6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.4rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .subhead {
+            font-size: 1.1rem;
+            color: #4b5b6b;
+            border-left: 3px solid #2b7a7a;
+            padding-left: 1rem;
+            margin-top: -0.2rem;
+            margin-bottom: 2rem;
+            font-weight: 400;
+        }
+
+        h2 {
+            font-size: 1.7rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            margin-top: 2.4rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.3rem;
+            border-bottom: 2px solid #e9edf2;
+            color: #0f3b3b;
+        }
+
+        h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-top: 1.8rem;
+            margin-bottom: 0.7rem;
+            color: #1b4f4f;
+        }
+
+        h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-top: 1.4rem;
+            margin-bottom: 0.3rem;
+            color: #1f5e5e;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: #1e2c3a;
+        }
+
+        ul, ol {
+            margin: 0.6rem 0 1.2rem 1.8rem;
+        }
+
+        li {
+            margin-bottom: 0.3rem;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.8rem 2.5rem;
+            margin: 1.2rem 0 1.8rem;
+        }
+
+        .card-soft {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 1.2rem 1.5rem 1.5rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #d9e9e9;
+            color: #094d4d;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.15rem 0.8rem;
+            border-radius: 40px;
+            letter-spacing: 0.02em;
+            margin-right: 0.3rem;
+        }
+
+        .tag-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+            margin: 1rem 0 1.4rem;
+        }
+
+            .tag-table th {
+                text-align: left;
+                font-weight: 600;
+                background: #eef3f7;
+                padding: 0.5rem 0.8rem;
+                border-radius: 12px 12px 0 0;
+            }
+
+            .tag-table td {
+                padding: 0.5rem 0.8rem;
+                border-bottom: 1px solid #e2e8f0;
+                vertical-align: top;
+            }
+
+            .tag-table tr:last-child td {
+                border-bottom: none;
+            }
+
+        .code-inline {
+            background: #eef3f7;
+            padding: 0.1rem 0.5rem;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 0.85rem;
+            color: #0b4f4f;
+        }
+
+        .ref-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem 1.2rem;
+            background: #f4f8fc;
+            padding: 0.8rem 1.2rem;
+            border-radius: 15px;
+            margin: 0.8rem 0 1.2rem;
+        }
+
+        .ref-item {
+            font-size: 0.9rem;
+        }
+
+            .ref-item strong {
+                font-weight: 600;
+                color: #0b3b3b;
+            }
+
+        hr {
+            margin: 2.2rem 0 1rem;
+            border: 0;
+            height: 1px;
+            background: linear-gradient(90deg, #d0dce8, transparent);
+        }
+
+        .footer-note {
+            margin-top: 2.8rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e2e8f0;
+            font-size: 0.95rem;
+            color: #4f6479;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2rem;
+        }
+
+        .grid-2 {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .ref-grid {
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+
+        .highlight {
+            background: #f1f9f9;
+            border-radius: 14px;
+            padding: 0.2rem 0.6rem;
+            font-weight: 500;
+        }
+
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            background: #f0f4f8;
+            padding: 0.1rem 0.4rem;
+            border-radius: 4px;
+        }
+
+        .tag-pill {
+            display: inline-block;
+            background: #d6e7e7;
+            color: #0e3e3e;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 0.1rem 0.65rem;
+            border-radius: 30px;
+            margin-right: 0.25rem;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+            margin: 1rem 0 1.4rem;
+        }
+
+        table.mini {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.92rem;
+        }
+
+            table.mini th {
+                background: #e9f0f5;
+                padding: 0.4rem 0.6rem;
+                text-align: left;
+            }
+
+            table.mini td {
+                padding: 0.4rem 0.6rem;
+                border-bottom: 1px solid #dee7ef;
+            }
+        </style>
+        <div class="container">
+            <div style="display: flex; justify-content: center;margin-bottom:20px;">
+            <img src="/img/_logoAlamut.png" width="200" style="margin-right:10px" />
+            </div>
+        <div class="subhead">Botanical database · floristic, climatic & taxonomic management</div>
+
+        <p><strong>Alamut</strong> is a comprehensive botanical database management system designed for floristic research, climatic data analysis, and taxonomic organization. Named after the historic mountain fortress, this application provides a robust platform for managing complex botanical datasets with an emphasis on scientific accuracy and data relationships.</p>
+
+        <h2>Core Features</h2>
+            <div class="grid-2">
+                <div class="card-soft">
+                <h4 style="margin-top:0;">Taxonomic Management</h4>
+                    <ul style="margin-bottom:0;">
+                    <li>Complete hierarchy from APG Groups to Species</li>
+                    <li>Synonyms, accepted names, conservation status</li>
+                    <li>Infraspecific ranks (subspecies, varieties, forms)</li>
+                    <li>Author citations and protologue information</li>
+                    </ul>
+                </div>
+                <div class="card-soft">
+                <h4 style="margin-top:0;">Dataset Types</h4>
+                    <ul style="margin-bottom:0;">
+                    <li><span class="badge">FL</span> Floristic (species presence/absence)</li>
+                    <li><span class="badge">CN</span> Chorological (geographic distribution)</li>
+                    <li><span class="badge">LM</span> Lifeform / Morphological</li>
+                    <li><span class="badge">ST</span> Station / Climatic (T & P)</li>
+                    </ul>
+                </div>
+                <div class="card-soft">
+                <h4 style="margin-top:0;">Geographic Organization</h4>
+                    <ul style="margin-bottom:0;">
+                    <li>Countries → Provinces → Stations</li>
+                    <li>Coordinate systems for mapping</li>
+                    <li>Altitude ranges & climatic data</li>
+                    </ul>
+                </div>
+                <div class="card-soft">
+                <h4 style="margin-top:0;">Notes System</h4>
+                    <ul style="margin-bottom:0;">
+                    <li>Universal notes for any entity</li>
+                    <li>Todo items with due dates</li>
+                    <li>Bookmarking & sharing</li>
+                    </ul>
+                </div>
+            </div>
+
+        <h2>User Account System</h2>
+        <p>When you create an account, you'll have access to features based on your user tags:</p>
+            <div class="table-wrap">
+                <table class="tag-table">
+                <thead><tr><th>Tag</th><th>Description</th></tr></thead>
+                    <tbody>
+                    <tr><td><span class="tag-pill">1</span> Active</td><td>Standard active user</td></tr>
+                    <tr><td><span class="tag-pill">2</span> AdminAccount</td><td>Full administrative privileges</td></tr>
+                    <tr><td><span class="tag-pill">4</span> GoldAccount</td><td>Premium features access</td></tr>
+                    <tr><td><span class="tag-pill">8</span> SilverAccount</td><td>Extended feature set</td></tr>
+                    <tr><td><span class="tag-pill">16</span> RemindDueNotes</td><td>Automatic reminders for pending todos</td></tr>
+                    <tr><td><span class="tag-pill">32</span> DueNotesDays</td><td>Configure reminder timing (default: 7 days)</td></tr>
+                    <tr><td><span class="tag-pill">64</span> CanChangeNickname</td><td>Ability to modify display name</td></tr>
+                    <tr><td><span class="tag-pill">128</span> OnExpire</td><td>Account behavior when subscription ends</td></tr>
+                    <tr><td><span class="tag-pill">256</span> UseFaCalendar</td><td>Persian calendar support</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+        <h2>Working with Data</h2>
+
+        <h3>1. Navigating the Taxonomic Tree</h3>
+        <p><strong>APG Groups</strong> (Angiosperm Phylogeny Group):</p>
+            <ul>
+            <li><span class="mono">6'000</span> – Angiosperms (main group)</li>
+            <li><span class="mono">6'400</span> – Eudicots</li>
+            <li><span class="mono">6'620</span> – Rosids</li>
+            <li><span class="mono">6'660</span> – Asterids</li>
+            <li><span class="mono">10'000</span> – RESERVED (future classification)</li>
+            </ul>
+        <p><strong>Hierarchy flow:</strong> <span class="highlight">APG Group</span> → Order → Family → Genus → Species → Infraspecific ranks</p>
+
+        <h3>2. Managing Datasets</h3>
+        <h4>Creating a dataset</h4>
+            <ol>
+            <li>Select dataset type (FL, CN, LM, or ST)</li>
+            <li>Provide abbreviation and full name</li>
+            <li>Add reference (publication year, language)</li>
+            <li>Specify geographical location (Province)</li>
+            <li>Input environmental data: coordinates, altitude (max/min/avg), temperature, precipitation</li>
+            </ol>
+        <h4>Adding records</h4>
+            <ul>
+            <li><strong>FL</strong> – link species with infraspecific info</li>
+            <li><strong>CN</strong> – connect species with geographic linestring</li>
+            <li><strong>LM</strong> – link species with lifeform/morphological traits</li>
+            <li><strong>ST</strong> – add climate station data with monthly readings</li>
+            </ul>
+
+        <h3>3. Working with Notes</h3>
+        <p>The note system is versatile and can be attached to: APG Groups, Orders, Families, Genera, Species, Datasets, Stations, Sets, Users.</p>
+            <ul>
+            <li>Mark as <strong>Todo</strong> with due dates</li>
+            <li>Track completion status</li>
+            <li>Set importance with bookmarks</li>
+            <li>Share with other users</li>
+            </ul>
+
+        <h3>4. Sets and Grouping</h3>
+        <p><strong>Sets</strong> allow you to organize data into collections:</p>
+            <ul>
+            <li><strong>Floristic Sets</strong> – group related floristic datasets</li>
+            <li><strong>Climatic Sets</strong> – organize climatic data for comparison</li>
+            </ul>
+
+        <h2>💡 Tips for Effective Use</h2>
+            <div class="grid-2">
+                <div class="card-soft">
+                <h4 style="margin-top:0;">📌 Best Practices</h4>
+                    <ul style="margin-bottom:0;">
+                    <li><strong>Taxonomic accuracy</strong> – verify species IDs (WFO), accepted names, document status</li>
+                    <li><strong>Data quality</strong> – fill all available fields, use consistent naming, add references</li>
+                    <li><strong>Geographic precision</strong> – include coordinates, altitude ranges, link to provinces</li>
+                    <li><strong>Note management</strong> – create todos for verification, use due dates, share notes</li>
+                    </ul>
+                </div>
+                <div class="card-soft">
+                <h4 style="margin-top:0;">⚡ Quick Actions</h4>
+                    <ul style="margin-bottom:0;">
+                    <li><span class="tag-pill">4</span> Bookmark important species</li>
+                    <li><span class="tag-pill">8</span> Mark Todo items for follow-up</li>
+                    <li><span class="tag-pill">16</span> Flag as Read to review records</li>
+                    <li><span class="tag-pill">32</span> Complete tasks to track progress</li>
+                    </ul>
+                </div>
+            </div>
+
+        <h2>Understanding Your Data</h2>
+        <h3>Species Status Indicators</h3>
+            <div class="table-wrap">
+                <table class="mini">
+                <thead><tr><th>NomStatus</th><th>Meaning</th></tr></thead>
+                    <tbody>
+                    <tr><td>1 Valid</td><td>Properly published and accepted</td></tr>
+                    <tr><td>2 Conserved</td><td>Protected against competing names</td></tr>
+                    <tr><td>3 Invalid</td><td>Not properly published</td></tr>
+                    <tr><td>4 Rejected</td><td>Not to be used</td></tr>
+                    <tr><td>5 Illegitimate</td><td>Unnecessary or invalid replacement</td></tr>
+                    <tr><td>6 Superfluous</td><td>Unnecessary substitute name</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="table-wrap">
+                <table class="mini">
+                <thead><tr><th>TaxStatus</th><th>Meaning</th></tr></thead>
+                    <tbody>
+                    <tr><td>1 Accepted</td><td>Current recognized name</td></tr>
+                    <tr><td>2 Synonym</td><td>Previously used but not accepted</td></tr>
+                    <tr><td>3 Unchecked</td><td>Requires verification</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+        <h3>Infraspecific Ranks</h3>
+            <div class="ref-grid">
+            <span class="ref-item"><strong>1</strong> species</span>
+            <span class="ref-item"><strong>2</strong> subspecies</span>
+            <span class="ref-item"><strong>3</strong> variety</span>
+            <span class="ref-item"><strong>4</strong> subvariety</span>
+            <span class="ref-item"><strong>5</strong> form</span>
+            <span class="ref-item"><strong>6</strong> subform</span>
+            <span class="ref-item"><strong>7</strong> lusus</span>
+            <span class="ref-item"><strong>8</strong> prole</span>
+            <span class="ref-item"><strong>9</strong> unranked</span>
+            </div>
+
+        <h2>⚙️ Advanced Features</h2>
+            <ul>
+            <li><strong>Data analysis</strong> – floristic comparisons, climatic trends, distribution mapping, biodiversity assessment</li>
+            <li><strong>Collaboration</strong> – share datasets, collaborative note-taking, user roles, activity tracking</li>
+            <li><strong>Data protection</strong> – authentication, account expiration, structured backup, audit trail</li>
+            </ul>
+
+        <h2>📋 Quick Reference</h2>
+        <h4>Entity Types (RefTypes)</h4>
+            <div class="ref-grid">
+            <span class="ref-item"><strong>1</strong> ApgGroups</span>
+            <span class="ref-item"><strong>2</strong> Orders</span>
+            <span class="ref-item"><strong>3</strong> Families</span>
+            <span class="ref-item"><strong>4</strong> Genera</span>
+            <span class="ref-item"><strong>5</strong> Species</span>
+            <span class="ref-item"><strong>6</strong> Datasets (FL)</span>
+            <span class="ref-item"><strong>7</strong> Datasets (CN)</span>
+            <span class="ref-item"><strong>8</strong> Datasets (LM)</span>
+            <span class="ref-item"><strong>9</strong> Stations</span>
+            <span class="ref-item"><strong>10</strong> Sets</span>
+            <span class="ref-item"><strong>11</strong> SetData</span>
+            <span class="ref-item"><strong>12</strong> Section</span>
+            <span class="ref-item"><strong>13</strong> Users</span>
+            </div>
+
+        <h4>Note Tags</h4>
+            <div class="ref-grid">
+            <span class="ref-item"><strong>1</strong> IsRtl</span>
+            <span class="ref-item"><strong>2</strong> IsShared</span>
+            <span class="ref-item"><strong>4</strong> IsBookmarked</span>
+            <span class="ref-item"><strong>8</strong> IsTodo</span>
+            <span class="ref-item"><strong>16</strong> IsRead</span>
+            <span class="ref-item"><strong>32</strong> IsDone</span>
+            </div>
+
+        <h4>User Tags</h4>
+            <div class="ref-grid">
+            <span class="ref-item"><strong>1</strong> Active</span>
+            <span class="ref-item"><strong>2</strong> AdminAccount</span>
+            <span class="ref-item"><strong>4</strong> GoldAccount</span>
+            <span class="ref-item"><strong>8</strong> SilverAccount</span>
+            <span class="ref-item"><strong>16</strong> RemindDueNotes</span>
+            <span class="ref-item"><strong>32</strong> DueNotesDays=14 (def: 7)</span>
+            <span class="ref-item"><strong>64</strong> CanChangeNickname</span>
+            <span class="ref-item"><strong>128</strong> OnExpire: Inactive</span>
+            <span class="ref-item"><strong>256</strong> UseFaCalendar</span>
+            </div>
+
+        <hr>
+
+            <p style="font-style: italic; color: #2b5f5f; margin-top: 0.5rem;">
+            Alamut – Where Botanical Data Finds Its Fortress <br />
+            by: Majid SharifiTehrani PhD <br />
+            diversity data analyst & .net programmer <br />
+            mshtir@gmail.com <br />
+            +989133112733
+            </p>
+            <div class="footer-note">
+            Comprehensive botanical database · floristic, climatic & taxonomic management
+            </div>
+
+        </div>
+<br />
+
+    <script>
+    window.scrollToTop = () => { window.scrollTo({ top: 0, behavior: 'smooth' }); };
+    </script>
+
+
+@code {
+    private string _cmd = "";
+
+    //LifeCycleEvents
+    protected override async Task OnInitializedAsync ()
+        {
+        appState.OnChange += TriggerRender;
+        }
+    private void TriggerRender ()
+        {
+        InvokeAsync(StateHasChanged);
+        }
+    public void Dispose ()
+        {
+        appState.OnChange -= TriggerRender;
+        }
+    //methods
+    }

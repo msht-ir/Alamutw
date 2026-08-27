@@ -270,6 +270,7 @@ namespace AlamutS.Models
         public int SetType { get; set; } = 0;
         public string SetName { get; set; } = "";
         public int SetTags { get; set; } = 0;
+        public bool IsSelected { get; set; } = false;
         }
     public class SetData
         {

@@ -64,6 +64,7 @@ namespace AlamutB.Services2Backend
         #region DATASET
         Task<bool> Create_DatasetAsync (Dataset dataset);
         Task<List<Dataset>> Read_DatasetsAsync (int userId, int datasetType);
+        Task<List<Dataset>> Read_DatasetsBySetIdAsync (int setId);
         Task<List<Dataset>> Read_DatasetsBySearchAsync (int userId, int datasetType, string datasetKeyword);
         Task<Dataset> Read_DatasetAsync (int datasetId);
         Task<bool> Update_DatasetAsync (Dataset dataset);
