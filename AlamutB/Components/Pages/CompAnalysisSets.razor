@@ -1,0 +1,657 @@
+﻿@using System.Globalization
+@using AlamutB.Service
+@using System.Threading.Tasks
+@inject FeService feService
+@inject NavigationManager Navman
+@inject AppState appState
+@inject IJSRuntime JS
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+ @if (!_hasFetched)
+    {
+    <_ScanSheets />
+    }
+else
+    {
+        <EditForm Model="lstSets">
+            <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-2 px-0">
+                <MudCard Class="mx-0">
+                    <MudCardContent Style="background-color:rgba(249,249,249);">
+                    <h6 style="text-align:center;color:royalblue">Set <span style="font-size:x-small;color:indianred"> ( @lstSets.Count() )</span></h6>
+                    @* FILTER     *@
+                        <div class="d-flex">
+                        <MudTextField @ref="refFilterSets"
+                                      @bind-Value="_setFilter"
+                                      Label="filter sets"
+                                      Variant="Variant.Text"
+                                      Margin="Margin.Dense"
+                                      Autocomplete="off"
+                                      Adornment="Adornment.End"
+                                      AdornmentIcon="@Icons.Material.Filled.Search"
+                                      OnAdornmentClick="@(() => FilterSets (_setFilter))"
+                                      Class="my-textfield" />
+                            <button class="btn btn-link" style="margin-left:20px;" Title="show all" @onclick="BtnShowAllSets">
+                            <img src="/img/icoList1.png" width="20" />
+                            </button>
+                        </div>
+                        <br />
+                        <br />
+                    @foreach (Set set in lstSets)
+                        {
+                            <div class="d-flex align-items-center mb-1">
+                            @* Select *@
+                            <input class="form-check-input"
+                                   style="margin-left:1px;margin-right:1px;"
+                                   type="checkbox"
+                                   @bind="set.IsSelected" />
+                            @* List Datasets *@
+                                <button type="button"
+                                    class="btn btn-link"
+                                    style="margin-left:1px"
+                                    @onclick='() => BtnListSetData(set.SetId, true)'
+                                    Title="list datasets">
+                                <img src="/img/icoList1.png" width="22" />
+                                </button>
+                            @* Use all / subset *@
+                                <div>
+                                    <MudSelect T="int"
+                                           @ref="refAnalysisMode"
+                                           @bind-Text="_analysisModeName"
+                                           Label=""
+                                           Value="set.SelectedSubset"
+                                           ValueChanged="OnAnalysisModeChanged"
+                                           Class="my-select"
+                                           Variant="Variant.Text"
+                                           Margin="Margin.Dense"
+                                           Adornment="Adornment.End"
+                                           AdornmentIcon="@Icons.Material.Filled.List"
+                                           Style="color:royalblue;width:160px;font-size:small;margin-left:15px;margin-right:20px;">
+                                    <MudSelectItem Value="0">all</MudSelectItem>
+                                    <MudSelectItem Value="1">subset 1</MudSelectItem>
+                                    <MudSelectItem Value="2">subset 2</MudSelectItem>
+                                    <MudSelectItem Value="3">subset 3</MudSelectItem>
+                                    <MudSelectItem Value="4">subset 4</MudSelectItem>
+                                    <MudSelectItem Value="5">subset 5</MudSelectItem>
+                                    </MudSelect>
+                                </div>
+                            @* MAP *@
+                                <button type="button"
+                                    class="btn btn-link"
+                                    style="margin-left:1px"
+                                    @onclick='() => BtnListSetData(set.SetId, true)'
+                                    Title="map">
+                                <img src="/img/icoMap.png" width="22" />
+                                </button>
+                            @* Note *@
+                                <button type="button"
+                                    class="btn btn-link"
+                                    style="margin-left:1px"
+                                    @onclick='() => BtnCreateNoteForSet(set.SetId)'
+                                    Title="Note for Set">
+                                <img src="/img/icoNoteStickyAdd.png" width="22" />
+                                </button>
+                            @* Edit Set*@
+                                <button type="button"
+                                    class="btn btn-link"
+                                    style="margin-left:1px"
+                                    @onclick='() => BtnEditSet(set.SetId)'
+                                    Title="edit set name">
+                                <img src="/img/icoRename.png" width="24" />
+                                </button>
+                            @* Delete Set*@
+                                <button type="button"
+                                    class="btn btn-link"
+                                    style="margin-left:1px"
+                                    @onclick='() => BtnDeleteThisSet(set)'
+                                    Title="Note for Set">
+                                <img src="/img/icoDelete1.png" width="18" />
+                                </button>
+                            <span style="font-size:small;font-weight:bold;margin-left:15px;">@set.SetName</span>
+                            </div>
+                        @if ((_cmd == "cmdEditSet") && (set.SetId == _setId))
+                            {
+                            @* Edit SET *@
+                            <br />
+                                <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-1 mb-4 px-0">
+                                    <MudCard Class="mx-0">
+                                        <MudCardContent Style="background-color:rgba(240,240,240);">
+                                            <div class="d-flex">
+                                            <MudTextField T="string"
+                                                          @ref="refSet"
+                                                          @bind-Value="set.SetName"
+                                                          Label="edit Set"
+                                                          Variant="Variant.Text"
+                                                          Margin="Margin.Dense"
+                                                          Immediate="true"
+                                                          Adornment="Adornment.End"
+                                                          AdornmentIcon="@Icons.Material.Filled.Save"
+                                                          OnAdornmentClick='()=>UpdateSet (set)'
+                                                          Style="font-family:Tahoma;"
+                                                          Class="my-textfield" />
+                                                <button class="btn btn-link" style="margin-left:20px;" Title="cancel" @onclick="BtnCancel">
+                                                <img src="/img/icoGotoTop2.png" width="22" />
+                                                </button>
+                                            </div>
+                                        <br />
+                                        </MudCardContent>
+                                    </MudCard>
+                                </MudContainer>
+                            }
+                        else if ((_cmd == "cmdListSetData") && (set.SetId == _setId))
+                            {
+                            @* LIST SetData *@
+                                <MudCard Class="mx-0">
+                                    <MudCardContent Style="background-color:rgba(240,240,240);">
+                                    <h6 style="text-align:center;color:royalblue">Datasets <span style="font-size:x-small;color:indianred"> ( @lstSetData.Count() )</span></h6>
+                                    <hr style="color:indianred" />
+                                    @* Filter *@
+                                        <div class="d-flex">
+                                        <MudTextField @ref="refFilterDatasetsList"
+                                                      @bind-Value="_datasetsListFilter"
+                                                      Label="filter datasets"
+                                                      Variant="Variant.Text"
+                                                      Margin="Margin.Dense"
+                                                      Immediate="true"
+                                                      Adornment="Adornment.End"
+                                                      AdornmentIcon="@Icons.Material.Filled.Search"
+                                                      OnAdornmentClick='@(() => FilterDatasetsList(_datasetsListFilter))'
+                                                      Class="my-textfield" />
+                                        @* Refresh *@
+                                            <button type="button"
+                                                class="btn btn-link"
+                                                style="margin-left:1px"
+                                                @onclick='() => BtnListSetData(set.SetId, false)'
+                                                Title="Show sub-Species">
+                                            <img src="/img/icoList1.png" width="22" />
+                                            </button>
+                                        </div>
+                                        <table class="table table-borderless table-sm" style="margin-bottom: 0; border-collapse: collapse;">
+                                            <tr>
+                                            <th style="padding: 1px 1px;">Datasets</th>
+                                            <th style="padding: 1px 1px;">Subsets</th>
+                                            <th style="padding: 1px 1px;">Del</th>
+                                            </tr>
+                                        @foreach (SetData setData in lstSetData)
+                                            {
+                                            @* List of SetData (dataSets) *@
+                                                <tr>
+                                                    <td>
+                                                        <div class="d-flex align-items-center" style=" margin-left:10px;">
+                                                        <input class="form-check-input"
+                                                               style="margin-left:1px;margin-right:1px;"
+                                                               type="checkbox"
+                                                               @bind="setData.IsSelected" />
+                                                        <span style="font-size:smaller;margin-left:10px;">@setData.DatasetName </span>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                    @* Subsets 1-5 *@
+                                                        <div class="d-flex align-items-center" style=" margin-left:10px;">
+                                                        <input class="form-check-input"
+                                                               style="margin-left:1px;margin-right:1px;"
+                                                               type="checkbox"
+                                                               @bind="setData.Subset1" />
+                                                        <input class="form-check-input"
+                                                               style="margin-left:1px;margin-right:1px;"
+                                                               type="checkbox"
+                                                               @bind="setData.Subset2" />
+                                                        <input class="form-check-input"
+                                                               style="margin-left:1px;margin-right:1px;"
+                                                               type="checkbox"
+                                                               @bind="setData.Subset3" />
+                                                        <input class="form-check-input"
+                                                               style="margin-left:1px;margin-right:1px;"
+                                                               type="checkbox"
+                                                               @bind="setData.Subset4" />
+                                                        <input class="form-check-input"
+                                                               style="margin-left:1px;margin-right:1px;"
+                                                               type="checkbox"
+                                                               @bind="setData.Subset5" />
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                    @* Remove Dataset*@
+                                                        <button type="button"
+                                                            class="btn btn-link"
+                                                            style="margin-left:1px; padding: 0;"
+                                                            @onclick='() => BtnRemoveThisDataset(setData)'
+                                                            Title="Note for Set">
+                                                        <img src="/img/icoDelete1.png" width="18" />
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </table>
+                                    <hr />
+                                    @if ((_cmd2 == "AddDatasetsToThisSet") && (set.SetId == _setId))
+                                        {
+                                        @* ADD DATASETS To SET *@
+                                            <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-2 px-0">
+                                                <MudCard Class="mx-0">
+                                                    <MudCardContent Style="background-color:rgba(240,235,235);">
+                                                    <h6 style="text-align:center;color:royalblue">Select from list <span style="font-size:x-small;color:indianred"> ( @lstDatasets.Count() )</span></h6>
+                                                    @* FILTER *@
+                                                        <div class="d-flex">
+                                                        <MudTextField @ref="refFilterDatasets"
+                                                                      @bind-Value="_datasetFilter"
+                                                                      Label="filter datasets"
+                                                                      Variant="Variant.Text"
+                                                                      Margin="Margin.Dense"
+                                                                      Autocomplete="off"
+                                                                      Adornment="Adornment.End"
+                                                                      AdornmentIcon="@Icons.Material.Filled.Search"
+                                                                      OnAdornmentClick="@(() => FilterDatasets (_datasetFilter))"
+                                                                      Class="my-textfield" />
+                                                            <button class="btn btn-link" style="margin-left:20px;" Title="show all" @onclick="BtnShowAllDatasets">
+                                                            <img src="/img/icoList1.png" width="20" />
+                                                            </button>
+                                                            <button class="btn btn-link pulse-hover" @onclick="CloseDatasetsList">
+                                                            <img src="/img/icoGotoTop2.png" width="20" />
+                                                            </button>
+                                                        </div>
+                                                    @foreach (Dataset dataset in lstDatasets)
+                                                        {
+                                                            <div class="d-flex align-items-center mb-1">
+                                                            @* Select *@
+                                                            <input class="form-check-input"
+                                                                   style="margin-left:1px;margin-right:1px;"
+                                                                   type="checkbox"
+                                                                   @bind="dataset.IsSelected" />
+                                                            <span style="font-size:small; margin-left:10px;">@dataset.DatasetName</span>
+                                                            </div>
+                                                        }
+                                                    <hr style="color:royalblue;margin-top:50px" />
+                                                    @* Add Selected Datasets to the Set *@
+                                                        <button class="btn btn-link pulse-hover" @onclick="() => AddSelectedDatasetsToSet(set.SetId)">
+                                                        <img src="/img/icoSave1.png" width="24" title="add datasets to this set" />
+                                                        </button>
+                                                    @* Close the List *@
+                                                        <button class="btn btn-link pulse-hover" @onclick="CloseDatasetsList">
+                                                        <img src="/img/icoGotoTop2.png" width="26" />
+                                                        </button>
+                                                    </MudCardContent>
+                                                </MudCard>
+                                            </MudContainer>
+                                        }
+                                    else
+                                        {
+                                        @* Add Datasets *@
+                                            <button class="btn btn-link pulse-hover" @onclick="() => BtnAddDatasetsToSet(set.SetId)">
+                                            <img src="/img/icoAdd1.png" width="22" title="add datasets to this set" />
+                                            </button>
+                                        @* Save Subsets Changes *@
+                                            <button class="btn btn-link pulse-hover" @onclick="() => BtnSaveSubsets(set)">
+                                            <img src="/img/icoSave2.png" width="22" title="add datasets to this set" />
+                                            </button>
+                                        @* Close List of Datasets *@
+                                            <button class="btn btn-link pulse-hover" @onclick="CloseSetDataList">
+                                            <img src="/img/icoGotoTop2.png" width="26" />
+                                            </button>
+                                        }
+                                    </MudCardContent>
+                                </MudCard>
+                            <br />
+                            <br />
+                            }
+                        }
+                    </MudCardContent>
+                </MudCard>
+            </MudContainer>
+        </EditForm>
+    }
+<br />
+
+@code {
+    private MudTextField<string> refSet;
+    string _setText = "";
+    public MudTextField<string> refFilterDatasetsList;
+    public MudTextField<string> refFilterSets;
+    User user = new User();
+    List<Set> lstSets = new List<Set>();
+    Set set = new Set();
+    private int _setId = 0;
+    private string _setName = "";
+    private string _setFilter = "";
+    //SetData
+    List<SetData> lstSetData = new();
+    SetData setData = new SetData();
+    private string _setDataId = "";
+    private string _datasetName = "";
+    private string _datasetsListFilter = "";
+
+    //Datasets
+    public MudTextField<string> refFilterDatasets;
+    private string _datasetFilter = "";
+    List<Dataset> lstDatasets = new();
+    Dataset dataSet = new Dataset();
+
+    public MudSelect<int> refAnalysisMode;
+    public int _analysisModeId = 0;
+    public string _analysisModeName = "";
+
+    string _cmd = "";
+    string _cmd2 = "";
+    public bool _hasFetched = false;
+
+    //LifeCycleEvents
+    protected override async Task OnInitializedAsync ()
+        {
+        appState.OnChange += TriggerRender;
+        if (Convert.ToInt32(appState.UserLoginStatus) != 1)
+            {
+            Navman.NavigateTo("/Login");
+            }
+        appState.SetCmd("");
+        user.UserId = Convert.ToInt32(appState.UserId);
+        user.Username = appState.Username ?? "";
+        await ReadSets();
+        _hasFetched = true;
+        }
+    private void TriggerRender ()
+        {
+        InvokeAsync(StateHasChanged);
+        }
+    public void Dispose ()
+        {
+        appState.OnChange -= TriggerRender;
+        }
+    //btns
+    private void CloseComponent ()
+        {
+        //RollBack of Component 'Dataset'
+        _cmd = "";
+        }
+    private void BtnCancel ()
+        {
+        _cmd = "";
+        StateHasChanged();
+        }
+    public void BtnBack ()
+        {
+        Navman.NavigateTo("/Switchboard");
+        }
+
+    //list Sets
+    private async Task ReadSets ()
+        {
+        lstSets = await feService.Read_Sets(user.UserId);
+        }
+    public async Task FilterSets (string _datasetsFilter)
+        {
+        lstSets = lstSets.Where(s => s.SetName?.Contains(_setFilter, StringComparison.OrdinalIgnoreCase) == true).ToList();
+        StateHasChanged();
+        }
+    public async Task BtnShowAllSets ()
+        {
+        lstSets = await feService.Read_Sets(user.UserId);
+        StateHasChanged();
+        }
+    public async Task BtnReportSets (int Id)
+        {
+
+        }
+    private void BtnAddNewSet ()
+        {
+        _cmd = (_cmd == "cmdAddNewSet") ? "" : "cmdAddNewSet";
+        }
+    private async Task CreateSet (string _setName)
+        {
+        Set _set = new Set()
+            {
+            SetId = 0, //just to prevent error
+            UserId = user.UserId,
+            SetType = 1, //1:Floristic 2:Climatic
+            SetName = _setName,
+            SetTags = 0 //no tags?
+            };
+        bool result = await feService.Create_Set(_set);
+        if (result)
+            {
+            Snackbar.Add($"new set '{_setName}' created", Severity.Success, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+            await ReadSets();
+            _cmd = "";
+            StateHasChanged();
+            }
+        }
+    private async Task UpdateSet (Set _set)
+        {
+        bool result = await feService.Update_Set(_set);
+        if (result)
+            {
+            Snackbar.Add("set updated", Severity.Success, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+            await ReadSets();
+            _cmd = "";
+            StateHasChanged();
+            }
+        }
+    public async Task BtnEditSet (int setId)
+        {
+        if (set != null)
+            {
+            _cmd = (_cmd == "cmdEditSet") ? "" : "cmdEditSet";
+            if (_cmd != "")
+                lstSets.FirstOrDefault(set2 => set2.SetId == set.SetId)?.IsSelected = true;
+            _setId = setId;
+            StateHasChanged();
+            }
+        else
+            {
+            Snackbar.Add("Select a Set first", Severity.Warning, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+            }
+        }
+    private async Task BtnCreateNoteForSet (int refId)
+        {
+        //refTypes: 1:ApgGroup 2:Order 3 ّFamily 4:Genus 5:Species 6:DatasetFL 7:DatasetCN 8:DatasetLM 9:Station 10:Set 11:SetData 12:Section 13:User'sNote
+        appState.SetNoteRefId(refId);
+        appState.SetNoteRefType(10);
+        appState.SetCmd("cmdCreateNote");
+        StateHasChanged();
+        //--After the Modal_CreateNote is closed, HandleModalClose will refresh the list
+        //--to handel close event, I added in the Modal_CreateNote: [Parameter] public EventCallback OnClose
+        }
+    private async Task ScrollToTop ()
+        {
+        await JS.InvokeVoidAsync("scrollToTop");
+        }
+    private async Task CloseSetDataList ()
+        {
+        _cmd = "";
+        lstSetData = new();
+        }
+    private async Task BtnListSetData (int setId, bool toggle)
+        {
+        if (setId != 0)
+            {
+            if (!toggle)
+                {
+                _cmd = "";
+                }
+            _cmd = (_cmd == "cmdListSetData") ? "" : "cmdListSetData";
+            _setId = setId;
+            if (_cmd == "cmdListSetData")
+                {
+                lstSetData = await feService.Read_SetData(setId);
+                }
+            else
+                {
+                CloseSetDataList();
+                }
+            StateHasChanged();
+            }
+        else
+            {
+            Snackbar.Add("Select a Set", Severity.Warning);
+            }
+        StateHasChanged();
+        }
+    private async Task BtnDeleteThisSet (Set _set)
+        {
+        var message = new MarkupString($"<hr><span style='color:indianred'>Delete</span> ' {_set.SetName} ' ?<br><br>Notice:<br>This <span style='font-weight:bold'>set</span> will be permanently<span style='color:indianred'> deleted</span>!<br><br><div style='text-align:center'><img src='/img/icodelete1.png' width='50'/></div><br><hr>");
+        bool? confirmResult = await DialogService.ShowMessageBoxAsync(title: "Confirm", markupMessage: message, yesText: "Yes", cancelText: "No");
+        if (confirmResult == true)
+            {
+            bool result = await feService.Delete_Set(_set.SetId);
+            if (result)
+                {
+                Snackbar.Add("set deleted", Severity.Warning, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+                await ReadSets();
+                _cmd = "";
+                StateHasChanged();
+                }
+            }
+        }
+    private async Task BtnSaveSubsets (Set set)
+        {
+        foreach (SetData sd in lstSetData)
+            {
+            bool result = await feService.Update_SetData(sd);
+            }
+        Snackbar.Add("subsets updated", Severity.Success, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+        StateHasChanged();
+        }
+
+    //List Datasets
+    public async Task BtnShowAllDatasets ()
+        {
+        lstDatasets = await feService.Read_Datasets(user.UserId, 1);
+        StateHasChanged();
+        }
+    public async Task BtnSelectAllDatasets ()
+        {
+        foreach (SetData setData in lstSetData)
+            {
+            setData.IsSelected = true;
+            }
+        StateHasChanged();
+        }
+    public async Task BtnInvertSelection ()
+        {
+        foreach (SetData setData in lstSetData)
+            {
+            setData.IsSelected = (setData.IsSelected) ? false : true;
+            }
+        StateHasChanged();
+        }
+    public async Task FilterDatasetsList (string _datasetsListFilter)
+        {
+        lstSetData = lstSetData.Where(d => d.DatasetName?.Contains(_datasetsListFilter, StringComparison.OrdinalIgnoreCase) == true).ToList();
+        StateHasChanged();
+        }
+    public async Task BtnReportDatasets (string Id)
+        {
+        //
+        }
+    private async Task BtnCreateNoteForDatasets (string refId)
+        {
+        //refTypes: 1:ApgGroup 2:Order 3 ّFamily 4:Genus 5:Species 6:DatasetFL 7:DatasetCN 8:DatasetLM 9:Station 10:Set 11:SetData 12:Section 13:User'sNote
+        // appState.SetNoteRefId(refId);
+        // appState.SetNoteRefType(5);
+        // appState.SetCmd("cmdCreateNote");
+        // StateHasChanged();
+        //--After the Modal_CreateNote is closed, HandleModalClose will refresh the list
+        //--to handel close event, I added in the Modal_CreateNote: [Parameter] public EventCallback OnClose
+        }
+    private async Task BtnAnalysisForThisSet (int setId)
+        {
+        //
+        }
+    private async Task BtnRemoveThisDataset (SetData _setData)
+        {
+        var message = new MarkupString($"<hr><span style='color:indianred'>Remove</span> ' {_setData.DatasetName} ' ?<br><br>Notice:<br>This <span style='font-weight:bold'>Dataset</span> will be <span style='color:indianred'> removed from this set</span>!<br><br><div style='text-align:center'><img src='/img/icodelete1.png' width='50'/></div><br><hr>");
+        bool? confirmResult = await DialogService.ShowMessageBoxAsync(title: "Confirm", markupMessage: message, yesText: "Yes", cancelText: "No");
+        if (confirmResult == true)
+            {
+            bool result = await feService.Delete_SetData(_setData.SetDataId);
+            if (result)
+                {
+                Snackbar.Add("item deleted", Severity.Warning, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+                lstSetData = await feService.Read_SetData(_setData.SetId);
+                _cmd2 = "";
+                StateHasChanged();
+                }
+            }
+        }
+    private async Task CloseDatasetsList ()
+        {
+        _cmd = "cmdListSetData";
+        _cmd2 = "";
+        lstDatasets = new();
+        }
+    public async Task FilterDatasets (string _datasetFilter)
+        {
+        lstDatasets = new();
+        lstDatasets = await feService.Read_Datasets(user.UserId, 1);
+        lstDatasets = lstDatasets.Where(d => d.DatasetName?.Contains(_datasetFilter, StringComparison.OrdinalIgnoreCase) == true).ToList();
+        StateHasChanged();
+        }
+    public async Task BtnAddDatasetsToSet (int setId)
+        {
+        if (set != null)
+            {
+            _cmd2 = (_cmd2 == "AddDatasetsToThisSet") ? "" : "AddDatasetsToThisSet";
+            if (_cmd != "")
+                lstSets.FirstOrDefault(set2 => set2.SetId == set.SetId)?.IsSelected = true;
+            _setId = setId;
+            StateHasChanged();
+            }
+        else
+            {
+            Snackbar.Add("Select a Set first", Severity.Warning);
+            }
+        }
+    public async Task AddSelectedDatasetsToSet (int setId)
+        {
+        if (set != null)
+            {
+            foreach (Dataset _dataset in lstDatasets)
+                {
+                if (_dataset.IsSelected)
+                    {
+                    SetData _setdata = new SetData()
+                        {
+                        SetDataId = 0,
+                        SetId = setId,
+                        DatasetId = _dataset.DatasetId,
+                        Subsets = 0
+                        };
+                    bool result = await feService.Create_SetData(_setdata);
+                    }
+                }
+            _cmd2 = "";
+            await BtnListSetData(setId, false);
+            StateHasChanged();
+            }
+        else
+            {
+            Snackbar.Add("Select a Set first", Severity.Warning);
+            }
+        }
+    //methods
+    public string PersianDate (DateTimeOffset? dt)
+        {
+        if ((Convert.ToInt32(appState.UserTags) & 256) == 256)
+            {
+            return feService.ToPersianDate(dt.ToString());
+            }
+        else
+            {
+            return dt?.ToString("yyyy-MM-dd HH:mm");
+            }
+        }
+    private async Task HandleModalClose ()
+        {
+        _hasFetched = false;
+        lstSetData.Clear();
+        lstSets = await feService.Read_Sets(user.UserId);
+        _hasFetched = true;
+        StateHasChanged();
+        }
+    private async Task OnAnalysisModeChanged (int newValue)
+        {
+        var oldValue = _analysisModeId;
+        _analysisModeId = newValue;
+        StateHasChanged();
+        }
+
+    }

@@ -394,7 +394,7 @@ else
                                            Margin="Margin.Dense"
                                            Adornment="Adornment.End"
                                            AdornmentIcon="@Icons.Material.Filled.List"
-                                           OnAdornmentClick='() => OnDatasetLMChanged(_datasetLMId)'
+                                           OnAdornmentClick='() => BtnListSpeciesOfDatasetsLM(_datasetLMId)'
                                            Style="color:royalblue;width:140px;font-size:small;">
                                     <MudSelectItem Value="0">select</MudSelectItem>
                                     @foreach (var datasetLM in lstDatasetsLM)
@@ -581,9 +581,9 @@ else
                                         <img src="/img/icoAdd1.png" width="16" />
                                         </button>
                                     }
-                                <span style="font-size:smaller">@species.SciName </span>                                 
+                                <span style="font-size:smaller">@species.SciName </span>
                                 <span style="font-size:smaller;color:forestgreen">&nbsp; @((species.NomStatus == 1) ? " valid " : "") </span>
-                                <span style="font-size:smaller;color:darkgoldenrod">&nbsp; @((species.TaxStatus == 1)? " accepted " : "") </span>
+                                <span style="font-size:smaller;color:darkgoldenrod">&nbsp; @((species.TaxStatus == 1) ? " accepted " : "") </span>
                                 </div>
                             }
                         </MudCardContent>
@@ -867,20 +867,25 @@ else
         {
         var oldValue = _datasetLMId;
         _datasetLMId = newValue;
-        _SpeciesListType = "";
-        lstSpecies = new();
-        // if (_datasetLMId != 0)
-        //     {
-        //     var message = new MarkupString($"<hr><span style='color:indianred'>Show</span> Species in this Dataset?<br><br> <div style='text-align:center'><img src='/img/icoList1.png' width='40'/></div><br><hr>");
-        //     bool? confirmResult = await DialogService.ShowMessageBox(title: "Confirm", markupMessage: message, yesText: "Yes", cancelText: "No");
-        //     if (confirmResult == true)
-        //         {
-        //         }
-        //     }
-        appState.SetDatasetName(_datasetLMName);
-        lstSpecies = await feService.Read_SpeciesByDatasetId(3, _datasetLMId);
-        _SpeciesListType = "Dataset";
-        StateHasChanged();
+        /*
+        NOTICE:
+        Let species list be shown after user clicked 'AdornmentIcon List', and not automatically. (see: BtnListSpeciesOfDatasetsLM)
+        but if you prefer auto list, then CHANGE the code line ~420: OnAdornmentClick='() => BtnSearchDatasetsFL()' and UNCOMMENT the code below
+        if (_datasetLMId != 0)
+            {
+            var message = new MarkupString($"<hr><span style='color:indianred'>Show</span> Species in this Dataset?<br><br> <div style='text-align:center'><img src='/img/icoList1.png' width='40'/></div><br><hr>");
+            bool? confirmResult = await DialogService.ShowMessageBoxAsync(title: "Confirm", markupMessage: message, yesText: "Yes", cancelText: "No");
+            if (confirmResult == true)
+                {
+                _SpeciesListType = "";
+                lstSpecies = new();
+                appState.SetDatasetName(_datasetLMName);
+                lstSpecies = await feService.Read_SpeciesByDatasetId(3, _datasetLMId);
+                _SpeciesListType = "Dataset";
+                StateHasChanged();
+                }
+            }
+         */
         }
     private async Task BtnListSpeciesOfDatasetsLM (int datasetLMId)
         {

@@ -685,9 +685,9 @@ namespace AlamutB.Service
                 return false;
                 }
             }
-        public async Task<List<SetData>> Read_SetDatas (int setId)
+        public async Task<List<SetData>> Read_SetData (int setId)
             {
-            var response = await _http.PostAsJsonAsync ("api/Read_SetDatas", setId);
+            var response = await _http.PostAsJsonAsync ("api/Read_SetData", setId);
             if (response.IsSuccessStatusCode)
                 {
                 List<SetData> lstSetDatas = await response.Content.ReadFromJsonAsync<List<SetData>> ();

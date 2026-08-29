@@ -2238,7 +2238,7 @@ namespace AlamutB.Services2Backend
         #region SETDATA
         public async Task<bool> Create_SetDataAsync (SetData setData)
             {
-            string sql = "BS.Create_SetData";
+            string sql = "DT.Create_SetData";
             string? connstring = _config.GetConnectionString ("cnni");
             using SqlConnection cnn = new SqlConnection (connstring);
             try
@@ -2262,7 +2262,7 @@ namespace AlamutB.Services2Backend
         public async Task<List<SetData>> Read_SetDataAsync (int setId)
             {
             string? connString = _config.GetConnectionString ("cnni");
-            string sql = "BS.Read_SetData";
+            string sql = "DT.Read_SetData";
             using SqlConnection cnn = new (connString);
             try
                 {
@@ -2280,6 +2280,7 @@ namespace AlamutB.Services2Backend
                         SetId = reader.GetInt32 (1),
                         DatasetId = reader.GetInt32 (2),
                         Subsets = reader.GetInt32 (3),
+                        DatasetName = reader.GetString (4)
                         });
                     }
                 await cnn.CloseAsync ();
@@ -2294,7 +2295,7 @@ namespace AlamutB.Services2Backend
             }
         public async Task<bool> Update_SetDataAsync (SetData setData)
             {
-            string sql = "BS.Update_SetData";
+            string sql = "DT.Update_SetData";
             string? connstring = _config.GetConnectionString ("cnni");
             using SqlConnection cnn = new SqlConnection (connstring);
             try
@@ -2319,7 +2320,7 @@ namespace AlamutB.Services2Backend
         public async Task<bool> Delete_SetDataAsync (int setDataId)
             {
             string? connString = _config.GetConnectionString ("cnni");
-            string sql = "BS.Delete_SetData";
+            string sql = "DT.Delete_SetData";
             using SqlConnection cnn = new (connString);
             try
                 {

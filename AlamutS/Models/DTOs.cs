@@ -271,6 +271,7 @@ namespace AlamutS.Models
         public string SetName { get; set; } = "";
         public int SetTags { get; set; } = 0;
         public bool IsSelected { get; set; } = false;
+        public int SelectedSubset { get; set; } = 0;
         }
     public class SetData
         {
@@ -278,6 +279,64 @@ namespace AlamutS.Models
         public int SetId { get; set; } = 0;
         public int DatasetId { get; set; } = 0;
         public int Subsets { get; set; } = 0;
+        public string? DatasetName { get; set; } = "";
+        public bool Subset1
+            {
+            get => (Subsets & 1) == 1;
+            set
+                {
+                if (value)
+                    Subsets |= 1;
+                else
+                    Subsets &= ~1;
+                }
+            }
+        public bool Subset2
+            {
+            get => (Subsets & 2) == 2;
+            set
+                {
+                if (value)
+                    Subsets |= 2;
+                else
+                    Subsets &= ~2;
+                }
+            }
+        public bool Subset3
+            {
+            get => (Subsets & 4) == 4;
+            set
+                {
+                if (value)
+                    Subsets |= 4;
+                else
+                    Subsets &= ~4;
+                }
+            }
+        public bool Subset4
+            {
+            get => (Subsets & 8) == 8;
+            set
+                {
+                if (value)
+                    Subsets |= 8;
+                else
+                    Subsets &= ~8;
+                }
+            }
+        public bool Subset5
+            {
+            get => (Subsets & 16) == 16;
+            set
+                {
+                if (value)
+                    Subsets |= 16;
+                else
+                    Subsets &= ~16;
+                }
+            }
+
+        public bool IsSelected { get; set; } = false;
         }
     public class Note
         {

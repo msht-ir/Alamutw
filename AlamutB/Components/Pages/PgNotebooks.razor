@@ -725,7 +725,7 @@ else
     private async Task BtnDeleteNotebook (int NotebookId)
         {
         var message = new MarkupString($"<hr><span style='color:indianred'>CAUTION!!!<br><br>Delete</span> notebook <span style='color:royalblue'>{notebook.NotebookName}</span> ?<br><br><span style='font-weight:bold'>All</span> sections and notes in this notebook<br><br>will be <span style='color:indianred'>deleted</span>!<br><br><div style='text-align:center'><img src='/img/icoDelete1.png' width='70'/></div><br><hr>");
-        bool? confirmResult = await DialogService.ShowMessageBox(title: "Confirm", markupMessage: message, yesText: "Yes", cancelText: "No");
+        bool? confirmResult = await DialogService.ShowMessageBoxAsync(title: "Confirm", markupMessage: message, yesText: "Yes", cancelText: "No");
         if (confirmResult == true)
             {
             bool result = await feService.Delete_Notebook(NotebookId);
@@ -861,7 +861,7 @@ else
         {
         appState.SetNotebookId(section.NotebookId);
         var message = new MarkupString($"<hr><span style='color:indianred'>Delete</span> section <span style='color:royalblue'>{section.SectionName}</span> ?<br><br><span style='font-weight:bold'>All</span> notes in this section will also be <span style='color:indianred'>deleted</span>!<br><br><div style='text-align:center'><img src='/img/icoDelete1.png' width='70'/></div><br><hr>");
-        bool? confirmResult = await DialogService.ShowMessageBox(title: "Confirm", markupMessage: message, yesText: "Yes", cancelText: "No");
+        bool? confirmResult = await DialogService.ShowMessageBoxAsync(title: "Confirm", markupMessage: message, yesText: "Yes", cancelText: "No");
         if (confirmResult == true)
             {
             bool result = await feService.Delete_Section(section.SectionId);
@@ -1012,7 +1012,7 @@ else
     public async Task BtnCopyToStickyNotes (Note note, Section section)
         {
         var message = new MarkupString($"<hr><span style='color:DarkGreen'>COPY</span> this note to Quick-Notes?<br><br><div style='text-align:center'><img src='/img/icoNoteStickyCopyTo.png' width='70'/></div><br><hr>");
-        bool? confirmResult = await DialogService.ShowMessageBox(title: "Confirm", markupMessage: message, yesText: "Yes", cancelText: "No");
+        bool? confirmResult = await DialogService.ShowMessageBoxAsync(title: "Confirm", markupMessage: message, yesText: "Yes", cancelText: "No");
         if (confirmResult == true)
             {
             appState.SetNotebookId(section.NotebookId);
@@ -1043,7 +1043,7 @@ else
     public async Task BtnRemoveDueNoteTag (Note note)
         {
         var message = new MarkupString($"<hr><span style='color:indianred'>Remove</span> reminder of this note?<br><br><span style='font-weight:bold'>Notice:<br> This note</span> will not be <span style='color:indianred'> reminded</span>!<br><br><div style='text-align:center'><img src='/img/icoOff.png' width='50'/></div><br><hr>");
-        bool? confirmResult = await DialogService.ShowMessageBox(title: "Confirm", markupMessage: message, yesText: "Yes", cancelText: "No");
+        bool? confirmResult = await DialogService.ShowMessageBoxAsync(title: "Confirm", markupMessage: message, yesText: "Yes", cancelText: "No");
         if (confirmResult == true)
             {
             appState.SetNoteRefId(note.RefId);
@@ -1063,7 +1063,7 @@ else
     public async Task BtnDeleteNote (Note note)
         {
         var message = new MarkupString($"<hr><span style='color:indianred'>Delete</span> this note?<br><br><span style='font-weight:bold'>This note</span> will be <span style='color:indianred'>deleted</span>!<br><br><div style='text-align:center'><img src='/img/icoDelete1.png' width='70'/></div><br><hr>");
-        bool? confirmResult = await DialogService.ShowMessageBox(title: "Confirm", markupMessage: message, yesText: "Yes", cancelText: "No");
+        bool? confirmResult = await DialogService.ShowMessageBoxAsync(title: "Confirm", markupMessage: message, yesText: "Yes", cancelText: "No");
         if (confirmResult == true)
             {
             appState.SetNoteRefId(note.RefId);

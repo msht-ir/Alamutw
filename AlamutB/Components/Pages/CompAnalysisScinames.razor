@@ -1,0 +1,28 @@
+﻿@using System.Globalization
+@using AlamutB.Service
+@using System.Threading.Tasks
+@inject FeService feService
+@inject NavigationManager Navman
+@inject AppState appState
+@inject IJSRuntime JS
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<h5 style="text-align:center;padding-left:15px;">Families - <span style="font-size:smaller;text-align:center;color:indianred">@appState.UserNickname</span></h5>
+<hr style="color:red" />
+    @if (!_hasFetched)
+    {
+    <_ScanSheets />
+    }
+else
+    {
+        <EditForm Model="user">
+
+        </EditForm>
+    }
+<br />
+
+@code {
+    public bool _hasFetched = false;
+    User user = new User();
+    }

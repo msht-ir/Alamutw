@@ -40,6 +40,7 @@ else
                     <MudCard Class="mx-0">
                         <MudCardContent Style="background-color:rgba(249,249,249);">
                         <h6 style="text-align:center;color:royalblue">Dataset<span style="font-size:x-small;color:indianred"> ( @lstDatasets.Count() )</span></h6>
+                        @* FILTER *@
                             <div class="d-flex">
                             <MudTextField @ref="refFilterDatasets"
                                           @bind-Value="_datasetFilter"
@@ -191,20 +192,7 @@ else
 <script>window.scrollToTop = () => { window.scrollTo({ top: 0, behavior: 'smooth' }); };</script>
 
 @code {
-    [Parameter]
-    public int mode
-        {
-        get; set;
-        }
-    [Parameter]
-    public int Id
-        {
-        get; set;
-        }
-    string _cmd = "";
     User user = new User();
-    List<Dataset> lstDatasets = new List<Dataset>();
-    public bool _hasFetched = false;
 
     //species
     public MudTextField<string> refFilterSpeciesList;
@@ -215,10 +203,14 @@ else
     private string _speciesListFilter = "";
 
     public MudTextField<string> refFilterDatasets;
+    List<Dataset> lstDatasets = new List<Dataset>();
     Dataset dataset = new Dataset();
     private int _datasetId = 0;
     private string _datasetName = "";
     private string _datasetFilter = "";
+
+    string _cmd = "";
+    public bool _hasFetched = false;
 
     //LifeCycleEvents
     protected override async Task OnInitializedAsync ()

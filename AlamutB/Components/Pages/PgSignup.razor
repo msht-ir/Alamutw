@@ -121,7 +121,7 @@
                        EndIcon="@Icons.Material.Filled.Cancel"
                        Size="Size.Small"
                        OnClick="@(() => BtnCancel())"
-                       Style="color:indianred">Cancel </MudButton>
+                       Style="color:indianred">Back </MudButton>
             </div>
         </EditForm>
     </div>
@@ -253,7 +253,7 @@
                     <strong>' {user.Username} '</strong> account if your account is activated.
                     <hr style=color:blue>
                     ");
-                bool? confirmResult = await DialogService.ShowMessageBox(title: "Alamut accounts", markupMessage: message, yesText: "OK");
+                bool? confirmResult = await DialogService.ShowMessageBoxAsync(title: "Alamut accounts", markupMessage: message, yesText: "OK");
                 if (confirmResult == true)
                     {
                     Navman.NavigateTo("/Login");

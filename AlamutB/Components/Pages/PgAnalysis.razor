@@ -12,13 +12,17 @@
 
 <h5 style="text-align:center;padding-left:15px;">Analysis - <span style="font-size:smaller;text-align:center;color:indianred">@appState.UserNickname</span></h5>
 <hr style="color:red" />
-    @if (!_hasFetched)
+@if (!_hasFetched)
     {
     <_ScanSheets />
     }
+else if (appState.Cmd == "cmdCreateNote")
+    {
+    <Modal_CreateNote />
+    }
 else
     {
-        <div style="text-align: left; margin:15px;">
+        <div style="text-align: left; margin:10px;">
         <MudIconButton OnClick="BtnBack"
                        Icon="@Icons.Material.Filled.Menu"
                        Color="Color.Primary"
@@ -26,47 +30,96 @@ else
                        Title="Switchboard" />
         </div>
     <hr />
-        <EditForm Model="lstNotes">
-        @if (appState.Cmd == "ShowNoteInDialog")
-            {
-            <Modal_ShowNote OnClose="HandleModalClose" />
-            }
-        else
-            {
-
-            }
+        <EditForm Model="user">
+            <MudStack Row
+                  Justify="Justify.SpaceBetween"
+                  AlignItems="AlignItems.Start"
+                  Style="width:980px;"
+                  Breakpoint="Breakpoint.SmAndDown">
+            @* Pannel Left *@
+                <MudStack>
+                <MudText Style="color:indianred;">Analyses</MudText>
+                    <MudToggleGroup T="String"
+                                SelectionMode="SelectionMode.SingleSelection"
+                                @bind-Value="_analysis"
+                                @bind-Value:after="() => BtnAnalysisSelected(_analysis)"
+                                Color="Color.Primary"
+                                CheckMark FixedContent Vertical>
+                    <MudToggleItem Value=@("fvalue")
+                                   Text="F-Value" />
+                    <MudToggleItem Value=@("diversity")
+                                   Text="Diversity" />
+                    <MudToggleItem Value=@("floran")
+                                   Text="FlorAn" />
+                    <MudToggleItem Value=@("multivarfloran")
+                                   Text="MultiFlorAn" />
+                    <MudToggleItem Value=@("comparesets")
+                                   Text="Compare Sets" />
+                    <MudToggleItem Value=@("cooccurence")
+                                   Text="Cooccurence" />
+                    <MudToggleItem Value=@("climagraph")
+                                   Text="ClimaGraph" />
+                    <MudToggleItem Value=@("multivarcliman")
+                                   Text="MultivarClimAn" />
+                    <MudToggleItem Value=@("help")
+                                   Text="Guid" />
+                    </MudToggleGroup>
+                </MudStack>
+            @* Pannel Right *@
+                <MudStack Style="width:740px;margin-top:30px">
+                @if (_cmd == "help")
+                    {
+                    <CompInfoTech />
+                    }
+                else if ((_cmd == "fvalue") || (_cmd == "floran") || (_cmd == "diversity") || (_cmd == "comparesets") || (_cmd == "multivarfloran"))
+                    {
+                    <CompAnalysisSets />
+                    }
+                else if (_cmd == "cooccurence")
+                    {
+                    }
+                else if ((_cmd == "climagraph") || (_cmd == "multivarcliman"))
+                    {
+                    }
+                else if (_cmd == "")
+                    {
+                        <div class="d-flex justify-content-center">
+                        <img src="/img/gifUserLogin.gif" width="52" />
+                        </div>
+                    }
+                </MudStack>
+            </MudStack>
         </EditForm>
+    <br />
+    <hr />
+        <div class="gap-4" style="display: flex;  justify-content: center; align-items: center;">
+        <MudIconButton OnClick="BtnBack"
+                       Icon="@Icons.Material.Filled.Menu"
+                       Color="Color.Primary"
+                       Size="Size.Large"
+                       Title="Switchboard" />
+            <button class="btn btn-link pulse-hover" @onclick="ScrollToTop">
+            <img src="/img/icoGotoTop2.png" width="32" />
+            </button>
+        </div>
     }
-<br />
-<br />
-
     <script>
     window.scrollToTop = () => { window.scrollTo({ top: 0, behavior: 'smooth' }); };
     </script>
 
 
 @code {
-    [Parameter]
-    public int mode
-        {
-        get; set;
-        }
-    [Parameter]
-    public int Id
-        {
-        get; set;
-        }
-    private MudSelect<int> refNotebooks;
-    private MudSelect<int> refSections;
-    int NotebookId = 0;
-    int SectionId = 0;
-    string _cmd = "";
-
+    private string _analysis = "";
     User user = new User();
-    List<Note> lstNotes = new List<Note>();
-    List<Notebook> lstNotebooks = new List<Notebook>();
-    List<Section> lstSections = new List<Section>();
-    string _ShowNotebooksMode = "active";
+
+    public MudTextField<string> refFilterDatasets;
+    List<Dataset> lstDatasets = new List<Dataset>();
+    Dataset dataset = new Dataset();
+    private int _datasetId = 0;
+    private string _datasetName = "";
+    private string _datasetFilter = "";
+
+    string _cmd = "";
     public bool _hasFetched = false;
 
     //LifeCycleEvents
@@ -90,17 +143,15 @@ else
         {
         appState.OnChange -= TriggerRender;
         }
+
     //btns
-    private void BtnCancel ()
+    public void BtnAnalysisSelected (string _analysisName)
         {
-        _cmd = "";
+        _cmd = _analysisName;
         StateHasChanged();
         }
-    public void BtnBack ()
-        {
-        Navman.NavigateTo("/Switchboard");
-        }
-    //convert date
+
+    //methods
     public string PersianDate (DateTimeOffset? dt)
         {
         if ((Convert.ToInt32(appState.UserTags) & 256) == 256)
@@ -112,13 +163,30 @@ else
             return dt?.ToString("yyyy-MM-dd HH:mm");
             }
         }
-    //methods
     private async Task HandleModalClose ()
         {
         _hasFetched = false;
-        lstNotes.Clear();
-        lstNotes = await feService.Read_Notes(12, Id);
+        //
         _hasFetched = true;
         StateHasChanged();
         }
+    private void BtnCancel ()
+        {
+        _cmd = "";
+        StateHasChanged();
+        }
+    public void BtnHelp ()
+        {
+        _cmd = _cmd == "help" ? "" : "help";
+        StateHasChanged();
+        }
+    private async Task ScrollToTop ()
+        {
+        await JS.InvokeVoidAsync("scrollToTop");
+        }
+    public void BtnBack ()
+        {
+        Navman.NavigateTo("/Switchboard");
+        }
+
     }

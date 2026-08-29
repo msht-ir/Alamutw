@@ -31,18 +31,9 @@
                 <button class="btn btn-link pulse-hover" @onclick='() => GotoPage("SET")'>
                 <img src="/img/icoSets1.png" width="44" title="Sets" />
                 </button>
-            @if (Convert.ToInt32(appState.UserTags & 128) == 128)
-                {
-                    <button class="btn btn-link pulse-hover" @onclick='() => GotoPage("ADM")'>
-                    <img src="/img/icoAdmin.png" width="46" title="Settings" />
-                    </button>
-                }
-            else
-                {
-                    <button class="btn btn-link pulse-hover" @onclick='() => GotoPage("STT")'>
-                    <img src="/img/icoSettings1.png" width="46" title="Settings" />
-                    </button>
-                }
+                <button class="btn btn-link pulse-hover" @onclick='() => GotoPage("ANL")'>
+                <img src="/img/icoChartPie1.png" width="40" title="Analysis" />
+                </button>
             </div>
         <br />
         <br />
@@ -60,9 +51,18 @@
                 <button class="btn btn-link pulse-hover" @onclick='() => GotoPage("APL")'>
                 <img src="/img/icoPrompt1.png" width="38" title="APL" />
                 </button>
-                <button class="btn btn-link pulse-hover" @onclick='() => GotoPage("ANL")'>
-                <img src="/img/icoChartPie1.png" width="44" title="Analysis" />
-                </button>
+            @if (Convert.ToInt32(appState.UserTags & 128) == 128)
+                {
+                    <button class="btn btn-link pulse-hover" @onclick='() => GotoPage("ADM")'>
+                    <img src="/img/icoAdmin.png" width="46" title="Settings" />
+                    </button>
+                }
+            else
+                {
+                    <button class="btn btn-link pulse-hover" @onclick='() => GotoPage("STT")'>
+                    <img src="/img/icoSettings1.png" width="46" title="Settings" />
+                    </button>
+                }
             </div>
         <br />
         <br />

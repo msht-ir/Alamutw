@@ -1,0 +1,139 @@
+﻿@using System.Globalization
+@using AlamutB.Service
+@using System.Threading.Tasks
+@inject FeService feService
+@inject NavigationManager Navman
+@inject AppState appState
+@inject IJSRuntime JS
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+    @if (!_hasFetched)
+    {
+    <_ScanSheets />
+    }
+else
+    {
+    @* ADD DATASETS To SET *@
+        <MudContainer MaxWidth="MaxWidth.Large" Class="mt-2 px-0">
+            <MudCard Class="mx-0">
+                <MudCardContent Style="background-color:rgba(245,245,245);">
+                <h6 style="text-align:center;color:royalblue">Datasets <span style="font-size:x-small;color:indianred"> ( @lstDatasets.Count() )</span></h6>
+                @* FILTER *@
+                    <div class="d-flex">
+                    <MudTextField @ref="refFilterDatasets"
+                                  @bind-Value="_datasetFilter"
+                                  Label="search datasets"
+                                  Variant="Variant.Text"
+                                  Margin="Margin.Dense"
+                                  Autocomplete="off"
+                                  Adornment="Adornment.End"
+                                  AdornmentIcon="@Icons.Material.Filled.Search"
+                                  OnAdornmentClick="@(() => FilterDatasets (_datasetFilter))"
+                                  Class="my-textfield" />
+                        <button class="btn btn-link" style="margin-left:20px;" Title="show all" @onclick="BtnShowAllDatasets">
+                        <img src="/img/icoList1.png" width="20" />
+                        </button>
+                        <button class="btn btn-link pulse-hover" @onclick="ReturnSelectedDatasets">
+                        <img src="/img/icoChartPie1.png" width="22" />
+                        </button>
+                    </div>
+                @foreach (Dataset dataset in lstDatasets)
+                    {
+                        <div class="d-flex align-items-center mb-1">
+                        @* Select *@
+                        <input class="form-check-input"
+                               style="margin-left:1px;margin-right:1px;"
+                               type="checkbox"
+                               @bind="dataset.IsSelected" />
+                        <span style="font-size:small; margin-left:10px;">@dataset.DatasetName</span>
+                        </div>
+                    }
+                <hr style="color:royalblue;margin-top:50px" />
+                @* ScrollToTop *@
+                    <div class="d-flex justify-content-center">
+                        <button class="btn btn-link pulse-hover" @onclick="ScrollToTop">
+                        <img src="/img/icoGotoTop2.png" width="26" />
+                        </button>
+                    </div>
+                </MudCardContent>
+            </MudCard>
+        </MudContainer>
+    }
+<br />
+
+@code {
+    public bool _hasFetched = false;
+    User user = new User();
+
+    private MudTextField<string> refSet;
+    string _setText = "";
+    public MudTextField<string> refFilterDatasets;
+    public MudTextField<string> refFilterSets;
+
+    //Datasets
+    private string _datasetFilter = "";
+    List<Dataset> lstDatasets = new();
+    Dataset dataSet = new Dataset();
+    string _cmd = "";
+
+    //LifeCycleEvents
+    protected override async Task OnInitializedAsync ()
+        {
+        appState.OnChange += TriggerRender;
+        appState.SetCmd("");
+        user.UserId = Convert.ToInt32(appState.UserId);
+        user.Username = appState.Username;
+        _hasFetched = true;
+        }
+    private void TriggerRender ()
+        {
+        InvokeAsync(StateHasChanged);
+        }
+    public void Dispose ()
+        {
+        appState.OnChange -= TriggerRender;
+        }
+
+    //List Datasets
+    public async Task BtnShowAllDatasets ()
+        {
+        lstDatasets = await feService.Read_Datasets(user.UserId, 1);
+        StateHasChanged();
+        }
+    private async Task ScrollToTop ()
+        {
+        await JS.InvokeVoidAsync("scrollToTop");
+        }
+    private async Task ReturnSelectedDatasets ()
+        {
+        _cmd = "";
+        lstDatasets = new();
+        }
+    public async Task FilterDatasets (string _datasetFilter)
+        {
+        lstDatasets = new();
+        lstDatasets = await feService.Read_Datasets(user.UserId, 1);
+        lstDatasets = lstDatasets.Where(d => d.DatasetName?.Contains(_datasetFilter, StringComparison.OrdinalIgnoreCase) == true).ToList();
+        StateHasChanged();
+        }
+    //methods
+    public string PersianDate (DateTimeOffset? dt)
+        {
+        if ((Convert.ToInt32(appState.UserTags) & 256) == 256)
+            {
+            return feService.ToPersianDate(dt.ToString());
+            }
+        else
+            {
+            return dt?.ToString("yyyy-MM-dd HH:mm");
+            }
+        }
+    private async Task HandleModalClose ()
+        {
+        _hasFetched = false;
+        _hasFetched = true;
+        StateHasChanged();
+        }
+
+    }
