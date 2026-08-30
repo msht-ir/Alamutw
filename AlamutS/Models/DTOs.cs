@@ -198,6 +198,8 @@ namespace AlamutS.Models
         public string LineString { get; set; } = "";
         public string ParsedGenus { get; set; } = "";
         public string ParsedEpithet { get; set; } = "";
+        public string SciName { get; set; } = "";
+        public bool IsSelected { get; set; } = false;
         }
     public class StationData
         {

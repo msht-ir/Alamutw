@@ -1547,9 +1547,14 @@ namespace AlamutB.Services2Backend
                         LineString = reader.GetString (4),
                         ParsedGenus = reader.GetString (5),
                         ParsedEpithet = reader.GetString (6),
+                        SciName = reader.GetString (7)
                         });
                     }
                 await cnn.CloseAsync ();
+                foreach (DatasetData dsd in lstDatasetData)
+                    {
+                    Console.WriteLine ($"SpeciesId={dsd.SpeciesId} , SciName={dsd.SciName}");
+                    }
                 return lstDatasetData;
                 }
             catch (Exception ex)

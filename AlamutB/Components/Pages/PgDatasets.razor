@@ -44,11 +44,11 @@ else
                             <div class="d-flex">
                             <MudTextField @ref="refFilterDatasets"
                                           @bind-Value="_datasetFilter"
-                                          Label="filter datasets"
+                                          Label="search datasets"
                                           Variant="Variant.Text"
                                           Margin="Margin.Dense"
                                           Autocomplete="off"
-                                          Adornment="Adornment.End"
+                                          Adornment="Adornment.Start"
                                           AdornmentIcon="@Icons.Material.Filled.Search"
                                           OnAdornmentClick="@(() => FilterDatasets (_datasetFilter))"
                                           Class="my-textfield" />
@@ -56,6 +56,8 @@ else
                                 <img src="/img/icoList1.png" width="20" />
                                 </button>
                             </div>
+                            <br />
+                            <br />
                         @foreach (Dataset dataset in lstDatasets)
                             {
                                 <div class="d-flex align-items-center mb-1">
@@ -89,6 +91,8 @@ else
                                     <img src="/img/icoNoteStickyAdd.png" width="22" />
                                     </button>
                                 <span style="font-size:small"> @dataset.DatasetName </span>
+                                &nbsp;
+                                <span style="color:indianred;font-size:x-small;font-weight:normal;"> &nbsp; (<span style="color:royalblue;font-size:x-small;font-weight:normal;"> @dataset.DatasetId </span>) </span>
                                 </div>
                             @if ((_cmd == "cmdEditDataset") && (dataset.DatasetId == _datasetId))
                                 {
@@ -116,11 +120,11 @@ else
                                             <div class="d-flex">
                                             <MudTextField @ref="refFilterSpeciesList"
                                                           @bind-Value="_speciesListFilter"
-                                                          Label="filter species"
+                                                          Label="search species"
                                                           Variant="Variant.Text"
                                                           Margin="Margin.Dense"
                                                           Immediate="true"
-                                                          Adornment="Adornment.End"
+                                                          Adornment="Adornment.Start"
                                                           AdornmentIcon="@Icons.Material.Filled.Search"
                                                           OnAdornmentClick='@(() => FilterSpeciesList(_speciesListFilter))'
                                                           Class="my-textfield" />
@@ -133,7 +137,8 @@ else
                                                 <img src="/img/icoList1.png" width="22" />
                                                 </button>
                                             </div>
-
+                                        <br />
+                                        <br />
                                         @foreach (Species species in lstSpecies)
                                             {
                                                 <div class="d-flex align-items-center mb-1" style=" margin-left:40px;">

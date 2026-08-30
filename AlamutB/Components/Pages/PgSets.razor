@@ -75,11 +75,11 @@ else
                             <div class="d-flex">
                             <MudTextField @ref="refFilterSets"
                                           @bind-Value="_setFilter"
-                                          Label="filter sets"
+                                          Label="search sets"
                                           Variant="Variant.Text"
                                           Margin="Margin.Dense"
                                           Autocomplete="off"
-                                          Adornment="Adornment.End"
+                                          Adornment="Adornment.Start"
                                           AdornmentIcon="@Icons.Material.Filled.Search"
                                           OnAdornmentClick="@(() => FilterSets (_setFilter))"
                                           Class="my-textfield" />
@@ -87,6 +87,8 @@ else
                                 <img src="/img/icoList1.png" width="20" />
                                 </button>
                             </div>
+                            <br />
+                            <br />
                         @foreach (Set set in lstSets)
                             {
                                 <div class="d-flex align-items-center mb-1">
@@ -189,11 +191,11 @@ else
                                             <div class="d-flex">
                                             <MudTextField @ref="refFilterDatasetsList"
                                                           @bind-Value="_datasetsListFilter"
-                                                          Label="filter datasets"
+                                                          Label="search datasets"
                                                           Variant="Variant.Text"
                                                           Margin="Margin.Dense"
                                                           Immediate="true"
-                                                          Adornment="Adornment.End"
+                                                          Adornment="Adornment.Start"
                                                           AdornmentIcon="@Icons.Material.Filled.Search"
                                                           OnAdornmentClick='@(() => FilterDatasetsList(_datasetsListFilter))'
                                                           Class="my-textfield" />
@@ -206,6 +208,8 @@ else
                                                 <img src="/img/icoList1.png" width="22" />
                                                 </button>
                                             </div>
+                                            <br />
+                                            <br />
                                             <table class="table table-borderless" style="margin-bottom: 0; border-collapse: collapse;">
                                                 <tr>
                                                 <th style="padding: 1px 1px;">Datasets</th>

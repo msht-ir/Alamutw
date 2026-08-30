@@ -38,7 +38,7 @@ else
                                    Class="w-auto my-select"
                                    Variant="Variant.Text"
                                    Margin="Margin.Dense"
-                                   Adornment="Adornment.End"
+                                   Adornment="Adornment.Start"
                                    AdornmentIcon="@Icons.Material.Filled.List"
                                    Style="color:royalblue;width:140px;font-size:small;">
                             <MudSelectItem Value="0">select</MudSelectItem>
@@ -106,7 +106,7 @@ else
                                        Class="w-auto my-select"
                                        Variant="Variant.Text"
                                        Margin="Margin.Dense"
-                                       Adornment="Adornment.End"
+                                       Adornment="Adornment.Start"
                                        AdornmentIcon="@Icons.Material.Filled.Search"
                                        OnAdornmentClick='@(() => BtnSearchOrders())'
                                        Style="color:royalblue;width:140px;font-size:small;">
@@ -191,7 +191,7 @@ else
                                        Class="w-auto my-select"
                                        Variant="Variant.Text"
                                        Margin="Margin.Dense"
-                                       Adornment="Adornment.End"
+                                       Adornment="Adornment.Start"
                                        AdornmentIcon="@Icons.Material.Filled.Search"
                                        OnAdornmentClick='@(() => BtnSearchFamilies())'
                                        Style="color:royalblue;width:140px;font-size:small;">
@@ -267,7 +267,7 @@ else
                                            Class="w-auto my-select"
                                            Variant="Variant.Text"
                                            Margin="Margin.Dense"
-                                           Adornment="Adornment.End"
+                                           Adornment="Adornment.Start"
                                            AdornmentIcon="@Icons.Material.Filled.List"
                                            OnAdornmentClick="@(() => BtnListSpeciesOfGenus(_genusId))"
                                            Style="color:royalblue;width:140px;font-size:small;">
@@ -289,7 +289,7 @@ else
                                            Class="w-auto my-select"
                                            Variant="Variant.Text"
                                            Margin="Margin.Dense"
-                                           Adornment="Adornment.End"
+                                           Adornment="Adornment.Start"
                                            AdornmentIcon="@Icons.Material.Filled.Search"
                                            OnAdornmentClick="@(() => BtnSearchGenera())"
                                            Style="color:royalblue;width:140px;font-size:small;">
@@ -362,7 +362,7 @@ else
                             </MudContainer>
 
                         }
-                    else if (_cmd == "cmdSearchDatasetsFL")
+                    else if (_cmd == "cmdSearchDatasets")
                         {
                         <MudTextField T="string"
                                       @ref="refSearchDataset"
@@ -392,7 +392,7 @@ else
                                            Class="w-auto my-select"
                                            Variant="Variant.Text"
                                            Margin="Margin.Dense"
-                                           Adornment="Adornment.End"
+                                           Adornment="Adornment.Start"
                                            AdornmentIcon="@Icons.Material.Filled.List"
                                            OnAdornmentClick='() => BtnListSpeciesOfDataset(_datasetId)'
                                            Style="color:royalblue;width:140px;font-size:small;">
@@ -414,9 +414,9 @@ else
                                            Class="w-auto my-select"
                                            Variant="Variant.Text"
                                            Margin="Margin.Dense"
-                                           Adornment="Adornment.End"
+                                           Adornment="Adornment.Start"
                                            AdornmentIcon="@Icons.Material.Filled.Search"
-                                           OnAdornmentClick='() => BtnSearchDatasetsFL()'
+                                           OnAdornmentClick='() => BtnSearchDatasets()'
                                            Style="color:royalblue;width:140px;font-size:small;">
                                     <MudSelectItem Value="0">select</MudSelectItem>
                                     @foreach (var dataset in lstDatasets)
@@ -478,15 +478,22 @@ else
                 </MudCard>
             </MudContainer>
         @* ---------------------------------------------------------------------------------- 6 LIST Species *@
-        @if (lstSpecies.Count > 0)
+        @if ((lstSpecies.Count > 0) || (lstDatasetData.Count > 0))
             {
                 <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-2 px-0">
                     <MudCard Class="mx-0">
                         <MudCardContent Style="background-color:rgba(249,249,249);">
-                        <h6 style="text-align:center;color:royalblue">@_SpeciesListType<span style="font-size:x-small;color:indianred"> ( @lstSpecies.Count() )</span></h6>
+                        @if (_SpeciesListType.StartsWith("Dataset"))
+                            {
+                            <h6 style="text-align:center;color:royalblue">@_SpeciesListType<span style="font-size:x-small;color:indianred"> ( Count @lstDatasetData.Count() )</span></h6>
+                            }
+                        else
+                            {
+                            <h6 style="text-align:center;color:royalblue">@_SpeciesListType<span style="font-size:x-small;color:indianred"> ( Count @lstSpecies.Count() )</span></h6>
+                            }
                         <hr style="color:indianred" />
                             <div class="d-flex gap-3 justify-content-center align-items-center" style="margin-top:15px;margin-bottom:15px;">
-                            <MudIconButton Icon="@Icons.Material.Filled.FilterList"
+                            <MudIconButton Icon="@Icons.Material.Filled.Search"
                                            Color="Color.Secondary"
                                            Size="Size.Medium"
                                            OnClick="BtnFilterSpeciesList"
@@ -523,7 +530,7 @@ else
                                 <div class="d-flex">
                                 <MudTextField @ref="refFilterSpeciesList"
                                               @bind-Value="_speciesListFilter"
-                                              Label="filter species"
+                                              Label="search species"
                                               Variant="Variant.Text"
                                               Margin="Margin.Dense"
                                               Immediate="true"
@@ -532,47 +539,73 @@ else
                                               OnAdornmentClick='@(() => FilterSpeciesList(_speciesListFilter))'
                                               Class="my-textfield" />
                                 </div>
+                            <br />
+                            <br />
                             }
-                        @foreach (Species species in lstSpecies)
+                        @if (_SpeciesListType.StartsWith("Dataset"))
                             {
-                                <div class="d-flex align-items-center mb-1">
-                                <input class="form-check-input"
-                                       style="margin-left:1px;margin-right:1px;"
-                                       type="checkbox"
-                                       @bind="species.IsSelected" />
-                                    <button type="button"
-                                        class="btn btn-link"
-                                        style="margin-left:1px"
-                                        @onclick='() => BtnReportSpecies(species.SpeciesId)'
-                                        Title="Edit Species">
-                                    <img src="/img/icoFolderS.png" width="22" />
-                                    </button>
-                                    <button type="button"
-                                        class="btn btn-link"
-                                        style="margin-left:1px"
-                                        @onclick='() => BtnShowSubspecies(species)'
-                                        Title="Show sub-Species">
-                                    <img src="/img/icoList1.png" width="24" />
-                                    </button>
-                                    <button type="button"
-                                        class="btn btn-link"
-                                        style="margin-left:1px"
-                                        @onclick='() => BtnCreateNoteForSpecies(species.SpeciesId)'
-                                        Title="Note for Species">
-                                    <img src="/img/icoNoteStickyAdd.png" width="22" />
-                                    </button>
-                                @if (_SpeciesListType.StartsWith("Dataset"))
-                                    {
+                            @foreach (DatasetData datasetData in lstDatasetData)
+                                {
+                                    <div class="d-flex align-items-center mb-1">
+                                    <input class="form-check-input"
+                                           style="margin-left:1px;margin-right:1px;"
+                                           type="checkbox"
+                                           @bind="species.IsSelected" />
                                         <button type="button"
                                             class="btn btn-link"
                                             style="margin-left:1px"
-                                            @onclick='@(() => BtnRemoveSpeciesFromDataset(species.SpeciesId))'
+                                            @onclick='() => BtnReportSpecies(datasetData.SpeciesId)'
+                                            Title="Edit Species">
+                                        <img src="/img/icoFolderS.png" width="22" />
+                                        </button>
+                                        <button type="button"
+                                            class="btn btn-link"
+                                            style="margin-left:1px"
+                                            @onclick='() => BtnCreateNoteForSpecies(datasetData.SpeciesId)'
+                                            Title="Note for Species">
+                                        <img src="/img/icoNoteStickyAdd.png" width="22" />
+                                        </button>
+                                        <button type="button"
+                                            class="btn btn-link"
+                                            style="margin-left:1px"
+                                            @onclick='@(() => BtnRemoveSpeciesFromDataset(datasetData.DatasetDataId))'
                                             Title="remove species from dataset">
                                         <img src="/img/icoDelete1.png" width="18" />
                                         </button>
-                                    }
-                                else
-                                    {
+                                    <span style="font-size:smaller">@datasetData.SciName </span>
+                                    </div>
+                                }
+                            }
+                        else
+                            {
+                            @foreach (Species species in lstSpecies)
+                                {
+                                    <div class="d-flex align-items-center mb-1">
+                                    <input class="form-check-input"
+                                           style="margin-left:1px;margin-right:1px;"
+                                           type="checkbox"
+                                           @bind="species.IsSelected" />
+                                        <button type="button"
+                                            class="btn btn-link"
+                                            style="margin-left:1px"
+                                            @onclick='() => BtnReportSpecies(species.SpeciesId)'
+                                            Title="Edit Species">
+                                        <img src="/img/icoFolderS.png" width="22" />
+                                        </button>
+                                        <button type="button"
+                                            class="btn btn-link"
+                                            style="margin-left:1px"
+                                            @onclick='() => BtnShowSubspecies(species)'
+                                            Title="Show sub-Species">
+                                        <img src="/img/icoList1.png" width="24" />
+                                        </button>
+                                        <button type="button"
+                                            class="btn btn-link"
+                                            style="margin-left:1px"
+                                            @onclick='() => BtnCreateNoteForSpecies(species.SpeciesId)'
+                                            Title="Note for Species">
+                                        <img src="/img/icoNoteStickyAdd.png" width="22" />
+                                        </button>
                                         <button type="button"
                                             class="btn btn-link"
                                             style="margin-left:1px"
@@ -580,11 +613,11 @@ else
                                             Title="add species to dataset">
                                         <img src="/img/icoAdd1.png" width="16" />
                                         </button>
-                                    }
-                                <span style="font-size:smaller">@species.SciName </span>
-                                <span style="font-size:smaller;color:forestgreen">&nbsp; @((species.NomStatus == 1) ? " valid " : "") </span>
-                                <span style="font-size:smaller;color:darkgoldenrod">&nbsp; @((species.TaxStatus == 1) ? " accepted " : "") </span>
-                                </div>
+                                    <span style="font-size:smaller">@species.SciName </span>
+                                    <span style="font-size:smaller;color:forestgreen">&nbsp; @((species.NomStatus == 1) ? " valid " : "") </span>
+                                    <span style="font-size:smaller;color:darkgoldenrod">&nbsp; @((species.TaxStatus == 1) ? " accepted " : "") </span>
+                                    </div>
+                                }
                             }
                         </MudCardContent>
                     </MudCard>
@@ -592,7 +625,6 @@ else
             }
         </div>
     @* ---------------------------------------------------------------------------------- FOOTER *@
-    <br />
     <br />
     <hr />
     <br />
@@ -602,11 +634,6 @@ else
                        Color="Color.Primary"
                        Size="Size.Large"
                        Title="Switchboard" />
-        <MudIconButton OnClick="BtnHelp"
-                       Icon="@Icons.Material.Filled.HelpCenter"
-                       Color="Color.Tertiary"
-                       Size="Size.Large"
-                       Title="Help" />
             <button class="btn btn-link pulse-hover" @onclick="ScrollToTop">
             <img src="/img/icoGotoTop2.png" width="32" />
             </button>
@@ -667,6 +694,9 @@ else
     public MudTextField<string> refFilterSpeciesList;
     List<Species> lstSpecies = new();
     Species species = new Species();
+    List<DatasetData> lstDatasetData = new();
+    DatasetData datasetdata = new DatasetData();
+
     private string _speciesId = "";
     private string _speciesName = "";
     private string _speciesListFilter = "";
@@ -862,7 +892,7 @@ else
         {
         //
         }
-    //DatasetLM
+    //Dataset
     private async Task OnDatasetChanged (int newValue)
         {
         var oldValue = _datasetId;
@@ -872,11 +902,11 @@ else
         Let species list be shown after user clicked 'AdornmentIcon List', and not automatically. (see: BtnListSpeciesOfDatasets)
         but if you prefer auto list, then CHANGE the code line ~420: OnAdornmentClick='() => BtnSearchDatasetsFL()' and UNCOMMENT the code below
         if (_datasetId != 0)
-            {
+        {
             var message = new MarkupString($"<hr><span style='color:indianred'>Show</span> Species in this Dataset?<br><br> <div style='text-align:center'><img src='/img/icoList1.png' width='40'/></div><br><hr>");
             bool? confirmResult = await DialogService.ShowMessageBoxAsync(title: "Confirm", markupMessage: message, yesText: "Yes", cancelText: "No");
             if (confirmResult == true)
-                {
+            {
                 _SpeciesListType = "";
                 lstSpecies = new();
                 appState.SetDatasetName(_datasetName);
@@ -885,13 +915,13 @@ else
                 StateHasChanged();
                 }
             }
-         */
+        */
         }
-    private async Task BtnListSpeciesOfDataset (int _datasetId)
+    private async Task BtnListSpeciesOfDataset (int datasetId)
         {
-        if (_datasetId != 0)
+        if (datasetId != 0)
             {
-            lstSpecies = await feService.Read_SpeciesByDatasetId(_datasetId);
+            lstDatasetData = await feService.Read_DatasetData(datasetId);
             _SpeciesListType = "Dataset: " + appState.DatasetName;
             StateHasChanged();
             }
@@ -932,7 +962,11 @@ else
                         {
                         DatasetDataId = 0,
                         DatasetId = datasetId,
-                        SpeciesId = spc.SpeciesId
+                        SpeciesId = spc.SpeciesId,
+                        Infraspecific = "",
+                        LineString = "",
+                        ParsedGenus = "",
+                        ParsedEpithet = ""
                         };
                     bool results = await feService.Create_DatasetData(datasetData);
                     counter++;
@@ -950,26 +984,26 @@ else
         }
     private async Task BtnRemoveSelectedSpeciesFromDataset (int datasetId)
         {
-        // int counter = 0;
-        // if (datasetId != 0)
-        //     {
-        //     foreach (Species spc in lstSpecies)
-        //         {
-        //         if (spc.IsSelected)
-        //             {
-        //             bool results = await feService.Delete_DatasetData(datasetId, spc.SpeciesId);
-        //             counter++;
-        //             }
-        //         }
-        //     Snackbar.Add($"{@counter} items removed from the dataset", Severity.Warning);
-        //     lstSpecies = await feService.Read_SpeciesByDatasetId(datasetId);
-        //     _SpeciesListType = "Dataset";
-        //     StateHasChanged();
-        //     }
-        // else
-        //     {
-        //     Snackbar.Add("Select a Dataset", Severity.Warning);
-        //     }
+        int counter = 0;
+        if (datasetId != 0)
+            {
+            foreach (DatasetData dsd in lstDatasetData)
+                {
+                if (dsd.IsSelected)
+                    {
+                    bool results = await feService.Delete_DatasetData(dsd.DatasetDataId);
+                    counter++;
+                    }
+                }
+            Snackbar.Add($"{@counter} items removed from the dataset", Severity.Warning);
+            lstDatasetData = await feService.Read_DatasetData(datasetId);
+            _SpeciesListType = "Dataset";
+            StateHasChanged();
+            }
+        else
+            {
+            Snackbar.Add("Select a Dataset", Severity.Warning);
+            }
         }
     private void BtnAddNewDataset ()
         {
@@ -1023,9 +1057,9 @@ else
         //RollBack of Component 'Dataset'
         _cmd = "";
         }
-    private async Task BtnSearchDatasetsFL ()
+    private async Task BtnSearchDatasets ()
         {
-        _cmd = "cmdSearchDatasetsFL";
+        _cmd = "cmdSearchDatasets";
         StateHasChanged();
         }
     //List Species
@@ -1052,8 +1086,16 @@ else
         }
     public async Task FilterSpeciesList (string _speciesListFilter)
         {
-        lstSpecies = lstSpecies.Where(s => s.SciName?.Contains(_speciesListFilter, StringComparison.OrdinalIgnoreCase) == true).ToList();
-        _SpeciesListType = "Filtered";
+        if (_SpeciesListType.StartsWith("Dataset"))
+            {
+            lstDatasetData = lstDatasetData.Where(s => s.SciName?.Contains(_speciesListFilter, StringComparison.OrdinalIgnoreCase) == true).ToList();
+            _SpeciesListType = "Dataset Filtered"; //keep 'Dataset' at start position, so List type can be recognized in the page-code above
+            }
+        else
+            {
+            lstSpecies = lstSpecies.Where(s => s.SciName?.Contains(_speciesListFilter, StringComparison.OrdinalIgnoreCase) == true).ToList();
+            _SpeciesListType = "Genus species List Filtered";
+            }
         StateHasChanged();
         }
     private async Task BtnAddSpeciesToDataset (string speciesId)
@@ -1065,7 +1107,11 @@ else
                 {
                 DatasetDataId = 0,
                 DatasetId = _datasetId,
-                SpeciesId = speciesId
+                SpeciesId = speciesId,
+                Infraspecific = "",
+                LineString = "",
+                ParsedGenus = "",
+                ParsedEpithet = ""
                 };
             bool results = await feService.Create_DatasetData(datasetData);
             counter++;
@@ -1079,20 +1125,20 @@ else
             Snackbar.Add("Select a Dataset", Severity.Warning);
             }
         }
-    private async Task BtnRemoveSpeciesFromDataset (string speciesId)
+    private async Task BtnRemoveSpeciesFromDataset (int datasetDataId)
         {
-        // if (_datasetId != 0)
-        //     {
-        //     bool results = await feService.Delete_DatasetData(_datasetId, speciesId);
-        //     Snackbar.Add($"item removed from the dataset", Severity.Warning);
-        //     lstSpecies = await feService.Read_SpeciesByDatasetId(_datasetId);
-        //     _SpeciesListType = "Dataset";
-        //     StateHasChanged();
-        //     }
-        // else
-        //     {
-        //     Snackbar.Add("Select a Dataset", Severity.Warning);
-        //     }
+        if (_datasetId != 0)
+            {
+            bool results = await feService.Delete_DatasetData(datasetDataId);
+            Snackbar.Add($"item removed from the dataset", Severity.Warning);
+            lstDatasetData = await feService.Read_DatasetData(_datasetId);
+            _SpeciesListType = "Dataset";
+            StateHasChanged();
+            }
+        else
+            {
+            Snackbar.Add("Select a Dataset", Severity.Warning);
+            }
         }
     public async Task BtnShowSubspecies (Species species)
         {
@@ -1111,14 +1157,6 @@ else
     public async Task BtnReportSpecies (string Id)
         {
 
-        }
-    public async Task BtnReadSpecies (string mode, int Id)
-        {
-        if (Id > 0)
-            {
-            lstSpecies = await feService.Read_Species(Id);
-            Snackbar.Add($"{lstSpecies.Count} species listed", Severity.Info);
-            }
         }
     //methods
     //handle Keys
@@ -1212,11 +1250,6 @@ else
         }
 
     //Cancel
-    public void BtnHelp ()
-        {
-        _cmd = _cmd == "help" ? "" : "help";
-        StateHasChanged();
-        }
     public void BtnCancelGuide ()
         {
         _cmd = "";
