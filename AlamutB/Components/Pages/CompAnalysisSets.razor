@@ -35,8 +35,8 @@ else
                             <img src="/img/icoList1.png" width="20" />
                             </button>
                         </div>
-                        <br />
-                        <br />
+                    <br />
+                    <br />
                     @foreach (Set set in lstSets)
                         {
                             <div class="d-flex align-items-center mb-1">
@@ -57,10 +57,8 @@ else
                                 <div>
                                     <MudSelect T="int"
                                            @ref="refAnalysisMode"
-                                           @bind-Text="_analysisModeName"
+                                           @bind-value="set.SelectedSubset"
                                            Label=""
-                                           Value="set.SelectedSubset"
-                                           ValueChanged="OnAnalysisModeChanged"
                                            Class="my-select"
                                            Variant="Variant.Text"
                                            Margin="Margin.Dense"
@@ -295,6 +293,14 @@ else
                             <br />
                             }
                         }
+                    <br />
+                    <hr />
+                        <div class="d-flex justify-content-center">
+                            <button class="btn btn-link pulse-hover"
+                                @onclick="RollbackListOfSelectedSets">
+                            <img src="/img/icoGo.png" width="28" />
+                            </button>
+                        </div>
                     </MudCardContent>
                 </MudCard>
             </MudContainer>
@@ -303,6 +309,11 @@ else
 <br />
 
 @code {
+    [Parameter]
+    public EventCallback<List<Set>> OnSelectedSetsReceived
+        {
+        get; set;
+        }
     private MudTextField<string> refSet;
     string _setText = "";
     public MudTextField<string> refFilterDatasetsList;
@@ -386,10 +397,6 @@ else
         {
         lstSets = await feService.Read_Sets(user.UserId);
         StateHasChanged();
-        }
-    public async Task BtnReportSets (int Id)
-        {
-
         }
     private void BtnAddNewSet ()
         {
@@ -624,7 +631,7 @@ else
             }
         else
             {
-            Snackbar.Add("Select a Set first", Severity.Warning);
+            Snackbar.Add("select a Set first", Severity.Warning);
             }
         }
     //methods
@@ -647,11 +654,20 @@ else
         _hasFetched = true;
         StateHasChanged();
         }
-    private async Task OnAnalysisModeChanged (int newValue)
+    private async Task RollbackListOfSelectedSets ()
         {
-        var oldValue = _analysisModeId;
-        _analysisModeId = newValue;
-        StateHasChanged();
-        }
 
+        List<Set> lstSelectedSets = lstSets
+            .Where(set => set.IsSelected)
+            .ToList();
+        if (lstSelectedSets.Count() == 0)
+            {
+            Snackbar.Add("select from Set list", Severity.Warning);
+            return;
+            }
+        else
+            {
+            await OnSelectedSetsReceived.InvokeAsync(lstSelectedSets);
+            }
+        }
     }

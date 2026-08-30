@@ -73,7 +73,7 @@ else
                     }
                 else if ((_cmd == "fvalue") || (_cmd == "floran") || (_cmd == "diversity") || (_cmd == "comparesets") || (_cmd == "multivarfloran"))
                     {
-                    <CompAnalysisSets />
+                    <CompAnalysisSets OnSelectedSetsReceived="GetSelectedSetsFromComponent" />
                     }
                 else if (_cmd == "cooccurence")
                     {
@@ -113,11 +113,13 @@ else
     User user = new User();
 
     public MudTextField<string> refFilterDatasets;
-    List<Dataset> lstDatasets = new List<Dataset>();
+    List<Set> lstSelectedSets = new List<Set>();
+    List<Dataset> lstSelectedDatasets = new List<Dataset>(); //is required? del it if not used in analyses
+    List<Species> lstSelectedSpecies = new List<Species>();
+
+    Set set = new Set();
     Dataset dataset = new Dataset();
-    private int _datasetId = 0;
-    private string _datasetName = "";
-    private string _datasetFilter = "";
+    Species species = new Species();
 
     string _cmd = "";
     public bool _hasFetched = false;
@@ -188,5 +190,59 @@ else
         {
         Navman.NavigateTo("/Switchboard");
         }
-
+    public async Task GetSelectedSetsFromComponent (List<Set> lstSelectedSets)
+        {
+        // foreach (Set set in lstSelectedSets)
+        //     {
+        //     Console.WriteLine($"- subset: {set.SelectedSubset} of SET: {set.SetName} ");
+        //     }
+        switch (_cmd)
+            {
+            case "fvalue":
+                    {
+                    Snackbar.Add($"selcted Sets received for fvalue!", Severity.Info, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+                    break;
+                    }
+            case "floran":
+                    {
+                    Snackbar.Add($"selcted Sets received for floran!", Severity.Info, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+                    break;
+                    }
+            case "diversity":
+                    {
+                    Snackbar.Add($"selcted Sets received for diversity!", Severity.Info, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+                    break;
+                    }
+            case "comparesets":
+                    {
+                    Snackbar.Add($"selcted Sets received for comparesets!", Severity.Info, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+                    break;
+                    }
+            case "multivarfloran":
+                    {
+                    Snackbar.Add($"selcted Sets received for multivarfloran!", Severity.Info, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+                    break;
+                    }
+            case "cooccurence":
+                    {
+                    Snackbar.Add($"selcted Sets received for cooccurence!", Severity.Info, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+                    break;
+                    }
+            case "climagraph":
+                    {
+                    Snackbar.Add($"selcted Sets received for climagraph!", Severity.Info, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+                    break;
+                    }
+            case "multivarcliman":
+                    {
+                    Snackbar.Add($"selcted Sets received for multivarcliman!", Severity.Info, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+                    break;
+                    }
+            default:
+                    {
+                    Snackbar.Add($"selcted Sets received for ??!", Severity.Info, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+                    break;
+                    }
+            }
+        }
     }

@@ -16,7 +16,7 @@
 
 <PageTitle>Alamut Home</PageTitle>
 @* LOGIN *@
-    <div style="display: flex; flex-direction: column; justify-content: center; align-items: center;margin-top:20px;">
+<div style="display: flex; flex-direction: column; justify-content: center; align-items: center;margin-top:20px;">
         <EditForm Model="user" style="display: flex; flex-direction: column; justify-content: center; align-items: center;margin:40px;">
         @* <DataAnnotationsValidator></DataAnnotationsValidator> *@
             <div style="display: flex; justify-content: flex-end;margin-bottom:20px;">
@@ -73,7 +73,7 @@
 <br />
 <br />
 <br />
-    @* ABOUT *@
+@* ABOUT *@
     <center>
         <div class="accordion align-items-center m-2" id="accordionIndex" style="text-align:center;min-width:380px;max-width:450px;">
             <div class="accordion-item">
@@ -88,20 +88,24 @@
                 </h2>
                 <div id="collapseZero" class="accordion-collapse collapse" data-bs-parent="#accordionIndex">
                     <div class="accordion-body" style="text-align:center;margin-bottom:15px;">
-                    @* <hr /> *@
-                    @* <img src="/img/_mshtHat.png" width="100" style="margin:20px;border-radius:100px" /> *@
                     <br />
                         <a href="https://www.msht.ir/" target="_blank" style="text-decoration: none;">
                         <h6 style="color:dimgray;text-decoration:none">Majid SharifiTehrani, August 2026</h6>
                         </a>
                         <a href="https://www.linkedin.com/in/majid-sharifi-tehrani/" target="_blank" style="text-decoration: none;">
-                        <h6 style="color:indianred;text-decoration:none">linkedin</h6>
+                        <span style="color:indianred;text-decoration:none">linkedin</span>
                         </a>
+                        -
                         <a href="https://github.com/msht-ir" target="_blank" style="text-decoration: none;">
-                        <h6 style="color:royalblue;text-decoration:none">github</h6>
+                        <span style="color:royalblue;text-decoration:none">github</span>
+                        </a>
+                        -
+                        <a href="mailto://msht.ir@gmail.com" target="_blank" style="text-decoration: none;">
+                        <span style="color:forestgreen;text-decoration:none">email</span>
                         </a>
                         <div style="text-align:center">
-                        @* <hr /> *@
+                        <hr />
+                        <img src="/img/_mshtHat.png" width="100" style="margin:20px;border-radius:10px" />
                         </div>
                     </div>
                 </div>
