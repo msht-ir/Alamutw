@@ -189,32 +189,19 @@ namespace AlamutS.Models
         public bool IsSelected { get; set; } = false;
         }
     //DATA
-    public class DatasetDataFL
+    public class DatasetData
         {
-        public int DatasetDataFLId { get; set; } = 0;
+        public int DatasetDataId { get; set; } = 0;
         public int DatasetId { get; set; } = 0;
-        public int SpeciesId { get; set; } = 0;
+        public string SpeciesId { get; set; } = "";
         public string Infraspecific { get; set; } = "";
-        }
-    public class DatasetDataCN
-        {
-        public int DatasetDataCNId { get; set; } = 0;
-        public int DatasetId { get; set; } = 0;
         public string LineString { get; set; } = "";
         public string ParsedGenus { get; set; } = "";
         public string ParsedEpithet { get; set; } = "";
-        public int SpeciesId { get; set; } = 0;
-        public string Infraspecific { get; set; } = "";
         }
-    public class DatasetDataLM
+    public class StationData
         {
-        public int DatasetDataLMId { get; set; } = 0;
-        public int DatasetId { get; set; } = 0;
-        public string SpeciesId { get; set; } = "";
-        }
-    public class DatasetDataST
-        {
-        public int DatasetDataSTId { get; set; } = 0;
+        public int StationDataId { get; set; } = 0;
         public int StationId { get; set; } = 0;
         public int Yr { get; set; } = 0;
         public string DataType { get; set; } = "";

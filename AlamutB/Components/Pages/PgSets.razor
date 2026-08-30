@@ -183,7 +183,7 @@ else
                                 @* LIST SetData *@
                                     <MudCard Class="mx-0">
                                         <MudCardContent Style="background-color:rgba(240,240,240);">
-                                        <h6 style="text-align:center;color:royalblue">Datasets <span style="font-size:x-small;color:indianred"> ( @lstSetData.Count() )</span></h6>
+                                        <h6 style="text-align:center;color:royalblue">Datasets <span style="font-size:x-small;color:indianred"> ( count: @lstSetData.Count() )</span></h6>
                                         <hr style="color:indianred" />
                                         @* Filter *@
                                             <div class="d-flex">
@@ -223,6 +223,8 @@ else
                                                                    type="checkbox"
                                                                    @bind="setData.IsSelected" />
                                                             <span style="font-size:smaller;margin-left:10px;">@setData.DatasetName </span>
+                                                            &nbsp;
+                                                            <span style="color:indianred;font-size:x-small;font-weight:normal;"> &nbsp; (<span style="color:royalblue;font-size:x-small;font-weight:normal;"> @setData.DatasetId </span>) </span>
                                                             </div>
                                                         </td>
                                                         <td>
@@ -338,8 +340,8 @@ else
                         </MudCardContent>
                     </MudCard>
                 </MudContainer>
-                <br />
-                <br />
+            <br />
+            <br />
             <hr />
             </EditForm>
         }
@@ -670,11 +672,11 @@ else
                         DatasetId = _dataset.DatasetId,
                         Subsets = 0
                         };
-                    bool result = await feService.Create_SetData (_setdata);
+                    bool result = await feService.Create_SetData(_setdata);
                     }
                 }
             _cmd2 = "";
-            await BtnListSetData (setId, false);
+            await BtnListSetData(setId, false);
             StateHasChanged();
             }
         else

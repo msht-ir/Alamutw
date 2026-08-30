@@ -331,32 +331,32 @@ else
             <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-2 px-0">
                 <MudCard Class="mx-auto">
                     <MudCardContent Style="background-color:rgba(249,249,249);">
-                    @if (_cmd == "cmdAddNewDatasetLM")
+                    @if (_cmd == "cmdAddNewDataset")
                         {
                             <div class="d-flex">
-                            <MudTextField @ref="refNewDatasetLM"
-                                          @bind-Value="_datasetLMName"
+                            <MudTextField @ref="refNewDataset"
+                                          @bind-Value="_datasetName"
                                           Label="new dataset name"
                                           Variant="Variant.Text"
                                           Margin="Margin.Dense"
                                           Autocomplete="off"
                                           Adornment="Adornment.End"
                                           AdornmentIcon="@Icons.Material.Filled.Save"
-                                          OnAdornmentClick="@(() => CreateDatasetLM (_datasetLMName))"
+                                          OnAdornmentClick="@(() => CreateDataset (_datasetName))"
                                           Class="my-textfield" />
                                 <button class="btn btn-link" style="margin-left:20px;" Title="cancel" @onclick="BtnCancel">
                                 <img src="/img/icoCancel.png" width="20" />
                                 </button>
                             </div>
                         }
-                    else if (_cmd == "cmdEditDatasetLM")
+                    else if (_cmd == "cmdEditDataset")
                         {
                         <br />
                             <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-1 mb-4 px-0">
                                 <MudCard Class="mx-0">
                                     <MudCardContent Style="background-color:rgba(240,240,240);">
                                     @* SHOW COMPONENT *@
-                                    <CompDataset dataset="datasetLM" OnClose="CloseComponent" />
+                                    <CompDataset dataset="dataset" OnClose="CloseComponent" />
                                     </MudCardContent>
                                 </MudCard>
                             </MudContainer>
@@ -365,52 +365,52 @@ else
                     else if (_cmd == "cmdSearchDatasetsFL")
                         {
                         <MudTextField T="string"
-                                      @ref="refSearchDatasetLM"
-                                      @bind-Value="_datasetLMSearchText"
-                                      OnKeyDown="HandleKey_SearchboxDatasetLM"
+                                      @ref="refSearchDataset"
+                                      @bind-Value="_datasetSearchText"
+                                      OnKeyDown="HandleKey_SearchboxDataset"
                                       Label="search datasets"
                                       Variant="Variant.Text"
                                       Margin="Margin.Dense"
                                       Immediate="true"
                                       Adornment="Adornment.End"
                                       AdornmentIcon="@Icons.Material.Filled.Search"
-                                      OnAdornmentClick='()=>SearchDatasetsLM(_datasetLMSearchText)'
+                                      OnAdornmentClick='()=>SearchDatasets(_datasetSearchText)'
                                       Style="font-family:Tahoma;"
                                       Class="my-textfield" />
                         }
                     else
                         {
                             <div class="d-flex align-content-center align-items-center">
-                            @if (_datasetLMId > 0)
+                            @if (_datasetId > 0)
                                 {
                                     <MudSelect T="int"
-                                           @ref="refDatasetsLM"
-                                           @bind-Text="_datasetLMName"
+                                           @ref="refDatasets"
+                                           @bind-Text="_datasetName"
                                            Label="datasets"
-                                           Value="_datasetLMId"
-                                           ValueChanged="OnDatasetLMChanged"
+                                           Value="_datasetId"
+                                           ValueChanged="OnDatasetChanged"
                                            Class="w-auto my-select"
                                            Variant="Variant.Text"
                                            Margin="Margin.Dense"
                                            Adornment="Adornment.End"
                                            AdornmentIcon="@Icons.Material.Filled.List"
-                                           OnAdornmentClick='() => BtnListSpeciesOfDatasetsLM(_datasetLMId)'
+                                           OnAdornmentClick='() => BtnListSpeciesOfDataset(_datasetId)'
                                            Style="color:royalblue;width:140px;font-size:small;">
                                     <MudSelectItem Value="0">select</MudSelectItem>
-                                    @foreach (var datasetLM in lstDatasetsLM)
+                                    @foreach (var dataset in lstDatasets)
                                         {
-                                        <MudSelectItem Value="@datasetLM.DatasetId"><span style="font-size:small;font-family:Tahoma;">@datasetLM.DatasetName</span></MudSelectItem>
+                                        <MudSelectItem Value="@dataset.DatasetId"><span style="font-size:small;font-family:Tahoma;">@dataset.DatasetName</span></MudSelectItem>
                                         }
                                     </MudSelect>
                                 }
                             else
                                 {
                                     <MudSelect T="int"
-                                           @ref="refDatasetsLM"
-                                           @bind-Text="_datasetLMName"
+                                           @ref="refDatasets"
+                                           @bind-Text="_datasetName"
                                            Label="datasets"
-                                           Value="_datasetLMId"
-                                           ValueChanged="OnDatasetLMChanged"
+                                           Value="_datasetId"
+                                           ValueChanged="OnDatasetChanged"
                                            Class="w-auto my-select"
                                            Variant="Variant.Text"
                                            Margin="Margin.Dense"
@@ -419,9 +419,9 @@ else
                                            OnAdornmentClick='() => BtnSearchDatasetsFL()'
                                            Style="color:royalblue;width:140px;font-size:small;">
                                     <MudSelectItem Value="0">select</MudSelectItem>
-                                    @foreach (var datasetLM in lstDatasetsLM)
+                                    @foreach (var dataset in lstDatasets)
                                         {
-                                        <MudSelectItem Value="@datasetLM.DatasetId"><span style="font-size:small;font-family:Tahoma;">@datasetLM.DatasetName</span></MudSelectItem>
+                                        <MudSelectItem Value="@dataset.DatasetId"><span style="font-size:small;font-family:Tahoma;">@dataset.DatasetName</span></MudSelectItem>
                                         }
                                     </MudSelect>
                                 }
@@ -433,39 +433,39 @@ else
                                      Size="Size.Small"
                                      Style="margin-top:15px;margin-left:15px;"
                                      Dense="true">
-                                    <MudMenuItem @onclick="BtnAddNewDatasetLM">
-                                        <button class="btn btn-link" Title="add new DatasetLM">
+                                    <MudMenuItem @onclick="BtnAddNewDataset">
+                                        <button class="btn btn-link" Title="add new Dataset">
                                         <img src="/img/icoAdd0.png" width="20" />
                                         </button>
                                     New Dataset
                                     </MudMenuItem>
-                                    <MudMenuItem @onclick='() => BtnEditDatasetLM(_datasetLMId)'>
+                                    <MudMenuItem @onclick='() => BtnEditDataset(_datasetId)'>
                                         <button class="btn btn-link" Title="edit dataset">
                                         <img src="/img/icoRename.png" width="26" />
                                         </button>
                                     Edit Dataset
                                     </MudMenuItem>
-                                    <MudMenuItem @onclick='() => ListAllDatasetsLM()'>
+                                    <MudMenuItem @onclick='() => ListAllDatasets()'>
                                         <button class="btn btn-link" Title="list all datasets">
                                         <img src="/img/icoList1.png" width="22" />
                                         </button>
                                     List All Datasets
                                     </MudMenuItem>
                                 <hr>
-                                    <MudMenuItem @onclick="@(() => BtnAddSelectedSpeciesToDatasetLM(_datasetLMId))">
-                                        <button class="btn btn-link" Title="add new DatasetLM">
+                                    <MudMenuItem @onclick="@(() => BtnAddSelectedSpeciesToDataset(_datasetId))">
+                                        <button class="btn btn-link" Title="add new Dataset">
                                         <img src="/img/icoAdd0.png" width="20" />
                                         </button>
                                     Add Species to Dataset
                                     </MudMenuItem>
                                 <hr>
-                                    <MudMenuItem @onclick='() => BtnCreateStickyNote(8, _datasetLMId)'>
+                                    <MudMenuItem @onclick='() => BtnCreateStickyNote(8, _datasetId)'>
                                         <button class="btn btn-link" Title="add note for dataset">
                                         <img src="/img/icoNoteStickyAdd.png" width="22" />
                                         </button>
                                     Add New Note
                                     </MudMenuItem>
-                                    <MudMenuItem @onclick='() => BtnShowNotes(8, _datasetLMId)'>
+                                    <MudMenuItem @onclick='() => BtnShowNotes(8, _datasetId)'>
                                         <button class="btn btn-link" Title="show notes of thos dataset">
                                         <img src="/img/icoNoteSticky2.png" width="22" />
                                         </button>
@@ -506,7 +506,7 @@ else
                                 <MudIconButton Icon="@Icons.Material.Filled.Delete"
                                                Color="Color.Dark"
                                                Size="Size.Medium"
-                                               OnClick='@(() => BtnRemoveSelectedSpeciesFromDatasetLM(_datasetLMId))'
+                                               OnClick='@(() => BtnRemoveSelectedSpeciesFromDataset(_datasetId))'
                                                Title="remove selected species from dataset" />
                                 }
                             else
@@ -514,7 +514,7 @@ else
                                 <MudIconButton Icon="@Icons.Material.Filled.Add"
                                                Color="Color.Dark"
                                                Size="Size.Medium"
-                                               OnClick='@(() => BtnAddSelectedSpeciesToDatasetLM(_datasetLMId))'
+                                               OnClick='@(() => BtnAddSelectedSpeciesToDataset(_datasetId))'
                                                Title="add selected species to dataset" />
                                 }
                             </div>
@@ -566,7 +566,7 @@ else
                                         <button type="button"
                                             class="btn btn-link"
                                             style="margin-left:1px"
-                                            @onclick='@(() => BtnRemoveSpeciesFromDatasetLM(species.SpeciesId))'
+                                            @onclick='@(() => BtnRemoveSpeciesFromDataset(species.SpeciesId))'
                                             Title="remove species from dataset">
                                         <img src="/img/icoDelete1.png" width="18" />
                                         </button>
@@ -576,7 +576,7 @@ else
                                         <button type="button"
                                             class="btn btn-link"
                                             style="margin-left:1px"
-                                            @onclick='@(() => BtnAddSpeciesToDatasetLM(species.SpeciesId))'
+                                            @onclick='@(() => BtnAddSpeciesToDataset(species.SpeciesId))'
                                             Title="add species to dataset">
                                         <img src="/img/icoAdd1.png" width="16" />
                                         </button>
@@ -655,14 +655,14 @@ else
     public string _genusName = "";
     public string _genusSearchText = "";
     //dataset
-    public MudSelect<int> refDatasetsLM;
-    public MudTextField<string> refNewDatasetLM;
-    public MudTextField<string> refSearchDatasetLM;
-    List<Dataset>? lstDatasetsLM = new();
-    public Dataset datasetLM = new Dataset();
-    public int _datasetLMId = 0;
-    public string _datasetLMName = "";
-    public string _datasetLMSearchText = "";
+    public MudSelect<int> refDatasets;
+    public MudTextField<string> refNewDataset;
+    public MudTextField<string> refSearchDataset;
+    List<Dataset>? lstDatasets = new();
+    public Dataset dataset = new Dataset();
+    public int _datasetId = 0;
+    public string _datasetName = "";
+    public string _datasetSearchText = "";
     //species
     public MudTextField<string> refFilterSpeciesList;
     List<Species> lstSpecies = new();
@@ -690,8 +690,8 @@ else
             appState.SetMessage("");
             lstApgGroups = await feService.Read_ApgGroups();
             int userId = Convert.ToInt32(appState.UserId);
-            lstDatasetsLM = await feService.Read_Datasets(userId, 3);
-            await ListAllDatasetsLM();
+            lstDatasets = await feService.Read_Datasets(userId, 3);
+            await ListAllDatasets();
             //_cmd = "cmdSearchGenera";
             _hasFetched = true;
             }
@@ -863,15 +863,15 @@ else
         //
         }
     //DatasetLM
-    private async Task OnDatasetLMChanged (int newValue)
+    private async Task OnDatasetChanged (int newValue)
         {
-        var oldValue = _datasetLMId;
-        _datasetLMId = newValue;
+        var oldValue = _datasetId;
+        _datasetId = newValue;
         /*
         NOTICE:
-        Let species list be shown after user clicked 'AdornmentIcon List', and not automatically. (see: BtnListSpeciesOfDatasetsLM)
+        Let species list be shown after user clicked 'AdornmentIcon List', and not automatically. (see: BtnListSpeciesOfDatasets)
         but if you prefer auto list, then CHANGE the code line ~420: OnAdornmentClick='() => BtnSearchDatasetsFL()' and UNCOMMENT the code below
-        if (_datasetLMId != 0)
+        if (_datasetId != 0)
             {
             var message = new MarkupString($"<hr><span style='color:indianred'>Show</span> Species in this Dataset?<br><br> <div style='text-align:center'><img src='/img/icoList1.png' width='40'/></div><br><hr>");
             bool? confirmResult = await DialogService.ShowMessageBoxAsync(title: "Confirm", markupMessage: message, yesText: "Yes", cancelText: "No");
@@ -879,19 +879,19 @@ else
                 {
                 _SpeciesListType = "";
                 lstSpecies = new();
-                appState.SetDatasetName(_datasetLMName);
-                lstSpecies = await feService.Read_SpeciesByDatasetId(3, _datasetLMId);
+                appState.SetDatasetName(_datasetName);
+                lstSpecies = await feService.Read_SpeciesByDatasetId(_datasetId);
                 _SpeciesListType = "Dataset";
                 StateHasChanged();
                 }
             }
          */
         }
-    private async Task BtnListSpeciesOfDatasetsLM (int datasetLMId)
+    private async Task BtnListSpeciesOfDataset (int _datasetId)
         {
-        if (datasetLMId != 0)
+        if (_datasetId != 0)
             {
-            lstSpecies = await feService.Read_SpeciesByDatasetId(3, _datasetLMId);
+            lstSpecies = await feService.Read_SpeciesByDatasetId(_datasetId);
             _SpeciesListType = "Dataset: " + appState.DatasetName;
             StateHasChanged();
             }
@@ -900,46 +900,46 @@ else
             Snackbar.Add("Select a Dataset", Severity.Warning);
             }
         }
-    private async Task SearchDatasetsLM (string datasetLMKeyword)
+    private async Task SearchDatasets (string datasetKeyword)
         {
         int userId = Convert.ToInt32(appState.UserId);
-        _datasetLMId = 0;
-        _datasetLMSearchText = datasetLMKeyword; //keep the search text
+        _datasetId = 0;
+        _datasetSearchText = datasetKeyword; //keep the search text
         lstSpecies = new();
-        lstDatasetsLM = await feService.Read_DatasetsBySearch(userId, 3, datasetLMKeyword);
+        lstDatasets = await feService.Read_DatasetsBySearch(userId, 3, datasetKeyword);
         _cmd = "";
         StateHasChanged();
         }
-    private async Task ListAllDatasetsLM ()
+    private async Task ListAllDatasets ()
         {
-        _datasetLMId = 0;
+        _datasetId = 0;
         lstSpecies = new();
         int userId = Convert.ToInt32(appState.UserId);
-        lstDatasetsLM = await feService.Read_Datasets(userId, 3);
+        lstDatasets = await feService.Read_Datasets(userId, 3);
         _cmd = "";
         StateHasChanged();
         }
-    private async Task BtnAddSelectedSpeciesToDatasetLM (int datasetLMId)
+    private async Task BtnAddSelectedSpeciesToDataset (int datasetId)
         {
         int counter = 0;
-        if (datasetLMId != 0)
+        if (datasetId != 0)
             {
             foreach (Species spc in lstSpecies)
                 {
                 if (spc.IsSelected)
                     {
-                    DatasetDataLM datasetDataLM = new DatasetDataLM()
+                    DatasetData datasetData = new DatasetData()
                         {
-                        DatasetDataLMId = 0,
-                        DatasetId = datasetLMId,
+                        DatasetDataId = 0,
+                        DatasetId = datasetId,
                         SpeciesId = spc.SpeciesId
                         };
-                    bool results = await feService.Create_DatasetDataLM(datasetDataLM);
+                    bool results = await feService.Create_DatasetData(datasetData);
                     counter++;
                     }
                 }
             Snackbar.Add($"{@counter} items added to the dataset", Severity.Success);
-            lstSpecies = await feService.Read_SpeciesByDatasetId(3, datasetLMId);
+            lstSpecies = await feService.Read_SpeciesByDatasetId(datasetId);
             _SpeciesListType = "Dataset";
             StateHasChanged();
             }
@@ -948,64 +948,64 @@ else
             Snackbar.Add("Select a Dataset", Severity.Warning);
             }
         }
-    private async Task BtnRemoveSelectedSpeciesFromDatasetLM (int datasetLMId)
+    private async Task BtnRemoveSelectedSpeciesFromDataset (int datasetId)
         {
-        int counter = 0;
-        if (datasetLMId != 0)
-            {
-            foreach (Species spc in lstSpecies)
-                {
-                if (spc.IsSelected)
-                    {
-                    bool results = await feService.Delete_DatasetDataLM(datasetLMId, spc.SpeciesId);
-                    counter++;
-                    }
-                }
-            Snackbar.Add($"{@counter} items removed from the dataset", Severity.Warning);
-            lstSpecies = await feService.Read_SpeciesByDatasetId(3, datasetLMId);
-            _SpeciesListType = "Dataset";
-            StateHasChanged();
-            }
-        else
-            {
-            Snackbar.Add("Select a Dataset", Severity.Warning);
-            }
+        // int counter = 0;
+        // if (datasetId != 0)
+        //     {
+        //     foreach (Species spc in lstSpecies)
+        //         {
+        //         if (spc.IsSelected)
+        //             {
+        //             bool results = await feService.Delete_DatasetData(datasetId, spc.SpeciesId);
+        //             counter++;
+        //             }
+        //         }
+        //     Snackbar.Add($"{@counter} items removed from the dataset", Severity.Warning);
+        //     lstSpecies = await feService.Read_SpeciesByDatasetId(datasetId);
+        //     _SpeciesListType = "Dataset";
+        //     StateHasChanged();
+        //     }
+        // else
+        //     {
+        //     Snackbar.Add("Select a Dataset", Severity.Warning);
+        //     }
         }
-    private void BtnAddNewDatasetLM ()
+    private void BtnAddNewDataset ()
         {
-        _cmd = "cmdAddNewDatasetLM";
+        _cmd = "cmdAddNewDataset";
         }
-    private async Task CreateDatasetLM (string datasetLMName)
+    private async Task CreateDataset (string datasetName)
         {
         // dataTypes: 1FL 2CN 3LM 4ST
         int userId = Convert.ToInt32(appState.UserId);
-        Dataset datasetLM = (new Dataset
+        Dataset dataset = (new Dataset
             {
             UserId = userId,
             DatasetType = 3,
-            DatasetAbbr = "new LM List",
-            DatasetName = datasetLMName,
+            DatasetAbbr = "new List",
+            DatasetName = datasetName,
             DatasetTags = 0
             });
-        bool result = await feService.Create_Dataset(datasetLM);
+        bool result = await feService.Create_Dataset(dataset);
         if (result)
             {
             Snackbar.Add("dataset created", Severity.Success);
-            lstDatasetsLM = await feService.Read_Datasets(userId, 3);
+            lstDatasets = await feService.Read_Datasets(userId, 3);
             _cmd = "";
             StateHasChanged();
             }
         }
-    private void BtnEditDatasetLM (int _datasetLMId)
+    private void BtnEditDataset (int _datasetId)
         {
-        if (_datasetLMId != 0)
+        if (_datasetId != 0)
             {
-            datasetLM = new Dataset();
-            datasetLM = lstDatasetsLM.FirstOrDefault(d => d.DatasetId == _datasetLMId);
-            if (datasetLM != null)
+            dataset = new Dataset();
+            dataset = lstDatasets.FirstOrDefault(d => d.DatasetId == _datasetId);
+            if (dataset != null)
                 {
-                _datasetLMName = datasetLM.DatasetName;
-                _cmd = "cmdEditDatasetLM";
+                _datasetName = dataset.DatasetName;
+                _cmd = "cmdEditDataset";
                 StateHasChanged();
                 }
             else
@@ -1056,21 +1056,21 @@ else
         _SpeciesListType = "Filtered";
         StateHasChanged();
         }
-    private async Task BtnAddSpeciesToDatasetLM (string speciesId)
+    private async Task BtnAddSpeciesToDataset (string speciesId)
         {
         int counter = 0;
-        if (_datasetLMId != 0)
+        if (_datasetId != 0)
             {
-            DatasetDataLM datasetDataLM = new DatasetDataLM()
+            DatasetData datasetData = new DatasetData()
                 {
-                DatasetDataLMId = 0,
-                DatasetId = _datasetLMId,
+                DatasetDataId = 0,
+                DatasetId = _datasetId,
                 SpeciesId = speciesId
                 };
-            bool results = await feService.Create_DatasetDataLM(datasetDataLM);
+            bool results = await feService.Create_DatasetData(datasetData);
             counter++;
             Snackbar.Add($"{@counter} items added to the dataset", Severity.Success, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
-            // lstSpecies = await feService.Read_SpeciesByDatasetId(3, _datasetLMId);
+            // lstSpecies = await feService.Read_SpeciesByDatasetId(_datasetId);
             // _SpeciesListType = "Dataset";
             StateHasChanged();
             }
@@ -1079,20 +1079,20 @@ else
             Snackbar.Add("Select a Dataset", Severity.Warning);
             }
         }
-    private async Task BtnRemoveSpeciesFromDatasetLM (string speciesId)
+    private async Task BtnRemoveSpeciesFromDataset (string speciesId)
         {
-        if (_datasetLMId != 0)
-            {
-            bool results = await feService.Delete_DatasetDataLM(_datasetLMId, speciesId);
-            Snackbar.Add($"item removed from the dataset", Severity.Warning);
-            lstSpecies = await feService.Read_SpeciesByDatasetId(3, _datasetLMId);
-            _SpeciesListType = "Dataset";
-            StateHasChanged();
-            }
-        else
-            {
-            Snackbar.Add("Select a Dataset", Severity.Warning);
-            }
+        // if (_datasetId != 0)
+        //     {
+        //     bool results = await feService.Delete_DatasetData(_datasetId, speciesId);
+        //     Snackbar.Add($"item removed from the dataset", Severity.Warning);
+        //     lstSpecies = await feService.Read_SpeciesByDatasetId(_datasetId);
+        //     _SpeciesListType = "Dataset";
+        //     StateHasChanged();
+        //     }
+        // else
+        //     {
+        //     Snackbar.Add("Select a Dataset", Severity.Warning);
+        //     }
         }
     public async Task BtnShowSubspecies (Species species)
         {
@@ -1164,11 +1164,11 @@ else
             await refSearchGenus.FocusAsync();
             }
         }
-    private async Task HandleKey_SearchboxDatasetLM (KeyboardEventArgs e)
+    private async Task HandleKey_SearchboxDataset (KeyboardEventArgs e)
         {
         if (e.Key == "Enter")
             {
-            await SearchDatasetsLM(_datasetLMSearchText);
+            await SearchDatasets(_datasetSearchText);
             return;
             }
         if (e.Key == "Escape")

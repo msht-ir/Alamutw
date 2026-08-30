@@ -43,7 +43,7 @@ else
         </div>
         <EditForm Model="lstNotes">
         @* ADD NEW DATASET CN *@
-        @if (_cmd == "cmdAddNewDatasetCN")
+        @if (_cmd == "cmdAddNewDataset")
             {
             <br />
                 <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-1 mb-4 px-0">
@@ -60,7 +60,7 @@ else
             <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-2 px-0">
                 <MudCard Class="mx-0">
                     <MudCardContent Style="background-color:rgba(249,249,249);">
-                    <h6 style="text-align:center;color:royalblue">Dataset<span style="font-size:x-small;color:indianred"> ( @lstDatasetsCN.Count() )</span></h6>
+                    <h6 style="text-align:center;color:royalblue">Dataset<span style="font-size:x-small;color:indianred"> ( @lstDatasets.Count() )</span></h6>
                     <hr style="color:indianred" />
                         <div class="d-flex">
                         <MudTextField @ref="refFilterDatasets"
@@ -78,7 +78,7 @@ else
                             </button>
                         </div>
                     @* LIST DataSets CN *@
-                    @foreach (Dataset dataset in lstDatasetsCN)
+                    @foreach (Dataset dataset in lstDatasets)
                         {
                             <div class="d-flex align-items-center mb-1">
                             @* Select *@
@@ -95,7 +95,7 @@ else
                                     class="btn btn-link"
                                     style="margin-left:1px"
                                     @onclick='() => BtnEditDatasetCN(dataset)'
-                                    Title="Show sub-Species">
+                                    Title=@($"edit dataset id: {dataset.DatasetId}")>
                                 <img src="/img/icoRename.png" width="24" />
                                 </button>
                             @* List taxa *@
@@ -103,7 +103,7 @@ else
                                     class="btn btn-link"
                                     style="margin-left:1px"
                                     @onclick='() => BtnListSpeciesOfDatasetsCN(dataset.DatasetId, true)'
-                                    Title="Show sub-Species">
+                                    Title=@($"show list of speciesin dataset id: {dataset.DatasetId}")>
                                 <img src="/img/icoList1.png" width="22" />
                                 </button>
                             @* Note *@
@@ -111,10 +111,12 @@ else
                                     class="btn btn-link"
                                     style="margin-left:1px"
                                     @onclick='() => BtnCreateNoteForDataset(dataset.DatasetId)'
-                                    Title="Note for Dataset">
+                                    Title=@($"note for dataset id: {dataset.DatasetId}")>
                                 <img src="/img/icoNoteStickyAdd.png" width="22" />
                                 </button>
                             <span style="font-size:small;font-weight:bold;margin-left:10px;">@dataset.DatasetName</span>
+                            &nbsp;
+                            <span style="color:indianred;font-size:x-small;font-weight:normal;"> &nbsp; (<span style="color:royalblue;font-size:x-small;font-weight:normal;"> @dataset.DatasetId </span>) </span>
                             </div>
                         @if ((_cmd == "cmdImportDatasetDataCN") && (dataset.DatasetId == _datasetCNId))
                             {
@@ -303,14 +305,14 @@ else
         }
     User user = new User();
     List<Note> lstNotes = new List<Note>();
-    List<Dataset> lstDatasetsCN = new List<Dataset>();
-    List<DatasetDataCN> lstDatasetDataCN = new List<DatasetDataCN>();
-    DatasetDataCN datasetDataCN = new DatasetDataCN();
+    List<Dataset> lstDatasets = new List<Dataset>();
+    List<DatasetData> lstDatasetData = new List<DatasetData>();
+    DatasetData datasetData = new DatasetData();
 
     public Dataset datasetCN = new Dataset();
     public int _datasetCNId = 0;
     public string _datasetCNName = "";
-    public string _datasetCNSearchText = "";
+    public string _datasetSearchText = "";
 
     //species
     public MudTextField<string> refFilterSpeciesList;
@@ -320,9 +322,9 @@ else
     private string _speciesName = "";
     private string _speciesListFilter = "";
 
-    public MudSelect<int> refDatasetsCN;
-    public MudTextField<string> refNewDatasetCN;
-    public MudTextField<string> refSearchDatasetCN;
+    public MudSelect<int> refDatasets;
+    public MudTextField<string> refNewDataset;
+    public MudTextField<string> refSearchDataset;
     public MudTextField<string> refFilterDatasets;
     Dataset dataset = new Dataset();
     private int _datasetId = 0;
@@ -466,17 +468,17 @@ else
                 stream.Position = 0;
                 try
                     {
-                    List<DatasetDataCN> lstDatasetDataCN = await feService.Read_DatasetDataCN(datasetId);
+                    List<DatasetData> lstDatasetData = await feService.Read_DatasetData(datasetId);
                     using var wb = new XLWorkbook(stream);
                     var worksheet = wb.Worksheet($"{WorksheetName}");
                     //ExcelColumns: 1: 2: 3:
                     foreach (var row in worksheet.RowsUsed().Skip(1)) //skip header
                         {
-                        DatasetDataCN datasetDataCN = new DatasetDataCN();
-                        datasetDataCN.DatasetDataCNId = datasetDataCN.DatasetDataCNId;
-                        datasetDataCN.LineString = row.Cell(1).GetString();
+                        DatasetData datasetData = new DatasetData();
+                        datasetData.DatasetDataId = datasetData.DatasetDataId;
+                        datasetData.LineString = row.Cell(1).GetString();
                         //Create
-                        bool result = await feService.Create_DatasetDataCN(datasetDataCN);
+                        bool result = await feService.Create_DatasetData(datasetData);
                         }
                     }
                 catch (Exception ex)
@@ -484,8 +486,8 @@ else
                     Console.WriteLine($"Error in [ImportExcel]: {ex}");
                     }
                 lstWorksheets.Clear();
-                lstDatasetDataCN.Clear();
-                lstDatasetDataCN = await feService.Read_DatasetDataCN(datasetId);
+                lstDatasetData.Clear();
+                lstDatasetData = await feService.Read_DatasetData(datasetId);
                 Snackbar.Add("data imported", Severity.Success);
                 _hasFetched = true;
                 appState.SetCmd("");
@@ -497,11 +499,13 @@ else
     public async Task BtnShowAllDatasets ()
         {
         _cmd = "";
-        lstDatasetsCN = await feService.Read_Datasets(user.UserId, 2);
+        lstDatasets = await feService.Read_Datasets(user.UserId, 2);
         StateHasChanged();
         }
     private void BtnAddNewDatasetCN ()
         {
+        dataset.UserId = user.UserId;
+        dataset.DatasetType = 2;
         _cmd = (_cmd == "cmdAddNewDatasetCN") ? "" : "cmdAddNewDatasetCN";
         }
     private async Task CreateDatasetCN (string datasetCNName)
@@ -520,7 +524,7 @@ else
         if (result)
             {
             Snackbar.Add("dataset created", Severity.Success);
-            lstDatasetsCN = await feService.Read_Datasets(userId, 2);
+            lstDatasets = await feService.Read_Datasets(userId, 2);
             _cmd = "";
             StateHasChanged();
             }
@@ -551,7 +555,7 @@ else
             {
             Snackbar.Add("dataset updated", Severity.Success);
             int userId = Convert.ToInt32(appState.UserId);
-            lstDatasetsCN = await feService.Read_Datasets(userId, 2);
+            lstDatasets = await feService.Read_Datasets(userId, 2);
             _cmd = "";
             StateHasChanged();
             }
@@ -563,7 +567,7 @@ else
         }
     public async Task FilterDatasets (string _datasetsFilter)
         {
-        lstDatasetsCN = lstDatasetsCN.Where(s => s.DatasetName?.Contains(_datasetFilter, StringComparison.OrdinalIgnoreCase) == true).ToList();
+        lstDatasets = lstDatasets.Where(s => s.DatasetName?.Contains(_datasetFilter, StringComparison.OrdinalIgnoreCase) == true).ToList();
         StateHasChanged();
         }
     public async Task BtnReportDatasets (int Id)
@@ -626,20 +630,20 @@ else
         {
 
         }
-    private async Task BtnListSpeciesOfDatasetsCN (int datasetCNId, bool toggle)
+    private async Task BtnListSpeciesOfDatasetsCN (int datasetId, bool toggle)
         {
-        if (datasetCNId != 0)
+        if (datasetId != 0)
             {
             if (!toggle)
                 {
                 _cmd = "";
                 }
             _cmd = (_cmd == "cmdListDatasetData") ? "" : "cmdListDatasetData";
-            _datasetId = datasetCNId;
+            _datasetId = datasetId;
             if (_cmd == "cmdListDatasetData")
                 {
                 //lstDatasetsCN.FirstOrDefault(ds => ds.DatasetId == datasetCNId)?.IsSelected = true;
-                lstSpecies = await feService.Read_SpeciesByDatasetId(user.UserId, datasetCNId);
+                lstSpecies = await feService.Read_SpeciesByDatasetId(datasetId);
                 }
             else
                 {

@@ -1056,7 +1056,7 @@ namespace AlamutB.Services2Backend
                 return new List<Species> ();
                 }
             }
-        public async Task<List<Species>> Read_SpeciesByDatasetIdAsync (int datasetType, int datasetId)
+        public async Task<List<Species>> Read_SpeciesByDatasetIdAsync (int datasetId)
             {
             string? connString = _config.GetConnectionString ("cnni");
             string sql = "TX.Read_SpeciesByDatasetId";
@@ -1066,7 +1066,6 @@ namespace AlamutB.Services2Backend
                 await cnn.OpenAsync ();
                 SqlCommand cmd = new (sql, cnn);
                 cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue ("@DatasetType", datasetType);
                 cmd.Parameters.AddWithValue ("@DatasetId", datasetId);
                 SqlDataReader reader = await cmd.ExecuteReaderAsync ();
                 List<Species> lstSpecies = new List<Species> ();
@@ -1497,19 +1496,22 @@ namespace AlamutB.Services2Backend
                 }
             }
         #endregion
-        #region DATASETDATA-FL
-        public async Task<bool> Create_DatasetDataFLAsync (DatasetDataFL datasetDataFL)
+        #region DATASETDATA
+        public async Task<bool> Create_DatasetDataAsync (DatasetData datasetData)
             {
-            string sql = "BS.Create_DatasetDataFL";
+            string sql = "DT.Create_DatasetData";
             string? connstring = _config.GetConnectionString ("cnni");
             using SqlConnection cnn = new SqlConnection (connstring);
             try
                 {
                 using SqlCommand cmd = new SqlCommand (sql, cnn);
                 cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue ("@DatasetId", datasetDataFL.DatasetId);
-                cmd.Parameters.AddWithValue ("@SpeciesId", datasetDataFL.SpeciesId);
-                cmd.Parameters.AddWithValue ("@Infraspecific", datasetDataFL.Infraspecific);
+                cmd.Parameters.AddWithValue ("@DatasetId", datasetData.DatasetId);
+                cmd.Parameters.AddWithValue ("@SpeciesId", datasetData.SpeciesId);
+                cmd.Parameters.AddWithValue ("@Infraspecific", datasetData.Infraspecific);
+                cmd.Parameters.AddWithValue ("@LineString", datasetData.LineString);
+                cmd.Parameters.AddWithValue ("@ParsedGenus", datasetData.ParsedGenus);
+                cmd.Parameters.AddWithValue ("@ParsedEpithet", datasetData.ParsedEpithet);
                 await cnn.OpenAsync ();
                 await cmd.ExecuteScalarAsync ();
                 await cnn.CloseAsync ();
@@ -1521,10 +1523,10 @@ namespace AlamutB.Services2Backend
                 return false;
                 }
             }
-        public async Task<List<DatasetDataFL>> Read_DatasetDataFLAsync (int datasetId)
+        public async Task<List<DatasetData>> Read_DatasetDataAsync (int datasetId)
             {
             string? connString = _config.GetConnectionString ("cnni");
-            string sql = "BS.Read_DatasetDataFL";
+            string sql = "DT.Read_DatasetData";
             using SqlConnection cnn = new (connString);
             try
                 {
@@ -1533,40 +1535,46 @@ namespace AlamutB.Services2Backend
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue ("@DatasetId", datasetId);
                 SqlDataReader reader = await cmd.ExecuteReaderAsync ();
-                List<DatasetDataFL> lstDatasetDataFL = new List<DatasetDataFL> ();
+                List<DatasetData> lstDatasetData = new List<DatasetData> ();
                 while (await reader.ReadAsync ())
                     {
-                    lstDatasetDataFL.Add (new DatasetDataFL
+                    lstDatasetData.Add (new DatasetData
                         {
-                        DatasetDataFLId = reader.GetInt32 (0),
+                        DatasetDataId = reader.GetInt32 (0),
                         DatasetId = reader.GetInt32 (1),
-                        SpeciesId = reader.GetInt32 (2),
-                        Infraspecific = reader.GetString (3)
+                        SpeciesId = reader.GetString (2),
+                        Infraspecific = reader.GetString (3),
+                        LineString = reader.GetString (4),
+                        ParsedGenus = reader.GetString (5),
+                        ParsedEpithet = reader.GetString (6),
                         });
                     }
                 await cnn.CloseAsync ();
-                return lstDatasetDataFL;
+                return lstDatasetData;
                 }
             catch (Exception ex)
                 {
                 Console.WriteLine ("error: " + ex.Message);
                 cnn.Close ();
-                return new List<DatasetDataFL> ();
+                return new List<DatasetData> ();
                 }
             }
-        public async Task<bool> Update_DatasetDataFLAsync (DatasetDataFL datasetDataFL)
+        public async Task<bool> Update_DatasetDataAsync (DatasetData datasetData)
             {
-            string sql = "BS.Update_DatasetDataFL";
+            string sql = "DT.Update_DatasetData";
             string? connstring = _config.GetConnectionString ("cnni");
             using SqlConnection cnn = new SqlConnection (connstring);
             try
                 {
                 using SqlCommand cmd = new SqlCommand (sql, cnn);
                 cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue ("@DatasetDataFLId", datasetDataFL.DatasetDataFLId);
-                cmd.Parameters.AddWithValue ("@DatasetId", datasetDataFL.DatasetId);
-                cmd.Parameters.AddWithValue ("@SpeciesId", datasetDataFL.SpeciesId);
-                cmd.Parameters.AddWithValue ("@Infraspecific", datasetDataFL.Infraspecific);
+                cmd.Parameters.AddWithValue ("@DatasetDataId", datasetData.DatasetDataId);
+                cmd.Parameters.AddWithValue ("@DatasetId", datasetData.DatasetId);
+                cmd.Parameters.AddWithValue ("@SpeciesId", datasetData.SpeciesId);
+                cmd.Parameters.AddWithValue ("@Infraspecific", datasetData.Infraspecific);
+                cmd.Parameters.AddWithValue ("@LineString", datasetData.LineString);
+                cmd.Parameters.AddWithValue ("@ParsedGenus", datasetData.ParsedGenus);
+                cmd.Parameters.AddWithValue ("@ParsedEpithet", datasetData.ParsedEpithet);
                 await cnn.OpenAsync ();
                 await cmd.ExecuteScalarAsync ();
                 await cnn.CloseAsync ();
@@ -1578,234 +1586,17 @@ namespace AlamutB.Services2Backend
                 return false;
                 }
             }
-        public async Task<bool> Delete_DatasetDataFLAsync (int datasetDataFLId)
+        public async Task<bool> Delete_DatasetDataAsync (int datasetDataId)
             {
             string? connString = _config.GetConnectionString ("cnni");
-            string sql = "BS.Delete_DatasetDataFL";
+            string sql = "DT.Delete_DatasetData";
             using SqlConnection cnn = new (connString);
             try
                 {
                 await cnn.OpenAsync ();
                 SqlCommand cmd = new (sql, cnn);
                 cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue ("@DatasetDataFLId", datasetDataFLId);
-                var i = await cmd.ExecuteNonQueryAsync ();
-                await cnn.CloseAsync ();
-                return true;
-                }
-            catch (Exception ex)
-                {
-                Console.WriteLine ("error: " + ex.Message);
-                cnn.Close ();
-                return false;
-                }
-            }
-        #endregion
-        #region DATASETDATA-CN
-        public async Task<bool> Create_DatasetDataCNAsync (DatasetDataCN datasetDataCN)
-            {
-            string sql = "BS.Create_DatasetDataCN";
-            string? connstring = _config.GetConnectionString ("cnni");
-            using SqlConnection cnn = new SqlConnection (connstring);
-            try
-                {
-                using SqlCommand cmd = new SqlCommand (sql, cnn);
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue ("@DatasetId", datasetDataCN.DatasetId);
-                cmd.Parameters.AddWithValue ("@LineString", datasetDataCN.LineString);
-                cmd.Parameters.AddWithValue ("@ParsedGenus", datasetDataCN.ParsedGenus);
-                cmd.Parameters.AddWithValue ("@ParsedEpithet", datasetDataCN.ParsedEpithet);
-                cmd.Parameters.AddWithValue ("@SpeciesId", datasetDataCN.SpeciesId);
-                cmd.Parameters.AddWithValue ("@Infraspecific", datasetDataCN.Infraspecific);
-                await cnn.OpenAsync ();
-                await cmd.ExecuteScalarAsync ();
-                await cnn.CloseAsync ();
-                return true;
-                }
-            catch
-                {
-                await cnn.CloseAsync ();
-                return false;
-                }
-            }
-        public async Task<List<DatasetDataCN>> Read_DatasetDataCNAsync (int datasetId)
-            {
-            string? connString = _config.GetConnectionString ("cnni");
-            string sql = "BS.Read_DatasetDataCN";
-            using SqlConnection cnn = new (connString);
-            try
-                {
-                await cnn.OpenAsync ();
-                SqlCommand cmd = new (sql, cnn);
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue ("@DatasetId", datasetId);
-                SqlDataReader reader = await cmd.ExecuteReaderAsync ();
-                List<DatasetDataCN> lstDatasetDataCN = new List<DatasetDataCN> ();
-                while (await reader.ReadAsync ())
-                    {
-                    lstDatasetDataCN.Add (new DatasetDataCN
-                        {
-                        DatasetDataCNId = reader.GetInt32 (0),
-                        DatasetId = reader.GetInt32 (1),
-                        LineString = reader.GetString (2),
-                        ParsedGenus = reader.GetString (3),
-                        ParsedEpithet = reader.GetString (4),
-                        SpeciesId = reader.GetInt32 (5),
-                        Infraspecific = reader.GetString (6),
-                        });
-                    }
-                await cnn.CloseAsync ();
-                return lstDatasetDataCN;
-                }
-            catch (Exception ex)
-                {
-                Console.WriteLine ("error: " + ex.Message);
-                cnn.Close ();
-                return new List<DatasetDataCN> ();
-                }
-            }
-        public async Task<bool> Update_DatasetDataCNAsync (DatasetDataCN datasetDataCN)
-            {
-            string sql = "BS.Update_DatasetDataCN";
-            string? connstring = _config.GetConnectionString ("cnni");
-            using SqlConnection cnn = new SqlConnection (connstring);
-            try
-                {
-                using SqlCommand cmd = new SqlCommand (sql, cnn);
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue ("@DatasetDataCNId", datasetDataCN.DatasetDataCNId);
-                cmd.Parameters.AddWithValue ("@DatasetId", datasetDataCN.DatasetId);
-                cmd.Parameters.AddWithValue ("@LineString", datasetDataCN.LineString);
-                cmd.Parameters.AddWithValue ("@ParsedGenus", datasetDataCN.ParsedGenus);
-                cmd.Parameters.AddWithValue ("@ParsedEpithet", datasetDataCN.ParsedEpithet);
-                cmd.Parameters.AddWithValue ("@SpeciesId", datasetDataCN.SpeciesId);
-                cmd.Parameters.AddWithValue ("@Infraspecific", datasetDataCN.Infraspecific);
-                await cnn.OpenAsync ();
-                await cmd.ExecuteScalarAsync ();
-                await cnn.CloseAsync ();
-                return true;
-                }
-            catch
-                {
-                await cnn.CloseAsync ();
-                return false;
-                }
-            }
-        public async Task<bool> Delete_DatasetDataCNAsync (int datasetDataCNId)
-            {
-            string? connString = _config.GetConnectionString ("cnni");
-            string sql = "BS.Delete_DatasetDataCN";
-            using SqlConnection cnn = new (connString);
-            try
-                {
-                await cnn.OpenAsync ();
-                SqlCommand cmd = new (sql, cnn);
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue ("@DatasetDataCNId", datasetDataCNId);
-                var i = await cmd.ExecuteNonQueryAsync ();
-                await cnn.CloseAsync ();
-                return true;
-                }
-            catch (Exception ex)
-                {
-                Console.WriteLine ("error: " + ex.Message);
-                cnn.Close ();
-                return false;
-                }
-            }
-        #endregion
-        #region DATASETDATA-LM
-        public async Task<bool> Create_DatasetDataLMAsync (DatasetDataLM datasetDataLM)
-            {
-            Console.WriteLine ($"datasetDataLM.DatasetId= {datasetDataLM.DatasetId} , datasetDataLM.SpeciesId= {datasetDataLM.SpeciesId}");
-            string sql = "DT.Create_DatasetDataLM";
-            string? connstring = _config.GetConnectionString ("cnni");
-            using SqlConnection cnn = new SqlConnection (connstring);
-            try
-                {
-                using SqlCommand cmd = new SqlCommand (sql, cnn);
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue ("@DatasetId", datasetDataLM.DatasetId);
-                cmd.Parameters.AddWithValue ("@SpeciesId", datasetDataLM.SpeciesId);
-                await cnn.OpenAsync ();
-                await cmd.ExecuteScalarAsync ();
-                await cnn.CloseAsync ();
-                return true;
-                }
-            catch (Exception ex)
-                {
-                Console.WriteLine ($"BE Error (in Create_DatasetDataLMAsync): \n {ex}");
-                await cnn.CloseAsync ();
-                return false;
-                }
-            }
-        public async Task<List<DatasetDataLM>> Read_DatasetDataLMAsync (int datasetId)
-            {
-            string? connString = _config.GetConnectionString ("cnni");
-            string sql = "BS.Read_DatasetDataLM";
-            using SqlConnection cnn = new (connString);
-            try
-                {
-                await cnn.OpenAsync ();
-                SqlCommand cmd = new (sql, cnn);
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue ("@DatasetId", datasetId);
-                SqlDataReader reader = await cmd.ExecuteReaderAsync ();
-                List<DatasetDataLM> lstDatasetDataLM = new List<DatasetDataLM> ();
-                while (await reader.ReadAsync ())
-                    {
-                    lstDatasetDataLM.Add (new DatasetDataLM
-                        {
-                        DatasetDataLMId = reader.GetInt32 (0),
-                        DatasetId = reader.GetInt32 (1),
-                        SpeciesId = reader.GetString (2)
-                        });
-                    }
-                await cnn.CloseAsync ();
-                return lstDatasetDataLM;
-                }
-            catch (Exception ex)
-                {
-                Console.WriteLine ("error: " + ex.Message);
-                cnn.Close ();
-                return new List<DatasetDataLM> ();
-                }
-            }
-        public async Task<bool> Update_DatasetDataLMAsync (DatasetDataLM datasetDataLM)
-            {
-            string sql = "BS.Update_DatasetDataLM";
-            string? connstring = _config.GetConnectionString ("cnni");
-            using SqlConnection cnn = new SqlConnection (connstring);
-            try
-                {
-                using SqlCommand cmd = new SqlCommand (sql, cnn);
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue ("@DatasetDataLMId", datasetDataLM.DatasetDataLMId);
-                cmd.Parameters.AddWithValue ("@DatasetId", datasetDataLM.DatasetId);
-                cmd.Parameters.AddWithValue ("@SpeciesId", datasetDataLM.SpeciesId);
-                await cnn.OpenAsync ();
-                await cmd.ExecuteScalarAsync ();
-                await cnn.CloseAsync ();
-                return true;
-                }
-            catch
-                {
-                await cnn.CloseAsync ();
-                return false;
-                }
-            }
-        public async Task<bool> Delete_DatasetDataLMAsync (int datasetLMId, string speciesId)
-            {
-            string? connString = _config.GetConnectionString ("cnni");
-            string sql = "DT.Delete_DatasetDataLM";
-            using SqlConnection cnn = new (connString);
-            try
-                {
-                await cnn.OpenAsync ();
-                SqlCommand cmd = new (sql, cnn);
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue ("@DatasetLMId", datasetLMId);
-                cmd.Parameters.AddWithValue ("@SpeciesId", speciesId);
+                cmd.Parameters.AddWithValue ("@DatasetDataId", datasetDataId);
                 var i = await cmd.ExecuteNonQueryAsync ();
                 await cnn.CloseAsync ();
                 return true;
@@ -1957,31 +1748,31 @@ namespace AlamutB.Services2Backend
                 }
             }
         #endregion
-        #region DATASETDATA-ST
-        public async Task<bool> Create_DatasetDataSTAsync (DatasetDataST datasetDataST)
+        #region STATIONDATA
+        public async Task<bool> Create_StationDataAsync (StationData stationData)
             {
-            string sql = "BS.Create_DatasetDataST";
+            string sql = "DT.Create_StationData";
             string? connstring = _config.GetConnectionString ("cnni");
             using SqlConnection cnn = new SqlConnection (connstring);
             try
                 {
                 using SqlCommand cmd = new SqlCommand (sql, cnn);
                 cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue ("@StationId", datasetDataST.StationId);
-                cmd.Parameters.AddWithValue ("@Yr", datasetDataST.Yr);
-                cmd.Parameters.AddWithValue ("@DataType", datasetDataST.DataType);
-                cmd.Parameters.AddWithValue ("@M01", datasetDataST.M01);
-                cmd.Parameters.AddWithValue ("@M02", datasetDataST.M02);
-                cmd.Parameters.AddWithValue ("@M03", datasetDataST.M03);
-                cmd.Parameters.AddWithValue ("@M04", datasetDataST.M04);
-                cmd.Parameters.AddWithValue ("@M05", datasetDataST.M05);
-                cmd.Parameters.AddWithValue ("@M06", datasetDataST.M06);
-                cmd.Parameters.AddWithValue ("@M07", datasetDataST.M07);
-                cmd.Parameters.AddWithValue ("@M08", datasetDataST.M08);
-                cmd.Parameters.AddWithValue ("@M09", datasetDataST.M09);
-                cmd.Parameters.AddWithValue ("@M10", datasetDataST.M10);
-                cmd.Parameters.AddWithValue ("@M11", datasetDataST.M11);
-                cmd.Parameters.AddWithValue ("@M12", datasetDataST.M12);
+                cmd.Parameters.AddWithValue ("@StationId", stationData.StationId);
+                cmd.Parameters.AddWithValue ("@Yr", stationData.Yr);
+                cmd.Parameters.AddWithValue ("@DataType", stationData.DataType);
+                cmd.Parameters.AddWithValue ("@M01", stationData.M01);
+                cmd.Parameters.AddWithValue ("@M02", stationData.M02);
+                cmd.Parameters.AddWithValue ("@M03", stationData.M03);
+                cmd.Parameters.AddWithValue ("@M04", stationData.M04);
+                cmd.Parameters.AddWithValue ("@M05", stationData.M05);
+                cmd.Parameters.AddWithValue ("@M06", stationData.M06);
+                cmd.Parameters.AddWithValue ("@M07", stationData.M07);
+                cmd.Parameters.AddWithValue ("@M08", stationData.M08);
+                cmd.Parameters.AddWithValue ("@M09", stationData.M09);
+                cmd.Parameters.AddWithValue ("@M10", stationData.M10);
+                cmd.Parameters.AddWithValue ("@M11", stationData.M11);
+                cmd.Parameters.AddWithValue ("@M12", stationData.M12);
                 await cnn.OpenAsync ();
                 await cmd.ExecuteScalarAsync ();
                 await cnn.CloseAsync ();
@@ -1993,24 +1784,24 @@ namespace AlamutB.Services2Backend
                 return false;
                 }
             }
-        public async Task<List<DatasetDataST>> Read_DatasetDataSTAsync (int datasetId)
+        public async Task<List<StationData>> Read_StationDataAsync (int stationId)
             {
             string? connString = _config.GetConnectionString ("cnni");
-            string sql = "BS.Read_DatasetDataST";
+            string sql = "DT.Read_StationData";
             using SqlConnection cnn = new (connString);
             try
                 {
                 await cnn.OpenAsync ();
                 SqlCommand cmd = new (sql, cnn);
                 cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue ("@DatasetId", datasetId);
+                cmd.Parameters.AddWithValue ("@DatasetId", stationId);
                 SqlDataReader reader = await cmd.ExecuteReaderAsync ();
-                List<DatasetDataST> lstDatasetDataST = new List<DatasetDataST> ();
+                List<StationData> lstStationData = new List<StationData> ();
                 while (await reader.ReadAsync ())
                     {
-                    lstDatasetDataST.Add (new DatasetDataST
+                    lstStationData.Add (new StationData
                         {
-                        DatasetDataSTId = reader.GetInt32 (0),
+                        StationDataId = reader.GetInt32 (0),
                         StationId = reader.GetInt32 (1),
                         Yr = reader.GetInt32 (2),
                         DataType = reader.GetString (3),
@@ -2029,40 +1820,40 @@ namespace AlamutB.Services2Backend
                         });
                     }
                 await cnn.CloseAsync ();
-                return lstDatasetDataST;
+                return lstStationData;
                 }
             catch (Exception ex)
                 {
                 Console.WriteLine ("error: " + ex.Message);
                 cnn.Close ();
-                return new List<DatasetDataST> ();
+                return new List<StationData> ();
                 }
             }
-        public async Task<bool> Update_DatasetDataSTAsync (DatasetDataST datasetDataST)
+        public async Task<bool> Update_StationDataAsync (StationData stationData)
             {
-            string sql = "BS.Update_DatasetDataST";
+            string sql = "BS.Update_StationData";
             string? connstring = _config.GetConnectionString ("cnni");
             using SqlConnection cnn = new SqlConnection (connstring);
             try
                 {
                 using SqlCommand cmd = new SqlCommand (sql, cnn);
                 cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue ("@DatasetDataSTId", datasetDataST.DatasetDataSTId);
-                cmd.Parameters.AddWithValue ("@StationId", datasetDataST.StationId);
-                cmd.Parameters.AddWithValue ("@Yr", datasetDataST.Yr);
-                cmd.Parameters.AddWithValue ("@DataType", datasetDataST.DataType);
-                cmd.Parameters.AddWithValue ("@M01", datasetDataST.M01);
-                cmd.Parameters.AddWithValue ("@M02", datasetDataST.M02);
-                cmd.Parameters.AddWithValue ("@M03", datasetDataST.M03);
-                cmd.Parameters.AddWithValue ("@M04", datasetDataST.M04);
-                cmd.Parameters.AddWithValue ("@M05", datasetDataST.M05);
-                cmd.Parameters.AddWithValue ("@M06", datasetDataST.M06);
-                cmd.Parameters.AddWithValue ("@M07", datasetDataST.M07);
-                cmd.Parameters.AddWithValue ("@M08", datasetDataST.M08);
-                cmd.Parameters.AddWithValue ("@M09", datasetDataST.M09);
-                cmd.Parameters.AddWithValue ("@M10", datasetDataST.M10);
-                cmd.Parameters.AddWithValue ("@M11", datasetDataST.M11);
-                cmd.Parameters.AddWithValue ("@M12", datasetDataST.M12);
+                cmd.Parameters.AddWithValue ("@StationDataId", stationData.StationDataId);
+                cmd.Parameters.AddWithValue ("@StationId", stationData.StationId);
+                cmd.Parameters.AddWithValue ("@Yr", stationData.Yr);
+                cmd.Parameters.AddWithValue ("@DataType", stationData.DataType);
+                cmd.Parameters.AddWithValue ("@M01", stationData.M01);
+                cmd.Parameters.AddWithValue ("@M02", stationData.M02);
+                cmd.Parameters.AddWithValue ("@M03", stationData.M03);
+                cmd.Parameters.AddWithValue ("@M04", stationData.M04);
+                cmd.Parameters.AddWithValue ("@M05", stationData.M05);
+                cmd.Parameters.AddWithValue ("@M06", stationData.M06);
+                cmd.Parameters.AddWithValue ("@M07", stationData.M07);
+                cmd.Parameters.AddWithValue ("@M08", stationData.M08);
+                cmd.Parameters.AddWithValue ("@M09", stationData.M09);
+                cmd.Parameters.AddWithValue ("@M10", stationData.M10);
+                cmd.Parameters.AddWithValue ("@M11", stationData.M11);
+                cmd.Parameters.AddWithValue ("@M12", stationData.M12);
                 await cnn.OpenAsync ();
                 await cmd.ExecuteScalarAsync ();
                 await cnn.CloseAsync ();
@@ -2074,17 +1865,17 @@ namespace AlamutB.Services2Backend
                 return false;
                 }
             }
-        public async Task<bool> Delete_DatasetDataSTAsync (int datasetDataSTId)
+        public async Task<bool> Delete_StationDataAsync (int stationDataId)
             {
             string? connString = _config.GetConnectionString ("cnni");
-            string sql = "BS.Delete_DatasetDataST";
+            string sql = "DT.Delete_StationData";
             using SqlConnection cnn = new (connString);
             try
                 {
                 await cnn.OpenAsync ();
                 SqlCommand cmd = new (sql, cnn);
                 cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue ("@DatasetDataSTId", datasetDataSTId);
+                cmd.Parameters.AddWithValue ("@StationDataId", stationDataId);
                 var i = await cmd.ExecuteNonQueryAsync ();
                 await cnn.CloseAsync ();
                 return true;

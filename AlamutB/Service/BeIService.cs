@@ -56,7 +56,7 @@ namespace AlamutB.Services2Backend
         Task<bool> Create_SpeciesAsync (Species species);
         Task<List<Species>> Read_SpeciesAsync (int genusId);
         Task<List<Species>> Read_SubspeciesAsync (string genusName, string epithet);
-        Task<List<Species>> Read_SpeciesByDatasetIdAsync (int datasetType, int datasetLMId);
+        Task<List<Species>> Read_SpeciesByDatasetIdAsync (int datasetId);
         Task<Species> Read_SpeciesByIdAsync (int speciesId);
         Task<bool> Update_SpeciesAsync (Species species);
         Task<bool> Delete_SpeciesAsync (int speciesId);
@@ -70,23 +70,11 @@ namespace AlamutB.Services2Backend
         Task<bool> Update_DatasetAsync (Dataset dataset);
         Task<bool> Delete_DatasetAsync (int DatasetId);
         #endregion
-        #region DATASETDATA-FL
-        Task<bool> Create_DatasetDataFLAsync (DatasetDataFL datasetDataFL);
-        Task<List<DatasetDataFL>> Read_DatasetDataFLAsync (int datasetId);
-        Task<bool> Update_DatasetDataFLAsync (DatasetDataFL datasetDataFL);
-        Task<bool> Delete_DatasetDataFLAsync (int datasetDataFLId);
-        #endregion
-        #region DATASETDATA-CN
-        Task<bool> Create_DatasetDataCNAsync (DatasetDataCN datasetDataCN);
-        Task<List<DatasetDataCN>> Read_DatasetDataCNAsync (int datasetId);
-        Task<bool> Update_DatasetDataCNAsync (DatasetDataCN datasetDataCN);
-        Task<bool> Delete_DatasetDataCNAsync (int datasetDataCNId);
-        #endregion
-        #region DATASETDATA-LM
-        Task<bool> Create_DatasetDataLMAsync (DatasetDataLM datasetDataLM);
-        Task<List<DatasetDataLM>> Read_DatasetDataLMAsync (int datasetId);
-        Task<bool> Update_DatasetDataLMAsync (DatasetDataLM datasetDataLM);
-        Task<bool> Delete_DatasetDataLMAsync (int datasetLMId, string speciesId);
+        #region DATASETDATA
+        Task<bool> Create_DatasetDataAsync (DatasetData datasetData);
+        Task<List<DatasetData>> Read_DatasetDataAsync (int datasetId);
+        Task<bool> Update_DatasetDataAsync (DatasetData datasetData);
+        Task<bool> Delete_DatasetDataAsync (int datasetDataId);
         #endregion
         #region STATION
         Task<bool> Create_StationAsync (Station station);
@@ -95,11 +83,11 @@ namespace AlamutB.Services2Backend
         Task<bool> Update_StationAsync (Station station);
         Task<bool> Delete_StationAsync (int stationId);
         #endregion
-        #region DATASETDATA-ST
-        Task<bool> Create_DatasetDataSTAsync (DatasetDataST datasetDataST);
-        Task<List<DatasetDataST>> Read_DatasetDataSTAsync (int datasetId);
-        Task<bool> Update_DatasetDataSTAsync (DatasetDataST datasetDataST);
-        Task<bool> Delete_DatasetDataSTAsync (int datasetDataSTId);
+        #region STATIONDATA
+        Task<bool> Create_StationDataAsync (StationData stationData);
+        Task<List<StationData>> Read_StationDataAsync (int stationId);
+        Task<bool> Update_StationDataAsync (StationData stationData);
+        Task<bool> Delete_StationDataAsync (int stationDataId);
         #endregion
         #region SET
         Task<bool> Create_SetAsync (Set set);

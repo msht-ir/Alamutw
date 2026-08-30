@@ -231,9 +231,9 @@ namespace AlamutB.Backend
             return Ok (result);
             }
         [HttpPost ("Read_SpeciesByDatasetId")]
-        public async Task<ActionResult<List<Species>>> Read_SpeciesByDatasetId ([FromBody] int datasetId, [FromQuery] int datasetType)
+        public async Task<ActionResult<List<Species>>> Read_SpeciesByDatasetId ([FromBody] int datasetId)
             {
-            var result = await _BeService.Read_SpeciesByDatasetIdAsync (datasetType, datasetId);
+            var result = await _BeService.Read_SpeciesByDatasetIdAsync (datasetId);
             return Ok (result);
             }
         [HttpPost ("Read_SpeciesById")]
@@ -300,81 +300,29 @@ namespace AlamutB.Backend
             return Ok (result);
             }
         #endregion
-        #region DATASETDATA-FL
-        [HttpPost ("Create_DatasetDataFL")]
-        public async Task<ActionResult<bool>> Create_DatasetDataFL ([FromBody] DatasetDataFL datasetDataFL)
+        #region DATASETDATA
+        [HttpPost ("Create_DatasetData")]
+        public async Task<ActionResult<bool>> Create_DatasetData ([FromBody] DatasetData datasetData)
             {
-            var result = await _BeService.Create_DatasetDataFLAsync (datasetDataFL);
+            var result = await _BeService.Create_DatasetDataAsync (datasetData);
             return Ok (result);
             }
-        [HttpPost ("Read_DatasetDataFL")]
-        public async Task<ActionResult<List<DatasetDataFL>>> Read_DatasetDataFL ([FromBody] int datasetId)
+        [HttpPost ("Read_DatasetData")]
+        public async Task<ActionResult<List<DatasetData>>> Read_DatasetData ([FromBody] int datasetId)
             {
-            var result = await _BeService.Read_DatasetDataFLAsync (datasetId);
+            var result = await _BeService.Read_DatasetDataAsync (datasetId);
             return Ok (result);
             }
-        [HttpPost ("Update_DatasetDataFL")]
-        public async Task<ActionResult<bool>> Update_DatasetDataFL ([FromBody] DatasetDataFL datasetDataFL)
+        [HttpPost ("Update_DatasetData")]
+        public async Task<ActionResult<bool>> Update_DatasetData ([FromBody] DatasetData datasetData)
             {
-            var result = await _BeService.Update_DatasetDataFLAsync (datasetDataFL);
+            var result = await _BeService.Update_DatasetDataAsync (datasetData);
             return Ok (result);
             }
-        [HttpPost ("Delete_DatasetDataFL")]
-        public async Task<ActionResult<bool>> Delete_DatasetDataFL ([FromBody] int datasetDataFLId)
+        [HttpPost ("Delete_DatasetData")]
+        public async Task<ActionResult<bool>> Delete_DatasetData ([FromBody] int datasetDataId)
             {
-            var result = await _BeService.Delete_DatasetDataFLAsync (datasetDataFLId);
-            return Ok (result);
-            }
-        #endregion
-        #region DATASETDATA-CN
-        [HttpPost ("Create_DatasetDataCN")]
-        public async Task<ActionResult<bool>> Create_DatasetDataCN ([FromBody] DatasetDataCN datasetDataCN)
-            {
-            var result = await _BeService.Create_DatasetDataCNAsync (datasetDataCN);
-            return Ok (result);
-            }
-        [HttpPost ("Read_DatasetDataCNs")]
-        public async Task<ActionResult<List<DatasetDataCN>>> Read_DatasetDataCN ([FromBody] int datasetId)
-            {
-            var result = await _BeService.Read_DatasetDataCNAsync (datasetId);
-            return Ok (result);
-            }
-        [HttpPost ("Update_DatasetDataCN")]
-        public async Task<ActionResult<bool>> Update_DatasetDataCN ([FromBody] DatasetDataCN datasetDataCN)
-            {
-            var result = await _BeService.Update_DatasetDataCNAsync (datasetDataCN);
-            return Ok (result);
-            }
-        [HttpPost ("Delete_DatasetDataCN")]
-        public async Task<ActionResult<bool>> Delete_DatasetDataCN ([FromBody] int datasetDataCNId)
-            {
-            var result = await _BeService.Delete_DatasetDataCNAsync (datasetDataCNId);
-            return Ok (result);
-            }
-        #endregion
-        #region DATASETDATA-LM
-        [HttpPost ("Create_DatasetDataLM")]
-        public async Task<ActionResult<bool>> Create_DatasetDataLM ([FromBody] DatasetDataLM datasetDataLM)
-            {
-            var result = await _BeService.Create_DatasetDataLMAsync (datasetDataLM);
-            return Ok (result);
-            }
-        [HttpPost ("Read_DatasetDataLM")]
-        public async Task<ActionResult<List<DatasetDataLM>>> Read_DatasetDataLM ([FromBody] int datasetId)
-            {
-            var result = await _BeService.Read_DatasetDataLMAsync (datasetId);
-            return Ok (result);
-            }
-        [HttpPost ("Update_DatasetDataLM")]
-        public async Task<ActionResult<bool>> Update_DatasetDataLM ([FromBody] DatasetDataLM datasetDataLM)
-            {
-            var result = await _BeService.Update_DatasetDataLMAsync (datasetDataLM);
-            return Ok (result);
-            }
-        [HttpPost ("Delete_DatasetDataLM")]
-        public async Task<ActionResult<bool>> Delete_DatasetDataLM ([FromQuery] int datasetLMId, [FromQuery] string speciesId)
-            {
-            var result = await _BeService.Delete_DatasetDataLMAsync (datasetLMId, speciesId);
+            var result = await _BeService.Delete_DatasetDataAsync (datasetDataId);
             return Ok (result);
             }
         #endregion
@@ -404,29 +352,29 @@ namespace AlamutB.Backend
             return Ok (result);
             }
         #endregion
-        #region DATASETDATA-ST
-        [HttpPost ("Create_DatasetDataST")]
-        public async Task<ActionResult<bool>> Create_DatasetDataST ([FromBody] DatasetDataST datasetDataST)
+        #region STATIONDATA
+        [HttpPost ("Create_StationData")]
+        public async Task<ActionResult<bool>> Create_StationData ([FromBody] StationData stationData)
             {
-            var result = await _BeService.Create_DatasetDataSTAsync (datasetDataST);
+            var result = await _BeService.Create_StationDataAsync (stationData);
             return Ok (result);
             }
-        [HttpPost ("Read_DatasetDataSTs")]
-        public async Task<ActionResult<List<DatasetDataST>>> Read_DatasetDataST ([FromBody] int datasetId)
+        [HttpPost ("Read_StationData")]
+        public async Task<ActionResult<List<StationData>>> Read_StationData ([FromBody] int datasetId)
             {
-            var result = await _BeService.Read_DatasetDataSTAsync (datasetId);
+            var result = await _BeService.Read_StationDataAsync (datasetId);
             return Ok (result);
             }
-        [HttpPost ("Update_DatasetDataST")]
-        public async Task<ActionResult<bool>> Update_DatasetDataST ([FromBody] DatasetDataST datasetDataST)
+        [HttpPost ("Update_StationData")]
+        public async Task<ActionResult<bool>> Update_StationData ([FromBody] StationData stationData)
             {
-            var result = await _BeService.Update_DatasetDataSTAsync (datasetDataST);
+            var result = await _BeService.Update_StationDataAsync (stationData);
             return Ok (result);
             }
-        [HttpPost ("Delete_DatasetDataST")]
-        public async Task<ActionResult<bool>> Delete_DatasetDataST ([FromBody] int datasetDataSTId)
+        [HttpPost ("Delete_StationData")]
+        public async Task<ActionResult<bool>> Delete_StationData ([FromBody] int stationDataId)
             {
-            var result = await _BeService.Delete_DatasetDataSTAsync (datasetDataSTId);
+            var result = await _BeService.Delete_StationDataAsync (stationDataId);
             return Ok (result);
             }
         #endregion

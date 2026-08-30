@@ -349,9 +349,9 @@ namespace AlamutB.Service
                 return new List<Species> ();
                 }
             }
-        public async Task<List<Species>> Read_SpeciesByDatasetId (int datasetType, int datasetId)
+        public async Task<List<Species>> Read_SpeciesByDatasetId (int datasetId)
             {
-            var response = await _http.PostAsJsonAsync ($"api/Read_SpeciesByDatasetId?datasetType={datasetType}", datasetId);
+            var response = await _http.PostAsJsonAsync ($"api/Read_SpeciesByDatasetId", datasetId);
             if (response.IsSuccessStatusCode)
                 {
                 List<Species> lstSpecies = await response.Content.ReadFromJsonAsync<List<Species>> ();
@@ -449,10 +449,10 @@ namespace AlamutB.Service
             return (response.IsSuccessStatusCode) ? true : false;
             }
         #endregion
-        #region DATASETDATA-FL
-        public async Task<bool> Create_DatasetDataFL (DatasetDataFL datasetDataFL)
+        #region DATASETDATA
+        public async Task<bool> Create_DatasetData (DatasetData datasetData)
             {
-            var response = await _http.PostAsJsonAsync ("api/Create_DatasetDataFL", datasetDataFL);
+            var response = await _http.PostAsJsonAsync ("api/Create_DatasetData", datasetData);
             if (response.IsSuccessStatusCode)
                 {
                 return true;
@@ -462,102 +462,27 @@ namespace AlamutB.Service
                 return false;
                 }
             }
-        public async Task<List<DatasetDataFL>> Read_DatasetDataFL (int datasetId)
+        public async Task<List<DatasetData>> Read_DatasetData (int datasetId)
             {
-            var response = await _http.PostAsJsonAsync ("api/Read_DatasetDataFL", datasetId);
+            var response = await _http.PostAsJsonAsync ("api/Read_DatasetData", datasetId);
             if (response.IsSuccessStatusCode)
                 {
-                List<DatasetDataFL> lstDatasetDataFL = await response.Content.ReadFromJsonAsync<List<DatasetDataFL>> ();
-                return lstDatasetDataFL;
+                List<DatasetData> lstDatasetData = await response.Content.ReadFromJsonAsync<List<DatasetData>> ();
+                return lstDatasetData;
                 }
             else
                 {
-                return new List<DatasetDataFL> ();
+                return new List<DatasetData> ();
                 }
             }
-        public async Task<bool> Update_DatasetDataFL (DatasetDataFL datasetDataFL)
+        public async Task<bool> Update_DatasetData (DatasetData datasetData)
             {
-            var response = await _http.PostAsJsonAsync ("api/Update_DatasetDataFL", datasetDataFL);
+            var response = await _http.PostAsJsonAsync ("api/Update_DatasetData", datasetData);
             return (response.IsSuccessStatusCode) ? true : false;
             }
-        public async Task<bool> Delete_DatasetDataFL (int datasetDataFLId)
+        public async Task<bool> Delete_DatasetData (int datasetDataId)
             {
-            var response = await _http.PostAsJsonAsync ("api/Delete_DatasetDataFL", datasetDataFLId);
-            return (response.IsSuccessStatusCode) ? true : false;
-            }
-        #endregion
-        #region DATASETDATA-CN
-        public async Task<bool> Create_DatasetDataCN (DatasetDataCN datasetDataCN)
-            {
-            var response = await _http.PostAsJsonAsync ("api/Create_DatasetDataCN", datasetDataCN);
-            if (response.IsSuccessStatusCode)
-                {
-                return true;
-                }
-            else
-                {
-                return false;
-                }
-            }
-        public async Task<List<DatasetDataCN>> Read_DatasetDataCN (int datasetId)
-            {
-            var response = await _http.PostAsJsonAsync ("api/Read_DatasetDataCN", datasetId);
-            if (response.IsSuccessStatusCode)
-                {
-                List<DatasetDataCN> lstDatasetDataCN = await response.Content.ReadFromJsonAsync<List<DatasetDataCN>> ();
-                return lstDatasetDataCN;
-                }
-            else
-                {
-                return new List<DatasetDataCN> ();
-                }
-            }
-        public async Task<bool> Update_DatasetDataCN (DatasetDataCN datasetDataCN)
-            {
-            var response = await _http.PostAsJsonAsync ("api/Update_DatasetDataCN", datasetDataCN);
-            return (response.IsSuccessStatusCode) ? true : false;
-            }
-        public async Task<bool> Delete_DatasetDataCN (int datasetDataCNId)
-            {
-            var response = await _http.PostAsJsonAsync ("api/Delete_DatasetDataCN", datasetDataCNId);
-            return (response.IsSuccessStatusCode) ? true : false;
-            }
-        #endregion
-        #region DATASETDATA-LM
-        public async Task<bool> Create_DatasetDataLM (DatasetDataLM datasetDataLM)
-            {
-            var response = await _http.PostAsJsonAsync ("api/Create_DatasetDataLM", datasetDataLM);
-            if (response.IsSuccessStatusCode)
-                {
-                return true;
-                }
-            else
-                {
-                return false;
-                }
-            }
-        public async Task<List<DatasetDataLM>> Read_DatasetDataLM (int datasetId)
-            {
-            var response = await _http.PostAsJsonAsync ("api/Read_DatasetDataLM", datasetId);
-            if (response.IsSuccessStatusCode)
-                {
-                List<DatasetDataLM> lstDatasetDataLM = await response.Content.ReadFromJsonAsync<List<DatasetDataLM>> ();
-                return lstDatasetDataLM;
-                }
-            else
-                {
-                return new List<DatasetDataLM> ();
-                }
-            }
-        public async Task<bool> Update_DatasetDataLM (DatasetDataLM datasetDataLM)
-            {
-            var response = await _http.PostAsJsonAsync ("api/Update_DatasetDataLM", datasetDataLM);
-            return (response.IsSuccessStatusCode) ? true : false;
-            }
-        public async Task<bool> Delete_DatasetDataLM (int datasetLMId, string speciesId)
-            {
-            //send both parameters as [FromQuery] because json was unable to serialize 'int' in Body 
-            var response = await _http.PostAsync ($"api/Delete_DatasetDataLM?datasetLMId={datasetLMId}&speciesId={speciesId}", null);
+            var response = await _http.PostAsJsonAsync ("api/Delete_DatasetData", datasetDataId);
             return (response.IsSuccessStatusCode) ? true : false;
             }
         #endregion
@@ -598,10 +523,10 @@ namespace AlamutB.Service
             return (response.IsSuccessStatusCode) ? true : false;
             }
         #endregion
-        #region DATASETDATA-ST
-        public async Task<bool> Create_DatasetDataST (DatasetDataST datasetDataST)
+        #region STATIONDATA
+        public async Task<bool> Create_StationData (StationData stationData)
             {
-            var response = await _http.PostAsJsonAsync ("api/Create_DatasetDataST", datasetDataST);
+            var response = await _http.PostAsJsonAsync ("api/Create_StationData", stationData);
             if (response.IsSuccessStatusCode)
                 {
                 return true;
@@ -611,27 +536,27 @@ namespace AlamutB.Service
                 return false;
                 }
             }
-        public async Task<List<DatasetDataST>> Read_DatasetDataST (int stationId)
+        public async Task<List<StationData>> Read_StationData (int stationId)
             {
-            var response = await _http.PostAsJsonAsync ("api/Read_DatasetDataST", stationId);
+            var response = await _http.PostAsJsonAsync ("api/Read_StationData", stationId);
             if (response.IsSuccessStatusCode)
                 {
-                List<DatasetDataST> lstDatasetDataST = await response.Content.ReadFromJsonAsync<List<DatasetDataST>> ();
-                return lstDatasetDataST;
+                List<StationData> lstStationData = await response.Content.ReadFromJsonAsync<List<StationData>> ();
+                return lstStationData;
                 }
             else
                 {
-                return new List<DatasetDataST> ();
+                return new List<StationData> ();
                 }
             }
-        public async Task<bool> Update_DatasetDataST (DatasetDataST datasetDataST)
+        public async Task<bool> Update_StationData (StationData stationData)
             {
-            var response = await _http.PostAsJsonAsync ("api/Update_DatasetDataST", datasetDataST);
+            var response = await _http.PostAsJsonAsync ("api/Update_StationData", stationData);
             return (response.IsSuccessStatusCode) ? true : false;
             }
-        public async Task<bool> Delete_DatasetDataST (int datasetDataSTId)
+        public async Task<bool> Delete_StationData (int stationDataId)
             {
-            var response = await _http.PostAsJsonAsync ("api/Delete_DatasetDataST", datasetDataSTId);
+            var response = await _http.PostAsJsonAsync ("api/Delete_StationData", stationDataId);
             return (response.IsSuccessStatusCode) ? true : false;
             }
         #endregion
