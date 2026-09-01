@@ -37,13 +37,13 @@ else
                        Color="Color.Primary"
                        Size="Size.Large"
                        Title="Switchboard" />
-            <button class="btn btn-link pulse-hover" @onclick="BtnAddNewDatasetCN">
+            <button class="btn btn-link pulse-hover" @onclick="BtnAddNewDataset">
             <img src="/img/icoAdd1.png" width="24" />
             </button>
         </div>
         <EditForm Model="lstNotes">
-        @* ADD NEW DATASET CN *@
-        @if (_cmd == "cmdAddNewDataset")
+        @* ADD NEW DATASET *@
+        @if (_cmd1 == "cmdAddNewDataset")
             {
             <br />
                 <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-1 mb-4 px-0">
@@ -77,7 +77,7 @@ else
                             <img src="/img/icoList1.png" width="20" />
                             </button>
                         </div>
-                    @* LIST DataSets CN *@
+                    @* LIST DataSets *@
                     @foreach (Dataset dataset in lstDatasets)
                         {
                             <div class="d-flex align-items-center mb-1">
@@ -94,7 +94,7 @@ else
                                 <button type="button"
                                     class="btn btn-link"
                                     style="margin-left:1px"
-                                    @onclick='() => BtnEditDatasetCN(dataset)'
+                                    @onclick='() => BtnEditDataset(dataset)'
                                     Title=@($"edit dataset id: {dataset.DatasetId}")>
                                 <img src="/img/icoRename.png" width="24" />
                                 </button>
@@ -102,8 +102,8 @@ else
                                 <button type="button"
                                     class="btn btn-link"
                                     style="margin-left:1px"
-                                    @onclick='() => BtnListSpeciesOfDatasetsCN(dataset.DatasetId, true)'
-                                    Title=@($"show list of speciesin dataset id: {dataset.DatasetId}")>
+                                    @onclick='() => BtnListDatasetDataOfDataset(dataset.DatasetId, true)'
+                                    Title=@($"show list of species in dataset id: {dataset.DatasetId}")>
                                 <img src="/img/icoList1.png" width="22" />
                                 </button>
                             @* Note *@
@@ -118,23 +118,23 @@ else
                             &nbsp;
                             <span style="color:indianred;font-size:x-small;font-weight:normal;"> &nbsp; (<span style="color:royalblue;font-size:x-small;font-weight:normal;"> @dataset.DatasetId </span>) </span>
                             </div>
-                        @if ((_cmd == "cmdImportDatasetDataCN") && (dataset.DatasetId == _datasetCNId))
+                        @if ((_cmd1 == "cmdImportDatasetData") && (dataset.DatasetId == _datasetId))
                             {
                             <br />
                                 <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-1 mb-4 px-0">
                                     <MudCard Class="mx-0">
                                         <MudCardContent Style="background-color:rgba(240,240,240);">
                                             <div>
-                                            <span style="font-size:smaller">Import data for: <span style="color:indianred">@dataset.DatasetName</span></span>
+                                            <span style="font-size:smaller">Select Excel file containing raw data for: <span style="color:indianred">@dataset.DatasetName</span></span>
                                             <br />
                                             <br />
-                                            <InputFile OnChange="HandleFileSelected" title="Refer to Examiner guide for correct Excel format" />
+                                            <InputFile OnChange="HandleFileSelected" title="Refer to Alamut guide for correct Excel format" />
                                             </div>
                                         </MudCardContent>
                                     </MudCard>
                                 </MudContainer>
                             }
-                        else if (_cmd == "ShowWorksheetNames")
+                        else if ((_cmd1 == "ShowWorksheetNames") && (dataset.DatasetId == _datasetId))
                             {
                             <br />
                                 <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-2 px-0">
@@ -144,11 +144,11 @@ else
                                             <div class="d-flex">
                                                 <MudSelect T="string"
                                                        @ref="refWorksheets"
-                                                       Label="Worksheet"
+                                                       Label="excel worksheet"
                                                        Value="WorksheetName"
                                                        ValueChanged="@((string worcksheetname) => OnWorksheetChanged(worcksheetname))"
                                                        Class="w-auto"
-                                                       Variant="Variant.Outlined"
+                                                       Variant="Variant.Text"
                                                        Margin="Margin.Dense"
                                                        Style="font-size:small;">
                                                 @foreach (string ws in lstWorksheets)
@@ -157,12 +157,8 @@ else
                                                     }
                                                 </MudSelect>
                                                 <button class="btn btn-link" Title="import from excel" @onclick="() => ReadExcelAsync()">
-                                                <img src="/img/icoGo1.png" width="36" />
+                                                <img src="/img/icoGo.png" width="36" />
                                                 </button>
-                                            </div>
-                                        <br /><br />
-                                        <hr />
-                                            <div style="text-align:center">
                                                 <button class="btn btn-link" style="margin-right:20px;" @onclick="BtnCancel">
                                                 <img src="/img/icoCancel.png" width="24" />
                                                 </button>
@@ -171,7 +167,7 @@ else
                                     </MudCard>
                                 </MudContainer>
                             }
-                        else if ((_cmd == "cmdEditDatasetCN") && (dataset.DatasetId == _datasetCNId))
+                        else if ((_cmd1 == "cmdEditDataset") && (dataset.DatasetId == _datasetId))
                             {
                             <br />
                                 <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-1 mb-4 px-0">
@@ -184,22 +180,28 @@ else
                                 </MudContainer>
                             }
 
-                        @if (_cmd == "cmdViewDataset")
-                            {
-
-                            }
-                        else if ((_cmd == "cmdListDatasetData") && (dataset.DatasetId == _datasetId))
+                        else if ((_cmd1 == "cmdListDatasetData") && (dataset.DatasetId == _datasetId))
                             {
                             @* LIST SPECIES *@
                                 <MudCard Class="mx-0">
                                     <MudCardContent Style="background-color:rgba(240,240,240);">
-                                    <h6 style="text-align:center;color:royalblue">Species <span style="font-size:x-small;color:indianred"> ( @lstSpecies.Count() )</span></h6>
+                                    <h6 style="text-align:center;color:royalblue">Dataset species <span style="font-size:x-small;color:indianred"> ( count @lstDatasetData.Count() )</span></h6>
+                                    @* CHECKNAME & ENCODE LIST *@
+                                        <div class="d-flex justify-content-center">
+                                            <button type="button"
+                                                class="btn btn-link"
+                                                style="margin-left:1px"
+                                                @onclick='() => CheckNameDataset(dataset)'
+                                                Title="perform CheckName">
+                                            <img src="/img/icoCheckName0.png" width="36" />
+                                            </button>
+                                        </div>
                                     <hr style="color:indianred" />
                                     @* Filter *@
                                         <div class="d-flex">
                                         <MudTextField @ref="refFilterSpeciesList"
                                                       @bind-Value="_speciesListFilter"
-                                                      Label="filter species"
+                                                      Label="search raw data"
                                                       Variant="Variant.Text"
                                                       Margin="Margin.Dense"
                                                       Immediate="true"
@@ -211,37 +213,141 @@ else
                                             <button type="button"
                                                 class="btn btn-link"
                                                 style="margin-left:1px"
-                                                @onclick='() => BtnListSpeciesOfDatasetsCN(dataset.DatasetId, false)'
-                                                Title="Show sub-Species">
+                                                @onclick='() => BtnListDatasetDataOfDataset(dataset.DatasetId, false)'
+                                                Title="refresh list">
                                             <img src="/img/icoList1.png" width="22" />
                                             </button>
                                         </div>
-                                    @foreach (Species species in lstSpecies)
-                                        {
-                                            <div class="d-flex align-items-center mb-1" style=" margin-left:40px;">
-                                            <input class="form-check-input"
-                                                   style="margin-left:1px;margin-right:1px;"
-                                                   type="checkbox"
-                                                   @bind="species.IsSelected" />
-                                                <button type="button"
-                                                    class="btn btn-link"
-                                                    style="margin-left:1px"
-                                                    @onclick='() => BtnShowSubspecies(species)'
-                                                    Title="Show sub-Species">
-                                                <img src="/img/icoList1.png" width="24" />
-                                                </button>
-                                                <button type="button"
-                                                    class="btn btn-link"
-                                                    style="margin-left:1px"
-                                                    @onclick='() => BtnCreateNoteForSpecies(species.SpeciesId)'
-                                                    Title="Note for Species">
-                                                <img src="/img/icoNoteStickyAdd.png" width="22" />
-                                                </button>
-                                            <span style="font-size:smaller">@species.SciName </span>
-                                            <span style="font-size:smaller;color:forestgreen">&nbsp; @((species.NomStatus == 1) ? " -- valid " : "") </span>
-                                            <span style="font-size:smaller;color:darkgoldenrod">&nbsp; @((species.TaxStatus == 1) ? " -- accepted " : "") </span>
-                                            </div>
-                                        }
+                                    <br />
+                                    <br />
+                                        <table class="table table-borderless table-sm" style="margin-bottom: 0; border-collapse: collapse;">
+                                            <tr>
+                                            <th style="padding: 1px 1px;">Raw Data </th>
+                                            <th style="padding: 1px 1px;">Fetched SciName</th>
+                                            </tr>
+                                        @foreach (DatasetData datasetData in lstDatasetData)
+                                            {
+                                                <tr>
+                                                    <td>
+                                                        <div class="d-flex align-items-center mb-1">
+                                                        @if ((_cmd2 == "EditDatasetData") && (datasetData.DatasetDataId == _datasetDataId))
+                                                            {
+                                                                <tr>
+                                                                    <td>
+                                                                        <div class="d-flex">
+                                                                        <MudTextField @ref="refEditDatasetData"
+                                                                                      @bind-Value="datasetData.LineString"
+                                                                                      Label="edit"
+                                                                                      Variant="Variant.Text"
+                                                                                      Margin="Margin.Dense"
+                                                                                      Autocomplete="off"
+                                                                                      Adornment="Adornment.End"
+                                                                                      AdornmentIcon="@Icons.Material.Filled.Save"
+                                                                                      OnAdornmentClick="@(() => UpdateDatasetData (datasetData))"
+                                                                                      AdornmentColor="Color.Dark"
+                                                                                      Style="color:darkblue;width:400px;"
+                                                                                      Class="my-textfield" />
+                                                                            <button class="btn btn-link" style="margin-left:10px;" Title="cancel" @onclick="BtnCancelEditDatasetData">
+                                                                            <img src="/img/icoCancel.png" width="18" />
+                                                                            </button>
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                            }
+                                                        else
+                                                            {
+                                                            <input class="form-check-input"
+                                                                   style="margin-left:1px;margin-right:1px;"
+                                                                   type="checkbox"
+                                                                   @bind="datasetData.IsSelected" />
+                                                                <button type="button"
+                                                                    class="btn btn-link"
+                                                                    style="margin-left:1px"
+                                                                    @onclick='@(() => BtnRemoveSpeciesFromDataset(datasetData.DatasetDataId))'
+                                                                    Title="delete">
+                                                                <img src="/img/icoDelete1.png" width="18" />
+                                                                </button>
+                                                                <button type="button"
+                                                                    class="btn btn-link"
+                                                                    style="margin-left:1px"
+                                                                    @onclick='@(() => BtnEditDatasetData(datasetData))'
+                                                                    Title="edit">
+                                                                <img src="/img/icoRename.png" width="26" />
+                                                                </button>
+                                                                <button type="button"
+                                                                    class="btn btn-link"
+                                                                    style="margin-left:1px"
+                                                                    @onclick='@(() => CheckNameThisDatasetData(datasetData, false, true))'
+                                                                    Title="edit">
+                                                                <img src="/img/icoCheckName0.png" width="20" />
+                                                                </button>
+                                                            <span style="color:darkblue;font-size:smaller">@datasetData.LineString </span>
+                                                            }
+                                                        <br />
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                    <span style="font-size:smaller">@(datasetData.ParsedGenus + ' ' + datasetData.ParsedEpithet + ' ' + datasetData.Infraspecific) </span>
+                                                    </td>
+                                                </tr>
+                                            @if ((_cmd2 == "CheckNameThisDatasetData") && (datasetData.DatasetDataId == _datasetDataId))
+                                                {
+                                                    <tr>
+                                                        <td>
+                                                            <div>
+                                                                <MudCard Class="mx-0">
+                                                                    <MudCardContent Style="background-color:rgba(230,230,230);width:100%;">
+                                                                    @if (lstSpecies.Any())
+                                                                        {
+                                                                        @foreach (Species spcs in lstSpecies)
+                                                                            {
+                                                                                <div class="d-flex align-items-center mb-1">
+                                                                                    <button type="button"
+                                                                                        class="btn btn-link"
+                                                                                        style="margin-left:1px"
+                                                                                        @onclick='@(() => BtnUseThisSciNameManually(spcs, datasetData))'
+                                                                                        Title="use this name">
+                                                                                    <img src="/img/icoGo.png" width="18" />
+                                                                                    </button>
+                                                                                <span style="font-size:small;font-weight:bold;margin-left:15px;">@spcs.SciName</span>
+                                                                                </div>
+                                                                            }
+                                                                            <div class="d-flex align-items-center mb-1">
+                                                                                <button type="button"
+                                                                                    class="btn btn-link"
+                                                                                    style="margin-left:1px"
+                                                                                    @onclick='@(() => BtnCancelEditDatasetData())'
+                                                                                    Title="cancel">
+                                                                                <img src="/img/icoCancel.png" width="18" />
+                                                                                </button>
+                                                                            <span style="font-size:small;font-weight:bold;margin-left:15px;">Cancel</span>
+                                                                            </div>
+                                                                        }
+                                                                    else
+                                                                        {
+                                                                            <div class="d-flex align-items-center" style=" color:royalblue;font-size:smaller;font-style:italic;margin-left:20px;">
+                                                                            Not found! Try edit the SciName manually
+                                                                                <button type="button"
+                                                                                    class="btn btn-link"
+                                                                                    style="margin-left:10px"
+                                                                                    @onclick='@(() => BtnCancelEditDatasetData())'
+                                                                                    Title="cancel">
+                                                                                <img src="/img/icoCancel.png" width="20" />
+                                                                                </button>
+                                                                            </div>
+                                                                        }
+                                                                    </MudCardContent>
+                                                                </MudCard>
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                        </td>
+                                                        <td>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            }
+                                        </table>
                                     @* Close the List (BOTTOM) *@
                                         <button class="btn btn-link pulse-hover" @onclick="CloseSpeciesList">
                                         <img src="/img/icoGotoTop2.png" width="32" />
@@ -262,11 +368,6 @@ else
                            Color="Color.Primary"
                            Size="Size.Large"
                            Title="Switchboard" />
-            <MudIconButton OnClick="BtnHelp"
-                           Icon="@Icons.Material.Filled.HelpCenter"
-                           Color="Color.Tertiary"
-                           Size="Size.Large"
-                           Title="Help" />
                 <button class="btn btn-link pulse-hover" @onclick="ScrollToTop">
                 <img src="/img/icoGotoTop2.png" width="32" />
                 </button>
@@ -303,21 +404,23 @@ else
         {
         get; set;
         }
-    User user = new User();
-    List<Note> lstNotes = new List<Note>();
-    List<Dataset> lstDatasets = new List<Dataset>();
-    List<DatasetData> lstDatasetData = new List<DatasetData>();
-    DatasetData datasetData = new DatasetData();
+    private User user = new User();
+    private List<Note> lstNotes = new List<Note>();
+    private List<Dataset> lstDatasets = new List<Dataset>();
+    private List<DatasetData> lstDatasetData = new List<DatasetData>();
+    private DatasetData datasetData = new DatasetData();
 
-    public Dataset datasetCN = new Dataset();
-    public int _datasetCNId = 0;
-    public string _datasetCNName = "";
+    public Dataset dataset = new Dataset();
+    public int _datasetId = 0;
+    private string _datasetName = "";
+    private string _datasetFilter = "";
     public string _datasetSearchText = "";
+    public int _datasetDataId = 0;
 
     //species
     public MudTextField<string> refFilterSpeciesList;
-    List<Species> lstSpecies = new();
-    Species species = new Species();
+    public List<Species> lstSpecies = new();
+    public Species species = new Species();
     private string _speciesId = "";
     private string _speciesName = "";
     private string _speciesListFilter = "";
@@ -326,10 +429,6 @@ else
     public MudTextField<string> refNewDataset;
     public MudTextField<string> refSearchDataset;
     public MudTextField<string> refFilterDatasets;
-    Dataset dataset = new Dataset();
-    private int _datasetId = 0;
-    private string _datasetName = "";
-    private string _datasetFilter = "";
 
     IBrowserFile? excelFile;
     MemoryStream stream = new MemoryStream();
@@ -337,7 +436,7 @@ else
     private MudSelect<string> refWorksheets;
     private MudNumericField<int> refPageNumber;
     private MudTextField<string> txtSearch;
-    List<string> lstWorksheets = new List<string>();
+    public List<string> lstWorksheets = new List<string>();
     private string WorksheetName = "";
     public string strSearch = "";
     public int intPageNumber = 1;
@@ -345,8 +444,17 @@ else
     private int intPendingPageNumber = 1; //value typed in the input (prevent changing i (index number) of tests in list)
     public string strExcelFile = "";
 
+    public MudTextField<string> refEditDatasetData;
+    private string _datasetDataLineString = "";
+
+    string Current_Genus = "";
+    string Current_Section = "";
+    string Current_Species = "";
+    string Current_Spec_Author = "";
+
     public int i = 0;
-    string _cmd = "";
+    string _cmd1 = "";
+    string _cmd2 = "";
     public bool _hasFetched = false;
 
     //LifeCycleEvents
@@ -375,9 +483,9 @@ else
     //Excel
     public void BtnImportFromExcelFile (int datasetId)
         {
-        //lstDatasetsCN.FirstOrDefault(ds => ds.DatasetId == datasetId)?.IsSelected = true;
-        _cmd = ((_cmd == "cmdImportDatasetDataCN") && (datasetId == _datasetCNId)) ? "" : "cmdImportDatasetDataCN";
-        _datasetCNId = datasetId;
+        //lstDataset.FirstOrDefault(ds => ds.DatasetId == datasetId)?.IsSelected = true;
+        _cmd1 = ((_cmd1 == "cmdImportDatasetData") && (datasetId == _datasetId)) ? "" : "cmdImportDatasetData";
+        _datasetId = datasetId;
         }
     private async Task HandleFileSelected (InputFileChangeEventArgs e)
         {
@@ -394,53 +502,24 @@ else
             // Copy stream (same as before)
             await excelFile.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024).CopyToAsync(stream);
             stream.Position = 0;
-
-            // Use EPPlus to read worksheet names
+            //use EPPlus to get worksheets
             using var package = new ExcelPackage(stream);
             lstWorksheets = package.Workbook.Worksheets
                 .Select(ws => ws.Name)
                 .ToList();
 
             StateHasChanged();
-            Snackbar.Add("Excel worksheets listed", Severity.Success);
-            _cmd = "ShowWorksheetNames";
+            Snackbar.Add("Excel worksheets listed", Severity.Success, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+            _cmd1 = "ShowWorksheetNames";
             _hasFetched = true;
             }
         catch (Exception ex)
             {
-            Console.WriteLine($"--------Error\n{ex}");
+            Console.WriteLine($"Excel Error\n{ex}");
             appState.SetCmd("");
             _hasFetched = true;
             return;
             }
-        /*
-        old method wo epplus (takes more time)
-        try
-        {
-            _hasFetched = false;
-            excelFile = e.File;
-            //using var memoryStream = new MemoryStream();
-            await excelFile.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024).CopyToAsync(stream);
-            stream.Position = 0;
-            using var workbook = new XLWorkbook(stream);
-            int i = 0;
-            foreach (IXLWorksheet ws in workbook.Worksheets)
-            {
-                lstWorksheets.Add(ws.Worksheet.Name);
-                }
-            StateHasChanged();
-            Snackbar.Add("excel worksheets listed", Severity.Success);
-            appState.SetCmd("importexcelworksheets");
-            _hasFetched = true;
-            }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"--------Error\n{ex}");
-            appState.SetCmd("");
-            _hasFetched = true;
-            return;
-            }
-        */
         }
     private async Task OnWorksheetChanged (string newValue)
         {
@@ -453,13 +532,12 @@ else
         {
         if (WorksheetName == "")
             {
-            Snackbar.Add("select a worksheet", Severity.Warning);
+            Snackbar.Add("select a worksheet", Severity.Warning, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
             return;
             }
         else
             {
-            _hasFetched = false;
-            var message = new MarkupString($"<hr>CONFIRM: <br><br>Tests in the <span style='color:indianred'>Selected</span><span style='color:royalblue'> Excel Worksheet</span> will be imported <br><br><span style='font-weight:bold'>Duplicate tests</span><br>are imported without warning! <span style='color:indianred'><br><br>Continue .... </span>?<br><br><div style='text-align:center'><img src='/img/icoExcel1.png' width='70'/></div><br><hr>");
+            var message = new MarkupString($"<hr>CONFIRM: <br><br>SciNames in the <span style='color:indianred'>selected</span><span style='color:royalblue'> Excel Worksheet</span> will be imported <br><br><span style='font-weight:bold'>Duplicate named</span><br>may be  imported! <span style='color:indianred'><br><br>Continue .... </span>?<br><br><div style='text-align:center'><img src='/img/icoFileExcel.png' width='70'/></div><br><hr>");
             bool? confirmResult = await DialogService.ShowMessageBoxAsync(title: "Confirm", markupMessage: message, yesText: "Yes", cancelText: "No");
             if (confirmResult == true)
                 {
@@ -471,15 +549,17 @@ else
                     List<DatasetData> lstDatasetData = await feService.Read_DatasetData(datasetId);
                     using var wb = new XLWorkbook(stream);
                     var worksheet = wb.Worksheet($"{WorksheetName}");
-                    //ExcelColumns: 1: 2: 3:
-                    foreach (var row in worksheet.RowsUsed().Skip(1)) //skip header
+                    foreach (var row in worksheet.RowsUsed().Skip(1)) //skip header (CheckName)
                         {
                         DatasetData datasetData = new DatasetData();
+                        datasetData.DatasetId = _datasetId;
                         datasetData.DatasetDataId = datasetData.DatasetDataId;
                         datasetData.LineString = row.Cell(1).GetString();
-                        //Create
+                        //create
                         bool result = await feService.Create_DatasetData(datasetData);
                         }
+                    Snackbar.Add("data imported from excel file", Severity.Success, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+                    _cmd1 = "";
                     }
                 catch (Exception ex)
                     {
@@ -488,81 +568,81 @@ else
                 lstWorksheets.Clear();
                 lstDatasetData.Clear();
                 lstDatasetData = await feService.Read_DatasetData(datasetId);
-                Snackbar.Add("data imported", Severity.Success);
+                Snackbar.Add("data imported", Severity.Success, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
                 _hasFetched = true;
                 appState.SetCmd("");
                 }
             }
         }
 
-    //DatasetCN
+    //Dataset
     public async Task BtnShowAllDatasets ()
         {
-        _cmd = "";
+        _cmd1 = "";
         lstDatasets = await feService.Read_Datasets(user.UserId, 2);
         StateHasChanged();
         }
-    private void BtnAddNewDatasetCN ()
+    private void BtnAddNewDataset ()
         {
         dataset.UserId = user.UserId;
         dataset.DatasetType = 2;
-        _cmd = (_cmd == "cmdAddNewDatasetCN") ? "" : "cmdAddNewDatasetCN";
+        _cmd1 = (_cmd1 == "cmdAddNewDataset") ? "" : "cmdAddNewDataset";
         }
-    private async Task CreateDatasetCN (string datasetCNName)
+    private async Task CreateDataset (string DatasetName)
         {
         //dataTypes: 1FL 2CN 3LM 4ST
         int userId = Convert.ToInt32(appState.UserId);
-        Dataset datasetCN = (new Dataset
+        Dataset Dataset = (new Dataset
             {
             UserId = userId,
             DatasetType = 2,
             DatasetAbbr = "new CN List",
-            DatasetName = datasetCNName,
+            DatasetName = DatasetName,
             DatasetTags = 0
             });
-        bool result = await feService.Create_Dataset(datasetCN);
+        bool result = await feService.Create_Dataset(Dataset);
         if (result)
             {
-            Snackbar.Add("dataset created", Severity.Success);
+            Snackbar.Add("dataset created", Severity.Success, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
             lstDatasets = await feService.Read_Datasets(userId, 2);
-            _cmd = "";
+            _cmd1 = "";
             StateHasChanged();
             }
         }
-    private void BtnEditDatasetCN (Dataset datasetCN)
+    private void BtnEditDataset (Dataset dataset)
         {
-        if (datasetCN != null)
+        if (dataset != null)
             {
-            _datasetCNId = datasetCN.DatasetId;
-            //lstDatasetsCN.FirstOrDefault(ds => ds.DatasetId == _datasetCNId)?.IsSelected = true;
-            _cmd = (_cmd == "cmdEditDatasetCN") ? "" : "cmdEditDatasetCN";
+            _datasetId = dataset.DatasetId;
+            lstDatasets.FirstOrDefault(ds => ds.DatasetId == dataset.DatasetId)?.IsSelected = true;
+            _cmd1 = (_cmd1 == "cmdEditDataset") ? "" : "cmdEditDataset";
             StateHasChanged();
             }
         else
             {
-            Snackbar.Add("Select a Dataset first", Severity.Warning);
+            Snackbar.Add("Select a Dataset first", Severity.Warning, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
             }
         }
     private void CloseComponent ()
         {
         //RollBack of Component 'Dataset'
-        _cmd = "";
+        _cmd1 = "";
         }
-    private async Task UpdateDatasetCN (Dataset _dataset)
+    private async Task UpdateDataset (Dataset _dataset)
         {
         bool result = await feService.Update_Dataset(_dataset);
         if (result)
             {
-            Snackbar.Add("dataset updated", Severity.Success);
+            Snackbar.Add("dataset updated", Severity.Success, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
             int userId = Convert.ToInt32(appState.UserId);
             lstDatasets = await feService.Read_Datasets(userId, 2);
-            _cmd = "";
+            _cmd1 = "";
             StateHasChanged();
             }
         }
     private async Task BtnSearchDatasetsFL ()
         {
-        _cmd = "cmdSearchDatasetsFL";
+        _cmd1 = "cmdSearchDatasetsFL";
         StateHasChanged();
         }
     public async Task FilterDatasets (string _datasetsFilter)
@@ -576,7 +656,7 @@ else
         }
     private async Task BtnCreateNoteForDataset (int refId)
         {
-        //refTypes: 1:ApgGroup 2:Order 3 ّFamily 4:Genus 5:Species 6:DatasetFL 7:DatasetCN 8:datasetCN 9:Station 10:Set 11:SetData 12:Section 13:User'sNote
+        //refTypes: 1:ApgGroup 2:Order 3 ّFamily 4:Genus 5:Species 6:DatasetFL 7:Dataset 8:Dataset 9:Station 10:Set 11:SetData 12:Section 13:User'sNote
         appState.SetNoteRefId(refId);
         appState.SetNoteRefType(7);
         appState.SetCmd("cmdCreateNote");
@@ -586,7 +666,7 @@ else
         }
     private async Task CloseSpeciesList ()
         {
-        _cmd = "";
+        _cmd1 = "";
         lstSpecies = new();
         //await JS.InvokeVoidAsync("scrollToTop");
         }
@@ -610,7 +690,7 @@ else
         }
     public async Task FilterSpeciesList (string _speciesListFilter)
         {
-        lstSpecies = lstSpecies.Where(s => s.SciName?.Contains(_speciesListFilter, StringComparison.OrdinalIgnoreCase) == true).ToList();
+        lstDatasetData = lstDatasetData.Where(s => s.LineString?.Contains(_speciesListFilter, StringComparison.OrdinalIgnoreCase) == true).ToList();
         StateHasChanged();
         }
     public async Task BtnShowSubspecies (Species species)
@@ -626,24 +706,28 @@ else
             StateHasChanged();
             }
         }
-    public async Task BtnReportSpecies (string Id)
-        {
-
-        }
-    private async Task BtnListSpeciesOfDatasetsCN (int datasetId, bool toggle)
+    private async Task BtnListDatasetDataOfDataset (int datasetId, bool toggle)
         {
         if (datasetId != 0)
             {
             if (!toggle)
                 {
-                _cmd = "";
+                _cmd1 = "";
                 }
-            _cmd = (_cmd == "cmdListDatasetData") ? "" : "cmdListDatasetData";
+            _cmd1 = (_cmd1 == "cmdListDatasetData") ? "" : "cmdListDatasetData";
             _datasetId = datasetId;
-            if (_cmd == "cmdListDatasetData")
+            if (_cmd1 == "cmdListDatasetData")
                 {
-                //lstDatasetsCN.FirstOrDefault(ds => ds.DatasetId == datasetCNId)?.IsSelected = true;
-                lstSpecies = await feService.Read_SpeciesByDatasetId(datasetId);
+                if (datasetId != 0)
+                    {
+                    lstDatasets.FirstOrDefault(ds => ds.DatasetId == datasetId)?.IsSelected = true;
+                    lstDatasetData = await feService.Read_DatasetData(datasetId);
+                    StateHasChanged();
+                    }
+                else
+                    {
+                    Snackbar.Add("Select a Dataset", Severity.Warning, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+                    }
                 }
             else
                 {
@@ -653,8 +737,447 @@ else
             }
         else
             {
-            Snackbar.Add("Select a Dataset", Severity.Warning);
+            Snackbar.Add("Select a Dataset", Severity.Warning, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
             }
+        }
+    private async Task BtnRemoveSpeciesFromDataset (int datasetDataId)
+        {
+        if (_datasetId != 0)
+            {
+            bool results = await feService.Delete_DatasetData(datasetDataId);
+            Snackbar.Add($"item removed from the dataset", Severity.Warning, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+            lstDatasetData = await feService.Read_DatasetData(_datasetId);
+            StateHasChanged();
+            }
+        else
+            {
+            Snackbar.Add("Select a Dataset", Severity.Warning, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+            }
+        }
+    private async Task BtnEditDatasetData (DatasetData datasetData)
+        {
+        _cmd2 = "EditDatasetData";
+        _datasetDataId = datasetData.DatasetDataId;
+        StateHasChanged();
+        }
+    private async Task UpdateDatasetData (DatasetData datasetData)
+        {
+        bool result = await feService.Update_DatasetData(datasetData);
+        if (result)
+            {
+            Snackbar.Add("data updated", Severity.Success, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+            _cmd2 = "";
+            StateHasChanged();
+            }
+
+        StateHasChanged();
+        }
+
+    //CHECKNAME
+    private async Task CheckNameDataset (Dataset dataset)
+        {
+        if (lstDatasetData.Any())
+            {
+            _cmd2 = "CheckNameDataset";
+            foreach (DatasetData _dsd in lstDatasetData)
+                {
+                await CheckNameThisDatasetData(_dsd, true, false);
+                }
+            StateHasChanged();
+            }
+        else
+            {
+            Snackbar.Add("dataset empty!", Severity.Warning, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+            }
+        }
+    private async Task CheckNameThisDatasetData (DatasetData datasetData, bool partOfBatchProcess, bool usePartialName)
+        {
+        string thisLine = datasetData.LineString;
+        try
+            {
+            thisLine = CheckLineString(thisLine);
+            if (!string.IsNullOrEmpty(thisLine))
+                {
+                //parse
+                bool result = ParseLineString(thisLine);
+                if (result)
+                    {
+                    if (usePartialName)
+                        {
+                        Current_Genus = Current_Genus.Substring(0, 3);
+                        Current_Species = Current_Species.Substring(0, 3);
+                        }
+                    lstSpecies = await feService.Read_SpeciesBySearch(Current_Genus.Trim(), Current_Species.Trim());
+                    if (partOfBatchProcess)
+                        {
+                        if (lstSpecies.Any())
+                            {
+                            var words = lstSpecies [0].SciName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                            string _parsedGenus = words [0];
+                            string _parsedEpithet = words [1];
+                            datasetData.SpeciesId = lstSpecies [0].SpeciesId;
+                            datasetData.Infraspecific = lstSpecies [0].InfraEpithet;
+                            datasetData.SciName = lstSpecies [0].SciName;
+                            datasetData.ParsedGenus = _parsedGenus;
+                            datasetData.ParsedEpithet = _parsedEpithet;
+                            //save to DB
+                            bool resultSave = await feService.Update_DatasetData(datasetData);
+                            Snackbar.Add("line matched and saved", Severity.Success, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+                            }
+                        else
+                            {
+                            Console.WriteLine($"--- {Current_Genus} {Current_Species} not fount");
+                            }
+                        }
+                    else
+                        {
+                        _datasetDataId = datasetData.DatasetDataId;
+                        _cmd2 = "CheckNameThisDatasetData";
+                        }
+                    }
+                }
+            StateHasChanged();
+            }
+        catch (Exception ex)
+            {
+            Console.WriteLine(ex.ToString());
+            }
+        FileSystem.FileClose(1);
+        }
+    private string CheckLineString (string strLine)
+        {
+        string CheckRawLineRet = default;
+        string strLinex = "";
+        long j = 1L;
+        int x = 0;
+        j = j + 1L;
+        strLinex = strLine;
+        strLine = Strings.Trim(strLine);
+        if (string.IsNullOrEmpty(strLine))
+            goto lblWEND;
+        for (int k = 1; k <= 10; k++)
+            {
+            x = Strings.InStr(strLine, "  ");
+            if (x > 0)
+                strLine = Strings.Left(strLine, x) + Strings.Mid(strLine, x + 2); // Double spaces removed
+            x = Strings.InStr(strLine, "..");
+            if (x > 0)
+                strLine = Strings.Left(strLine, x) + Strings.Mid(strLine, x + 2); // Double dots removed
+            x = Strings.InStr(strLine, ",,");
+            if (x > 0)
+                strLine = Strings.Left(strLine, x) + Strings.Mid(strLine, x + 2); // Double commas removed
+            x = Strings.InStr(strLine, "--");
+            if (x > 0)
+                strLine = Strings.Left(strLine, x) + Strings.Mid(strLine, x + 2); // Double dashes removed
+            x = Strings.InStr(strLine, "( ");
+            if (x > 0)
+                strLine = Strings.Left(strLine, x) + Strings.Mid(strLine, x + 2); // Space after  '(' removed
+            x = Strings.InStr(strLine, " )");
+            if (x > 0)
+                strLine = Strings.Left(strLine, x - 1) + Strings.Mid(strLine, x + 1); // Space before ')' removed
+            x = Strings.InStr(strLine, ")");
+            if (x > 0 & Strings.Mid(strLine, x + 1, 1) != " ")
+                {
+                if (x != Strings.Len(strLine))
+                    strLine = Strings.Left(strLine, x) + " " + Strings.Mid(strLine, x + 1); // Space after ')' added
+                }
+            x = Strings.InStr(strLine, "(");
+            if (x > 1)
+                {
+                if (Strings.Mid(strLine, x - 1, 1) != " ")
+                    {
+                    strLine = Strings.Left(strLine, x - 1) + " " + Strings.Mid(strLine, x); // Space before ')' added
+                    }
+                }
+            x = Strings.InStr(strLine, "- ");
+            if (x > 0)
+                strLine = Strings.Left(strLine, x) + Strings.Mid(strLine, x + 2); // Space after - removed
+            x = Strings.InStr(strLine, " -");
+            if (x > 0)
+                strLine = Strings.Left(strLine, x - 1) + Strings.Mid(strLine, x + 1); // Space before - removed
+            x = Strings.InStr(strLine, " .");
+            if (x > 0)
+                strLine = Strings.Left(strLine, x - 1) + Strings.Mid(strLine, x + 1); // Space before '.' removed
+            x = Strings.InStr(strLine, " ssp. ");
+            if (x > 0)
+                strLine = Strings.Left(strLine, x - 1) + " subsp. " + Strings.Mid(strLine, x + 6); // ssp.-> subsp. converted
+            x = Strings.InStr(strLine, " ssp ");
+            if (x > 0)
+                strLine = Strings.Left(strLine, x - 1) + " subsp. " + Strings.Mid(strLine, x + 5); // ssp-> subsp. converted
+            x = Strings.InStr(strLine, " subsp ");
+            if (x > 0)
+                strLine = Strings.Left(strLine, x - 1) + " subsp. " + Strings.Mid(strLine, x + 7); // subsp-> subsp. converted
+            x = Strings.InStr(strLine, " var ");
+            if (x > 0)
+                strLine = Strings.Left(strLine, x - 1) + " var. " + Strings.Mid(strLine, x + 5); // var-> var. converted
+            x = Strings.InStr(strLine, " sv. ");
+            if (x > 0)
+                strLine = Strings.Left(strLine, x - 1) + " subvar. " + Strings.Mid(strLine, x + 5); // var-> var. converted
+            x = Strings.InStr(strLine, " sv ");
+            if (x > 0)
+                strLine = Strings.Left(strLine, x - 1) + " subvar. " + Strings.Mid(strLine, x + 4); // var-> var. converted
+            x = Strings.InStr(strLine, "–");
+            if (x > 0)
+                strLine = Strings.Left(strLine, x - 1) + "-" + Strings.Mid(strLine, x + 1); // Psudo dash1-> dash converted
+            x = Strings.InStr(strLine, "–");
+            if (x > 0)
+                strLine = Strings.Left(strLine, x - 1) + "-" + Strings.Mid(strLine, x + 1); // Psudo dash2-> dash converted
+            x = Strings.InStr(strLine, " /");
+            if (x > 0)
+                strLine = Strings.Left(strLine, x - 1); // comments after ' /' removed
+            x = Strings.InStr(strLine, "/");
+            if (x > 0)
+                strLine = Strings.Left(strLine, x - 1); // comments after '/' removed
+            x = Strings.InStr(strLine, "aceae");
+            if (x > 0 & Strings.InStr(strLine, " ") == 0)
+                goto lblWEND;
+            if (x > 0 & Strings.InStr(strLine, " ") != 0)
+                goto lblWEND;
+            if (strLine == "Palmae")
+                goto lblWEND;
+            if (strLine == "Cruciferae")
+                goto lblWEND;
+            if (strLine == "Leguminosae")
+                goto lblWEND;
+            if (strLine == "Gramineae")
+                goto lblWEND;
+            if (strLine == "Umbelliferae")
+                goto lblWEND;
+            if (strLine == "Labiatae")
+                goto lblWEND;
+            if (strLine == "Compositae")
+                goto lblWEND;
+            if (strLine == "Archive of SID")
+                goto lblWEND;
+            if (strLine == "Archive")
+                goto lblWEND;
+            }
+        CheckRawLineRet = strLine;
+        return CheckRawLineRet;
+    lblWEND:
+        ;
+
+        CheckRawLineRet = "";
+        return CheckRawLineRet;
+        }
+    private bool ParseLineString (string strLine)
+        {
+        var Infraspecific = "";
+        bool ParseLineRet = default;
+        // Returens: {0(False):Error, -1:(True)ParsedOK}
+        int PointA;
+        int LineParts = 0;       // for bit operations
+        string strS_A, strS_B, strS_C, strS_D, strS_E;
+        int spcx;                // position of the 1st space in Part_B
+        int spcA1, spcA2, spcA3; // position of spaces in Part_A
+        /*
+          |Part A                   |Part B             |Part C         |Part D                  |Part E              |
+          Gen|G.#(Sect)#spec#SpecAut#supspec.#ssp#sspAut#var.#var#varAut#subvar.#subvar#subvarAut#forma#forma#formaAut
+          |     ^      ^    ^       |        -   ^      |    -   ^      |       -      ^         |     -     ^        |
+        */
+        try
+            {
+            if (Strings.Len(Strings.Trim(strLine)) == 0)
+                {
+                ParseLineRet = false;
+                return ParseLineRet;
+                }
+            LineParts = 0;
+            //Part_E: forma
+            PointA = Strings.InStr(strLine, "forma ");
+            if (PointA != 0)
+                {
+                LineParts = (int) ((long) LineParts | (long) Math.Round(Math.Pow(2d, 4d))); // [----x]
+                strS_E = Strings.Mid(strLine, PointA);
+                strLine = Strings.Trim(Strings.Left(strLine, PointA - 1));
+                spcx = Strings.InStr(7, strS_E, " ");
+                switch (spcx)
+                    {
+                    case 0:
+                            {
+                            Infraspecific = "forma " + Strings.Mid(strS_E, 7);
+                            break;
+                            }
+
+                    default:
+                            {
+                            Infraspecific = "forma " + Strings.Mid(strS_E, 7, spcx - 7) + " " + Strings.Mid(strS_E, spcx + 1);
+                            break;
+                            }
+                    }
+                }
+            else
+                {
+                LineParts = LineParts & 15; // [xxxx-]
+                strS_E = "";
+                }
+            //Part_D: subvar
+            PointA = Strings.InStr(strLine, "subvar. ");
+            if (PointA != 0)
+                {
+                LineParts = (int) ((long) LineParts | (long) Math.Round(Math.Pow(2d, 3d)));
+                strS_D = Strings.Mid(strLine, PointA);
+                strLine = Strings.Trim(Strings.Left(strLine, PointA - 1));
+                spcx = Strings.InStr(9, strS_D, " ");
+                switch (spcx)
+                    {
+                    case 0:
+                            {
+                            Infraspecific = "subvar " + Infraspecific + Strings.Mid(strS_D, 9);
+                            break;
+                            }
+
+                    default:
+                            {
+                            Infraspecific = "subvar " + Strings.Mid(strS_D, 9, spcx - 9) + ' ' + Strings.Mid(strS_D, spcx + 1);
+                            break;
+                            }
+                    }
+                }
+            else
+                {
+                strS_D = "";
+                }
+            //Part_C: Var
+            PointA = Strings.InStr(strLine, "var. ");
+            if (PointA != 0)
+                {
+                LineParts = (int) ((long) LineParts | (long) Math.Round(Math.Pow(2d, 2d)));
+                strS_C = Strings.Mid(strLine, PointA);
+                strLine = Strings.Trim(Strings.Left(strLine, PointA - 1));
+                spcx = Strings.InStr(6, strS_C, " ");
+                switch (spcx)
+                    {
+                    case 0:
+                            {
+                            Infraspecific = "var " + Strings.Mid(strS_C, 6);
+                            break;
+                            }
+
+                    default:
+                            {
+                            Infraspecific = "var " + Strings.Mid(strS_C, 6, spcx - 6) + " " + Strings.Mid(strS_C, spcx + 1);
+                            break;
+                            }
+                    }
+                }
+            else
+                {
+                strS_C = "";
+                }
+            //Part_B: subsp
+            PointA = Strings.InStr(strLine, "subsp. ");
+            if (PointA != 0)
+                {
+                LineParts = (int) ((long) LineParts | (long) Math.Round(Math.Pow(2d, 1d)));
+                strS_B = Strings.Mid(strLine, PointA);
+                strLine = Strings.Trim(Strings.Left(strLine, PointA - 1));
+                // determine subsp
+                spcx = Strings.InStr(8, strS_B, " ");
+                if (spcx != 0) // con subsp_Aut
+                    {
+                    Infraspecific = "ssp " + Strings.Mid(strS_B, 8, spcx - 8) + " " + Strings.Mid(strS_B, spcx + 1);
+                    }
+                else // sin ssp_Aut
+                    {
+                    Infraspecific = "ssp " + Strings.Mid(strS_B, 8);
+                    }
+                }
+            else
+                {
+                strS_B = "";
+                }
+            //Part_A
+            if (Strings.Len(strLine) > 0) // ***con Part_A
+                {
+                LineParts = (int) ((long) LineParts | (long) Math.Round(Math.Pow(2d, 0d)));
+                strS_A = strLine;
+                spcA1 = Strings.InStr(strS_A, " ");
+
+                if (Strings.Mid(strS_A, spcA1, 2) == " (") // con (Sect)
+                    {
+                    spcA2 = Strings.InStr(spcA1 + 1, strS_A, ") ") + 1;
+                    spcA3 = Strings.InStr(spcA2 + 1, strS_A, " ");
+                    //determine genus
+                    if (Strings.Mid(strS_A, 2, 2) == ". " | Strings.Mid(strS_A, 3, 2) == ". ") // Genus is Abbr
+                        {
+                        }
+                    //Current_Genus: Same as previous record
+                    else // not Abbr
+                        {
+                        Current_Genus = Strings.Left(strS_A, spcA1 - 1);
+                        }
+                    //determine section
+                    Current_Section = Strings.Mid(strS_A, spcA1 + 2, spcA2 - spcA1 - 3); // is -3 ok?
+                    // determine species
+                    if (spcA3 == 0) // sin spec_Aut
+                        {
+                        Current_Species = Strings.Mid(strS_A, spcA2 + 1);
+                        Current_Spec_Author = "";
+                        }
+                    else //con spec_Aut
+                        {
+                        Current_Species = Strings.Mid(strS_A, spcA2 + 1, spcA3 - spcA2 - 1);
+                        Current_Spec_Author = Strings.Mid(strS_A, spcA3 + 1);
+                        }
+                    }
+                else //sin (Sect)
+                    {
+                    spcA2 = Strings.InStr(spcA1 + 1, strS_A, " ");
+                    // determine genus
+                    if (Strings.Mid(strS_A, 2, 2) == ". " | Strings.Mid(strS_A, 3, 2) == ". ") // Genus is Abbr
+                        {
+                        }
+                    //Current_Genus: Same as previous record
+                    else // not Abbr.
+                        {
+                        Current_Genus = Strings.Left(strS_A, spcA1 - 1);
+                        }
+                    //determine species
+                    if (spcA2 == 0) // sin spec_Aut
+                        {
+                        Current_Species = Strings.Mid(strS_A, spcA1 + 1);
+                        Current_Spec_Author = "";
+                        }
+                    else // con spec_Aut
+                        {
+                        Current_Species = Strings.Mid(strS_A, spcA1 + 1, spcA2 - spcA1 - 1);
+                        Current_Spec_Author = Strings.Mid(strS_A, spcA2 + 1);
+                        }
+                    }
+                }
+            else // ***sin Part_A
+                {
+                strS_A = "";
+                }
+            ParseLineRet = true; // OK
+            }
+        catch (Exception ex)
+            {
+            //MsgBox(ex.ToString)
+            ParseLineRet = false; // Error
+            }
+
+        return ParseLineRet;
+        }
+    private async Task BtnUseThisSciNameManually (Species _species, DatasetData _datasetData)
+        {
+        var words = _species.SciName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        string _parsedGenus = words [0];
+        string _parsedEpithet = words [1];
+        _datasetData.SpeciesId = _species.SpeciesId;
+        _datasetData.Infraspecific = _species.InfraEpithet;
+        _datasetData.SciName = _species.SciName;
+        _datasetData.ParsedGenus = _parsedGenus;
+        _datasetData.ParsedEpithet = _parsedEpithet;
+        //save to DB
+        bool resultSave = await feService.Update_DatasetData(_datasetData);
+        if (resultSave)
+            {
+            Snackbar.Add("updated", Severity.Success, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+            }
+        _cmd2 = "";
+        StateHasChanged();
         }
 
     //methods
@@ -669,16 +1192,6 @@ else
             return dt?.ToString("yyyy-MM-dd HH:mm");
             }
         }
-    private async Task BtnCreateNoteForSpecies (string refId)
-        {
-        //refTypes: 1:ApgGroup 2:Order 3 ّFamily 4:Genus 5:Species 6:DatasetFL 7:DatasetCN 8:datasetCN 9:Station 10:Set 11:SetData 12:Section 13:User'sNote
-        // appState.SetNoteRefId(refId);
-        // appState.SetNoteRefType(5);
-        // appState.SetCmd("cmdCreateNote");
-        // StateHasChanged();
-        //--After the Modal_CreateNote is closed, HandleModalClose will refresh the list
-        //--to handel close event, I added in the Modal_CreateNote: [Parameter] public EventCallback OnClose
-        }
     private async Task HandleModalClose ()
         {
         _hasFetched = false;
@@ -687,19 +1200,25 @@ else
         _hasFetched = true;
         StateHasChanged();
         }
+
     //btns
-    public void BtnHelp ()
-        {
-        _cmd = _cmd == "help" ? "" : "help";
-        StateHasChanged();
-        }
     private async Task ScrollToTop ()
         {
         await JS.InvokeVoidAsync("scrollToTop");
         }
+    public void BtnHelp ()
+        {
+        _cmd1 = _cmd1 == "help" ? "" : "help";
+        StateHasChanged();
+        }
     private void BtnCancel ()
         {
-        _cmd = "";
+        _cmd1 = "";
+        StateHasChanged();
+        }
+    private void BtnCancelEditDatasetData ()
+        {
+        _cmd2 = "";
         StateHasChanged();
         }
     public void BtnBack ()

@@ -1100,6 +1100,51 @@ namespace AlamutB.Services2Backend
                 return new List<Species> ();
                 }
             }
+        public async Task<List<Species>> Read_SpeciesBySearchAsync (string genusKeyword, string speciesKeyword)
+            {
+            string? connString = _config.GetConnectionString ("cnni");
+            string sql = "TX.Read_SpeciesBySearch";
+            using SqlConnection cnn = new (connString);
+            try
+                {
+                await cnn.OpenAsync ();
+                SqlCommand cmd = new (sql, cnn);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue ("@GenusKeyword", genusKeyword);
+                cmd.Parameters.AddWithValue ("@SpeciesKeyword", speciesKeyword);
+                SqlDataReader reader = await cmd.ExecuteReaderAsync ();
+                List<Species> lstSpecies = new List<Species> ();
+                while (await reader.ReadAsync ())
+                    {
+                    lstSpecies.Add (new Species
+                        {
+                        SpeciesId = reader.GetString (0),
+                        AcceptedId = reader.GetString (1),
+                        GenusId = reader.GetInt32 (2),
+                        Epithet = reader.GetString (3),
+                        Rank = reader.GetInt32 (4),
+                        InfraEpithet = reader.GetString (5),
+                        Author = reader.GetString (6),
+                        NomStatus = reader.GetInt32 (7),
+                        TaxStatus = reader.GetInt32 (8),
+                        ConsStatus = reader.GetInt32 (9),
+                        Characters = reader.GetInt32 (10),
+                        Chorotype = reader.GetString (11),
+                        Lifeform = reader.GetString (12),
+                        IsHybrid = reader.GetBoolean (13),
+                        SciName = reader.GetString (14)
+                        });
+                    }
+                await cnn.CloseAsync ();
+                return lstSpecies;
+                }
+            catch (Exception ex)
+                {
+                Console.WriteLine ("error: " + ex.Message);
+                cnn.Close ();
+                return new List<Species> ();
+                }
+            }
         public async Task<Species> Read_SpeciesByIdAsync (int speciesId)
             {
             string? connString = _config.GetConnectionString ("cnni");
@@ -1551,10 +1596,6 @@ namespace AlamutB.Services2Backend
                         });
                     }
                 await cnn.CloseAsync ();
-                foreach (DatasetData dsd in lstDatasetData)
-                    {
-                    Console.WriteLine ($"SpeciesId={dsd.SpeciesId} , SciName={dsd.SciName}");
-                    }
                 return lstDatasetData;
                 }
             catch (Exception ex)

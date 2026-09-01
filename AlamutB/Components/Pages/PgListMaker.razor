@@ -85,7 +85,7 @@ else
                                           @ref="refSearchOrder"
                                           @bind-Value="_orderSearchText"
                                           OnKeyDown="HandleKey_SearchboxOrders"
-                                          Label="Search Orders"
+                                          Label="search orders"
                                           Variant="Variant.Text"
                                           Margin="Margin.Dense"
                                           Immediate="true"
@@ -152,7 +152,7 @@ else
                                       @ref="refSearchFamily"
                                       @bind-Value="_familySearchText"
                                       OnKeyDown="HandleKey_SearchboxFamilies"
-                                      Label="Search Families"
+                                      Label="search families"
                                       Variant="Variant.Text"
                                       Margin="Margin.Dense"
                                       Immediate="true"
@@ -244,7 +244,7 @@ else
                                           @ref="refSearchGenus"
                                           @bind-Value="_genusSearchText"
                                           OnKeyDown="HandleKey_SearchboxGenera"
-                                          Label="Search Genera"
+                                          Label="search genera"
                                           Variant="Variant.Text"
                                           Margin="Margin.Dense"
                                           Immediate="true"
@@ -326,8 +326,44 @@ else
                     </MudCardContent>
                 </MudCard>
             </MudContainer>
-
-        @* ---------------------------------------------------------------------------------- 5 Dataset ML *@
+        @* ---------------------------------------------------------------------------------- 5 Search species *@
+            <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-2 px-0">
+                <MudCard Class="mx-auto">
+                    <MudCardContent Style="background-color:rgba(249,249,249);">
+                        <div class="d-flex align-content-center align-items-center">
+                        <MudTextField T="string"
+                                      @ref="refSearchSpecies"
+                                      @bind-Value="_speciesSearchText"
+                                      OnKeyDown="HandleKey_SearchboxSpecies"
+                                      Label="search species"
+                                      Variant="Variant.Text"
+                                      Margin="Margin.Dense"
+                                      Immediate="true"
+                                      Adornment="Adornment.Start"
+                                      AdornmentIcon="@Icons.Material.Filled.Search"
+                                      OnAdornmentClick='()=>SearchSpecies(_speciesSearchText)'
+                                      Style="font-family:Tahoma;"
+                                      Class="my-textfield" />
+                        @* MENU *@
+                            <MudMenu Label="Menu"
+                                 Variant="Variant.Text"
+                                 Color="Color.Tertiary"
+                                 EndIcon="@Icons.Material.Filled.KeyboardArrowDown"
+                                 Size="Size.Small"
+                                 Style="margin-top:15px;margin-left:15px;"
+                                 Dense="true">
+                                <MudMenuItem @onclick='() => BtnCreateStickyNote(13, user.UserId)'>
+                                    <button class="btn btn-link" Title="add note about this group">
+                                    <img src="/img/icoNoteStickyAdd.png" width="22" />
+                                    </button>
+                                Add New User Sticky Note
+                                </MudMenuItem>
+                            </MudMenu>
+                        </div>
+                    </MudCardContent>
+                </MudCard>
+            </MudContainer>
+        @* ---------------------------------------------------------------------------------- 6 Dataset ML *@
             <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-2 px-0">
                 <MudCard Class="mx-auto">
                     <MudCardContent Style="background-color:rgba(249,249,249);">
@@ -477,7 +513,7 @@ else
                     </MudCardContent>
                 </MudCard>
             </MudContainer>
-        @* ---------------------------------------------------------------------------------- 6 LIST Species *@
+        @* ---------------------------------------------------------------------------------- 7 LIST Species *@
         @if ((lstSpecies.Count > 0) || (lstDatasetData.Count > 0))
             {
                 <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-2 px-0">
@@ -530,7 +566,7 @@ else
                                 <div class="d-flex">
                                 <MudTextField @ref="refFilterSpeciesList"
                                               @bind-Value="_speciesListFilter"
-                                              Label="search species"
+                                              Label="search results"
                                               Variant="Variant.Text"
                                               Margin="Margin.Dense"
                                               Immediate="true"
@@ -644,6 +680,7 @@ else
     </script>
 
 @code {
+    private User user = new User ();
     public MudTextField<string> reftxtSearch;
     public string strSearch = "";
     public MudNumericField<int> txtPageNumber;
@@ -681,6 +718,11 @@ else
     public int _genusId = 0;
     public string _genusName = "";
     public string _genusSearchText = "";
+    //species
+    public MudTextField<string> refNewSpecies;
+    public MudTextField<string> refSearchSpecies;
+    public MudSelect<int> refSpecies;
+    public string _speciesSearchText = "";
     //dataset
     public MudSelect<int> refDatasets;
     public MudTextField<string> refNewDataset;
@@ -719,8 +761,8 @@ else
             {
             appState.SetMessage("");
             lstApgGroups = await feService.Read_ApgGroups();
-            int userId = Convert.ToInt32(appState.UserId);
-            lstDatasets = await feService.Read_Datasets(userId, 3);
+            user.UserId = Convert.ToInt32(appState.UserId);
+            lstDatasets = await feService.Read_Datasets(user.UserId, 3);
             await ListAllDatasets();
             //_cmd = "cmdSearchGenera";
             _hasFetched = true;
@@ -870,7 +912,7 @@ else
     private async Task SearchGenera (string genusKeyword)
         {
         _genusId = 0;
-        _genusSearchText = genusKeyword; //keep the search text
+        _genusSearchText = genusKeyword.Trim(); //keep the search text
         //lstSpecies = new();
         lstGenera = await feService.Read_GeneraBySearch(genusKeyword);
         _cmd = "";
@@ -891,6 +933,25 @@ else
     private void UpdateGenus (int Id)
         {
         //
+        }
+    //Species
+    private async Task SearchSpecies (string speciesKeywords)
+        {
+        _genusId = 0;
+        _speciesSearchText = speciesKeywords; //keep the search text
+        var words = speciesKeywords.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (words.Length < 2)
+            {
+            return;
+            }
+        else
+            {
+            _cmd = "";
+            _SpeciesListType = "Species search";
+            lstSpecies = new();
+            lstSpecies = await feService.Read_SpeciesBySearch(words [0], words [1]);
+            StateHasChanged();
+            }
         }
     //Dataset
     private async Task OnDatasetChanged (int newValue)
@@ -932,11 +993,10 @@ else
         }
     private async Task SearchDatasets (string datasetKeyword)
         {
-        int userId = Convert.ToInt32(appState.UserId);
         _datasetId = 0;
         _datasetSearchText = datasetKeyword; //keep the search text
         lstSpecies = new();
-        lstDatasets = await feService.Read_DatasetsBySearch(userId, 3, datasetKeyword);
+        lstDatasets = await feService.Read_DatasetsBySearch(user.UserId, 3, datasetKeyword);
         _cmd = "";
         StateHasChanged();
         }
@@ -944,8 +1004,7 @@ else
         {
         _datasetId = 0;
         lstSpecies = new();
-        int userId = Convert.ToInt32(appState.UserId);
-        lstDatasets = await feService.Read_Datasets(userId, 3);
+        lstDatasets = await feService.Read_Datasets(user.UserId, 3);
         _cmd = "";
         StateHasChanged();
         }
@@ -1012,10 +1071,9 @@ else
     private async Task CreateDataset (string datasetName)
         {
         // dataTypes: 1FL 2CN 3LM 4ST
-        int userId = Convert.ToInt32(appState.UserId);
         Dataset dataset = (new Dataset
             {
-            UserId = userId,
+            UserId = user.UserId,
             DatasetType = 3,
             DatasetAbbr = "new List",
             DatasetName = datasetName,
@@ -1025,7 +1083,7 @@ else
         if (result)
             {
             Snackbar.Add("dataset created", Severity.Success);
-            lstDatasets = await feService.Read_Datasets(userId, 3);
+            lstDatasets = await feService.Read_Datasets(user.UserId, 3);
             _cmd = "";
             StateHasChanged();
             }
@@ -1094,7 +1152,7 @@ else
         else
             {
             lstSpecies = lstSpecies.Where(s => s.SciName?.Contains(_speciesListFilter, StringComparison.OrdinalIgnoreCase) == true).ToList();
-            _SpeciesListType = "Genus species List Filtered";
+            _SpeciesListType = "List Filtered";
             }
         StateHasChanged();
         }
@@ -1202,6 +1260,20 @@ else
             await refSearchGenus.FocusAsync();
             }
         }
+    private async Task HandleKey_SearchboxSpecies (KeyboardEventArgs e)
+        {
+        if (e.Key == "Enter")
+            {
+            await SearchSpecies(_speciesSearchText);
+            return;
+            }
+        if (e.Key == "Escape")
+            {
+            strSearch = "";
+            await InvokeAsync(StateHasChanged);
+            await refSearchGenus.FocusAsync();
+            }
+        }
     private async Task HandleKey_SearchboxDataset (KeyboardEventArgs e)
         {
         if (e.Key == "Enter")
@@ -1248,7 +1320,6 @@ else
         {
         //
         }
-
     //Cancel
     public void BtnCancelGuide ()
         {

@@ -242,6 +242,12 @@ namespace AlamutB.Backend
             var result = await _BeService.Read_SpeciesByIdAsync (speciesId);
             return Ok (result);
             }
+        [HttpPost ("Read_SpeciesBySearch")]
+        public async Task<ActionResult<List<Species>>> Read_SpeciesBySearch ([FromBody] string genusKeyword, [FromQuery] string speciesKeyword)
+            {
+            var result = await _BeService.Read_SpeciesBySearchAsync (genusKeyword, speciesKeyword);
+            return Ok (result);
+            }
         [HttpPost ("Update_Species")]
         public async Task<ActionResult<bool>> Update_Species ([FromBody] Species species)
             {

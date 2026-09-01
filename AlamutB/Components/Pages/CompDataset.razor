@@ -67,7 +67,7 @@ else
                                           Variant="Variant.Text"
                                           Margin="Margin.Dense"
                                           Autocomplete="off"
-                                          Style="width:100px"
+                                          Style="width:80px"
                                           Class="my-textfield" />
                             @* Manager *@
                             <MudTextField @ref="refDatasetManager"
@@ -77,6 +77,23 @@ else
                                           Margin="Margin.Dense"
                                           Autocomplete="off"
                                           Class="my-textfield" />
+                            @* DatasetType *@
+                                <MudSelect T="int"
+                                       @ref="refDatasetType"
+                                       @bind-Value="dataset.DatasetType"
+                                       Label="dataset type"
+                                       Class="w-auto my-select"
+                                       Variant="Variant.Text"
+                                       Margin="Margin.Dense"
+                                       Adornment="Adornment.Start"
+                                       AdornmentIcon="@Icons.Material.Filled.List"
+                                       AdornmentColor="Color.Tertiary"
+                                       Style="color:royalblue;width:90px;font-size:small;">
+                                <MudSelectItem Value="0">select</MudSelectItem>
+                                <MudSelectItem Value="3">ListMaker</MudSelectItem>
+                                <MudSelectItem Value="2">CheckName</MudSelectItem>
+                                <MudSelectItem Value="1">Floristic</MudSelectItem>
+                                </MudSelect>
                             </div>
                             <div class="d-flex gap-3">
                             @* Ref *@
@@ -87,7 +104,7 @@ else
                                           Margin="Margin.Dense"
                                           Autocomplete="off"
                                           Style="color:royalblue;"
-                                          Lines="5"
+                                          Lines="8"
                                           Class="my-textfield" />
                             </div>
 
@@ -261,13 +278,13 @@ else
         get; set;
         }
     User user = new User();
-    public MudTextField<string> refDatasetType;
     public MudTextField<string> refDatasetAbbr;
     public MudTextField<string> refDatasetName;
     public MudTextField<string> refDatasetRef;
     public MudNumericField<int> refRefYear;
     public MudTextField<string> refRefLang;
     public MudTextField<string> refDatasetManager;
+    public MudSelect<int> refDatasetType;
     public MudNumericField<int> refAreaHa;
 
     public MudSelect<int> refCountries;
