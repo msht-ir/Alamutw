@@ -555,8 +555,14 @@ else
                         datasetData.DatasetId = _datasetId;
                         datasetData.DatasetDataId = datasetData.DatasetDataId;
                         datasetData.LineString = row.Cell(1).GetString();
+                        //check lineString
+                        string _lineString = await CheckLineString(datasetData.LineString);
                         //create
-                        bool result = await feService.Create_DatasetData(datasetData);
+                        if (_lineString != "")
+                            {
+                            datasetData.LineString = _lineString;
+                            bool result = await feService.Create_DatasetData(datasetData);
+                            }
                         }
                     Snackbar.Add("data imported from excel file", Severity.Success, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
                     _cmd1 = "";
@@ -795,7 +801,7 @@ else
         string thisLine = datasetData.LineString;
         try
             {
-            thisLine = CheckLineString(thisLine);
+            //thisLine = await CheckLineString(thisLine); //this check is already done when importong from Excel
             if (!string.IsNullOrEmpty(thisLine))
                 {
                 //parse
@@ -844,19 +850,18 @@ else
             }
         FileSystem.FileClose(1);
         }
-    private string CheckLineString (string strLine)
+    private async Task<string> CheckLineString (string strLine)
         {
-        string CheckRawLineRet = default;
-        string strLinex = "";
         long j = 1L;
         int x = 0;
         j = j + 1L;
-        strLinex = strLine;
-        strLine = Strings.Trim(strLine);
+        strLine = strLine.Trim();
         if (string.IsNullOrEmpty(strLine))
             goto lblWEND;
         for (int k = 1; k <= 10; k++)
             {
+            if (strLine.StartsWith("*"))
+                strLine = strLine.Substring(1); //Remove leading '*'
             x = Strings.InStr(strLine, "  ");
             if (x > 0)
                 strLine = Strings.Left(strLine, x) + Strings.Mid(strLine, x + 2); // Double spaces removed
@@ -952,13 +957,9 @@ else
             if (strLine == "Archive")
                 goto lblWEND;
             }
-        CheckRawLineRet = strLine;
-        return CheckRawLineRet;
+        return strLine;
     lblWEND:
-        ;
-
-        CheckRawLineRet = "";
-        return CheckRawLineRet;
+        return "";
         }
     private bool ParseLineString (string strLine)
         {

@@ -1066,7 +1066,9 @@ else
         }
     private void BtnAddNewDataset ()
         {
+        _datasetName = "";
         _cmd = "cmdAddNewDataset";
+        StateHasChanged ();
         }
     private async Task CreateDataset (string datasetName)
         {
