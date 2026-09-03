@@ -10,9 +10,11 @@
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 
-<h5 style="text-align:center;padding-left:15px;">Sets - <span style="font-size:smaller;text-align:center;color:indianred">@appState.UserNickname</span></h5>
-<hr style="color:red" />
-    @if (!_hasFetched)
+<div class="d-flex" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+    <h2 style="color:royalblue; font-style:italic">Sets</h2>
+    <span style="font-size:smaller;text-align:center;color:indianred">@appState.UserNickname</span>
+    </div>
+@if (!_hasFetched)
     {
     <_ScanSheets />
     }
@@ -87,8 +89,8 @@ else
                                 <img src="/img/icoList1.png" width="20" />
                                 </button>
                             </div>
-                            <br />
-                            <br />
+                        <br />
+                        <br />
                         @foreach (Set set in lstSets)
                             {
                                 <div class="d-flex align-items-center mb-1">
@@ -208,8 +210,8 @@ else
                                                 <img src="/img/icoList1.png" width="22" />
                                                 </button>
                                             </div>
-                                            <br />
-                                            <br />
+                                        <br />
+                                        <br />
                                             <table class="table table-borderless table-sm" style="margin-bottom: 0; border-collapse: collapse;">
                                                 <tr>
                                                 <th style="padding: 1px 1px;">Datasets</th>

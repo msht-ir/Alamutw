@@ -18,7 +18,7 @@ else
             <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-2 px-0">
                 <MudCard Class="mx-0">
                     <MudCardContent Style="background-color:rgba(249,249,249);">
-                    <h6 style="text-align:center;color:royalblue">Set <span style="font-size:x-small;color:indianred"> ( @lstSets.Count() )</span></h6>
+                    <h6 style="text-align:center;color:royalblue">Sets <span style="font-size:x-small;color:indianred"> ( @lstSets.Count() )</span></h6>
                     @* FILTER     *@
                         <div class="d-flex">
                         <MudTextField @ref="refFilterSets"
@@ -45,14 +45,6 @@ else
                                    style="margin-left:1px;margin-right:1px;"
                                    type="checkbox"
                                    @bind="set.IsSelected" />
-                            @* List Datasets *@
-                                <button type="button"
-                                    class="btn btn-link"
-                                    style="margin-left:1px"
-                                    @onclick='() => BtnListSetData(set.SetId, true)'
-                                    Title="list datasets">
-                                <img src="/img/icoList1.png" width="22" />
-                                </button>
                             @* Use all / subset *@
                                 <div>
                                     <MudSelect T="int"
@@ -64,7 +56,7 @@ else
                                            Margin="Margin.Dense"
                                            Adornment="Adornment.End"
                                            AdornmentIcon="@Icons.Material.Filled.List"
-                                           Style="color:royalblue;width:160px;font-size:small;margin-left:15px;margin-right:20px;">
+                                           Style="color:royalblue;width:120px;font-size:small;margin-left:15px;margin-right:20px;">
                                     <MudSelectItem Value="0">all</MudSelectItem>
                                     <MudSelectItem Value="1">subset 1</MudSelectItem>
                                     <MudSelectItem Value="2">subset 2</MudSelectItem>
@@ -97,15 +89,15 @@ else
                                     Title="edit set name">
                                 <img src="/img/icoRename.png" width="24" />
                                 </button>
-                            @* Delete Set*@
+                            @* List Datasets *@
                                 <button type="button"
                                     class="btn btn-link"
                                     style="margin-left:1px"
-                                    @onclick='() => BtnDeleteThisSet(set)'
-                                    Title="Note for Set">
-                                <img src="/img/icoDelete1.png" width="18" />
+                                    @onclick='() => BtnListSetData(set.SetId, true)'
+                                    Title="list datasets">
+                                <img src="/img/icoList1.png" width="22" />
                                 </button>
-                            <span style="font-size:small;font-weight:bold;margin-left:15px;">@set.SetName</span>
+                            <span style="font-size:small;font-weight:bold;margin-left:10px;">@set.SetName</span>
                             </div>
                         @if ((_cmd == "cmdEditSet") && (set.SetId == _setId))
                             {
@@ -659,13 +651,12 @@ else
         }
     private async Task RollbackListOfSelectedSets ()
         {
-
         List<Set> lstSelectedSets = lstSets
             .Where(set => set.IsSelected)
             .ToList();
         if (lstSelectedSets.Count() == 0)
             {
-            Snackbar.Add("select from Set list", Severity.Warning);
+            Snackbar.Add("select Set(s) from list", Severity.Warning);
             return;
             }
         else

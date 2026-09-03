@@ -10,7 +10,10 @@
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 
-<h5 style="text-align:center;padding-left:15px;">Analysis - <span style="font-size:smaller;text-align:center;color:indianred">@appState.UserNickname</span></h5>
+<div class="d-flex" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+    <h2 style="color:royalblue; font-style:italic">Analyses</h2>
+    <span style="font-size:smaller;text-align:center;color:indianred">@appState.UserNickname</span>
+    </div>
 <hr style="color:red" />
 @if (!_hasFetched)
     {
@@ -87,6 +90,10 @@ else
                         <img src="/img/gifUserLogin.gif" width="52" />
                         </div>
                     }
+                else if (_cmd == "ShowCalcDiversityResults")
+                    {
+                    <CompAnalysisDiversityResults lstDiversities="lstDiversities" OnAnalysisDiversityResultsClosed="BtnCloseAnalysisDiversityResults" />
+                    }
                 </MudStack>
             </MudStack>
         </EditForm>
@@ -113,13 +120,15 @@ else
     User user = new User();
 
     public MudTextField<string> refFilterDatasets;
-    List<Set> lstSelectedSets = new List<Set>();
-    List<Dataset> lstSelectedDatasets = new List<Dataset>(); //is required? del it if not used in analyses
-    List<Species> lstSelectedSpecies = new List<Species>();
+    public List<Set> lstSelectedSets = new List<Set>();
+    public List<Dataset> lstSelectedDatasets = new List<Dataset>(); //is required? del it if not used in analyses
+    public List<Species> lstSelectedSpecies = new List<Species>();
+    public List<Diversity> lstDiversities = new List<Diversity>();
 
     Set set = new Set();
     Dataset dataset = new Dataset();
     Species species = new Species();
+    Diversity diversity = new Diversity();
 
     string _cmd = "";
     public bool _hasFetched = false;
@@ -177,6 +186,11 @@ else
         _cmd = "";
         StateHasChanged();
         }
+    private void BtnCloseAnalysisDiversityResults ()
+        {
+        _cmd = "diversity";
+        StateHasChanged();
+        }
     public void BtnHelp ()
         {
         _cmd = _cmd == "help" ? "" : "help";
@@ -192,12 +206,25 @@ else
         }
     public async Task GetSelectedSetsFromComponent (List<Set> lstSelectedSets)
         {
-        // foreach (Set set in lstSelectedSets)
-        //     {
-        //     Console.WriteLine($"- subset: {set.SelectedSubset} of SET: {set.SetName} ");
-        //     }
         switch (_cmd)
             {
+            case "diversity":
+                    {
+                    if (lstSelectedSets.Count > 0)
+                        {
+                        Snackbar.Add($"{lstSelectedSets.Count} Sets received for diversity", Severity.Info, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+                        foreach (Set st in lstSelectedSets)
+                            {
+                            Console.WriteLine($"subset: {st.SelectedSubset} set {st.SetName}");
+                            }
+                        }
+                    _hasFetched = false;
+                    lstDiversities.Clear();
+                    lstDiversities = await feService.Calc_Diversity(lstSelectedSets [0].SetId, lstSelectedSets [0].SelectedSubset);
+                    _hasFetched = true;
+                    _cmd = "ShowCalcDiversityResults";
+                    break;
+                    }
             case "fvalue":
                     {
                     Snackbar.Add($"selcted Sets received for fvalue!", Severity.Info, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
@@ -206,11 +233,6 @@ else
             case "floran":
                     {
                     Snackbar.Add($"selcted Sets received for floran!", Severity.Info, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
-                    break;
-                    }
-            case "diversity":
-                    {
-                    Snackbar.Add($"selcted Sets received for diversity!", Severity.Info, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
                     break;
                     }
             case "comparesets":

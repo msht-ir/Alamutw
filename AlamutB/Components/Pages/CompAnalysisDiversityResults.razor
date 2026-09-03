@@ -1,0 +1,162 @@
+﻿@using System.Globalization
+@using AlamutB.Service
+@using System.Threading.Tasks
+@inject FeService feService
+@inject NavigationManager Navman
+@inject AppState appState
+@inject IJSRuntime JS
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+    @if (!_hasFetched)
+    {
+    <_ScanSheets />
+    }
+else
+    {
+    @* ADD DATASETS To SET *@
+        <MudContainer MaxWidth="MaxWidth.Large" Class="mt-2 px-0">
+            <MudCard Class="mx-0">
+                <MudCardContent Style="background-color:rgba(245,245,245);">
+                <h6 style="text-align:center;color:royalblue">Diversity <span style="font-size:x-small;color:indianred"> ( pairwises: @(lstDiversities.Count()) )</span></h6>
+                    <table class="table table-borderless">
+                        <tr>
+                        <th>dataset A</th>
+                        <th>dataset B</th>
+                        <th>Shared</th>
+                        <th>beta Div</th>
+                        <th>d (Jaccard)</th>
+                        <th>d (Sorensen)</th>
+                        </tr>
+                    @foreach (Diversity dv in lstDiversities)
+                        {
+                            <tr>
+                            <td>@dv.DatasetA: <span style="color:indianred">@dv.CountA</span></td>
+                            <td>@dv.DatasetB: <span style="color:indianred">@dv.CountB</span></td>
+                            <td>@dv.SharedSpecies</td>
+                            <td>@dv.BetaDiv</td>
+                            <td>@dv.DissimJ.ToString("F3")</td>
+                            <td>@dv.DissimS.ToString("F3")</td>
+                            </tr>
+                        }
+                    </table>
+                <hr style="color:royalblue;margin-top:50px" />
+                <div>
+                    <br />max Beta Diversity = @maxBetaDivValue (between @maxBetaDivDatasetAId and @maxBetaDivDatasetBId)
+                    <br />min Beta Diversity = @minBetaDivValue (between @minBetaDivDatasetAId and @minBetaDivDatasetBId)                    
+                    <br />max Shared = @maxSharedValue (between @maxSharedDatasetAId and @maxSharedDatasetBId)
+                </div>
+                <hr style="color:royalblue;margin-top:50px" />
+                @* ScrollToTop *@
+                    <div class="d-flex justify-content-center">
+                        <button class="btn btn-link pulse-hover" @onclick="OnClose">
+                        <img src="/img/icoCancel.png" width="26" />
+                        </button>
+                    </div>
+                </MudCardContent>
+            </MudCard>
+        </MudContainer>
+    }
+<br />
+<br />
+<script>window.scrollToTop = () => { window.scrollTo({ top: 0, behavior: 'smooth' }); };</script>
+
+@code {
+    [Parameter]
+    public List<Diversity>? lstDiversities
+        {
+        get; set;
+        }
+    [Parameter]
+    public EventCallback<bool> OnAnalysisDiversityResultsClosed
+        {
+        get; set;
+        }    
+    User user = new User();
+
+    private int maxAlphaDatasetId = 0;
+    private int maxAlphaValue = 0;
+
+    private int minAlphaDatasetId = 0;
+    private int minAlphaValue = 0;
+
+    private int maxSharedDatasetAId = 0;
+    private int maxSharedDatasetBId = 0;
+    private int maxSharedValue = 0;
+
+    private int maxBetaDivDatasetAId = 0;
+    private int maxBetaDivDatasetBId = 0;
+    private int maxBetaDivValue = 0;
+
+    private int minBetaDivDatasetAId = 0;
+    private int minBetaDivDatasetBId = 0;
+    private int minBetaDivValue = 0;
+
+    public bool _hasFetched = false;
+    string _cmd = "";
+
+    //LifeCycleEvents
+    protected override async Task OnInitializedAsync ()
+        {
+        appState.OnChange += TriggerRender;
+        appState.SetCmd("");
+        user.UserId = Convert.ToInt32(appState.UserId);
+        user.Username = appState.Username ?? "";
+
+        if (lstDiversities.Any())
+            {
+            // Max Shared
+            var maxShared = lstDiversities.MaxBy(x => x.SharedSpecies);
+            maxSharedDatasetAId = maxShared.DatasetA;
+            maxSharedDatasetBId = maxShared.DatasetB;
+            maxSharedValue = maxShared.SharedSpecies;
+
+            // Max BetaDiv
+            var maxBeta = lstDiversities.MaxBy(x => x.BetaDiv);
+            maxBetaDivDatasetAId = maxBeta.DatasetA;
+            maxBetaDivDatasetBId = maxBeta.DatasetB;
+            maxBetaDivValue = maxBeta.BetaDiv;
+
+            // Min BetaDiv
+            var minBeta = lstDiversities.MinBy(x => x.BetaDiv);
+            minBetaDivDatasetAId = minBeta.DatasetA;
+            minBetaDivDatasetBId = minBeta.DatasetB;
+            minBetaDivValue = minBeta.BetaDiv;
+            }
+
+        _hasFetched = true;
+        }
+    private void TriggerRender ()
+        {
+        InvokeAsync(StateHasChanged);
+        }
+    public void Dispose ()
+        {
+        appState.OnChange -= TriggerRender;
+        }
+
+    //methods
+    public string PersianDate (DateTimeOffset? dt)
+        {
+        if ((Convert.ToInt32(appState.UserTags) & 256) == 256)
+            {
+            return feService.ToPersianDate(dt.ToString());
+            }
+        else
+            {
+            return dt?.ToString("yyyy-MM-dd HH:mm");
+            }
+        }
+    private async Task HandleModalClose ()
+        {
+        _hasFetched = false;
+        _hasFetched = true;
+        StateHasChanged();
+        }
+    private async Task OnClose ()
+        {
+        await OnAnalysisDiversityResultsClosed.InvokeAsync(true);
+
+        
+        }
+    }

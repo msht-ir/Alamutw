@@ -23,7 +23,11 @@ else if (appState.Cmd == "cmdCreateNote")
 else
     {
         <div style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
-        <h2 style="color:royalblue; font-style:italic">ListMaker</h2>
+            <div class="d-flex" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+            <h2 style="color:royalblue; font-style:italic">ListMaker </h2>
+            <span style="font-size:smaller;text-align:center;color:indianred">@appState.UserNickname</span>
+            <hr style="color:red" />
+            </div>
         @* ---------------------------------------------------------------------------------- 1 APG Groups *@
             <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-2 px-0">
                 <MudCard Class="mx-auto">
@@ -586,14 +590,14 @@ else
                                     <input class="form-check-input"
                                            style="margin-left:1px;margin-right:1px;"
                                            type="checkbox"
-                                           @bind="species.IsSelected" />
-                                        <button type="button"
+                                           @bind-value="datasetdata.IsSelected" />
+                                        @* <button type="button"
                                             class="btn btn-link"
                                             style="margin-left:1px"
                                             @onclick='() => BtnReportSpecies(datasetData.SpeciesId)'
                                             Title="Edit Species">
                                         <img src="/img/icoFolderS.png" width="22" />
-                                        </button>
+                                        </button> *@
                                         <button type="button"
                                             class="btn btn-link"
                                             style="margin-left:1px"
@@ -620,7 +624,7 @@ else
                                     <input class="form-check-input"
                                            style="margin-left:1px;margin-right:1px;"
                                            type="checkbox"
-                                           @bind="species.IsSelected" />
+                                           @bind-value="species.IsSelected" />
                                         <button type="button"
                                             class="btn btn-link"
                                             style="margin-left:1px"
@@ -680,7 +684,7 @@ else
     </script>
 
 @code {
-    private User user = new User ();
+    private User user = new User();
     public MudTextField<string> reftxtSearch;
     public string strSearch = "";
     public MudNumericField<int> txtPageNumber;
@@ -1068,7 +1072,7 @@ else
         {
         _datasetName = "";
         _cmd = "cmdAddNewDataset";
-        StateHasChanged ();
+        StateHasChanged();
         }
     private async Task CreateDataset (string datasetName)
         {
@@ -1112,9 +1116,10 @@ else
             Snackbar.Add("Select a Dataset first", Severity.Warning);
             }
         }
-    private void CloseComponent ()
+    private async Task CloseComponent ()
         {
-        //RollBack of Component 'Dataset'
+        //rollBack for Component 'Dataset'
+        await ListAllDatasets();
         _cmd = "";
         }
     private async Task BtnSearchDatasets ()

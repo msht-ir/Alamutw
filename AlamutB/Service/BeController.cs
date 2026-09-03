@@ -557,6 +557,12 @@ namespace AlamutB.Backend
             }
         #endregion
         #region ANALYSIS
+        [HttpPost ("Calc_Diversity")]
+        public async Task<ActionResult<List<Diversity>>> Calc_Diversity ([FromBody] int setId, [FromQuery] int subsetIndex)
+            {
+            var result = await _BeService.Calc_DiversityAsync (setId, subsetIndex);
+            return Ok (result);
+            }
         #endregion
         #region REPORT
         #endregion

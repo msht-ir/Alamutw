@@ -828,6 +828,19 @@ namespace AlamutB.Service
             }
         #endregion
         #region ANALYSIS
+        public async Task<List<Diversity>> Calc_Diversity (int setId, int subsetIndex)
+            {
+            var response = await _http.PostAsJsonAsync ($"api/Calc_Diversity?subsetIndex={subsetIndex}", setId);
+            if (response.IsSuccessStatusCode)
+                {
+                List<Diversity> lstDiversities = await response.Content.ReadFromJsonAsync<List<Diversity>> ();
+                return lstDiversities;
+                }
+            else
+                {
+                return new List<Diversity> ();
+                }
+            }
         #endregion
         #region REPORT
         #endregion

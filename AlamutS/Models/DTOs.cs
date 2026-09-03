@@ -434,5 +434,17 @@ namespace AlamutS.Models
         public int SectionTags { get; set; } = 0;
         public List<Note> Notes { get; set; } = new List<Note> ();
         }
+    //Analyses
+    public class Diversity
+        {
+        public int DatasetA { get; set; } = 0;
+        public int DatasetB { get; set; } = 0;
+        public int CountA { get; set; } = 0;
+        public int CountB { get; set; } = 0;
+        public int SharedSpecies { get; set; } = 0;
+        public int BetaDiv { get; set; } = 0;
+        public decimal DissimS { get; set; } = 0;
+        public decimal DissimJ { get; set; } = 0;
+        }
 
     }

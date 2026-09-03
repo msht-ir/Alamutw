@@ -15,7 +15,10 @@
 @using Microsoft.VisualBasic
 @using OfficeOpenXml;
 
-<h5 style="text-align:center;padding-left:15px;">CheckName - <span style="font-size:smaller;text-align:center;color:indianred">@appState.UserNickname</span></h5>
+    <div class = "d-flex" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+    <h2 style="color:royalblue; font-style:italic">CheckName </h2>
+    <span style="font-size:smaller;text-align:center;color:indianred">@appState.UserNickname</span>
+    </div>
 <hr style="color:red" />
 @if (!_hasFetched)
     {
@@ -77,6 +80,8 @@ else
                             <img src="/img/icoList1.png" width="20" />
                             </button>
                         </div>
+                    <br />
+                    <br />
                     @* LIST DataSets *@
                     @foreach (Dataset dataset in lstDatasets)
                         {
@@ -98,14 +103,6 @@ else
                                     Title=@($"edit dataset id: {dataset.DatasetId}")>
                                 <img src="/img/icoRename.png" width="24" />
                                 </button>
-                            @* List taxa *@
-                                <button type="button"
-                                    class="btn btn-link"
-                                    style="margin-left:1px"
-                                    @onclick='() => BtnListDatasetDataOfDataset(dataset.DatasetId, true)'
-                                    Title=@($"show list of species in dataset id: {dataset.DatasetId}")>
-                                <img src="/img/icoList1.png" width="22" />
-                                </button>
                             @* Note *@
                                 <button type="button"
                                     class="btn btn-link"
@@ -114,7 +111,15 @@ else
                                     Title=@($"note for dataset id: {dataset.DatasetId}")>
                                 <img src="/img/icoNoteStickyAdd.png" width="22" />
                                 </button>
-                            <span style="font-size:small;font-weight:bold;margin-left:10px;">@dataset.DatasetName</span>
+                            @* List taxa *@
+                                <button type="button"
+                                    class="btn btn-link"
+                                    style="margin-left:1px"
+                                    @onclick='() => BtnListDatasetDataOfDataset(dataset.DatasetId, true)'
+                                    Title=@($"show list of species in dataset id: {dataset.DatasetId}")>
+                                <img src="/img/icoList1.png" width="22" />
+                                </button>
+                            <span style="font-size:small;font-weight:normal;margin-left:10px;color:darkslategrey">@dataset.DatasetName</span>
                             &nbsp;
                             <span style="color:indianred;font-size:x-small;font-weight:normal;"> &nbsp; (<span style="color:royalblue;font-size:x-small;font-weight:normal;"> @dataset.DatasetId </span>) </span>
                             </div>
@@ -277,7 +282,7 @@ else
                                                                 <button type="button"
                                                                     class="btn btn-link"
                                                                     style="margin-left:1px"
-                                                                    @onclick='@(() => CheckNameThisDatasetData(datasetData, false, true))'
+                                                                    @onclick='@(() => BtnCheckNameThisDatasetData(datasetData))'
                                                                     Title="edit">
                                                                 <img src="/img/icoCheckName0.png" width="20" />
                                                                 </button>
@@ -291,6 +296,23 @@ else
                                                     </td>
                                                 </tr>
                                             @if ((_cmd2 == "CheckNameThisDatasetData") && (datasetData.DatasetDataId == _datasetDataId))
+                                                {
+                                                    <div class="d-flex">
+                                                    <MudNumericField @ref="refCheckNameThisDatasetDataChars"
+                                                                     @bind-Value="intCheckNameThisDatasetDataChars"
+                                                                     Label="use this number of leading chars"
+                                                                     Variant="Variant.Text"
+                                                                     Margin="Margin.Dense"
+                                                                     Autocomplete="off"
+                                                                     Adornment="Adornment.End"
+                                                                     AdornmentIcon="@Icons.Material.Filled.Search"
+                                                                     OnAdornmentClick="@(() => DoCheckNameThisDatasetData (datasetData, false, intCheckNameThisDatasetDataChars))"
+                                                                     AdornmentColor="Color.Dark"
+                                                                     Style="color:darkblue;width:400px;margin-left:10px;width:150px;"
+                                                                     Class="my-textfield" />
+                                                    </div>
+                                                }
+                                            @if ((_cmd2 == "ShowCheckNameThisDatasetData") && (datasetData.DatasetDataId == _datasetDataId))
                                                 {
                                                     <tr>
                                                         <td>
@@ -447,6 +469,9 @@ else
     public MudTextField<string> refEditDatasetData;
     private string _datasetDataLineString = "";
 
+    public MudNumericField<int> refCheckNameThisDatasetDataChars;
+    public int intCheckNameThisDatasetDataChars = 3;
+
     string Current_Genus = "";
     string Current_Section = "";
     string Current_Species = "";
@@ -467,7 +492,7 @@ else
             }
         appState.SetCmd("");
         user.UserId = Convert.ToInt32(appState.UserId);
-        user.Username = appState.Username;
+        user.Username = appState.Username ?? "username?";
         await BtnShowAllDatasets();
         _hasFetched = true;
         }
@@ -499,7 +524,7 @@ else
             _hasFetched = false;
             excelFile = e.File;
             ExcelPackage.License.SetNonCommercialPersonal("Majid SharifiTehrani"); //for non commertial use of package EPPlus
-            // Copy stream (same as before)
+            //copy stream
             await excelFile.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024).CopyToAsync(stream);
             stream.Position = 0;
             //use EPPlus to get worksheets
@@ -537,11 +562,11 @@ else
             }
         else
             {
-            var message = new MarkupString($"<hr>CONFIRM: <br><br>SciNames in the <span style='color:indianred'>selected</span><span style='color:royalblue'> Excel Worksheet</span> will be imported <br><br><span style='font-weight:bold'>Duplicate named</span><br>may be  imported! <span style='color:indianred'><br><br>Continue .... </span>?<br><br><div style='text-align:center'><img src='/img/icoFileExcel.png' width='70'/></div><br><hr>");
+            _hasFetched = false;
+            var message = new MarkupString($"<hr><br><br>Names in the <span style='color:indianred'>selected</span><span style='color:royalblue'> Excel Worksheet</span> will be imported <br> and added to the current dataset<br><br><span style='font-weight:bold'>Duplicate names</span><br>will be  imported! <span style='color:indianred'><br><br>Continue</span>?<br><br><div style='text-align:center'><img src='/img/icoFileExcel.png' width='70'/></div><br><hr>");
             bool? confirmResult = await DialogService.ShowMessageBoxAsync(title: "Confirm", markupMessage: message, yesText: "Yes", cancelText: "No");
             if (confirmResult == true)
                 {
-                _hasFetched = false;
                 int datasetId = Convert.ToInt32(appState.DatasetId);
                 stream.Position = 0;
                 try
@@ -575,10 +600,10 @@ else
                 lstDatasetData.Clear();
                 lstDatasetData = await feService.Read_DatasetData(datasetId);
                 Snackbar.Add("data imported", Severity.Success, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
-                _hasFetched = true;
                 appState.SetCmd("");
                 }
             }
+        _hasFetched = true;
         }
 
     //Dataset
@@ -588,7 +613,7 @@ else
         lstDatasets = await feService.Read_Datasets(user.UserId, 2);
         StateHasChanged();
         }
-    private void BtnAddNewDataset ()
+    private async Task BtnAddNewDataset ()
         {
         dataset.UserId = user.UserId;
         dataset.DatasetType = 2;
@@ -629,10 +654,11 @@ else
             Snackbar.Add("Select a Dataset first", Severity.Warning, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
             }
         }
-    private void CloseComponent ()
+    private async Task CloseComponent ()
         {
-        //RollBack of Component 'Dataset'
+        //rollBack for Component 'Dataset'
         _cmd1 = "";
+        await BtnShowAllDatasets();
         }
     private async Task UpdateDataset (Dataset _dataset)
         {
@@ -787,8 +813,9 @@ else
             _cmd2 = "CheckNameDataset";
             foreach (DatasetData _dsd in lstDatasetData)
                 {
-                await CheckNameThisDatasetData(_dsd, true, false);
+                await DoCheckNameThisDatasetData(_dsd, true, 0);
                 }
+            Snackbar.Add("dataset imprted successfully", Severity.Info);
             StateHasChanged();
             }
         else
@@ -796,7 +823,13 @@ else
             Snackbar.Add("dataset empty!", Severity.Warning, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
             }
         }
-    private async Task CheckNameThisDatasetData (DatasetData datasetData, bool partOfBatchProcess, bool usePartialName)
+    private void BtnCheckNameThisDatasetData (DatasetData _datasetData)
+        {
+        _datasetDataId = _datasetData.DatasetDataId;
+        _cmd2 = "CheckNameThisDatasetData";
+        StateHasChanged();
+        }
+    private async Task DoCheckNameThisDatasetData (DatasetData datasetData, bool partOfBatchProcess, int partialNameChars)
         {
         string thisLine = datasetData.LineString;
         try
@@ -808,10 +841,10 @@ else
                 bool result = ParseLineString(thisLine);
                 if (result)
                     {
-                    if (usePartialName)
+                    if (partialNameChars > 0)
                         {
-                        Current_Genus = Current_Genus.Substring(0, 3);
-                        Current_Species = Current_Species.Substring(0, 3);
+                        Current_Genus = Current_Genus.Substring(0, partialNameChars);
+                        Current_Species = Current_Species.Substring(0, partialNameChars);
                         }
                     lstSpecies = await feService.Read_SpeciesBySearch(Current_Genus.Trim(), Current_Species.Trim());
                     if (partOfBatchProcess)
@@ -838,7 +871,7 @@ else
                     else
                         {
                         _datasetDataId = datasetData.DatasetDataId;
-                        _cmd2 = "CheckNameThisDatasetData";
+                        _cmd2 = "ShowCheckNameThisDatasetData";
                         }
                     }
                 }

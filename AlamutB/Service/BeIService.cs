@@ -128,6 +128,7 @@ namespace AlamutB.Services2Backend
         Task<bool> Delete_NoteAsync (int noteId);
         #endregion
         #region ANALYSIS
+        Task<List<Diversity>> Calc_DiversityAsync (int setId, int subsetIndex);
         #endregion
         #region REPORT
         #endregion

@@ -10,7 +10,10 @@
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 
-<h5 style="text-align:center;padding-left:15px;">Datasets - <span style="font-size:smaller;text-align:center;color:indianred">@appState.UserNickname</span></h5>
+<div class="d-flex" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+    <h2 style="color:royalblue; font-style:italic">Datasets</h2>
+    <span style="font-size:smaller;text-align:center;color:indianred">@appState.UserNickname</span>
+    </div>
 <hr style="color:red" />
     @if (!_hasFetched)
     {
@@ -240,9 +243,12 @@ else
         appState.OnChange -= TriggerRender;
         }
     //btns
-    private void CloseComponent ()
+    private async Task CloseComponent ()
         {
-        //RollBack of Component 'Dataset'
+        //rollBack for Component 'Dataset'
+        _hasFetched = false;
+        await BtnShowAllDatasets();
+        _hasFetched = true;
         _cmd = "";
         }
     private void BtnCancel ()
@@ -269,10 +275,7 @@ else
     //methods
     private async Task HandleModalClose ()
         {
-        _hasFetched = false;
-        lstDatasets.Clear();
-        lstDatasets = await feService.Read_Datasets(user.UserId, 1);
-        _hasFetched = true;
+        await BtnShowAllDatasets();
         StateHasChanged();
         }
 
@@ -284,6 +287,7 @@ else
         }
     public async Task BtnShowAllDatasets ()
         {
+        lstDatasets.Clear ();
         lstDatasets = await feService.Read_Datasets(user.UserId, 1);
         StateHasChanged();
         }

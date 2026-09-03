@@ -10,9 +10,12 @@
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 
-<h5 style="text-align:center;padding-left:5px;">stickys Notes - <span style="font-size:smaller;text-align:center;color:indianred">@appState.UserNickname</span></h5>
+<div class="d-flex" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+    <h2 style="color:royalblue; font-style:italic">Sticky Notes</h2>
+    <span style="font-size:smaller;text-align:center;color:indianred">@appState.UserNickname</span>
+    </div>
 <hr style="color:red" />
-    @if (!_hasFetched)
+@if (!_hasFetched)
     {
     <_ScanSheets />
     }
@@ -20,12 +23,12 @@ else
     {
     @if (lstNotes.Count > 0)
         {
+        }
             <div class="flex gap-4" style="text-align: center; margin:15px;">
                 <button class="btn btn-link pulse-animation" @onclick="CreateNote">
                 <img src="/img/icoNoteStickyAdd.png" width="28" title="add new quick-note" />
                 </button>
             </div>
-        }
         <EditForm Model="lstNotes">
         @if (appState.Cmd == "cmdShowNoteInDialog")
             {
@@ -170,15 +173,6 @@ else
             </button> *@
             <button class="btn btn-link pulse-hover" @onclick="ScrollToTop">
             <img src="/img/icoGotoTop2.png" width="28" />
-            </button>
-        </div>
-    }
-else
-    {
-        <div style="max-width:500px; margin: 0 auto;">
-        @* <div style="text-align:center"> *@
-            <button class="btn btn-link pulse-hover" @onclick="BtnBack">
-            <img src="/img/gifUserLogin.gif" width="70" />
             </button>
         </div>
     }
