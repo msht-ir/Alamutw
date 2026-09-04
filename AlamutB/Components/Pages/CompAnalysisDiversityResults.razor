@@ -18,7 +18,22 @@ else
         <MudContainer MaxWidth="MaxWidth.Large" Class="mt-2 px-0">
             <MudCard Class="mx-0">
                 <MudCardContent Style="background-color:rgba(245,245,245);">
-                <h6 style="text-align:center;color:royalblue">Diversity <span style="font-size:x-small;color:indianred"> ( pairwises: @(lstDiversities.Count()) )</span></h6>
+                <h6 style="text-align:center;color:royalblue">Diversity <span style="font-size:x-small;color:indianred"> ( pairwise comparisons: @(lstDiversities.Count()) )</span></h6>
+                <hr style="color:lightslategrey"/>
+                    <table class="table table-borderless">
+                        <tr>
+                        <th>Id</th>
+                        <th>Dataset name</th>
+                        </tr>
+                    @foreach (Dataset ds in lstSelectedDatasets)
+                        {
+                            <tr>
+                            <td><span style="color:dimgray;font-weight:bold;">@ds.DatasetId </span><span style="color:indianred"> </span></td>
+                            <td> <span style="color:darkslategrey">@ds.DatasetName </span></td>
+                            </tr>
+                        }
+                    </table>
+                <hr />
                     <table class="table table-borderless">
                         <tr>
                         <th>dataset A</th>
@@ -31,21 +46,35 @@ else
                     @foreach (Diversity dv in lstDiversities)
                         {
                             <tr>
-                            <td>@dv.DatasetA: <span style="color:indianred">@dv.CountA</span></td>
-                            <td>@dv.DatasetB: <span style="color:indianred">@dv.CountB</span></td>
+                            <td>@dv.DatasetIdA: <span style="color:indianred">@dv.CountA</span></td>
+                            <td>@dv.DatasetIdB: <span style="color:indianred">@dv.CountB</span></td>
                             <td>@dv.SharedSpecies</td>
-                            <td>@dv.BetaDiv</td>
+                            <td><span style="color:blue">@dv.BetaDiv</span></td>
                             <td>@dv.DissimJ.ToString("F3")</td>
                             <td>@dv.DissimS.ToString("F3")</td>
                             </tr>
                         }
                     </table>
                 <hr style="color:royalblue;margin-top:50px" />
-                <div>
-                    <br />max Beta Diversity = @maxBetaDivValue (between @maxBetaDivDatasetAId and @maxBetaDivDatasetBId)
-                    <br />min Beta Diversity = @minBetaDivValue (between @minBetaDivDatasetAId and @minBetaDivDatasetBId)                    
-                    <br />max Shared = @maxSharedValue (between @maxSharedDatasetAId and @maxSharedDatasetBId)
-                </div>
+                    <div style="margin-left:100px;margin-right:100px;">
+                        <table class="table table-borderless">
+                            <tr>
+                            <td> max Beta Diversity </td>
+                            <td> ( between <span style="color:indianred"> @maxBetaDivDatasetAId</span> and <span style="color:indianred"> @maxBetaDivDatasetBId</span>) </td>
+                            <td> <span style="font-weight:bold;"> @maxBetaDivValue</span> </td>
+                            </tr>
+                            <tr>
+                            <td> min Beta Diversity</td>
+                            <td> ( between <span style="color:indianred"> @minBetaDivDatasetAId</span> and <span style="color:indianred"> @minBetaDivDatasetBId</span>)</td>
+                            <td> <span style="font-weight:bold;"> @minBetaDivValue</span> </td>
+                            </tr>
+                            <tr>
+                            <td> max Shared</td>
+                            <td> ( between <span style="color:indianred"> @maxSharedDatasetAId</span> and <span style="color:indianred"> @maxSharedDatasetBId</span>)</td>
+                            <td> <span style="font-weight:bold;"> @maxSharedValue</span> </td>
+                            </tr>
+                        </table>
+                    </div>
                 <hr style="color:royalblue;margin-top:50px" />
                 @* ScrollToTop *@
                     <div class="d-flex justify-content-center">
@@ -63,6 +92,11 @@ else
 
 @code {
     [Parameter]
+    public List<Dataset>? lstSelectedDatasets
+        {
+        get; set;
+        }
+    [Parameter]
     public List<Diversity>? lstDiversities
         {
         get; set;
@@ -71,7 +105,7 @@ else
     public EventCallback<bool> OnAnalysisDiversityResultsClosed
         {
         get; set;
-        }    
+        }
     User user = new User();
 
     private int maxAlphaDatasetId = 0;
@@ -107,20 +141,20 @@ else
             {
             // Max Shared
             var maxShared = lstDiversities.MaxBy(x => x.SharedSpecies);
-            maxSharedDatasetAId = maxShared.DatasetA;
-            maxSharedDatasetBId = maxShared.DatasetB;
+            maxSharedDatasetAId = maxShared.DatasetIdA;
+            maxSharedDatasetBId = maxShared.DatasetIdB;
             maxSharedValue = maxShared.SharedSpecies;
 
             // Max BetaDiv
             var maxBeta = lstDiversities.MaxBy(x => x.BetaDiv);
-            maxBetaDivDatasetAId = maxBeta.DatasetA;
-            maxBetaDivDatasetBId = maxBeta.DatasetB;
+            maxBetaDivDatasetAId = maxBeta.DatasetIdA;
+            maxBetaDivDatasetBId = maxBeta.DatasetIdB;
             maxBetaDivValue = maxBeta.BetaDiv;
 
             // Min BetaDiv
             var minBeta = lstDiversities.MinBy(x => x.BetaDiv);
-            minBetaDivDatasetAId = minBeta.DatasetA;
-            minBetaDivDatasetBId = minBeta.DatasetB;
+            minBetaDivDatasetAId = minBeta.DatasetIdA;
+            minBetaDivDatasetBId = minBeta.DatasetIdB;
             minBetaDivValue = minBeta.BetaDiv;
             }
 

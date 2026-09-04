@@ -92,7 +92,7 @@ else
                     }
                 else if (_cmd == "ShowCalcDiversityResults")
                     {
-                    <CompAnalysisDiversityResults lstDiversities="lstDiversities" OnAnalysisDiversityResultsClosed="BtnCloseAnalysisDiversityResults" />
+                    <CompAnalysisDiversityResults lstSelectedDatasets="lstSelectedDatasets" lstDiversities="lstDiversities" OnAnalysisDiversityResultsClosed="BtnCloseAnalysisDiversityResults" />
                     }
                 </MudStack>
             </MudStack>
@@ -212,15 +212,70 @@ else
                     {
                     if (lstSelectedSets.Count > 0)
                         {
-                        Snackbar.Add($"{lstSelectedSets.Count} Sets received for diversity", Severity.Info, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
-                        foreach (Set st in lstSelectedSets)
-                            {
-                            Console.WriteLine($"subset: {st.SelectedSubset} set {st.SetName}");
-                            }
+                        //Snackbar.Add($"{lstSelectedSets.Count} Sets received for diversity", Severity.Info, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+                        // foreach (Set st in lstSelectedSets)
+                        //     {
+                        //     Console.WriteLine($"subset: {st.SelectedSubset} set {st.SetName}");
+                        //     }
                         }
                     _hasFetched = false;
                     lstDiversities.Clear();
                     lstDiversities = await feService.Calc_Diversity(lstSelectedSets [0].SetId, lstSelectedSets [0].SelectedSubset);
+                    //get Datasets from DatasetA and DatasetB, then get distinct ones
+                    lstSelectedDatasets = lstDiversities
+                        .Select(x => new Dataset
+                            {
+                            DatasetId = x.DatasetIdA,
+                            DatasetName = x.DatasetNameA,
+                            // Set other properties to default or appropriate values
+                            UserId = 0,
+                            DatasetType = 0,
+                            DatasetAbbr = "",
+                            DatasetRef = "",
+                            RefYear = 0,
+                            RefLang = "",
+                            DatasetManager = "",
+                            AreaHa = 0,
+                            ProvinceId = 0,
+                            Coords = "",
+                            AltMax = 0,
+                            AltMin = 0,
+                            AltAver = 0,
+                            TempMax = 0,
+                            TempMin = 0,
+                            TempAver = 0,
+                            Precipitation = 0,
+                            DatasetTags = 0,
+                            IsSelected = false
+                            })
+                        .Union(lstDiversities.Select(x => new Dataset
+                            {
+                            DatasetId = x.DatasetIdB,
+                            DatasetName = x.DatasetNameB,
+                            // Set other properties to default
+                            UserId = 0,
+                            DatasetType = 0,
+                            DatasetAbbr = "",
+                            DatasetRef = "",
+                            RefYear = 0,
+                            RefLang = "",
+                            DatasetManager = "",
+                            AreaHa = 0,
+                            ProvinceId = 0,
+                            Coords = "",
+                            AltMax = 0,
+                            AltMin = 0,
+                            AltAver = 0,
+                            TempMax = 0,
+                            TempMin = 0,
+                            TempAver = 0,
+                            Precipitation = 0,
+                            DatasetTags = 0,
+                            IsSelected = false
+                            }))
+                        .DistinctBy(x => x.DatasetId) // Distinct by DatasetId
+                        .ToList();
+                    //
                     _hasFetched = true;
                     _cmd = "ShowCalcDiversityResults";
                     break;

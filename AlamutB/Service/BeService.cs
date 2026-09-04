@@ -2634,14 +2634,16 @@ namespace AlamutB.Services2Backend
                 {
                 lstDiversities.Add (new Diversity
                     {
-                    DatasetA = reader.GetInt32 (0),
-                    DatasetB = reader.GetInt32 (1),
-                    CountA = reader.GetInt32 (2),
-                    CountB = reader.GetInt32 (3),
-                    SharedSpecies = reader.GetInt32 (4),
-                    BetaDiv = reader.GetInt32 (5),
-                    DissimS = reader.GetDecimal (6),
-                    DissimJ = reader.GetDecimal (7)
+                    DatasetIdA = reader.GetInt32 (0),
+                    DatasetIdB = reader.GetInt32 (1),
+                    DatasetNameA = reader.GetString (2),
+                    DatasetNameB = reader.GetString (3),
+                    CountA = reader.GetInt32 (4),
+                    CountB = reader.GetInt32 (5),
+                    SharedSpecies = reader.GetInt32 (6),
+                    BetaDiv = reader.GetInt32 (7),
+                    DissimS = reader.GetDecimal (8),
+                    DissimJ = reader.GetDecimal (9)
                     });
                 }
             await cnn.CloseAsync ();
