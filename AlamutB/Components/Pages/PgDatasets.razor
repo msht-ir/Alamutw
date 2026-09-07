@@ -69,6 +69,14 @@ else
                                        style="margin-left:1px;margin-right:1px;"
                                        type="checkbox"
                                        @bind="dataset.IsSelected" />
+                                @* Note *@
+                                    <button type="button"
+                                        class="btn btn-link"
+                                        style="margin-left:1px"
+                                        @onclick='() => BtnCreateNoteForDataset(dataset.DatasetId)'
+                                        Title=@($"notr for dataset id: {dataset.DatasetId}")>
+                                    <img src="/img/icoNoteStickyAdd.png" width="22" />
+                                    </button>
                                 @* Edit *@
                                     <button type="button"
                                         class="btn btn-link"
@@ -84,14 +92,6 @@ else
                                         @onclick='() => BtnListSpeciesOfDatasetsFL(dataset.DatasetId, true)'
                                         Title=@($"show species in dataset id: {dataset.DatasetId}")>
                                     <img src="/img/icoList1.png" width="22" />
-                                    </button>
-                                @* Note *@
-                                    <button type="button"
-                                        class="btn btn-link"
-                                        style="margin-left:1px"
-                                        @onclick='() => BtnCreateNoteForDataset(dataset.DatasetId)'
-                                        Title=@($"notr for dataset id: {dataset.DatasetId}")>
-                                    <img src="/img/icoNoteStickyAdd.png" width="22" />
                                     </button>
                                 <span style="font-size:small"> @dataset.DatasetName </span>
                                 &nbsp;

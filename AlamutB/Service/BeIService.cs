@@ -66,6 +66,7 @@ namespace AlamutB.Services2Backend
         Task<bool> Create_DatasetAsync (Dataset dataset);
         Task<List<Dataset>> Read_DatasetsAsync (int userId, int datasetType);
         Task<List<Dataset>> Read_DatasetsBySetIdAsync (int setId);
+        Task<List<Dataset>> Read_DatasetsBySubsetIndexAsync (int setId, int subsetIndex);
         Task<List<Dataset>> Read_DatasetsBySearchAsync (int userId, int datasetType, string datasetKeyword);
         Task<Dataset> Read_DatasetAsync (int datasetId);
         Task<bool> Update_DatasetAsync (Dataset dataset);
@@ -129,6 +130,7 @@ namespace AlamutB.Services2Backend
         #endregion
         #region ANALYSIS
         Task<List<Diversity>> Calc_DiversityAsync (int setId, int subsetIndex);
+        Task<FV> Get_FloristicValueStatsAsync (int setId, int subsetIndex);
         #endregion
         #region REPORT
         #endregion

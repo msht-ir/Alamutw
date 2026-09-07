@@ -1,0 +1,226 @@
+﻿@using System.Globalization
+@using AlamutB.Service
+@using System.Threading.Tasks
+@inject FeService feService
+@inject NavigationManager Navman
+@inject AppState appState
+@inject IJSRuntime JS
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+    @if (!_hasFetched)
+    {
+    <_ScanSheets />
+    }
+else
+    {
+        <MudContainer MaxWidth="MaxWidth.Large" Class="mt-2 px-0">
+            <MudCard Class="mx-0">
+                <MudCardContent Style="background-color:rgba(245,245,245);">
+                <h6 style="text-align:center;color:royalblue">Floristic Value <span style="font-size:x-small;color:indianred"> ( Set: @appState.SetName )</span></h6>
+                <hr style="color:lightslategrey" />
+                    <table class="table table-borderless">
+                        <tr>
+                        <th>Id</th>
+                        <th>Dataset name</th>
+                        </tr>
+                    @foreach (Dataset ds in lstSelectedDatasets)
+                        {
+                            <tr>
+                            <td> <span style="color:dimgray;font-weight:bold;">@ds.DatasetId </span></td>
+                            <td> <span style="color:darkslategrey">@ds.DatasetName </span></td>
+                            </tr>
+                        }
+                    </table>
+                <hr />
+                <br />
+                <br />
+                    <div style="margin-left:10px;margin-right:200px;">
+                        <table class="table table-borderless">
+                        <tr><th>Parameter</th><th>value</th></tr>
+                        <tr><td>number of families </td><td><span style="color:indianred"> @FVStats.NFam </span></td></tr>
+                        <tr><td>number of genera </td><td><span style="color:indianred"> @FVStats.NGen </span></td></tr>
+                        <tr><td>number of species </td><td><span style="color:indianred"> @FVStats.NSp </span></td></tr>
+                        <tr><td>number of Endemic species </td><td><span style="color:indianred"> @FVStats.NEndem </span></td></tr>
+                        <tr><td>number of Rare species </td><td><span style="color:indianred"> @FVStats.NRare </span></td></tr>
+                        <tr><td>number of Medicinal species </td><td><span style="color:indianred"> @FVStats.NMed </span></td></tr>
+                        <tr><td>number of Range species </td><td><span style="color:indianred"> @FVStats.NRange </span></td></tr>
+                        <tr><td>number of species in category CR </td><td><span style="color:indianred"> @FVStats.NCR </span></td></tr>
+                        <tr><td>number of species in category EN </td><td><span style="color:indianred"> @FVStats.NEN </span></td></tr>
+                        <tr><td>number of species in category VU </td><td><span style="color:indianred"> @FVStats.NVU </span></td></tr>
+                        <tr><td>number of species in category NT </td><td><span style="color:indianred"> @FVStats.NNT </span></td></tr>
+                        <tr><td>number of species in category LC </td><td><span style="color:indianred"> @FVStats.NLC </span></td></tr>
+                        <tr><td>number of species in category LR </td><td><span style="color:indianred"> @FVStats.NLR </span></td></tr>
+                        <tr><td>number of species in category DD </td><td><span style="color:indianred"> @FVStats.NDD </span></td></tr>
+                        <tr><td>number of species in category NE </td><td><span style="color:indianred"> @FVStats.NNE </span></td></tr>
+                        <tr><th>Floristic Value </th><th>value</th></tr>
+                        <tr><td>calculated fv value </td><td><span style="color:indianred"> @FVStats.FV1 </span></td></tr>
+                        <tr><td>calculated fv' value </td><td><span style="color:indianred"> @FVStats.FV2 </span></td></tr>
+                        </table>
+                    </div>
+                <hr style="color:royalblue;margin-top:50px" />
+
+                    <div class="formula-container">
+                    <!-- Formulas Section -->
+                        <div class="formulas">
+                            <div class="formula">
+                            <span class="math-var">v<sub>x</sub></span>
+                            <span class="math-equals">=</span>
+                            <span class="math-expression">2<sup>(x-1)</sup></span>
+                            <span class="math-description">: value of character (x) for species (i)</span>
+                            </div>
+
+                            <div class="formula">
+                            <span class="math-var">fv<sub>i</sub></span>
+                            <span class="math-equals">=</span>
+                            <span class="math-expression">Σ (v<sub>(x, i)</sub>), x = 1; x ≤ n<sub>x</sub></span>
+                            </div>
+
+                            <div class="formula">
+                            <span class="math-var">fv</span>
+                            <span class="math-equals">=</span>
+                            <span class="math-expression">Σ (fv<sub>i</sub>), i = 1; i ≤ n<sub>sp</sub></span>
+                            </div>
+
+                            <div class="formula">
+                            <span class="math-var">fv</span>
+                            <span class="math-equals">=</span>
+                            <span class="math-expression">Σ (Σ (v<sub>(x, i)</sub>), x = 1; x ≤ n<sub>x</sub>), i = 1; i ≤ n<sub>sp</sub></span>
+                            </div>
+
+                            <div class="formula">
+                            <span class="math-var">fv</span>
+                            <span class="math-equals">=</span>
+                            <span class="math-expression">Σ (n<sub>sp(x)</sub> · 2<sup>(x-1)</sup>), x = 1; x ≤ n<sub>x</sub></span>
+                            </div>
+
+                            <div class="formula formula-highlight">
+                            <span class="math-var">fv'</span>
+                            <span class="math-equals">=</span>
+                            <span class="math-expression">fv / n<sub>sp</sub></span>
+                            </div>
+                        </div>
+                    <br />
+                    <!-- Variables Section -->
+                        <div class="variables-section">
+                        <h6 class="section-title" style="color:blueviolet">where</h6>
+                            <table class="table table-borderless">
+                                <tr>
+                                <td>n<sub>sp</sub></td>
+                                <td>total number of species (alpha diversity)</td>
+                                </tr>
+                                <tr>
+                                <td>i</td>
+                                <td>species (i) in the floristic list</td>
+                                </tr>
+                                <tr>
+                                <td>fv<sub>i</sub></td>
+                                <td>species floristic-value</td>
+                                </tr>
+                                <tr>
+                                <td>n<sub>x</sub></td>
+                                <td>11 (characteristics table rows count)</td>
+                                </tr>
+                                <tr>
+                                <td>x</td>
+                                <td>position of the characteristics in the cTable</td>
+                                </tr>
+                                <tr>
+                                <td>v<sub>(x,i)</sub></td>
+                                <td>value of characteristics (x) for species (i)</td>
+                                </tr>
+                                <tr>
+                                <td>n<sub>sp(x)</sub></td>
+                                <td>number of species with characteristic (x)</td>
+                                </tr>
+                            </table>
+                        </div>
+                    <!-- Notes Section -->
+                        <div class="notes-section">
+                            <ul class="notes-list">
+                                <li>
+                                Species value (fv<sub>i</sub>) varies from
+                                <span class="range-value">1</span> to
+                                <span class="range-value">1055</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                <hr style="color:royalblue;margin-top:50px" />
+                @* ScrollToTop *@
+                    <div class="d-flex justify-content-center">
+                        <button class="btn btn-link pulse-hover" @onclick="OnClose">
+                        <img src="/img/icoCancel.png" width="26" />
+                        </button>
+                    </div>
+                </MudCardContent>
+            </MudCard>
+        </MudContainer>
+    }
+
+<br />
+<br />
+<script>window.scrollToTop = () => { window.scrollTo({ top: 0, behavior: 'smooth' }); };</script>
+
+@code {
+    [Parameter]
+    public List<Dataset>? lstSelectedDatasets
+        {
+        get; set;
+        }
+    [Parameter]
+    public FV? FVStats
+        {
+        get; set;
+        }
+    [Parameter]
+    public EventCallback<bool> OnAnalysisFVResultsClosed
+        {
+        get; set;
+        }
+    User user = new User();
+    public bool _hasFetched = false;
+    string _cmd = "";
+
+    //LifeCycleEvents
+    protected override async Task OnInitializedAsync ()
+        {
+        appState.OnChange += TriggerRender;
+        appState.SetCmd("");
+        user.UserId = Convert.ToInt32(appState.UserId);
+        user.Username = appState.Username ?? "";
+        _hasFetched = true;
+        }
+    private void TriggerRender ()
+        {
+        InvokeAsync(StateHasChanged);
+        }
+    public void Dispose ()
+        {
+        appState.OnChange -= TriggerRender;
+        }
+
+    //methods
+    public string PersianDate (DateTimeOffset? dt)
+        {
+        if ((Convert.ToInt32(appState.UserTags) & 256) == 256)
+            {
+            return feService.ToPersianDate(dt.ToString());
+            }
+        else
+            {
+            return dt?.ToString("yyyy-MM-dd HH:mm");
+            }
+        }
+    private async Task HandleModalClose ()
+        {
+        _hasFetched = false;
+        _hasFetched = true;
+        StateHasChanged();
+        }
+    private async Task OnClose ()
+        {
+        await OnAnalysisFVResultsClosed.InvokeAsync(true);
+        }
+    }

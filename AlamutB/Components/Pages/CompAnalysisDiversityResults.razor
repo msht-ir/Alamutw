@@ -14,12 +14,11 @@
     }
 else
     {
-    @* ADD DATASETS To SET *@
         <MudContainer MaxWidth="MaxWidth.Large" Class="mt-2 px-0">
             <MudCard Class="mx-0">
                 <MudCardContent Style="background-color:rgba(245,245,245);">
                 <h6 style="text-align:center;color:royalblue">Diversity <span style="font-size:x-small;color:indianred"> ( pairwise comparisons: @(lstDiversities.Count()) )</span></h6>
-                <hr style="color:lightslategrey"/>
+                <hr style="color:lightslategrey" />
                     <table class="table table-borderless">
                         <tr>
                         <th>Id</th>
@@ -189,8 +188,6 @@ else
         }
     private async Task OnClose ()
         {
-        await OnAnalysisDiversityResultsClosed.InvokeAsync(true);
-
-        
+        await OnAnalysisDiversityResultsClosed.InvokeAsync(true);       
         }
     }

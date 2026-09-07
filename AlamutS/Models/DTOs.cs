@@ -448,5 +448,24 @@ namespace AlamutS.Models
         public decimal DissimS { get; set; } = 0;
         public decimal DissimJ { get; set; } = 0;
         }
-
+    public class FV
+        {
+        public int NFam { get; set; }
+        public int NGen { get; set; }
+        public int NSp { get; set; }
+        public int NEndem { get; set; }
+        public int NRare { get; set; }
+        public int NMed { get; set; }
+        public int NRange { get; set; }
+        public int NCR { get; set; }
+        public int NEN { get; set; }
+        public int NVU { get; set; }
+        public int NNT { get; set; }
+        public int NLC { get; set; }
+        public int NLR { get; set; }
+        public int NDD { get; set; }
+        public int NNE { get; set; }
+        public int FV1 { get; set; }
+        public decimal FV2 { get; set; }
+        }
     }

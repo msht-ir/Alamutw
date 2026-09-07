@@ -90,6 +90,8 @@
         public void SetDatasetId (int _DatasetId) { DatasetId = _DatasetId; OnChange?.Invoke (); }
         public string? DatasetName { get; private set; }
         public void SetDatasetName (string _DatasetName) { DatasetName = _DatasetName; OnChange?.Invoke (); }
+        public string? SetName { get; private set; }
+        public void SetSetName (string _SetName) { SetName = _SetName; OnChange?.Invoke (); }
 
         }
     }

@@ -281,6 +281,12 @@ namespace AlamutB.Backend
             var result = await _BeService.Read_DatasetsBySetIdAsync (setId);
             return Ok (result);
             }
+        [HttpPost ("Read_DatasetsBySubsetIndex")]
+        public async Task<ActionResult<List<Dataset>>> Read_DatasetsBySubsetIndex ([FromBody] int setId, [FromQuery] int subsetIndex)
+            {
+            var result = await _BeService.Read_DatasetsBySubsetIndexAsync (setId, subsetIndex);
+            return Ok (result);
+            }
         [HttpPost ("Read_DatasetsBySearch")]
         public async Task<ActionResult<List<Dataset>>> Read_DatasetsBySearch ([FromQuery] int userId, [FromQuery] int datasetType, [FromBody] string datasetKeyword)
             {
@@ -561,6 +567,12 @@ namespace AlamutB.Backend
         public async Task<ActionResult<List<Diversity>>> Calc_Diversity ([FromBody] int setId, [FromQuery] int subsetIndex)
             {
             var result = await _BeService.Calc_DiversityAsync (setId, subsetIndex);
+            return Ok (result);
+            }
+        [HttpPost ("Get_FloristicValueStats")]
+        public async Task<ActionResult<FV>> Get_FloristicValueStats ([FromBody] int setId, [FromQuery] int subsetIndex)
+            {
+            var result = await _BeService.Get_FloristicValueStatsAsync (setId, subsetIndex);
             return Ok (result);
             }
         #endregion

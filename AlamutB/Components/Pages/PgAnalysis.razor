@@ -49,23 +49,35 @@ else
                                 Color="Color.Primary"
                                 CheckMark FixedContent Vertical>
                     <MudToggleItem Value=@("fvalue")
+                                   SelectedIcon="@Icons.Material.Outlined.Functions"
                                    Text="F-Value" />
                     <MudToggleItem Value=@("diversity")
+                                   SelectedIcon="@Icons.Material.Outlined.InsertChart"
                                    Text="Diversity" />
                     <MudToggleItem Value=@("floran")
+                                   SelectedIcon="@Icons.Material.Outlined.Grass"
                                    Text="FlorAn" />
                     <MudToggleItem Value=@("multivarfloran")
+                                   SelectedIcon="@Icons.Material.Outlined.Window"
                                    Text="MultiFlorAn" />
                     <MudToggleItem Value=@("comparesets")
+                                   SelectedIcon="@Icons.Material.Outlined.JoinLeft"
                                    Text="Compare Sets" />
                     <MudToggleItem Value=@("cooccurence")
+                                   SelectedIcon="@Icons.Material.Outlined.Dashboard"
                                    Text="Cooccurence" />
                     <MudToggleItem Value=@("climagraph")
+                                   SelectedIcon="@Icons.Material.Outlined.Cloud"
                                    Text="ClimaGraph" />
                     <MudToggleItem Value=@("multivarcliman")
+                                   SelectedIcon="@Icons.Material.Outlined.Window"
                                    Text="MultivarClimAn" />
                     <MudToggleItem Value=@("help")
-                                   Text="Guid" />
+                                   SelectedIcon="@Icons.Material.Filled.Search"
+                                   Text="Guide" />
+                    <MudToggleItem Value=@("back")
+                                   Text="Back to Menu"
+                                   Style="color:indianred" />
                     </MudToggleGroup>
                 </MudStack>
             @* Pannel Right *@
@@ -93,6 +105,10 @@ else
                 else if (_cmd == "ShowCalcDiversityResults")
                     {
                     <CompAnalysisDiversityResults lstSelectedDatasets="lstSelectedDatasets" lstDiversities="lstDiversities" OnAnalysisDiversityResultsClosed="BtnCloseAnalysisDiversityResults" />
+                    }
+                else if (_cmd == "ShowFloristicValueStatsResults")
+                    {
+                    <CompAnalysisFVResults lstSelectedDatasets="lstSelectedDatasets" FVStats="FVStats" OnAnalysisFVResultsClosed="BtnCloseAnalysisFVResults" />
                     }
                 </MudStack>
             </MudStack>
@@ -124,6 +140,7 @@ else
     public List<Dataset> lstSelectedDatasets = new List<Dataset>(); //is required? del it if not used in analyses
     public List<Species> lstSelectedSpecies = new List<Species>();
     public List<Diversity> lstDiversities = new List<Diversity>();
+    public FV FVStats = new FV();
 
     Set set = new Set();
     Dataset dataset = new Dataset();
@@ -158,76 +175,34 @@ else
     //btns
     public void BtnAnalysisSelected (string _analysisName)
         {
-        _cmd = _analysisName;
-        StateHasChanged();
-        }
-
-    //methods
-    public string PersianDate (DateTimeOffset? dt)
-        {
-        if ((Convert.ToInt32(appState.UserTags) & 256) == 256)
+        if (_analysisName == "back")
             {
-            return feService.ToPersianDate(dt.ToString());
+            BtnBack();
             }
         else
             {
-            return dt?.ToString("yyyy-MM-dd HH:mm");
+            _cmd = _analysisName;
+            StateHasChanged();
             }
         }
-    private async Task HandleModalClose ()
-        {
-        _hasFetched = false;
-        //
-        _hasFetched = true;
-        StateHasChanged();
-        }
-    private void BtnCancel ()
-        {
-        _cmd = "";
-        StateHasChanged();
-        }
-    private void BtnCloseAnalysisDiversityResults ()
-        {
-        _cmd = "diversity";
-        StateHasChanged();
-        }
-    public void BtnHelp ()
-        {
-        _cmd = _cmd == "help" ? "" : "help";
-        StateHasChanged();
-        }
-    private async Task ScrollToTop ()
-        {
-        await JS.InvokeVoidAsync("scrollToTop");
-        }
-    public void BtnBack ()
-        {
-        Navman.NavigateTo("/Switchboard");
-        }
+
+    //rollbacks
     public async Task GetSelectedSetsFromComponent (List<Set> lstSelectedSets)
         {
         switch (_cmd)
             {
             case "diversity":
                     {
-                    if (lstSelectedSets.Count > 0)
-                        {
-                        //Snackbar.Add($"{lstSelectedSets.Count} Sets received for diversity", Severity.Info, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
-                        // foreach (Set st in lstSelectedSets)
-                        //     {
-                        //     Console.WriteLine($"subset: {st.SelectedSubset} set {st.SetName}");
-                        //     }
-                        }
                     _hasFetched = false;
                     lstDiversities.Clear();
                     lstDiversities = await feService.Calc_Diversity(lstSelectedSets [0].SetId, lstSelectedSets [0].SelectedSubset);
-                    //get Datasets from DatasetA and DatasetB, then get distinct ones
+                    //get distinct list of Datasets from DatasetA and DatasetB
                     lstSelectedDatasets = lstDiversities
                         .Select(x => new Dataset
                             {
                             DatasetId = x.DatasetIdA,
                             DatasetName = x.DatasetNameA,
-                            // Set other properties to default or appropriate values
+                            //set as default
                             UserId = 0,
                             DatasetType = 0,
                             DatasetAbbr = "",
@@ -252,7 +227,7 @@ else
                             {
                             DatasetId = x.DatasetIdB,
                             DatasetName = x.DatasetNameB,
-                            // Set other properties to default
+                            //set as default
                             UserId = 0,
                             DatasetType = 0,
                             DatasetAbbr = "",
@@ -273,16 +248,20 @@ else
                             DatasetTags = 0,
                             IsSelected = false
                             }))
-                        .DistinctBy(x => x.DatasetId) // Distinct by DatasetId
+                        .DistinctBy(x => x.DatasetId) //distinct
                         .ToList();
-                    //
                     _hasFetched = true;
                     _cmd = "ShowCalcDiversityResults";
                     break;
                     }
             case "fvalue":
                     {
-                    Snackbar.Add($"selcted Sets received for fvalue!", Severity.Info, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+                    _hasFetched = false;
+                    lstSelectedDatasets = await feService.Read_DatasetsBySubsetIndex(lstSelectedSets [0].SetId, lstSelectedSets [0].SelectedSubset);
+                    FVStats = await feService.Get_FloristicValueStats(lstSelectedSets [0].SetId, lstSelectedSets [0].SelectedSubset);
+                    appState.SetSetName(lstSelectedSets [0].SetName);
+                    _hasFetched = true;
+                    _cmd = "ShowFloristicValueStatsResults";
                     break;
                     }
             case "floran":
@@ -321,5 +300,46 @@ else
                     break;
                     }
             }
+        }
+    private void BtnCloseAnalysisDiversityResults ()
+        {
+        _cmd = "diversity";
+        StateHasChanged();
+        }
+    private void BtnCloseAnalysisFVResults ()
+        {
+        _cmd = "fvalue";
+        StateHasChanged();
+        }
+
+    //methods
+    private async Task ScrollToTop ()
+        {
+        await JS.InvokeVoidAsync("scrollToTop");
+        }
+    public string PersianDate (DateTimeOffset? dt)
+        {
+        if ((Convert.ToInt32(appState.UserTags) & 256) == 256)
+            {
+            return feService.ToPersianDate(dt.ToString());
+            }
+        else
+            {
+            return dt?.ToString("yyyy-MM-dd HH:mm");
+            }
+        }
+    public void BtnHelp ()
+        {
+        _cmd = _cmd == "help" ? "" : "help";
+        StateHasChanged();
+        }
+    private void BtnCancel ()
+        {
+        _cmd = "";
+        StateHasChanged();
+        }
+    public void BtnBack ()
+        {
+        Navman.NavigateTo("/Switchboard");
         }
     }

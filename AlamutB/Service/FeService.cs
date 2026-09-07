@@ -438,6 +438,19 @@ namespace AlamutB.Service
                 return new List<Dataset> ();
                 }
             }
+        public async Task<List<Dataset>> Read_DatasetsBySubsetIndex (int setId, int subsetIndex)
+            {
+            var response = await _http.PostAsJsonAsync ($"api/Read_DatasetsBySubsetIndex?subsetIndex={subsetIndex}", setId);
+            if (response.IsSuccessStatusCode)
+                {
+                List<Dataset> lstDatasets = await response.Content.ReadFromJsonAsync<List<Dataset>> ();
+                return lstDatasets;
+                }
+            else
+                {
+                return new List<Dataset> ();
+                }
+            }
         public async Task<List<Dataset>> Read_DatasetsBySearch (int userId, int datasetType, string datasetKeyword)
             {
             var response = await _http.PostAsJsonAsync ($"api/Read_DatasetsBySearch?userId={userId}&datasetType={datasetType}", datasetKeyword);
@@ -839,6 +852,19 @@ namespace AlamutB.Service
             else
                 {
                 return new List<Diversity> ();
+                }
+            }
+        public async Task<FV> Get_FloristicValueStats (int setId, int subsetIndex)
+            {
+            var response = await _http.PostAsJsonAsync ($"api/Get_FloristicValueStats?subsetIndex={subsetIndex}", setId);
+            if (response.IsSuccessStatusCode)
+                {
+                FV FVstats = await response.Content.ReadFromJsonAsync<FV> ();
+                return FVstats;
+                }
+            else
+                {
+                return new FV ();
                 }
             }
         #endregion

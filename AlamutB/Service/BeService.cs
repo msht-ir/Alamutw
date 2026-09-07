@@ -1389,6 +1389,56 @@ namespace AlamutB.Services2Backend
                 return new List<Dataset> ();
                 }
             }
+        public async Task<List<Dataset>> Read_DatasetsBySubsetIndexAsync (int setId, int subsetIndex)
+            {
+            string? connString = _config.GetConnectionString ("cnni");
+            string sql = "DT.Read_DatasetsBySubsetIndex";
+            using SqlConnection cnn = new (connString);
+            try
+                {
+                await cnn.OpenAsync ();
+                SqlCommand cmd = new (sql, cnn);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue ("@SetId", setId);
+                cmd.Parameters.AddWithValue ("@SubsetIndex", subsetIndex);
+                SqlDataReader reader = await cmd.ExecuteReaderAsync ();
+                List<Dataset> lstDatasets = new List<Dataset> ();
+                while (await reader.ReadAsync ())
+                    {
+                    lstDatasets.Add (new Dataset
+                        {
+                        DatasetId = reader.GetInt32 (0),
+                        UserId = reader.GetInt32 (1),
+                        DatasetType = reader.GetInt32 (2),
+                        DatasetAbbr = reader.GetString (3),
+                        DatasetName = reader.GetString (4),
+                        DatasetRef = reader.GetString (5),
+                        RefYear = reader.GetInt32 (6),
+                        RefLang = reader.GetString (7),
+                        DatasetManager = reader.GetString (8),
+                        AreaHa = reader.GetInt32 (9),
+                        ProvinceId = reader.GetInt32 (10),
+                        Coords = reader.GetString (11),
+                        AltMax = reader.GetInt32 (12),
+                        AltMin = reader.GetInt32 (13),
+                        AltAver = reader.GetInt32 (14),
+                        TempMax = reader.GetDecimal (15),
+                        TempMin = reader.GetDecimal (16),
+                        TempAver = reader.GetDecimal (17),
+                        Precipitation = reader.GetDecimal (18),
+                        DatasetTags = reader.GetInt32 (19)
+                        });
+                    }
+                await cnn.CloseAsync ();
+                return lstDatasets;
+                }
+            catch (Exception ex)
+                {
+                Console.WriteLine ("error: " + ex.Message);
+                cnn.Close ();
+                return new List<Dataset> ();
+                }
+            }
         public async Task<List<Dataset>> Read_DatasetsBySearchAsync (int userId, int datasetType, string datasetKeyword)
             {
             string? connString = _config.GetConnectionString ("cnni");
@@ -2649,153 +2699,53 @@ namespace AlamutB.Services2Backend
             await cnn.CloseAsync ();
             return lstDiversities;
             }
-        /*
-        public static void SetsFValue (int intSetID, string strSetTitle, int intSubset)
+        public async Task<FV> Get_FloristicValueStatsAsync (int setId, int subsetIndex)
             {
-            FileSystem.FileClose ();
-            string fltr = "";
-            switch (intSubset)
-                {
-                case 0:
-                        {
-                        fltr = "";
-                        break;
-                        }
-                default:
-                        {
-                        fltr = " AND (Membership & " + Math.Pow (2, intSubset - 1).ToString () + " = " + Math.Pow (2, intSubset - 1).ToString () + ")";
-                        break;
-                        }
-                }
-            //get data form 5 tables
-            DB.DS.Tables ["tblTMP0"].Clear ();
-            string strSQL = "SELECT DISTINCT Species.ID AS SPID, Genera.familyID, Species.genusID, Species.rstat, Species.rcons, Species.rchar, Setdata_DS.setID, Setdata_DS.membership";
-            strSQL = strSQL + " FROM Species INNER JOIN Genera ON Species.genusID = Genera.ID INNER JOIN DsData ON Species.ID = DsData.speciesID INNER JOIN Datasets ON Datasets.ID = DsData.datasetID INNER JOIN Setdata_DS ON Datasets.ID = Setdata_DS.datasetID";
-            strSQL = strSQL + " WHERE SetID = " + intSetID.ToString () + " AND rank = 'species' " + fltr;
-            using (var CnnSS = new System.Data.SqlClient.SqlConnection (DB.CnnString))
-                {
-                CnnSS.Open ();
-                DB.DASS = new System.Data.SqlClient.SqlDataAdapter (strSQL, CnnSS);
-                DB.DASS.Fill (DB.DS, "tblTMP0");
-                CnnSS.Close ();
-                }
-            DataTable dt = DB.DS.Tables ["tblTMP0"];
-            //LINQ
-            int nFam = (from r in dt.AsEnumerable () select r.Field<int> ("familyID")).Distinct ().Count ();
-            int nGen = (from r in dt.AsEnumerable () select r.Field<int> ("genusID")).Distinct ().Count ();
-            int nSp = (from r in dt.AsEnumerable () select r.Field<int> ("SPID")).Distinct ().Count ();
-            int nEndem = (from r in dt.AsEnumerable () where ((r.Field<int> ("rchar") & 1) == 1) select r.Field<int> ("rchar")).Count ();
-            int nRare = (from r in dt.AsEnumerable () where ((r.Field<int> ("rchar") & 2) == 2) select r.Field<int> ("rchar")).Count ();
-            int nMed = (from r in dt.AsEnumerable () where ((r.Field<int> ("rchar") & 4) == 4) select r.Field<int> ("rchar")).Count ();
-            int nRange = (from r in dt.AsEnumerable () where ((r.Field<int> ("rchar") & 8) == 8) select r.Field<int> ("rchar")).Count ();
-            int nCR = (from r in dt.AsEnumerable () where ((r.Field<byte> ("rcons") & 64) == 64) select (int) r.Field<byte> ("rcons")).Count ();
-            int nEN = (from r in dt.AsEnumerable () where ((r.Field<byte> ("rcons") & 32) == 32) select (int) r.Field<byte> ("rcons")).Count ();
-            int nVU = (from r in dt.AsEnumerable () where ((r.Field<byte> ("rcons") & 16) == 16) select (int) r.Field<byte> ("rcons")).Count ();
-            int nNT = (from r in dt.AsEnumerable () where ((r.Field<byte> ("rcons") & 8) == 8) select (int) r.Field<byte> ("rcons")).Count ();
-            int nLC = (from r in dt.AsEnumerable () where ((r.Field<byte> ("rcons") & 4) == 4) select (int) r.Field<byte> ("rcons")).Count ();
-            int nLR = (from r in dt.AsEnumerable () where ((r.Field<byte> ("rcons") & 2) == 2) select (int) r.Field<byte> ("rcons")).Count ();
-            int nDD = (from r in dt.AsEnumerable () where ((r.Field<byte> ("rcons") & 1) == 1) select (int) r.Field<byte> ("rcons")).Count ();
-            int nNE = (from r in dt.AsEnumerable () where (r.Field<byte> ("rcons") == 0) select (int) r.Field<byte> ("rcons")).Count ();
-            int fv1 = nCR * 1024 + nEN * 512 + nVU * 256 + nNT * 128 + nLC * 64 + nLR * 32 + nEndem * 16 + nRare * 8 + nMed * 4 + nRange * 2 + nSp;
-            if (nSp == 0)
-                return;
-            float fv2 = (float) ((100 * fv1 / nSp) / 100.0);
-            //REPORT
-            //1: Header 
-            FileSystem.FileOpen (1, Application.StartupPath + "alamut_ReportDS.html", OpenMode.Output);
-            FileSystem.PrintLine (1, "<html dir= \"ltr\">");
-            FileSystem.PrintLine (1, "<head>");
-            FileSystem.PrintLine (1, "<title>alamut Set ", intSetID, "</title>");
-            FileSystem.PrintLine (1, Reports.Style);
-            FileSystem.PrintLine (1, "</head>");
-            FileSystem.PrintLine (1, Reports.Header);
-            FileSystem.PrintLine (1, "<body>");
-            FileSystem.PrintLine (1, "<h3 style='color:green; font-family:tahoma; text-align: center'>alamut floristic database- version: " + DB.BeVersion + "</h3>");
-            FileSystem.PrintLine (1, "<p style='color:darkgray; font-family:tahoma; font-size:16px; text-align: center'>User: ", User.Name, "</p>");
-            //2: header for set
-            FileSystem.PrintLine (1, "<p style='color:blue; font-family:tahoma'>", DateTime.Now, "<br>set: ", intSetID, "<br>", strSetTitle, "<br>subset: ", intSubset, "</p>");
-            FileSystem.PrintLine (1, "<hr>");
-            //3: body
-            FileSystem.PrintLine (1, "<H2 style='color:royalblue; font-family:tahoma; font-size:18px'>Floristic Value (FV): </H2>");
-            //tables
-            FileSystem.PrintLine (1, "<style>th, td {border: 1px solid black; border-collapse: collapse;}</style>");
-            FileSystem.PrintLine (1, "<table style='width:50%; font-family:tahoma; font-size:12px; border-collapse:collapse'>");
-            //table-1
-            string thisLine = "";
-            thisLine += "<tr><td><b>nfam</b></td><td>" + nFam + "</td><td><b>s/f</b></td><td>" + (float) ((100 * nSp / nFam) / 100.0) + "</td><td><b>fv </b></td><td>" + fv1 + "</td></tr>"; //tbl1-row1
-            thisLine += "<tr><td><b>ngen</b></td><td>" + nGen + "</td><td><b>g/f</b></td><td>" + (float) ((100 * nGen / nFam) / 100.0) + "</td><td><b>fv'</b></td><td>" + fv2 + "</td></tr>"; //tbl1-row2
-            thisLine += "<tr><td><b>nspc</b></td><td>" + nSp + "</td><td><b>s/g</b></td><td>" + (float) ((100 * nSp / nGen) / 100.0) + "</td><td>   </td><td>           </td></tr>";        //tbl1-row2
-            FileSystem.PrintLine (1, thisLine);
-            FileSystem.PrintLine (1, "</table>");
-            FileSystem.PrintLine (1, "<br><br>");
-            //table1-footer
-            FileSystem.PrintLine (1, "<p>");
-            FileSystem.PrintLine (1, "<b>nfam</b> : number of families<br>");
-            FileSystem.PrintLine (1, "<b>ngen</b> : nmber of genera   <br>");
-            FileSystem.PrintLine (1, "<b>nspc</b> : nmber of species  <br>");
-            FileSystem.PrintLine (1, "<b>s/f</b> : species to family ratio<br>");
-            FileSystem.PrintLine (1, "<b>g/f</b> : genus to family ratio  <br>");
-            FileSystem.PrintLine (1, "<b>s/g</b> : species to genus ratio <br></p>");
-            FileSystem.PrintLine (1, "<br><hr><br>");
-            //table-2
-            FileSystem.PrintLine (1, "<table style='width:50%; font-family:tahoma; font-size:12px; border-collapse:collapse'>");
-            thisLine = "";
-            thisLine += "<tr><th> x</th><th>criterion </th><th>v<sub>x</sub> = 2<sup>(x-1)</sup></th><th>nsp<sub>(x)</sub></th><th>nsp<sub>(x)</sub> . 2<sup>(x-1)</sup>   </th></tr>";  //tbl2-row1
-            thisLine += "<tr><td>11</td><td>CR        </td><td>1024                  </td><td>" + nCR + "</td><td>" + nCR * 1024 + "</td></tr>";  //tbl2-row1
-            thisLine += "<tr><td>10</td><td>EN        </td><td>0512                  </td><td>" + nEN + "</td><td>" + nEN * 512 + "</td></tr>";  //tbl2-row2
-            thisLine += "<tr><td>09</td><td>VU        </td><td>0256                  </td><td>" + nVU + "</td><td>" + nVU * 256 + "</td></tr>";  //tbl2-row3
-            thisLine += "<tr><td>08</td><td>NT        </td><td>0128                  </td><td>" + nNT + "</td><td>" + nNT * 128 + "</td></tr>";  //tbl2-row4
-            thisLine += "<tr><td>07</td><td>LC        </td><td>0064                  </td><td>" + nLC + "</td><td>" + nLC * 64 + "</td></tr>";  //tbl2-row5
-            thisLine += "<tr><td>06</td><td>LR        </td><td>0032                  </td><td>" + nLR + "</td><td>" + nLR * 32 + "</td></tr>";  //tbl2-row6
-            thisLine += "<tr><td>05</td><td>Endem     </td><td>0016                  </td><td>" + nEndem + "</td><td>" + nEndem * 16 + "</td></tr>";  //tbl2-row7
-            thisLine += "<tr><td>04</td><td>Rare      </td><td>0008                  </td><td>" + nRare + "</td><td>" + nRare * 8 + "</td></tr>";  //tbl2-row8
-            thisLine += "<tr><td>03</td><td>Med       </td><td>0004                  </td><td>" + nMed + "</td><td>" + nMed * 4 + "</td></tr>";  //tbl2-row9
-            thisLine += "<tr><td>02</td><td>Range     </td><td>0002                  </td><td>" + nRange + "</td><td>" + nRange * 2 + "</td></tr>";  //tbl2-row10
-            thisLine += "<tr><td>01</td><td>Occurrence</td><td>0001                  </td><td>" + nSp + "</td><td>" + nSp * 1 + "</td></tr>";  //tbl2-row11
-            thisLine += "<tr><td>  </td><td>          </td><td>                      </td><td><b>fv        </b></td><td><b>" + fv1 + "</b></td></tr>";  //tbl2-row13
-            thisLine += "<tr><td>  </td><td>          </td><td>                      </td><td><b>fv'       </b></td><td><b>" + fv2 + "</b></td></tr>";  //tbl2-row14
-            FileSystem.PrintLine (1, thisLine);
-            FileSystem.PrintLine (1, "</table>");
-            FileSystem.PrintLine (1, "<br><hr><br>");
-            //table2-footer
-            FileSystem.PrintLine (1, "<p>");
-            FileSystem.PrintLine (1, "<b>v<sub>x</sub></b> = 2<sup>(x-1)</sup> : value of character (x) for species (i)<br>");
-            FileSystem.PrintLine (1, "<b>fv<sub>i</sub></b> = SIGMA (v<sub>(x, i)</sub>), x = 1; x <= nx<br>");
-            FileSystem.PrintLine (1, "<b>fv</b> = SIGMA (fv<sub>i</sub>), i = 1; i <= nsp<br>");
-            FileSystem.PrintLine (1, "<b>fv</b> = SIGMA (SIGMA (v<sub>(x, i)</sub>), x = 1; x <= nx), i = 1; i <= nsp<br>");
-            FileSystem.PrintLine (1, "<b>fv</b> = SIGMA (nsp (x) . 2 <sup>(x – 1)</sup>), x = 1; x <= nx<br>");
-            FileSystem.PrintLine (1, "<b>fv'</b> = fv / nsp<br><br>");
-            FileSystem.PrintLine (1, "<b><i>where</i></b></b><br>");
-            FileSystem.PrintLine (1, "<b>nsp</b> = total number of species (alpha diversity)<br>");
-            FileSystem.PrintLine (1, "<b>i</b> = species (i) in the floristic list<br>");
-            FileSystem.PrintLine (1, "<b>fv<sub>i</sub></b> = species floristic-value<br>");
-            FileSystem.PrintLine (1, "<b>n<sub>x</sub></b> = 11 (characteristics table rows count)<br>");
-            FileSystem.PrintLine (1, "<b>x</b> = position of the characteristics in the cTable<br>");
-            FileSystem.PrintLine (1, "<b>v<sub>(x,i)</sub></b> = value of characteristics (x) for species (i)<br>");
-            FileSystem.PrintLine (1, "<b>nsp<sub>(x)</sub></b> = number of species with characteristic (x)<br>");
-            FileSystem.PrintLine (1, "<br>");
-            FileSystem.PrintLine (1, "Characteristics 2 to 5 : independent<br>");
-            FileSystem.PrintLine (1, "characteristics 6 to 11 : an option group<br>");
-            FileSystem.PrintLine (1, "species value (fv<sub>i</sub>) varies from <b>1</b> to <b>1055</b><br></p>");
-            //4: Footer
-            FileSystem.PrintLine (1, "<p></p>");
-            FileSystem.PrintLine (1, "<hr>");
-            FileSystem.PrintLine (1, "<H2 style='color:royalblue; font-family:tahoma; font-size:18px'>Reference </H2>");
-            FileSystem.PrintLine (1, "<p>alamut floristic database by Dr. Majid Sharifi-Tehrani, 2024 <br>");
-            FileSystem.PrintLine (1, "<b>www.msht.ir </b><br>");
-            FileSystem.PrintLine (1, "msht.ir@gmail.com <br>");
-            FileSystem.PrintLine (1, "sharifi-m@sku.ac.ir <br>");
-            FileSystem.PrintLine (1, "+989133112733 </p>");
-            //
-            FileSystem.PrintLine (1, "<p style='font-family:tahoma; font-size:12px'><br></p><br>");
-            FileSystem.PrintLine (1, Reports.Footer);
-            FileSystem.PrintLine (1, "</body></html>");
-            FileSystem.FileClose (1);
-            //5: Show the Report
-            Interaction.Shell ("explorer.exe " + Application.StartupPath + "alamut_ReportDS.html");
+            string? connString = _config.GetConnectionString ("cnni");
+            string sql = "Analyses.Get_FloristicValueStats";
 
+            using SqlConnection cnn = new (connString);
+            using SqlCommand cmd = new (sql, cnn)
+                {
+                CommandType = CommandType.StoredProcedure
+                };
 
+            cmd.Parameters.AddWithValue ("@SetId", setId);
+            cmd.Parameters.AddWithValue ("@SubsetIndex", subsetIndex);
+
+            await cnn.OpenAsync ();
+
+            using SqlDataReader reader = await cmd.ExecuteReaderAsync ();
+
+            if (await reader.ReadAsync ())
+                {
+                return new FV
+                    {
+                    NFam = reader.GetInt32 (0),
+                    NGen = reader.GetInt32 (1),
+                    NSp = reader.GetInt32 (2),
+                    NEndem = reader.GetInt32 (3),
+                    NRare = reader.GetInt32 (4),
+                    NMed = reader.GetInt32 (5),
+                    NRange = reader.GetInt32 (6),
+                    NCR = reader.GetInt32 (7),
+                    NEN = reader.GetInt32 (8),
+                    NVU = reader.GetInt32 (9),
+                    NNT = reader.GetInt32 (10),
+                    NLC = reader.GetInt32 (11),
+                    NLR = reader.GetInt32 (12),
+                    NDD = reader.GetInt32 (13),
+                    NNE = reader.GetInt32 (14),
+                    FV1 = reader.GetInt32 (15),
+                    FV2 = reader.GetDecimal (16)
+                    };
+                }
+
+            return new FV (); // Return empty stats if no data
             }
+
+
+        /*
         public static void SetsFlorAn (int intSetID, string strSetTitle, int intSubset, int intParaams)
             {
             FileSystem.FileClose ();
@@ -2828,34 +2778,50 @@ namespace AlamutB.Services2Backend
              * 8 .setID      from  Setdata_DS 
              * 9 .membership from  Setdata_DS 
             --
-            string strSQL = "SELECT DISTINCT Species.ID AS SPID, Genera.familyID, Families.familyName, Species.genusID, Genera.genusName, Species.rstat, Species.rcons, Species.rchar, Species.CT, Species.LF, Setdata_DS.setID, Setdata_DS.membership";
-            strSQL = strSQL + " FROM Families INNER JOIN Genera ON Families.ID = Genera.familyID INNER JOIN Species ON Genera.ID = Species.genusID INNER JOIN DsData ON Species.ID = DsData.speciesID INNER JOIN Datasets ON DsData.datasetID = Datasets.ID INNER JOIN Setdata_DS ON Datasets.ID = Setdata_DS.datasetID";
-            strSQL = strSQL + " WHERE SetID = " + intSetID.ToString () + " AND rank = 'species' " + fltr;
-            using (var CnnSS = new System.Data.SqlClient.SqlConnection (DB.CnnString))
-                {
-                CnnSS.Open ();
-                DB.DASS = new System.Data.SqlClient.SqlDataAdapter (strSQL, CnnSS);
-                DB.DASS.Fill (DB.DS, "tblTMP0");
-                CnnSS.Close ();
-                }
+            string strSQL = "
+                SELECT DISTINCT
+                    Species.ID AS SPID
+                   , Genera.familyID
+                   , Families.familyName
+                   , Species.genusID
+                   , Genera.genusName
+                   , Species.rstat
+                   , Species.rcons
+                   , Species.rchar
+                   , Species.CT
+                   , Species.LF
+                   , Setdata_DS.setID
+                   , Setdata_DS.membership
+                FROM 
+                    Families 
+                    INNER JOIN Genera     ON Families.ID      = Genera.familyID
+                    INNER JOIN Species    ON Genera.ID        = Species.genusID 
+                    INNER JOIN DsData     ON Species.ID       = DsData.speciesID 
+                    INNER JOIN Datasets   ON DsData.datasetID = Datasets.ID 
+                    INNER JOIN Setdata_DS ON Datasets.ID      = Setdata_DS.datasetID
+                WHERE 
+                    SetID =  intSetID.ToString ()  
+                    AND rank = 'species'  + fltr;
+
             DataTable dt = DB.DS.Tables ["tblTMP0"];
+
             //LINQ
-            int nFam = (from r in dt.AsEnumerable () select r.Field<int> ("familyID")).Distinct ().Count ();
-            int nGen = (from r in dt.AsEnumerable () select r.Field<int> ("genusID")).Distinct ().Count ();
-            int nSp = (from r in dt.AsEnumerable () select r.Field<int> ("SPID")).Distinct ().Count ();
-            int nEndem = (from r in dt.AsEnumerable () where ((r.Field<int> ("rchar") & 1) == 1) select r.Field<int> ("rchar")).Count ();
-            int nRare = (from r in dt.AsEnumerable () where ((r.Field<int> ("rchar") & 2) == 2) select r.Field<int> ("rchar")).Count ();
-            int nMed = (from r in dt.AsEnumerable () where ((r.Field<int> ("rchar") & 4) == 4) select r.Field<int> ("rchar")).Count ();
-            int nRange = (from r in dt.AsEnumerable () where ((r.Field<int> ("rchar") & 8) == 8) select r.Field<int> ("rchar")).Count ();
-            int nCR = (from r in dt.AsEnumerable () where ((r.Field<byte> ("rcons") & 64) == 64) select (int) r.Field<byte> ("rcons")).Count ();
-            int nEN = (from r in dt.AsEnumerable () where ((r.Field<byte> ("rcons") & 32) == 32) select (int) r.Field<byte> ("rcons")).Count ();
-            int nVU = (from r in dt.AsEnumerable () where ((r.Field<byte> ("rcons") & 16) == 16) select (int) r.Field<byte> ("rcons")).Count ();
-            int nNT = (from r in dt.AsEnumerable () where ((r.Field<byte> ("rcons") & 8) == 8) select (int) r.Field<byte> ("rcons")).Count ();
-            int nLC = (from r in dt.AsEnumerable () where ((r.Field<byte> ("rcons") & 4) == 4) select (int) r.Field<byte> ("rcons")).Count ();
-            int nLR = (from r in dt.AsEnumerable () where ((r.Field<byte> ("rcons") & 2) == 2) select (int) r.Field<byte> ("rcons")).Count ();
-            int nDD = (from r in dt.AsEnumerable () where ((r.Field<byte> ("rcons") & 1) == 1) select (int) r.Field<byte> ("rcons")).Count ();
-            int nNE = (from r in dt.AsEnumerable () where (r.Field<byte> ("rcons") == 0) select (int) r.Field<byte> ("rcons")).Count ();
-            int fv1 = nCR * 1024 + nEN * 512 + nVU * 256 + nNT * 128 + nLC * 64 + nLR * 32 + nEndem * 16 + nRare * 8 + nMed * 4 + nRange * 2 + nSp;
+            int nFam    = (from r in dt.AsEnumerable () select r.Field<int>   ("familyID")).Distinct ().Count ();
+            int nGen    = (from r in dt.AsEnumerable () select r.Field<int>   ("genusID")).Distinct ().Count ();
+            int nSp     = (from r in dt.AsEnumerable () select r.Field<int>   ("SPID")).Distinct ().Count ();
+            int nEndem  = (from r in dt.AsEnumerable () where ((r.Field<int>  ("rchar") & 1)  == 1)  select r.Field<int> ("rchar")).Count ();
+            int nRare   = (from r in dt.AsEnumerable () where ((r.Field<int>  ("rchar") & 2)  == 2)  select r.Field<int> ("rchar")).Count ();
+            int nMed    = (from r in dt.AsEnumerable () where ((r.Field<int>  ("rchar") & 4)  == 4)  select r.Field<int> ("rchar")).Count ();
+            int nRange  = (from r in dt.AsEnumerable () where ((r.Field<int>  ("rchar") & 8)  == 8)  select r.Field<int> ("rchar")).Count ();
+            int nCR     = (from r in dt.AsEnumerable () where ((r.Field<byte> ("rcons") & 64) == 64) select (int) r.Field<byte> ("rcons")).Count ();
+            int nEN     = (from r in dt.AsEnumerable () where ((r.Field<byte> ("rcons") & 32) == 32) select (int) r.Field<byte> ("rcons")).Count ();
+            int nVU     = (from r in dt.AsEnumerable () where ((r.Field<byte> ("rcons") & 16) == 16) select (int) r.Field<byte> ("rcons")).Count ();
+            int nNT     = (from r in dt.AsEnumerable () where ((r.Field<byte> ("rcons") & 8)  == 8)  select (int) r.Field<byte> ("rcons")).Count ();
+            int nLC     = (from r in dt.AsEnumerable () where ((r.Field<byte> ("rcons") & 4)  == 4)  select (int) r.Field<byte> ("rcons")).Count ();
+            int nLR     = (from r in dt.AsEnumerable () where ((r.Field<byte> ("rcons") & 2)  == 2)  select (int) r.Field<byte> ("rcons")).Count ();
+            int nDD     = (from r in dt.AsEnumerable () where ((r.Field<byte> ("rcons") & 1)  == 1)  select (int) r.Field<byte> ("rcons")).Count ();
+            int nNE     = (from r in dt.AsEnumerable () where (r.Field<byte>  ("rcons") == 0) select (int) r.Field<byte> ("rcons")).Count ();
+            int fv1     = nCR * 1024 + nEN * 512 + nVU * 256 + nNT * 128 + nLC * 64 + nLR * 32 + nEndem * 16 + nRare * 8 + nMed * 4 + nRange * 2 + nSp;
             if (nSp == 0)
                 return;
             float fv2 = (float) ((100 * fv1 / nSp) / 100.0);
@@ -2870,8 +2836,8 @@ namespace AlamutB.Services2Backend
             var WS2 = WB.Worksheets [2]; //CT-LF chart 
             var WS3 = WB.Worksheets [3]; //FValue
             var WS4 = WB.Worksheets [4]; //Ref
-                                         // ************************************************************************************************************* SHEET1
-                                         //stats
+            // ************************************************************************************************************* SHEET1
+            //stats
             WS1.Cells [1, 1] = "alamut database v2";
             WS1.Cells [2, 1] = strSetTitle;
             WS1.Cells [3, 1] = "set id";
@@ -3351,19 +3317,19 @@ namespace AlamutB.Services2Backend
                 }
             WB.SaveAs (flnm, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Excel.XlSaveAsAccessMode.xlNoChange, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
             //save charts as picture
-            flnm = Strings.Left (flnm, flnm.Length - 5);
+            flnm = Strings.Left  (flnm, flnm.Length - 5);
             //chart1stat1.Export (flnm + "11_.bmp", "BMP", null);
             //chart1stat2.Export (flnm + "12_.bmp", "BMP", null);
-            //chart11x.Export (flnm + "11x.bmp", "BMP", null);
-            //chart12x.Export (flnm + "12x.bmp", "BMP", null);
-            //chart13x.Export (flnm + "13x.bmp", "BMP", null);
-            //chart2ct1.Export (flnm + "21_.bmp", "BMP", null);
-            //chart2ct2.Export (flnm + "22_.bmp", "BMP", null);
-            //chart311.Export (flnm + "311.bmp", "BMP", null);
-            //chart312.Export (flnm + "312.bmp", "BMP", null);
-            //chart32.Export (flnm + "32_.bmp", "BMP", null);
-            //chart33.Export (flnm + "33_.bmp", "BMP", null);
-            //chart34.Export (flnm + "34_.bmp", "BMP", null);
+            //chart11x.Export    (flnm + "11x.bmp", "BMP", null);
+            //chart12x.Export    (flnm + "12x.bmp", "BMP", null);
+            //chart13x.Export    (flnm + "13x.bmp", "BMP", null);
+            //chart2ct1.Export   (flnm + "21_.bmp", "BMP", null);
+            //chart2ct2.Export   (flnm + "22_.bmp", "BMP", null);
+            //chart311.Export    (flnm + "311.bmp", "BMP", null);
+            //chart312.Export    (flnm + "312.bmp", "BMP", null);
+            //chart32.Export     (flnm + "32_.bmp", "BMP", null);
+            //chart33.Export     (flnm + "33_.bmp", "BMP", null);
+            //chart34.Export     (flnm + "34_.bmp", "BMP", null);
             XL.Visible = true;
             //WB.Close ();
             //XL.Quit ();
@@ -3373,11 +3339,6 @@ namespace AlamutB.Services2Backend
             //WS1-5 WB XL = null;
             return;
 
-            }
-        public static void SetsCompare (int nSets, int intSetAID, int intSetBID, int intSetCID, int intSetDID)
-            {
-            --Compare 4 sets: A-B-C-D
-            MessageBox.Show ("Under constrction!", "alamut");
             }
         public static void CreateMatrices4MultiVarFlorAn (int intSetID, string strSetTitle, int intSubset)
             {
@@ -3439,36 +3400,6 @@ namespace AlamutB.Services2Backend
                 MessageBox.Show ("R=" + r.ToString () + " C=" + c.ToString ());
                 int [,] MatrixD = new int [r, c];
                 }
-            }
-        public static void SetsR (int intSetID, string strSetTitle, int intSubset)
-            {
-            //
-            MessageBox.Show ("Under constrction!", "alamut");
-            }
-        public static void SetsNTSYSPC (int intSetID, string strSetTitle, int intSubset, int intParams)
-            {
-            //
-            MessageBox.Show ("Under constrction!", "alamut");
-            }
-        public static void SetsCLUTO (int intSetID, string strSetTitle, int intSubset)
-            {
-            //
-            MessageBox.Show ("Under constrction!", "alamut");
-            }
-        public static void SetsSplitsTree (int intSetID, string strSetTitle, int intSubset)
-            {
-            //
-            MessageBox.Show ("Under constrction!", "alamut");
-            }
-        public static void SetsMEGA (int intSetID, string strSetTitle, int intSubset)
-            {
-            //
-            MessageBox.Show ("Under constrction!", "alamut");
-            }
-        public static void SetsAssociation (int SPID1, int SPID2, int intSetID)
-            {
-            //
-            MessageBox.Show ("Under constrction!", "alamut");
             }
          */
         #endregion

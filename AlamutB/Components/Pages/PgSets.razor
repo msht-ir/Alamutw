@@ -99,21 +99,21 @@ else
                                        style="margin-left:1px;margin-right:1px;"
                                        type="checkbox"
                                        @bind="set.IsSelected" />
-                                @* Edit Set*@
+                                @* Delete Set*@
                                     <button type="button"
                                         class="btn btn-link"
                                         style="margin-left:1px"
-                                        @onclick='() => BtnEditSet(set.SetId)'
-                                        Title="edit set name">
-                                    <img src="/img/icoRename.png" width="24" />
+                                        @onclick='() => BtnDeleteThisSet(set)'
+                                        Title="Note for Set">
+                                    <img src="/img/icoDelete1.png" width="18" />
                                     </button>
-                                @* List Datasets *@
+                                @* Note *@
                                     <button type="button"
                                         class="btn btn-link"
                                         style="margin-left:1px"
-                                        @onclick='() => BtnListSetData(set.SetId, true)'
-                                        Title="list datasets">
-                                    <img src="/img/icoList1.png" width="22" />
+                                        @onclick='() => BtnCreateNoteForSet(set.SetId)'
+                                        Title="Note for Set">
+                                    <img src="/img/icoNoteStickyAdd.png" width="22" />
                                     </button>
                                 @* MAP *@
                                     <button type="button"
@@ -131,21 +131,21 @@ else
                                         Title="analyses">
                                     <img src="/img/icoChartPie2.png" width="20" />
                                     </button>
-                                @* Note *@
+                                @* Edit Set*@
                                     <button type="button"
                                         class="btn btn-link"
                                         style="margin-left:1px"
-                                        @onclick='() => BtnCreateNoteForSet(set.SetId)'
-                                        Title="Note for Set">
-                                    <img src="/img/icoNoteStickyAdd.png" width="22" />
+                                        @onclick='() => BtnEditSet(set.SetId)'
+                                        Title="edit set name">
+                                    <img src="/img/icoRename.png" width="24" />
                                     </button>
-                                @* Delete Set*@
+                                @* List Datasets *@
                                     <button type="button"
                                         class="btn btn-link"
                                         style="margin-left:1px"
-                                        @onclick='() => BtnDeleteThisSet(set)'
-                                        Title="Note for Set">
-                                    <img src="/img/icoDelete1.png" width="18" />
+                                        @onclick='() => BtnListSetData(set.SetId, true)'
+                                        Title="list datasets">
+                                    <img src="/img/icoList1.png" width="22" />
                                     </button>
                                 <span style="font-size:small;font-weight:bold;margin-left:15px;">@set.SetName</span>
                                 </div>
