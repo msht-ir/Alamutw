@@ -15,7 +15,7 @@
 @using Microsoft.VisualBasic
 @using OfficeOpenXml;
 
-    <div class = "d-flex" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+    <div class="d-flex" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
     <h2 style="color:royalblue; font-style:italic">CheckName </h2>
     <span style="font-size:smaller;text-align:center;color:indianred">@appState.UserNickname</span>
     </div>
@@ -187,195 +187,223 @@ else
 
                         else if ((_cmd1 == "cmdListDatasetData") && (dataset.DatasetId == _datasetId))
                             {
-                            @* LIST SPECIES *@
-                                <MudCard Class="mx-0">
-                                    <MudCardContent Style="background-color:rgba(240,240,240);">
-                                    <h6 style="text-align:center;color:royalblue">Dataset species <span style="font-size:x-small;color:indianred"> ( count @lstDatasetData.Count() )</span></h6>
-                                    @* CHECKNAME & ENCODE LIST *@
-                                        <div class="d-flex justify-content-center">
-                                            <button type="button"
-                                                class="btn btn-link"
-                                                style="margin-left:1px"
-                                                @onclick='() => CheckNameDataset(dataset)'
-                                                Title="perform CheckName">
-                                            <img src="/img/icoCheckName0.png" width="36" />
-                                            </button>
-                                        </div>
-                                    <hr style="color:indianred" />
-                                    @* Filter *@
-                                        <div class="d-flex">
-                                        <MudTextField @ref="refFilterSpeciesList"
-                                                      @bind-Value="_speciesListFilter"
-                                                      Label="search raw data"
-                                                      Variant="Variant.Text"
-                                                      Margin="Margin.Dense"
-                                                      Immediate="true"
-                                                      Adornment="Adornment.End"
-                                                      AdornmentIcon="@Icons.Material.Filled.Search"
-                                                      OnAdornmentClick='@(() => FilterSpeciesList(_speciesListFilter))'
-                                                      Class="my-textfield" />
-                                        @* Refresh List of Taxa *@
-                                            <button type="button"
-                                                class="btn btn-link"
-                                                style="margin-left:1px"
-                                                @onclick='() => BtnListDatasetDataOfDataset(dataset.DatasetId, false)'
-                                                Title="refresh list">
-                                            <img src="/img/icoList1.png" width="22" />
-                                            </button>
-                                        </div>
-                                    <br />
-                                    <br />
-                                        <table class="table table-borderless table-sm" style="margin-bottom: 0; border-collapse: collapse;">
-                                            <tr>
-                                            <th style="padding: 1px 1px;">Raw Data </th>
-                                            <th style="padding: 1px 1px;">Fetched SciName</th>
-                                            </tr>
-                                        @foreach (DatasetData datasetData in lstDatasetData)
-                                            {
+                            if (_cmd2.StartsWith("CheckName is processing row"))
+                                {
+                                    <MudCard Class="mx-0">
+                                        <MudCardContent Style="background-color:rgba(240,240,240);">
+                                            <div class="d-flex justify-content-center">
+                                                <MudProgressCircular Style="height: 80px; width: 80px"
+                                                                 Color="Color.Primary"
+                                                                 Value="@progressPercent">
+                                                    <ChildContent>
+                                                        <MudStack Spacing="0" AlignItems="AlignItems.Center" Justify="Justify.Center">
+                                                        <MudText Typo="Typo.subtitle2">alamut</MudText>
+                                                        <MudText Typo="Typo.subtitle2">@progressPercent %</MudText>
+                                                        </MudStack>
+                                                    </ChildContent>
+                                                </MudProgressCircular>
+                                            </div>
+                                            <br />
+                                            <div class="d-flex justify-content-center">
+                                            <h6 style="color:indianred">@_cmd2</h6>
+                                            </div>
+                                        <br />
+                                        <br />
+                                        </MudCardContent>
+                                    </MudCard>
+                                }
+                            else
+                                {
+                                @* LIST SPECIES *@
+                                    <MudCard Class="mx-0">
+                                        <MudCardContent Style="background-color:rgba(240,240,240);">
+                                        <h6 style="text-align:center;color:royalblue">Dataset species <span style="font-size:x-small;color:indianred"> ( count @lstDatasetData.Count() )</span></h6>
+                                        @* CHECKNAME & ENCODE LIST *@
+                                            <div class="d-flex justify-content-center">
+                                                <button type="button"
+                                                    class="btn btn-link"
+                                                    style="margin-left:1px"
+                                                    @onclick='() => CheckNameDataset(dataset)'
+                                                    Title="perform CheckName">
+                                                <img src="/img/icoCheckName0.png" width="36" />
+                                                </button>
+                                            </div>
+                                        <hr style="color:indianred" />
+                                        @* Filter *@
+                                            <div class="d-flex">
+                                            <MudTextField @ref="refFilterSpeciesList"
+                                                          @bind-Value="_speciesListFilter"
+                                                          Label="search raw data"
+                                                          Variant="Variant.Text"
+                                                          Margin="Margin.Dense"
+                                                          Immediate="true"
+                                                          Adornment="Adornment.End"
+                                                          AdornmentIcon="@Icons.Material.Filled.Search"
+                                                          OnAdornmentClick='@(() => FilterSpeciesList(_speciesListFilter))'
+                                                          Class="my-textfield" />
+                                            @* Refresh List of Taxa *@
+                                                <button type="button"
+                                                    class="btn btn-link"
+                                                    style="margin-left:1px"
+                                                    @onclick='() => BtnListDatasetDataOfDataset(dataset.DatasetId, false)'
+                                                    Title="refresh list">
+                                                <img src="/img/icoList1.png" width="22" />
+                                                </button>
+                                            </div>
+                                        <br />
+                                        <br />
+                                            <table class="table table-borderless table-sm" style="margin-bottom: 0; border-collapse: collapse;">
                                                 <tr>
-                                                    <td>
-                                                        <div class="d-flex align-items-center mb-1">
-                                                        @if ((_cmd2 == "EditDatasetData") && (datasetData.DatasetDataId == _datasetDataId))
-                                                            {
-                                                                <tr>
-                                                                    <td>
-                                                                        <div class="d-flex">
-                                                                        <MudTextField @ref="refEditDatasetData"
-                                                                                      @bind-Value="datasetData.LineString"
-                                                                                      Label="edit"
-                                                                                      Variant="Variant.Text"
-                                                                                      Margin="Margin.Dense"
-                                                                                      Autocomplete="off"
-                                                                                      Adornment="Adornment.End"
-                                                                                      AdornmentIcon="@Icons.Material.Filled.Save"
-                                                                                      OnAdornmentClick="@(() => UpdateDatasetData (datasetData))"
-                                                                                      AdornmentColor="Color.Dark"
-                                                                                      Style="color:darkblue;width:400px;"
-                                                                                      Class="my-textfield" />
-                                                                            <button class="btn btn-link" style="margin-left:10px;" Title="cancel" @onclick="BtnCancelEditDatasetData">
-                                                                            <img src="/img/icoCancel.png" width="18" />
-                                                                            </button>
-                                                                        </div>
-                                                                    </td>
-                                                                </tr>
-                                                            }
-                                                        else
-                                                            {
-                                                            <input class="form-check-input"
-                                                                   style="margin-left:1px;margin-right:1px;"
-                                                                   type="checkbox"
-                                                                   @bind="datasetData.IsSelected" />
-                                                                <button type="button"
-                                                                    class="btn btn-link"
-                                                                    style="margin-left:1px"
-                                                                    @onclick='@(() => BtnRemoveSpeciesFromDataset(datasetData.DatasetDataId))'
-                                                                    Title="delete">
-                                                                <img src="/img/icoDelete1.png" width="18" />
-                                                                </button>
-                                                                <button type="button"
-                                                                    class="btn btn-link"
-                                                                    style="margin-left:1px"
-                                                                    @onclick='@(() => BtnEditDatasetData(datasetData))'
-                                                                    Title="edit">
-                                                                <img src="/img/icoRename.png" width="26" />
-                                                                </button>
-                                                                <button type="button"
-                                                                    class="btn btn-link"
-                                                                    style="margin-left:1px"
-                                                                    @onclick='@(() => BtnCheckNameThisDatasetData(datasetData))'
-                                                                    Title="edit">
-                                                                <img src="/img/icoCheckName0.png" width="20" />
-                                                                </button>
-                                                            <span style="color:darkblue;font-size:smaller">@datasetData.LineString </span>
-                                                            }
-                                                        <br />
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                    <span style="font-size:smaller">@(datasetData.ParsedGenus + ' ' + datasetData.ParsedEpithet + ' ' + datasetData.Infraspecific) </span>
-                                                    </td>
+                                                <th style="padding: 1px 1px;">Raw Data </th>
+                                                <th style="padding: 1px 1px;">Fetched SciName</th>
                                                 </tr>
-                                            @if ((_cmd2 == "CheckNameThisDatasetData") && (datasetData.DatasetDataId == _datasetDataId))
-                                                {
-                                                    <div class="d-flex">
-                                                    <MudNumericField @ref="refCheckNameThisDatasetDataChars"
-                                                                     @bind-Value="intCheckNameThisDatasetDataChars"
-                                                                     Label="use this number of leading chars"
-                                                                     Variant="Variant.Text"
-                                                                     Margin="Margin.Dense"
-                                                                     Autocomplete="off"
-                                                                     Adornment="Adornment.End"
-                                                                     AdornmentIcon="@Icons.Material.Filled.Search"
-                                                                     OnAdornmentClick="@(() => DoCheckNameThisDatasetData (datasetData, false, intCheckNameThisDatasetDataChars))"
-                                                                     AdornmentColor="Color.Dark"
-                                                                     Style="color:darkblue;width:400px;margin-left:10px;width:150px;"
-                                                                     Class="my-textfield" />
-                                                    </div>
-                                                }
-                                            @if ((_cmd2 == "ShowCheckNameThisDatasetData") && (datasetData.DatasetDataId == _datasetDataId))
+                                            @foreach (DatasetData datasetData in lstDatasetData)
                                                 {
                                                     <tr>
                                                         <td>
-                                                            <div>
-                                                                <MudCard Class="mx-0">
-                                                                    <MudCardContent Style="background-color:rgba(230,230,230);width:100%;">
-                                                                    @if (lstSpecies.Any())
-                                                                        {
-                                                                        @foreach (Species spcs in lstSpecies)
+                                                            <div class="d-flex align-items-center mb-1">
+                                                            @if ((_cmd2 == "EditDatasetData") && (datasetData.DatasetDataId == _datasetDataId))
+                                                                {
+                                                                    <tr>
+                                                                        <td>
+                                                                            <div class="d-flex">
+                                                                            <MudTextField @ref="refEditDatasetData"
+                                                                                          @bind-Value="datasetData.LineString"
+                                                                                          Label="edit"
+                                                                                          Variant="Variant.Text"
+                                                                                          Margin="Margin.Dense"
+                                                                                          Autocomplete="off"
+                                                                                          Adornment="Adornment.End"
+                                                                                          AdornmentIcon="@Icons.Material.Filled.Save"
+                                                                                          OnAdornmentClick="@(() => UpdateDatasetData (datasetData))"
+                                                                                          AdornmentColor="Color.Dark"
+                                                                                          Style="color:darkblue;width:400px;"
+                                                                                          Class="my-textfield" />
+                                                                                <button class="btn btn-link" style="margin-left:10px;" Title="cancel" @onclick="BtnCancelEditDatasetData">
+                                                                                <img src="/img/icoCancel.png" width="18" />
+                                                                                </button>
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                }
+                                                            else
+                                                                {
+                                                                <input class="form-check-input"
+                                                                       style="margin-left:1px;margin-right:1px;"
+                                                                       type="checkbox"
+                                                                       @bind="datasetData.IsSelected" />
+                                                                    <button type="button"
+                                                                        class="btn btn-link"
+                                                                        style="margin-left:1px"
+                                                                        @onclick='@(() => BtnRemoveSpeciesFromDataset(datasetData.DatasetDataId))'
+                                                                        Title="delete">
+                                                                    <img src="/img/icoDelete1.png" width="18" />
+                                                                    </button>
+                                                                    <button type="button"
+                                                                        class="btn btn-link"
+                                                                        style="margin-left:1px"
+                                                                        @onclick='@(() => BtnEditDatasetData(datasetData))'
+                                                                        Title="edit">
+                                                                    <img src="/img/icoRename.png" width="26" />
+                                                                    </button>
+                                                                    <button type="button"
+                                                                        class="btn btn-link"
+                                                                        style="margin-left:1px"
+                                                                        @onclick='@(() => BtnCheckNameThisDatasetData(datasetData))'
+                                                                        Title="edit">
+                                                                    <img src="/img/icoSearch.png" width="20" />
+                                                                    </button>
+                                                                <span style="color:darkblue;font-size:smaller">@datasetData.LineString </span>
+                                                                }
+                                                            <br />
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                        <span style="font-size:smaller">@(datasetData.ParsedGenus + ' ' + datasetData.ParsedEpithet + ' ' + datasetData.Infraspecific) </span>
+                                                        </td>
+                                                    </tr>
+                                                @if ((_cmd2 == "CheckNameThisDatasetData") && (datasetData.DatasetDataId == _datasetDataId))
+                                                    {
+                                                        <div class="d-flex">
+                                                        <MudNumericField @ref="refCheckNameThisDatasetDataChars"
+                                                                         @bind-Value="intCheckNameThisDatasetDataChars"
+                                                                         Label="use this number of leading chars"
+                                                                         Variant="Variant.Text"
+                                                                         Margin="Margin.Dense"
+                                                                         Autocomplete="off"
+                                                                         Adornment="Adornment.End"
+                                                                         AdornmentIcon="@Icons.Material.Filled.List"
+                                                                         OnAdornmentClick="@(() => DoCheckNameThisDatasetData (datasetData, false, intCheckNameThisDatasetDataChars))"
+                                                                         AdornmentColor="Color.Dark"
+                                                                         Style="color:darkblue;width:400px;margin-left:10px;width:150px;"
+                                                                         Class="my-textfield" />
+                                                        </div>
+                                                    }
+                                                @if ((_cmd2 == "ShowCheckNameThisDatasetData") && (datasetData.DatasetDataId == _datasetDataId))
+                                                    {
+                                                        <tr>
+                                                            <td>
+                                                                <div>
+                                                                    <MudCard Class="mx-0">
+                                                                        <MudCardContent Style="background-color:rgba(230,230,230);width:100%;">
+                                                                        @if (lstSpecies.Any())
                                                                             {
+                                                                            @foreach (Species spcs in lstSpecies)
+                                                                                {
+                                                                                    <div class="d-flex align-items-center mb-1">
+                                                                                        <button type="button"
+                                                                                            class="btn btn-link"
+                                                                                            style="margin-left:1px"
+                                                                                            @onclick='@(() => BtnUseThisSciNameManually(spcs, datasetData))'
+                                                                                            Title="use this name">
+                                                                                        <img src="/img/icoGo.png" width="18" />
+                                                                                        </button>
+                                                                                    <span style="font-size:small;font-weight:bold;margin-left:15px;">@spcs.SciName</span>
+                                                                                    </div>
+                                                                                }
                                                                                 <div class="d-flex align-items-center mb-1">
                                                                                     <button type="button"
                                                                                         class="btn btn-link"
                                                                                         style="margin-left:1px"
-                                                                                        @onclick='@(() => BtnUseThisSciNameManually(spcs, datasetData))'
-                                                                                        Title="use this name">
-                                                                                    <img src="/img/icoGo.png" width="18" />
+                                                                                        @onclick='@(() => BtnCancelEditDatasetData())'
+                                                                                        Title="cancel">
+                                                                                    <img src="/img/icoCancel.png" width="18" />
                                                                                     </button>
-                                                                                <span style="font-size:small;font-weight:bold;margin-left:15px;">@spcs.SciName</span>
+                                                                                <span style="font-size:small;font-weight:bold;margin-left:15px;">Cancel</span>
                                                                                 </div>
                                                                             }
-                                                                            <div class="d-flex align-items-center mb-1">
-                                                                                <button type="button"
-                                                                                    class="btn btn-link"
-                                                                                    style="margin-left:1px"
-                                                                                    @onclick='@(() => BtnCancelEditDatasetData())'
-                                                                                    Title="cancel">
-                                                                                <img src="/img/icoCancel.png" width="18" />
-                                                                                </button>
-                                                                            <span style="font-size:small;font-weight:bold;margin-left:15px;">Cancel</span>
-                                                                            </div>
-                                                                        }
-                                                                    else
-                                                                        {
-                                                                            <div class="d-flex align-items-center" style=" color:royalblue;font-size:smaller;font-style:italic;margin-left:20px;">
-                                                                            Not found! Try edit the SciName manually
-                                                                                <button type="button"
-                                                                                    class="btn btn-link"
-                                                                                    style="margin-left:10px"
-                                                                                    @onclick='@(() => BtnCancelEditDatasetData())'
-                                                                                    Title="cancel">
-                                                                                <img src="/img/icoCancel.png" width="20" />
-                                                                                </button>
-                                                                            </div>
-                                                                        }
-                                                                    </MudCardContent>
-                                                                </MudCard>
-                                                            </div>
-                                                        </td>
-                                                        <td>
-                                                        </td>
-                                                        <td>
-                                                        </td>
-                                                    </tr>
+                                                                        else
+                                                                            {
+                                                                                <div class="d-flex align-items-center" style=" color:royalblue;font-size:smaller;font-style:italic;margin-left:20px;">
+                                                                                Not found! Try edit the SciName manually
+                                                                                    <button type="button"
+                                                                                        class="btn btn-link"
+                                                                                        style="margin-left:10px"
+                                                                                        @onclick='@(() => BtnCancelEditDatasetData())'
+                                                                                        Title="cancel">
+                                                                                    <img src="/img/icoCancel.png" width="20" />
+                                                                                    </button>
+                                                                                </div>
+                                                                            }
+                                                                        </MudCardContent>
+                                                                    </MudCard>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                            </td>
+                                                            <td>
+                                                            </td>
+                                                        </tr>
+                                                    }
                                                 }
-                                            }
-                                        </table>
-                                    @* Close the List (BOTTOM) *@
-                                        <button class="btn btn-link pulse-hover" @onclick="CloseSpeciesList">
-                                        <img src="/img/icoGotoTop2.png" width="32" />
-                                        </button>
-                                    </MudCardContent>
-                                </MudCard>
+                                            </table>
+                                        @* Close the List (BOTTOM) *@
+                                            <button class="btn btn-link pulse-hover" @onclick="CloseSpeciesList">
+                                            <img src="/img/icoGotoTop2.png" width="32" />
+                                            </button>
+                                        </MudCardContent>
+                                    </MudCard>
+                                }
                             }
                         }
                     </MudCardContent>
@@ -478,6 +506,7 @@ else
     string Current_Spec_Author = "";
 
     public int i = 0;
+    public int progressPercent = 0;
     string _cmd1 = "";
     string _cmd2 = "";
     public bool _hasFetched = false;
@@ -810,12 +839,19 @@ else
         {
         if (lstDatasetData.Any())
             {
-            _cmd2 = "CheckNameDataset";
+            i = 0;
+            progressPercent = 0;
+            int _recs = lstDatasetData.Count();
+            _cmd2 = "CheckName is processing row - ";
             foreach (DatasetData _dsd in lstDatasetData)
                 {
                 await DoCheckNameThisDatasetData(_dsd, true, 0);
+                i++;
+                progressPercent = (int) (((double) i / _recs) * 100);
+                _cmd2 = $"CheckName is processing row  {i.ToString()}";
+                StateHasChanged();
                 }
-            Snackbar.Add("dataset imprted successfully", Severity.Info);
+            _cmd2 = "";
             StateHasChanged();
             }
         else
@@ -861,11 +897,14 @@ else
                             datasetData.ParsedEpithet = _parsedEpithet;
                             //save to DB
                             bool resultSave = await feService.Update_DatasetData(datasetData);
-                            Snackbar.Add("line matched and saved", Severity.Success, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+                            if (partialNameChars > 0)
+                                {
+                                Snackbar.Add("line matched and saved", Severity.Success, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+                                }
                             }
                         else
                             {
-                            Console.WriteLine($"--- {Current_Genus} {Current_Species} not fount");
+                            //Console.WriteLine($"--- {Current_Genus} {Current_Species} not fount");
                             }
                         }
                     else

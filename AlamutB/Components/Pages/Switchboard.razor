@@ -94,6 +94,11 @@
                        Style="color:indianred;padding-left:60px;padding-right:60px">
                 Logout
                 </MudButton>
+                @* <br />
+                <button class ="btn btn-success" @onclick="RemoveExtraLines">
+                Fileprocess
+                </button> *@
+
             </div>
         </div>
     </div>
@@ -217,4 +222,14 @@
         {
         StateHasChanged();
         }
+
+    private void TempMethod_RemoveExtraLines ()
+        {
+        string inputPath = @"d:\CheckNameIn.txt";
+        string outputPath = @"d:\CheckNameOut.txt";
+        var lines = File.ReadAllLines(inputPath);
+        var filteredLines = lines.Where(line => !line.StartsWith("Distr"));
+        File.WriteAllLines(outputPath, filteredLines);
+        }
+
     }
