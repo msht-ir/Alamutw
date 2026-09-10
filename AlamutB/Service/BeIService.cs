@@ -69,6 +69,7 @@ namespace AlamutB.Services2Backend
         Task<List<Dataset>> Read_DatasetsBySubsetIndexAsync (int setId, int subsetIndex);
         Task<List<Dataset>> Read_DatasetsBySearchAsync (int userId, int datasetType, string datasetKeyword);
         Task<Dataset> Read_DatasetAsync (int datasetId);
+        Task<List<Dataset>> Read_DatasetsByCountryIdAsync (int countryId);
         Task<bool> Update_DatasetAsync (Dataset dataset);
         Task<bool> Delete_DatasetAsync (int DatasetId);
         #endregion

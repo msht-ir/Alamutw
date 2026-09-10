@@ -464,6 +464,19 @@ namespace AlamutB.Service
                 return new List<Dataset> ();
                 }
             }
+        public async Task<List<Dataset>> Read_DatasetsByCountryId (int countryId)
+            {
+            var response = await _http.PostAsJsonAsync ($"api/Read_DatasetsByCountryId", countryId);
+            if (response.IsSuccessStatusCode)
+                {
+                List<Dataset> lstDatasets = await response.Content.ReadFromJsonAsync<List<Dataset>> ();
+                return lstDatasets;
+                }
+            else
+                {
+                return new List<Dataset> ();
+                }
+            }
         public async Task<bool> Update_Dataset (Dataset dataset)
             {
             var response = await _http.PostAsJsonAsync ("api/Update_Dataset", dataset);

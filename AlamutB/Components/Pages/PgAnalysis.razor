@@ -137,7 +137,7 @@ else
 
     public MudTextField<string> refFilterDatasets;
     public List<Set> lstSelectedSets = new List<Set>();
-    public List<Dataset> lstSelectedDatasets = new List<Dataset>(); //is required? del it if not used in analyses
+    public List<Dataset> lstSelectedDatasets = new List<Dataset>();
     public List<Species> lstSelectedSpecies = new List<Species>();
     public List<Diversity> lstDiversities = new List<Diversity>();
     public FV FVStats = new FV();
@@ -152,47 +152,47 @@ else
 
     //LifeCycleEvents
     protected override async Task OnInitializedAsync ()
-        {
+    {
         appState.OnChange += TriggerRender;
         if (Convert.ToInt32(appState.UserLoginStatus) != 1)
-            {
+        {
             Navman.NavigateTo("/Login");
-            }
+        }
         appState.SetCmd("");
         user.UserId = Convert.ToInt32(appState.UserId);
         user.Username = appState.Username;
         _hasFetched = true;
-        }
+    }
     private void TriggerRender ()
-        {
+    {
         InvokeAsync(StateHasChanged);
-        }
+    }
     public void Dispose ()
-        {
+    {
         appState.OnChange -= TriggerRender;
-        }
+    }
 
     //btns
     public void BtnAnalysisSelected (string _analysisName)
-        {
+    {
         if (_analysisName == "back")
-            {
+        {
             BtnBack();
-            }
+        }
         else
-            {
+        {
             _cmd = _analysisName;
             StateHasChanged();
-            }
         }
+    }
 
     //rollbacks
     public async Task GetSelectedSetsFromComponent (List<Set> lstSelectedSets)
-        {
+    {
         switch (_cmd)
-            {
+        {
             case "diversity":
-                    {
+                {
                     _hasFetched = false;
                     lstDiversities.Clear();
                     lstDiversities = await feService.Calc_Diversity(lstSelectedSets [0].SetId, lstSelectedSets [0].SelectedSubset);
@@ -253,9 +253,9 @@ else
                     _hasFetched = true;
                     _cmd = "ShowCalcDiversityResults";
                     break;
-                    }
+                }
             case "fvalue":
-                    {
+                {
                     _hasFetched = false;
                     lstSelectedDatasets = await feService.Read_DatasetsBySubsetIndex(lstSelectedSets [0].SetId, lstSelectedSets [0].SelectedSubset);
                     FVStats = await feService.Get_FloristicValueStats(lstSelectedSets [0].SetId, lstSelectedSets [0].SelectedSubset);

@@ -24,7 +24,15 @@ else
             }
         else
             {
-            <h6 style="color:indianred">Edit Dataset: <span style="color:darkslategray">@dataset.DatasetName</span> (id:@dataset.DatasetId) </h6>
+                <h6 style="font-size:smaller;color:indianred">
+                @* <button class="btn btn-link" style="margin-left:5px;" Title="cancel" @onclick="OnClose">
+                    <img src="/img/icoCancel.png" width="18" />
+                    </button> *@
+                    <button class="btn btn-link" @onclick="BtnSaveDataset">
+                    <img src="/img/icoSave2.png" width="18" title="save / update" />
+                    </button>
+                Edit: <span style="font-size:smaller;color:darkslategray">@dataset.DatasetName</span> (id:@dataset.DatasetId)
+                </h6>
             }
         @* BODY *@
             <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-1 mb-4 px-0">
@@ -39,7 +47,7 @@ else
                                           Variant="Variant.Text"
                                           Margin="Margin.Dense"
                                           Autocomplete="off"
-                                          Style="width:600px;color:royalblue;"
+                                          Style="width:600px;color:darkblue;"
                                           Class="my-textfield" />
                             @* Abbr *@
                             <MudTextField @ref="refDatasetAbbr"
@@ -95,51 +103,39 @@ else
                                 <MudSelectItem Value="1">Floristic</MudSelectItem>
                                 </MudSelect>
                             </div>
-                            <div class="d-flex gap-3">
-                            @* Ref *@
-                            <MudTextField @ref="refDatasetRef"
-                                          @bind-Value="dataset.DatasetRef"
-                                          Label="reference"
-                                          Variant="Variant.Outlined"
-                                          Margin="Margin.Dense"
-                                          Autocomplete="off"
-                                          Style="color:royalblue;"
-                                          Lines="8"
-                                          Class="my-textfield" />
-                            </div>
-
+                        <br />
+                        <hr style="color:red;" />
                             <div class="d-flex gap-3">
                             @* Country *@
-                                <MudSelect T="int"
-                                       @ref="refCountries"
-                                       @bind-Text="_countryName"
-                                       Label="countries"
-                                       Value="_countryId"
-                                       ValueChanged="OnCountryChanged"
-                                       Class="w-auto my-select"
-                                       Variant="Variant.Text"
-                                       Margin="Margin.Dense"
-                                       Adornment="Adornment.Start"
-                                       AdornmentIcon="@Icons.Material.Filled.List"
-                                       AdornmentColor="Color.Secondary"
-                                       Style="color:royalblue;width:140px;font-size:small;">
-                                <MudSelectItem Value="0">select</MudSelectItem>
-                                @foreach (var country in lstCountries)
-                                    {
-                                    <MudSelectItem Value="@country.CountryId"><span style="font-size:small;font-family:Tahoma;">@country.CountryName</span></MudSelectItem>
-                                    }
-                                </MudSelect>
+                                <MudAutocomplete T="int"
+                                             Value="dataset.CountryId"
+                                             Label="country"
+                                             SearchFunc="@SearchCountries"
+                                             ToStringFunc="GetCountryName"
+                                             ValueChanged="OnCountryChanged"
+                                             Variant="Variant.Text"
+                                             Margin="Margin.Dense"
+                                             style="font-family:tahoma;font-size:small;color:royalblue;"
+                                             Adornment="Adornment.Start"
+                                             AdornmentIcon="@Icons.Material.Filled.List">
+                                    <ItemTemplate Context="countryId">
+                                        <span style="font-family:tahoma; font-size:small; display:block;">
+                                        @GetCountryName(countryId)
+                                        </span>
+                                    </ItemTemplate>
+                                </MudAutocomplete>
                             @* Province *@
                                 <MudSelect T="int"
                                        @ref="refProvinces"
                                        @bind-Value="dataset.ProvinceId"
-                                       Label="provinces"
+                                       Label="province"
                                        Class="w-auto my-select"
                                        Variant="Variant.Text"
                                        Margin="Margin.Dense"
                                        Adornment="Adornment.Start"
                                        AdornmentIcon="@Icons.Material.Filled.List"
                                        AdornmentColor="Color.Secondary"
+                                       ToStringFunc="@GetProvinceName"
                                        Style="color:royalblue;width:140px;font-size:small;">
                                 <MudSelectItem Value="0">select</MudSelectItem>
                                 @foreach (var province in lstProvinces)
@@ -148,7 +144,18 @@ else
                                     }
                                 </MudSelect>
                             </div>
-                        <hr style="color:red;" />
+                            <div class="d-flex gap-3">
+                            @* Ref *@
+                            <MudTextField @ref="refDatasetRef"
+                                          @bind-Value="dataset.DatasetRef"
+                                          Label="reference"
+                                          Variant="Variant.Outlined"
+                                          Margin="Margin.Dense"
+                                          Autocomplete="off"
+                                          Style="color:dimgrey;"
+                                          Lines="10"
+                                          Class="my-textfield" />
+                            </div>
                             <div class="d-flex gap-3">
                             @* Area *@
                             <MudNumericField @ref="refAreaHa"
@@ -183,7 +190,7 @@ else
                             @* Alt MIN *@
                             <MudNumericField @ref="refAltMin"
                                              @bind-Value="dataset.AltMin"
-                                             Label="alt Min"
+                                             Label="alt min"
                                              Variant="Variant.Text"
                                              Margin="Margin.Dense"
                                              Autocomplete="off"
@@ -192,7 +199,7 @@ else
                             @* Alt MAX *@
                             <MudNumericField @ref="refAltMax"
                                              @bind-Value="dataset.AltMax"
-                                             Label="alt Max"
+                                             Label="alt max"
                                              Variant="Variant.Text"
                                              Margin="Margin.Dense"
                                              Autocomplete="off"
@@ -207,12 +214,10 @@ else
                                              Autocomplete="off"
                                              Style="width:100px"
                                              Class="my-textfield" />
-                            </div>
-                            <div class="d-flex gap-3">
                             @* Temp MIN *@
                             <MudNumericField @ref="refTempMin"
                                              @bind-Value="dataset.TempMin"
-                                             Label="temp Min"
+                                             Label="temp min"
                                              Variant="Variant.Text"
                                              Margin="Margin.Dense"
                                              Autocomplete="off"
@@ -221,7 +226,7 @@ else
                             @* Temp MAX *@
                             <MudNumericField @ref="refTempMax"
                                              @bind-Value="dataset.TempMax"
-                                             Label="temp Max"
+                                             Label="temp max"
                                              Variant="Variant.Text"
                                              Margin="Margin.Dense"
                                              Autocomplete="off"
@@ -325,6 +330,7 @@ else
         user.UserId = Convert.ToInt32(appState.UserId);
         user.Username = appState.Username;
         await ReadCoutriesAndProvinces();
+        lstProvinces = await feService.Read_Provinces(dataset.CountryId);
         _hasFetched = true;
         }
     private void TriggerRender ()
@@ -366,7 +372,23 @@ else
             }
         }
 
-    //methods
+    private string GetCountryName (int id)
+        {
+        if (id == 0)
+            return "";
+        var country = lstCountries.FirstOrDefault(a => a.CountryId == id);
+        return country != null ? $"{country.CountryName}" : "";
+        }
+    private async Task<IEnumerable<int>> SearchCountries (string value, CancellationToken ct)
+        {
+        //if nothing is typed, return all authors or a subset
+        if (string.IsNullOrEmpty(value))
+            return lstCountries.Select(x => x.CountryId);
+        //filter the list
+        return lstCountries
+            .Where(x => x.CountryName.Contains(value, StringComparison.InvariantCultureIgnoreCase))
+            .Select(x => x.CountryId);
+        }
     private async Task OnCountryChanged (int newValue)
         {
         var oldValue = _countryId;
@@ -379,6 +401,17 @@ else
             }
         StateHasChanged();
         }
+    private string GetProvinceName (int provinceId)
+        {
+        //if the ID is 0, return the default 'select' text
+        if (provinceId == 0)
+            {
+            return "select";
+            }
+        var province = lstProvinces?.FirstOrDefault(p => p.ProvinceId == provinceId);
+        return province?.ProvinceName ?? string.Empty;
+        }
+    //methods
     public string PersianDate (DateTimeOffset? dt)
         {
         if ((Convert.ToInt32(appState.UserTags) & 256) == 256)
@@ -395,5 +428,7 @@ else
         _cmd = "";
         StateHasChanged();
         }
+
+
 
     }

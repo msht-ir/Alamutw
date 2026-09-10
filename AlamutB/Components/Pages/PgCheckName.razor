@@ -203,7 +203,7 @@ else
                                                     </ChildContent>
                                                 </MudProgressCircular>
                                             </div>
-                                            <br />
+                                        <br />
                                             <div class="d-flex justify-content-center">
                                             <h6 style="color:indianred">@_cmd2</h6>
                                             </div>
@@ -644,6 +644,7 @@ else
         }
     private async Task BtnAddNewDataset ()
         {
+        dataset = new();
         dataset.UserId = user.UserId;
         dataset.DatasetType = 2;
         _cmd1 = (_cmd1 == "cmdAddNewDataset") ? "" : "cmdAddNewDataset";
@@ -683,12 +684,6 @@ else
             Snackbar.Add("Select a Dataset first", Severity.Warning, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
             }
         }
-    private async Task CloseComponent ()
-        {
-        //rollBack for Component 'Dataset'
-        _cmd1 = "";
-        await BtnShowAllDatasets();
-        }
     private async Task UpdateDataset (Dataset _dataset)
         {
         bool result = await feService.Update_Dataset(_dataset);
@@ -700,6 +695,15 @@ else
             _cmd1 = "";
             StateHasChanged();
             }
+        }
+    private async Task CloseComponent ()
+        {
+        //rollBack for Component 'Dataset'
+        _cmd1 = "";
+        await BtnShowAllDatasets();
+        //restore IsSelected
+        lstDatasets.Where(d => d.DatasetId == _datasetId).ToList().ForEach(d => d.IsSelected = true);
+        StateHasChanged();
         }
     private async Task BtnSearchDatasetsFL ()
         {

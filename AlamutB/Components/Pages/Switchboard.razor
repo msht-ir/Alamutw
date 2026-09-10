@@ -5,6 +5,10 @@
 @implements IDisposable
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
+@using System.Text
+@using Microsoft.AspNetCore.Hosting
+@inject IWebHostEnvironment WebHostEnvironment
+
 
 @if (appState.Cmd == "CreateNote")
     {
@@ -94,11 +98,13 @@
                        Style="color:indianred;padding-left:60px;padding-right:60px">
                 Logout
                 </MudButton>
+
                 @* <br />
-                <button class ="btn btn-success" @onclick="RemoveExtraLines">
+                <br />
+                <br />
+                <button class="btn btn-success" @onclick="ProcessFile">
                 Fileprocess
                 </button> *@
-
             </div>
         </div>
     </div>
@@ -223,6 +229,8 @@
         StateHasChanged();
         }
 
+
+    //temp codes to parse afgh and uzb text files (see temp btn at end of page html code)
     private void TempMethod_RemoveExtraLines ()
         {
         string inputPath = @"d:\CheckNameIn.txt";
@@ -230,6 +238,98 @@
         var lines = File.ReadAllLines(inputPath);
         var filteredLines = lines.Where(line => !line.StartsWith("Distr"));
         File.WriteAllLines(outputPath, filteredLines);
+        }
+    private async Task RemoveCrLfs ()
+        {
+        try
+            {
+            string inputPath = @"d:\2025Uzb.txt";
+            string outputPath = @"d:\2025Uzb_.txt";
+            string content = await File.ReadAllTextAsync(inputPath);
+            var lines = content.Split(new [] { "\r\n" }, StringSplitOptions.None);
+            var result = new StringBuilder();
+            for (int i = 0; i < lines.Length; i++)
+                {
+                string line = lines [i];
+                //check if line starts with "1. ", "2. ", "3. ", etc.
+                bool isNumberedLine = System.Text.RegularExpressions.Regex.IsMatch(line, @"^\d+\.\s");
+                if (i > 0 && isNumberedLine)
+                    result.AppendLine();  // Keep line break
+                else if (i > 0)
+                    result.Append(" ");   // Join with space
+                result.Append(line);
+                }
+            await File.WriteAllTextAsync(outputPath, result.ToString());
+            Snackbar.Add ($"Finished ", Severity.Success);
+            }
+        catch (Exception ex)
+            {
+            Console.WriteLine($"Error: {ex.Message}");
+            }
+        }
+    private async Task TruncateLines ()
+        {
+        try
+            {
+            string inputPath = @"d:\2025Uzb_.txt";
+            string outputPath = @"d:\2025Uzbs.txt";
+            var lines = await File.ReadAllLinesAsync(inputPath);
+            //truncate to 300 chars
+            var truncated = lines.Select(line =>
+                line.Length > 300 ? line.Substring(0, 300) : line
+            );
+            await File.WriteAllLinesAsync(outputPath, truncated);
+            Snackbar.Add($"Finished trunctaing ", Severity.Success);
+            }
+        catch (Exception ex)
+            {
+            Console.WriteLine($"Error: {ex.Message}");
+            }
+        }
+    private async Task ProcessFile ()
+        {
+        try
+            {
+            string inputPath = @"d:\2025Uzbs.txt";
+            string outputPath = @"d:\2025Uzbf.txt";
+
+            var lines = await File.ReadAllLinesAsync(inputPath);
+            var result = new List<string>();
+
+            foreach (var line in lines)
+                {
+                // Remove leading number and dot (e.g., "1. ", "12. ", "123. ")
+                string cleaned = System.Text.RegularExpressions.Regex.Replace(line, @"^\d+\.\s+", "");
+
+                // Find the position of (YEAR).
+                int yearIndex = cleaned.IndexOf("(YEAR)."); // Replace YEAR with actual pattern
+
+                // If you want to match any year like (1753). (1850). etc.
+                // Use this instead:
+                var match = System.Text.RegularExpressions.Regex.Match(cleaned, @"\(\d{4}\)\.");
+
+                if (match.Success)
+                    {
+                    // Keep text up to and including (YEAR).
+                    int endIndex = match.Index + match.Length;
+                    cleaned = cleaned.Substring(0, endIndex).Trim();
+                    }
+                else
+                    {
+                    // If no (YEAR). found, keep the whole line trimmed
+                    cleaned = cleaned.Trim();
+                    }
+
+                result.Add(cleaned);
+                }
+
+            await File.WriteAllLinesAsync(outputPath, result);
+            Snackbar.Add($"Finished processing ", Severity.Success);
+            }
+        catch (Exception ex)
+            {
+            Console.WriteLine($"Error: {ex.Message}");
+            }
         }
 
     }

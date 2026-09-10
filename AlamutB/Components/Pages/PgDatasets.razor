@@ -15,7 +15,7 @@
     <span style="font-size:smaller;text-align:center;color:indianred">@appState.UserNickname</span>
     </div>
 <hr style="color:red" />
-    @if (!_hasFetched)
+@if (!_hasFetched)
     {
     <_ScanSheets />
     }
@@ -44,7 +44,7 @@ else
                         <MudCardContent Style="background-color:rgba(249,249,249);">
                         <h6 style="text-align:center;color:royalblue">Dataset<span style="font-size:x-small;color:indianred"> ( count @lstDatasets.Count() )</span></h6>
                         @* FILTER *@
-                            <div class="d-flex">
+                            <div class="d-flex gap-3">
                             <MudTextField @ref="refFilterDatasets"
                                           @bind-Value="_datasetFilter"
                                           Label="search datasets"
@@ -55,12 +55,31 @@ else
                                           AdornmentIcon="@Icons.Material.Filled.Search"
                                           OnAdornmentClick="@(() => FilterDatasets (_datasetFilter))"
                                           Class="my-textfield" />
+
+                            @* Country *@
+                                <MudAutocomplete T="int"
+                                             Label="country"
+                                             SearchFunc="@SearchCountries"
+                                             ToStringFunc="GetCountryName"
+                                             ValueChanged="OnCountryChanged"
+                                             Variant="Variant.Text"
+                                             Margin="Margin.Dense"
+                                             style="font-family:tahoma;font-size:small;color:royalblue;"
+                                             Adornment="Adornment.Start"
+                                             AdornmentIcon="@Icons.Material.Filled.List">
+                                    <ItemTemplate Context="countryId">
+                                        <span style="font-family:tahoma; font-size:small; display:block;">
+                                        @GetCountryName(countryId)
+                                        </span>
+                                    </ItemTemplate>
+                                </MudAutocomplete>
                                 <button class="btn btn-link" style="margin-left:20px;" Title="show all" @onclick="BtnShowAllDatasets">
                                 <img src="/img/icoList1.png" width="20" />
                                 </button>
+
                             </div>
-                            <br />
-                            <br />
+                        <br />
+                        <br />
                         @foreach (Dataset dataset in lstDatasets)
                             {
                                 <div class="d-flex align-items-center mb-1">
@@ -217,6 +236,12 @@ else
     private string _datasetName = "";
     private string _datasetFilter = "";
 
+    public MudSelect<int> refCountries;
+    private List<Country> lstCountries = new List<Country>();
+    Country country = new Country();
+    public int _countryId = 0;
+    public string _countryName = "";
+
     string _cmd = "";
     public bool _hasFetched = false;
 
@@ -232,6 +257,7 @@ else
         user.UserId = Convert.ToInt32(appState.UserId);
         user.Username = appState.Username ?? "";
         lstDatasets = await feService.Read_Datasets(user.UserId, 1);
+        await ReadCoutries();
         _hasFetched = true;
         }
     private void TriggerRender ()
@@ -241,24 +267,6 @@ else
     public void Dispose ()
         {
         appState.OnChange -= TriggerRender;
-        }
-    //btns
-    private async Task CloseComponent ()
-        {
-        //rollBack for Component 'Dataset'
-        _hasFetched = false;
-        await BtnShowAllDatasets();
-        _hasFetched = true;
-        _cmd = "";
-        }
-    private void BtnCancel ()
-        {
-        _cmd = "";
-        StateHasChanged();
-        }
-    public void BtnBack ()
-        {
-        Navman.NavigateTo("/Switchboard");
         }
     //convert date
     public string PersianDate (DateTimeOffset? dt)
@@ -287,7 +295,7 @@ else
         }
     public async Task BtnShowAllDatasets ()
         {
-        lstDatasets.Clear ();
+        lstDatasets.Clear();
         lstDatasets = await feService.Read_Datasets(user.UserId, 1);
         StateHasChanged();
         }
@@ -323,6 +331,16 @@ else
     private async Task ScrollToTop ()
         {
         await JS.InvokeVoidAsync("scrollToTop");
+        }
+    private async Task CloseComponent ()
+        {
+        //rollBack for Component 'Dataset'
+        _hasFetched = false;
+        await BtnShowAllDatasets();
+        lstDatasets.Where(d => d.DatasetId == _datasetId).ToList().ForEach(d => d.IsSelected = true);
+        //OR: foreach(var item in lstDatasets.Where (d=>d.DatasetId == _datasetId)) {item.IsSelected = true};
+        _hasFetched = true;
+        _cmd = "";
         }
     private async Task CloseSpeciesList ()
         {
@@ -408,4 +426,54 @@ else
         //--to handel close event, I added in the Modal_CreateNote: [Parameter] public EventCallback OnClose
         }
 
+    //search by country
+    private string GetCountryName (int id)
+        {
+        if (id == 0)
+            return "";
+        var country = lstCountries.FirstOrDefault(a => a.CountryId == id);
+        return country != null ? $"{country.CountryName}" : "";
+        }
+    private async Task<IEnumerable<int>> SearchCountries (string value, CancellationToken ct)
+        {
+        //if nothing is typed, return all authors or a subset
+        if (string.IsNullOrEmpty(value))
+            return lstCountries.Select(x => x.CountryId);
+        //filter the list
+        return lstCountries
+            .Where(x => x.CountryName.Contains(value, StringComparison.InvariantCultureIgnoreCase))
+            .Select(x => x.CountryId);
+        }
+    private async Task OnCountryChanged (int newValue)
+        {
+        var oldValue = _countryId;
+        _countryId = newValue;
+        if (_countryId != 0)
+            {
+            _cmd = "";
+            lstDatasets = await feService.Read_DatasetsByCountryId(_countryId);
+            }
+        StateHasChanged();
+        }
+    private async Task ReadCoutries ()
+        {
+        lstCountries = await feService.Read_Countries();
+        StateHasChanged();
+        }
+    private async Task SearchDatasetsByCountryId (int countryId)
+        {
+        lstCountries = await feService.Read_Countries();
+        StateHasChanged();
+        }
+
+    //btns
+    private void BtnCancel ()
+        {
+        _cmd = "";
+        StateHasChanged();
+        }
+    public void BtnBack ()
+        {
+        Navman.NavigateTo("/Switchboard");
+        }
     }

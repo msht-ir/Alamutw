@@ -233,6 +233,7 @@ namespace AlamutS.Models
         public string DatasetManager { get; set; } = "";
         public int AreaHa { get; set; } = 0;
         public int ProvinceId { get; set; } = 0;
+        public int CountryId { get; set; } = 0;
         public string Coords { get; set; } = "";
         public int AltMax { get; set; } = 0;
         public int AltMin { get; set; } = 0;
