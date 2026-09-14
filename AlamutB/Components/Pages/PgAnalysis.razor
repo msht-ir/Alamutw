@@ -39,7 +39,7 @@ else
                   AlignItems="AlignItems.Start"
                   Style="width:980px;"
                   Breakpoint="Breakpoint.SmAndDown">
-            @* Pannel Left *@
+            @* Pannel Left - MENU*@
                 <MudStack>
                 <MudText Style="color:indianred;">Analyses</MudText>
                     <MudToggleGroup T="String"
@@ -59,7 +59,7 @@ else
                                    Text="FlorAn" />
                     <MudToggleItem Value=@("multivarfloran")
                                    SelectedIcon="@Icons.Material.Outlined.Window"
-                                   Text="MultiFlorAn" />
+                                   Text="MultivarFlorAn" />
                     <MudToggleItem Value=@("comparesets")
                                    SelectedIcon="@Icons.Material.Outlined.JoinLeft"
                                    Text="Compare Sets" />
@@ -82,33 +82,47 @@ else
                 </MudStack>
             @* Pannel Right *@
                 <MudStack Style="width:740px;margin-top:30px">
-                @if (_cmd == "help")
-                    {
-                    <CompInfoTech />
-                    }
-                else if ((_cmd == "fvalue") || (_cmd == "floran") || (_cmd == "diversity") || (_cmd == "comparesets") || (_cmd == "multivarfloran"))
-                    {
-                    <CompAnalysisSets OnSelectedSetsReceived="GetSelectedSetsFromComponent" />
-                    }
-                else if (_cmd == "cooccurence")
-                    {
-                    }
-                else if ((_cmd == "climagraph") || (_cmd == "multivarcliman"))
-                    {
-                    }
-                else if (_cmd == "")
+                @if (_cmd == "")
                     {
                         <div class="d-flex justify-content-center">
                         <img src="/img/gifUserLogin.gif" width="52" />
                         </div>
                     }
-                else if (_cmd == "ShowCalcDiversityResults")
+                else if (_cmd == "help")
                     {
-                    <CompAnalysisDiversityResults lstSelectedDatasets="lstSelectedDatasets" lstDiversities="lstDiversities" OnAnalysisDiversityResultsClosed="BtnCloseAnalysisDiversityResults" />
+                    <CompInfoTech />
+                    }
+                else if ((_cmd == "diversity") || (_cmd == "fvalue") || (_cmd == "floran") || (_cmd == "multivarfloran") || (_cmd == "comparesets"))
+                    {
+                    <CompAnalysisSets AnalysisType="@_cmd" OnSelectedSetsReceived="GetSelectedSetsFromComponent" />
+                    }
+                else if (_cmd == "cooccurence")
+                    {
+                    @* component for cooccurence *@
+                    }
+                else if ((_cmd == "climagraph") || (_cmd == "multivarcliman"))
+                    {
+                    @* component for climagraph *@
                     }
                 else if (_cmd == "ShowFloristicValueStatsResults")
                     {
                     <CompAnalysisFVResults lstSelectedDatasets="lstSelectedDatasets" FVStats="FVStats" OnAnalysisFVResultsClosed="BtnCloseAnalysisFVResults" />
+                    }
+                else if (_cmd == "ShowCalcDiversityResults")
+                    {
+                    <CompAnalysisDiversityResults lstSelectedDatasets="lstSelectedDatasets" lstDiversities="lstDiversities" OnAnalysisDiversityResultsClosed="BtnCloseAnalysisDiversityResults" />
+                    }
+                else if (_cmd == "ShowFlorAnResults")
+                    {
+                    <CompAnalysisFlorAnResults lstSelectedDatasets="lstSelectedDatasets" lstSpeciesFlorAn="lstSpeciesFlorAn" OnAnalysisFlorAnResultsClosed="BtnCloseAnalysisFlorAnResults" />
+                    }
+                else if (_cmd == "ShowMultivarFlorAnResults")
+                    {
+                    @* component for MultivarFlorAn Results *@
+                    }
+                else if (_cmd == "ShowCompareSetsResults")
+                    {
+                    @* component for CompareSets Results *@
                     }
                 </MudStack>
             </MudStack>
@@ -141,6 +155,7 @@ else
     public List<Species> lstSelectedSpecies = new List<Species>();
     public List<Diversity> lstDiversities = new List<Diversity>();
     public FV FVStats = new FV();
+    public List<Species> lstSpeciesFlorAn = new List<Species>();
 
     Set set = new Set();
     Dataset dataset = new Dataset();
@@ -152,51 +167,52 @@ else
 
     //LifeCycleEvents
     protected override async Task OnInitializedAsync ()
-    {
+        {
         appState.OnChange += TriggerRender;
         if (Convert.ToInt32(appState.UserLoginStatus) != 1)
-        {
+            {
             Navman.NavigateTo("/Login");
-        }
+            }
         appState.SetCmd("");
         user.UserId = Convert.ToInt32(appState.UserId);
         user.Username = appState.Username;
         _hasFetched = true;
-    }
+        }
     private void TriggerRender ()
-    {
+        {
         InvokeAsync(StateHasChanged);
-    }
+        }
     public void Dispose ()
-    {
+        {
         appState.OnChange -= TriggerRender;
-    }
+        }
 
     //btns
     public void BtnAnalysisSelected (string _analysisName)
-    {
+        {
         if (_analysisName == "back")
-        {
+            {
             BtnBack();
-        }
+            }
         else
-        {
+            {
             _cmd = _analysisName;
             StateHasChanged();
+            }
         }
-    }
 
     //rollbacks
     public async Task GetSelectedSetsFromComponent (List<Set> lstSelectedSets)
-    {
-        switch (_cmd)
         {
+        switch (_cmd)
+            {
             case "diversity":
-                {
+                    {
                     _hasFetched = false;
                     lstDiversities.Clear();
+                    //pass set and subset to feService:
                     lstDiversities = await feService.Calc_Diversity(lstSelectedSets [0].SetId, lstSelectedSets [0].SelectedSubset);
-                    //get distinct list of Datasets from DatasetA and DatasetB
+                    //get list of Datasets (from distinct DatasetA, DatasetB)
                     lstSelectedDatasets = lstDiversities
                         .Select(x => new Dataset
                             {
@@ -253,9 +269,9 @@ else
                     _hasFetched = true;
                     _cmd = "ShowCalcDiversityResults";
                     break;
-                }
+                    }
             case "fvalue":
-                {
+                    {
                     _hasFetched = false;
                     lstSelectedDatasets = await feService.Read_DatasetsBySubsetIndex(lstSelectedSets [0].SetId, lstSelectedSets [0].SelectedSubset);
                     FVStats = await feService.Get_FloristicValueStats(lstSelectedSets [0].SetId, lstSelectedSets [0].SelectedSubset);
@@ -266,7 +282,12 @@ else
                     }
             case "floran":
                     {
-                    Snackbar.Add($"selcted Sets received for floran!", Severity.Info, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+                    _hasFetched = false;
+                    lstSelectedDatasets = await feService.Read_DatasetsBySubsetIndex(lstSelectedSets [0].SetId, lstSelectedSets [0].SelectedSubset);
+                    lstSpeciesFlorAn = await feService.Get_FlorAnData(lstSelectedSets [0].SetId, lstSelectedSets [0].SelectedSubset);
+                    appState.SetSetName(lstSelectedSets [0].SetName);
+                    _hasFetched = true;
+                    _cmd = "ShowFlorAnResults";
                     break;
                     }
             case "comparesets":
@@ -309,6 +330,11 @@ else
     private void BtnCloseAnalysisFVResults ()
         {
         _cmd = "fvalue";
+        StateHasChanged();
+        }
+    private void BtnCloseAnalysisFlorAnResults ()
+        {
+        _cmd = "floran";
         StateHasChanged();
         }
 

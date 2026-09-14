@@ -123,14 +123,6 @@ else
                                         Title="map">
                                     <img src="/img/icoMap.png" width="22" />
                                     </button>
-                                @* Analysis *@
-                                    <button type="button"
-                                        class="btn btn-link"
-                                        style="margin-left:1px"
-                                        @onclick='() => BtnAnalysisForThisSet(set.SetId)'
-                                        Title="analyses">
-                                    <img src="/img/icoChartPie2.png" width="20" />
-                                    </button>
                                 @* Edit Set*@
                                     <button type="button"
                                         class="btn btn-link"
@@ -637,10 +629,6 @@ else
         // StateHasChanged();
         //--After the Modal_CreateNote is closed, HandleModalClose will refresh the list
         //--to handel close event, I added in the Modal_CreateNote: [Parameter] public EventCallback OnClose
-        }
-    private async Task BtnAnalysisForThisSet (int setId)
-        {
-        //
         }
     private async Task BtnRemoveThisDataset (SetData _setData)
         {

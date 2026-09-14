@@ -880,6 +880,19 @@ namespace AlamutB.Service
                 return new FV ();
                 }
             }
+        public async Task<List<Species>> Get_FlorAnData (int setId, int subsetIndex)
+            {
+            var response = await _http.PostAsJsonAsync ($"api/Get_FlorAnData?subsetIndex={subsetIndex}", setId);
+            if (response.IsSuccessStatusCode)
+                {
+                List<Species> lstSpecies = await response.Content.ReadFromJsonAsync<List<Species>> ();
+                return lstSpecies;
+                }
+            else
+                {
+                return new List<Species> ();
+                }
+            }
         #endregion
         #region REPORT
         #endregion

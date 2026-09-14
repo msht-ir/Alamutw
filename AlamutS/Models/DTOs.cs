@@ -173,7 +173,14 @@ namespace AlamutS.Models
         {
         public string SpeciesId { get; set; } = "";
         public string AcceptedId { get; set; } = "";
+        public int?    ApgGroupId { get; set; } = 0;
+        public string? ApgGroupName { get; set; } = "";
+        public int? OrderId { get; set; } = 0;
+        public string? OrderName { get; set; } = "";
+        public int? FamilyId { get; set; } = 0;
+        public string? FamilyName { get; set; } = "";
         public int GenusId { get; set; } = 0;
+        public string? GenusName { get; set; } = "";
         public string Epithet { get; set; } = "";
         public int Rank { get; set; } = 0;
         public string InfraEpithet { get; set; } = "";

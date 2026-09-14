@@ -15,15 +15,28 @@
     <link rel="stylesheet" href="AlamutB.styles.css" />
     <link rel="icon" type="image/png" href="favicon.png" />
     <HeadOutlet />
-</head>
+    </head>
 
-<body>
+    <body>
     <Routes @rendermode="InteractiveServer" />
+        <script>
+            window.downloadFileFromStream = async (fileName, contentStreamReference) => {
+                const arrayBuffer = await contentStreamReference.arrayBuffer();
+                const blob = new Blob([arrayBuffer]);
+                const url = URL.createObjectURL(blob);
+                const anchorElement = document.createElement('a');
+                anchorElement.href = url;
+                anchorElement.download = fileName ?? '';
+                anchorElement.click();
+                anchorElement.remove();
+                URL.revokeObjectURL(url);
+            }
+        </script>
     <script src="_framework/blazor.web.js"></script>
     <script src="js/bootstrap.js"></script>
     <script src="js/site.js"></script>
     <script src="_content/MudBlazor/MudBlazor.min.js"></script>
-    <script>window.scrollToTop = () => {window.scrollTo({ top: 0, behavior: 'smooth' });};</script>
-</body>
+    <script>window.scrollToTop = () => { window.scrollTo({ top: 0, behavior: 'smooth' }); };</script>
+    </body>
 
 </html>

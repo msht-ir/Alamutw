@@ -41,10 +41,13 @@ else
                         {
                             <div class="d-flex align-items-center mb-1">
                             @* Select *@
-                            <input class="form-check-input"
-                                   style="margin-left:1px;margin-right:1px;"
-                                   type="checkbox"
-                                   @bind="set.IsSelected" />
+                            @if ((AnalysisType == "comparesets"))
+                                {
+                                <input class="form-check-input"
+                                       style="margin-left:1px;margin-right:1px;"
+                                       type="checkbox"
+                                       @bind="set.IsSelected" />
+                                }
                             @* Use all / subset *@
                                 <div>
                                     <MudSelect T="int"
@@ -65,6 +68,14 @@ else
                                     <MudSelectItem Value="5">subset 5</MudSelectItem>
                                     </MudSelect>
                                 </div>
+                            @* RUN *@
+                            @if ((AnalysisType == "diversity") || (AnalysisType == "fvalue") || (AnalysisType == "floran") || (AnalysisType == "multivarfloran"))
+                                {
+                                    <button class="btn btn-link pulse-hover"
+                                        @onclick="() => SelectThisSetForAnalysisAndRollback(set.SetId)">
+                                    <img src="/img/icoGo.png" width="22" />
+                                    </button>
+                                }
                             @* MAP *@
                                 <button type="button"
                                     class="btn btn-link"
@@ -106,7 +117,7 @@ else
                                 <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-1 mb-4 px-0">
                                     <MudCard Class="mx-0">
                                         <MudCardContent Style="background-color:rgba(240,240,240);">
-                                            <div class="d-flex">
+                                            <div>
                                             <MudTextField T="string"
                                                           @ref="refSet"
                                                           @bind-Value="set.SetName"
@@ -119,8 +130,10 @@ else
                                                           OnAdornmentClick='()=>UpdateSet (set)'
                                                           Style="font-family:Tahoma;"
                                                           Class="my-textfield" />
-                                                <button class="btn btn-link" style="margin-left:20px;" Title="cancel" @onclick="BtnCancel">
-                                                <img src="/img/icoGotoTop2.png" width="22" />
+                                            </div>
+                                            <div class="d-flex mt-4 justify-content-center align-items-center">
+                                                <button class="btn btn-link" Title="cancel" @onclick="BtnCancel">
+                                                <img src="/img/icoCancel.png" width="22" />
                                                 </button>
                                             </div>
                                         <br />
@@ -156,8 +169,8 @@ else
                                             <img src="/img/icoList1.png" width="22" />
                                             </button>
                                         </div>
-                                        <br />
-                                        <br />
+                                    <br />
+                                    <br />
                                         <table class="table table-borderless table-sm" style="margin-bottom: 0; border-collapse: collapse;">
                                             <tr>
                                             <th style="padding: 1px 1px;">Datasets</th>
@@ -242,7 +255,7 @@ else
                                                             <img src="/img/icoGotoTop2.png" width="20" />
                                                             </button>
                                                         </div>
-                                                        <br />
+                                                    <br />
                                                     @foreach (Dataset dataset in lstDatasets)
                                                         {
                                                             <div class="d-flex align-items-center mb-1">
@@ -289,13 +302,16 @@ else
                             }
                         }
                     <br />
-                    <hr />
-                        <div class="d-flex justify-content-center">
-                            <button class="btn btn-link pulse-hover"
-                                @onclick="RollbackListOfSelectedSets">
-                            <img src="/img/icoGo.png" width="28" />
-                            </button>
-                        </div>
+                    @if ((AnalysisType == "comparesets"))
+                        {
+                        <hr />
+                            <div class="d-flex justify-content-center">
+                                <button class="btn btn-link pulse-hover"
+                                    @onclick="RollbackListOfSelectedSets">
+                                <img src="/img/icoGo.png" width="28" />
+                                </button>
+                            </div>
+                        }
                     </MudCardContent>
                 </MudCard>
             </MudContainer>
@@ -305,10 +321,15 @@ else
 
 @code {
     [Parameter]
-    public EventCallback<List<Set>> OnSelectedSetsReceived
-        {
+    public string? AnalysisType
+    {
         get; set;
-        }
+    }
+    [Parameter]
+    public EventCallback<List<Set>> OnSelectedSetsReceived
+    {
+        get; set;
+    }
     private MudTextField<string> refSet;
     string _setText = "";
     public MudTextField<string> refFilterDatasetsList;
@@ -325,29 +346,28 @@ else
     private string _setDataId = "";
     private string _datasetName = "";
     private string _datasetsListFilter = "";
-
     //Datasets
     public MudTextField<string> refFilterDatasets;
     private string _datasetFilter = "";
     List<Dataset> lstDatasets = new();
     Dataset dataSet = new Dataset();
-
+    //AnalysisMode
     public MudSelect<int> refAnalysisMode;
     public int _analysisModeId = 0;
     public string _analysisModeName = "";
-
+    //generalVars
     string _cmd = "";
     string _cmd2 = "";
     public bool _hasFetched = false;
 
     //LifeCycleEvents
     protected override async Task OnInitializedAsync ()
-        {
+    {
         appState.OnChange += TriggerRender;
         if (Convert.ToInt32(appState.UserLoginStatus) != 1)
-            {
+        {
             Navman.NavigateTo("/Login");
-            }
+        }
         appState.SetCmd("");
         user.UserId = Convert.ToInt32(appState.UserId);
         user.Username = appState.Username ?? "";
@@ -648,6 +668,22 @@ else
         lstSets = await feService.Read_Sets(user.UserId);
         _hasFetched = true;
         StateHasChanged();
+        }
+    private async Task SelectThisSetForAnalysisAndRollback (int setId)
+        {
+        var item = lstSets.FirstOrDefault(s => s.SetId == setId);
+        if (item != null)
+            {
+            item.IsSelected = true;
+            }
+        // foreach(Set s in lstSets)
+        //     {
+        //     if(s.SetId == setId)
+        //         {
+        //         s.IsSelected = true;
+        //         }
+        //     }
+        await RollbackListOfSelectedSets();
         }
     private async Task RollbackListOfSelectedSets ()
         {

@@ -1,0 +1,271 @@
+﻿@using System.Globalization
+@using System.Threading.Tasks
+@using AlamutB.Service
+@using Microsoft.VisualBasic
+@inject FeService feService
+@inject NavigationManager Navman
+@inject AppState appState
+@inject IJSRuntime JS
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+    @if (!_hasFetched)
+    {
+    <_ScanSheets />
+    }
+else
+    {
+        <MudContainer MaxWidth="MaxWidth.Large" Class="mt-2 px-0">
+            <MudCard Class="mx-0">
+                <MudCardContent Style="background-color:rgba(245,245,245);">
+                <h6 style="text-align:center;color:royalblue">Floristic Analysis (FlorAn) <span style="font-size:x-small;color:indianred"> ( Set: @appState.SetName )</span></h6>
+                <hr style="color:lightslategrey" />
+                    <table class="table table-borderless">
+                        <tr>
+                        <th>Id</th>
+                        <th>Dataset name</th>
+                        </tr>
+                    @foreach (Dataset ds in lstSelectedDatasets)
+                        {
+                            <tr>
+                            <td> <span style="color:dimgray;font-weight:bold;">@ds.DatasetId </span></td>
+                            <td> <span style="color:darkslategrey">@ds.DatasetName </span></td>
+                            </tr>
+                        }
+                    </table>
+                <hr />
+                <br />
+                <!-- Section summary Data -->
+                    <div class="variables-section">
+                    @* STATS *@
+                    <h6 class="section-title" style="text-align:center;color:blueviolet">Stats</h6>
+
+                    <hr />
+                    <br />
+                    @* TOP 10s *@
+                    <h6 class="section-title" style="text-align:center;color:blueviolet">Top 10s</h6>
+                    <hr />
+                    @* output1.1 — families + species count *@
+                        <table class="table table-borderless" style="margin-left:50px;width:600px;">
+                            <tr>
+                            <th>Top 10 rich Families</th>
+                            <th>species</th>
+                            </tr>
+                        @foreach (var a in FlorAnData1)
+                            {
+                                <tr>
+                                <td style="width:440px;">@a.f</td>
+                                <td>@a.c</td>
+                                </tr>
+                            }
+                        </table>
+
+                    @* output1.2 — families + distinct genus count *@
+                        <table class="table table-borderless" style="margin-left:50px;width:600px;">
+                            <tr>
+                            <th>Top 10 rich Families</th>
+                            <th>Genera</th>
+                            </tr>
+                        @foreach (var a in FlorAnData2)
+                            {
+                                <tr>
+                                <td style="width:440px;">@a.fam</td>
+                                <td>@a.cnt</td>
+                                </tr>
+                            }
+                        </table>
+
+                    @* output1.3 — genera + species count + family *@
+                        <table class="table table-borderless" style="margin-left:50px;width:600px;">
+                            <tr>
+                            <th>Top 10 rich Genera</th>
+                            <th>Species</th>
+                            </tr>
+                        @foreach (var a in FlorAnData3)
+                            {
+                                <tr>
+                                <td style="width:440px;"><span style="color:darkblue;font-style:italic;">@a.gen </span><span style="color:indianred;font-size:smaller;"> (@a.fam)) </span></td>
+                                <td>@a.c</td>
+                                </tr>
+                            }
+                        </table>
+                    </div>
+                <br />
+                <!-- Section Complete List -->
+                    <div style="margin-left:10px;margin-right:100px;">
+                    <h6 style="text-align:center;color:royalblue">Species List <span style="font-size:x-small;color:indianred"> ( @lstSpeciesFlorAn.Count() )</span></h6>
+                    <hr />
+                        <table class="table table-borderless">
+                            <tr>
+                            <th>Family</th>
+                            <th>Species</th>
+                            </tr>
+                        @foreach (Species s in lstSpeciesFlorAn)
+                            {
+                                <tr>
+                                <td><span style="color:indianred;font-size:smaller;"> @s.FamilyName </span></td>
+                                <td><span style="color:darkblue;font-size:smaller;font-style:italic;">@s.GenusName @s.Epithet <span style="color:gray;font-style:normal;">@s.Author</span></span></td>
+                                </tr>
+                            }
+                        </table>
+                    </div>
+                <hr style="color:royalblue;margin-top:50px" />
+
+                    <div class="formula-container">
+                    <br />
+                    <!-- Section Notes -->
+                        <div class="notes-section">
+                            <ul class="notes-list">
+                                <li>
+                                    compiled with: Alamut floristic database 
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                <hr style="color:royalblue;margin-top:50px" />
+                @* ScrollToTop *@
+                    <div class="d-flex justify-content-center">
+                        <button class="btn btn-link pulse-hover" @onclick="OnClose">
+                        <img src="/img/icoCancel.png" width="26" />
+                        </button>
+                    </div>
+                </MudCardContent>
+            </MudCard>
+        </MudContainer>
+    }
+
+<br />
+<br />
+<script>window.scrollToTop = () => { window.scrollTo({ top: 0, behavior: 'smooth' }); };</script>
+
+@code {
+    [Parameter]
+    public List<Dataset>? lstSelectedDatasets
+        {
+        get; set;
+        }
+    [Parameter]
+    public List<Species>? lstSpeciesFlorAn
+        {
+        get; set;
+        }
+    [Parameter]
+    public EventCallback<bool> OnAnalysisFlorAnResultsClosed
+        {
+        get; set;
+        }
+    User user = new User();
+    public bool _hasFetched = false;
+    string _cmd = "";
+
+    int nFam = 0;
+    int nGen = 0;
+    int nSp = 0;
+    int nEndem = 0;
+    int nRare = 0;
+    int nMed = 0;
+    int nRange = 0;
+    int nCR = 0;
+    int nEN = 0;
+    int nVU = 0;
+    int nNT = 0;
+    int nLC = 0;
+    int nLR = 0;
+    int nDD = 0;
+    int nNE = 0;
+    int fv1 = 0;
+    // DTOs
+    public record FamCount (string f, int c);
+    public record FamGenCount (string fam, int cnt);
+    public record GenCount (string gen, int c, string fam);
+    // Fields the markup can see
+    private List<FamCount> FlorAnData1 = new();
+    private List<FamGenCount> FlorAnData2 = new();
+    private List<GenCount> FlorAnData3 = new();
+
+    //LifeCycleEvents
+    protected override async Task OnInitializedAsync ()
+        {
+        appState.OnChange += TriggerRender;
+        appState.SetCmd("");
+        user.UserId = Convert.ToInt32(appState.UserId);
+        user.Username = appState.Username ?? "";
+        await CalcFlorAnStats();
+        _hasFetched = true;
+        }
+    private void TriggerRender ()
+        {
+        InvokeAsync(StateHasChanged);
+        }
+    public void Dispose ()
+        {
+        appState.OnChange -= TriggerRender;
+        }
+    //Clacs
+    private async Task CalcFlorAnStats ()
+        {
+        //LINQs
+        nFam = lstSpeciesFlorAn.Select(r => r.FamilyId).Distinct().Count();
+        nGen = lstSpeciesFlorAn.Select(r => r.GenusId).Distinct().Count();
+        nSp = lstSpeciesFlorAn.Select(r => r.SpeciesId).Distinct().Count();
+        nEndem = lstSpeciesFlorAn.Count(r => (r.Characters & 1) == 1);
+        nRare = lstSpeciesFlorAn.Count(r => (r.Characters & 2) == 2);
+        nMed = lstSpeciesFlorAn.Count(r => (r.Characters & 4) == 4);
+        nRange = lstSpeciesFlorAn.Count(r => (r.Characters & 8) == 8);
+        nCR = lstSpeciesFlorAn.Count(r => (r.ConsStatus & 64) == 64);
+        nEN = lstSpeciesFlorAn.Count(r => (r.ConsStatus & 32) == 32);
+        nVU = lstSpeciesFlorAn.Count(r => (r.ConsStatus & 16) == 16);
+        nNT = lstSpeciesFlorAn.Count(r => (r.ConsStatus & 8) == 8);
+        nLC = lstSpeciesFlorAn.Count(r => (r.ConsStatus & 4) == 4);
+        nLR = lstSpeciesFlorAn.Count(r => (r.ConsStatus & 2) == 2);
+        nDD = lstSpeciesFlorAn.Count(r => (r.ConsStatus & 1) == 1);
+        nNE = lstSpeciesFlorAn.Count(r => r.ConsStatus == 0);
+        fv1 = nCR * 1024 + nEN * 512 + nVU * 256 + nNT * 128 + nLC * 64 + nLR * 32 + nEndem * 16 + nRare * 8 + nMed * 4 + nRange * 2 + nSp;
+        //
+        FlorAnData1 = (from r in lstSpeciesFlorAn
+                       group r by r.FamilyName into g
+                       orderby g.Count() descending
+                       select new FamCount(g.Key, g.Count()))
+                       .Take(10)
+                       .ToList();
+        FlorAnData2 = (from r in lstSpeciesFlorAn
+                       group r by r.FamilyName into g
+                       let cnt = g.Select(x => x.GenusName).Distinct().Count()
+                       orderby cnt descending
+                       select new FamGenCount(g.Key, cnt))
+                       .Take(10)
+                       .ToList();
+        FlorAnData3 = (from r in lstSpeciesFlorAn
+                       group r by r.GenusName into g
+                       orderby g.Count() descending
+                       select new GenCount(
+                           g.Key,
+                           g.Count(),
+                           g.Select(z => z.FamilyName).FirstOrDefault()))
+                          .Take(10)
+                      .ToList();
+        }
+    //methods
+    public string PersianDate (DateTimeOffset? dt)
+        {
+        if ((Convert.ToInt32(appState.UserTags) & 256) == 256)
+            {
+            return feService.ToPersianDate(dt.ToString());
+            }
+        else
+            {
+            return dt?.ToString("yyyy-MM-dd HH:mm");
+            }
+        }
+    private async Task HandleModalClose ()
+        {
+        _hasFetched = false;
+        _hasFetched = true;
+        StateHasChanged();
+        }
+    private async Task OnClose ()
+        {
+        await OnAnalysisFlorAnResultsClosed.InvokeAsync(true);
+        }
+    }

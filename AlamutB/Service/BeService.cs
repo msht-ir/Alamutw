@@ -2798,218 +2798,85 @@ namespace AlamutB.Services2Backend
 
             return new FV (); // Return empty stats if no data
             }
+        public async Task<List<Species>> Get_FlorAnDataAsync (int setId, int subsetIndex)
+            {
+            string? connString = _config.GetConnectionString ("cnni");
+            string sql = "Analyses.Get_FlorAnData";
+
+            using SqlConnection cnn = new (connString);
+            using SqlCommand cmd = new (sql, cnn)
+                {
+                CommandType = CommandType.StoredProcedure
+                };
+
+            cmd.Parameters.AddWithValue ("@SetId", setId);
+            cmd.Parameters.AddWithValue ("@SubsetIndex", subsetIndex);
+
+            await cnn.OpenAsync ();
+
+            using SqlDataReader reader = await cmd.ExecuteReaderAsync ();
+            List<Species> lstSpeciesFlorAn = new List<Species> ();
+            while (await reader.ReadAsync ())
+                {
+                lstSpeciesFlorAn.Add (new Species
+                    {
+                    SpeciesId = reader.GetString (0),
+                    AcceptedId = reader.GetString (1),
+                    FamilyId = reader.GetInt32 (2),
+                    FamilyName = reader.GetString (3),
+                    GenusId = reader.GetInt32 (4),
+                    GenusName = reader.GetString (5),
+                    Epithet = reader.GetString (6),
+                    Rank = reader.GetInt32 (7),
+                    InfraEpithet = reader.GetString (8),
+                    Author = reader.GetString (9),
+                    Characters = reader.GetInt32 (10),
+                    ConsStatus = reader.GetInt32 (11),
+                    TaxStatus = reader.GetInt32 (12),
+                    NomStatus = reader.GetInt32 (13),
+                    Chorotype = reader.GetString (14),
+                    Lifeform = reader.GetString (15),
+                    });
+                }
+            await cnn.CloseAsync ();
+            return lstSpeciesFlorAn;
+            }
+        public byte [] FloranAnalysisResultsGenerateExcel<T> (List<T> data, string sheetName = "Papers")
+            {
+            using var wb = new XLWorkbook ();
+            var ws = wb.Worksheets.Add (sheetName);
+            var properties = typeof (T).GetProperties ();
+            //add headers
+            for (int i = 3; i < properties.Length - 2; i++)
+                {
+                ws.Cell (1, i - 2).Value = properties [i].Name;
+                ws.Cell (1, i - 2).Style.Font.Bold = true;
+                ws.Cell (1, i - 2).Style.Fill.BackgroundColor = XLColor.LightBlue;
+                }
+            //add rows
+            for (int row = 0; row < data.Count; row++)
+                {
+                for (int col = 3; col < properties.Length - 2; col++)
+                    {
+                    var value = properties [col].GetValue (data [row]);
+                    ws.Cell (row + 2, col - 2).Value = value?.ToString () ?? "";
+                    }
+                }
+            //auto-fit
+            ws.Columns ().AdjustToContents ();
+            using var stream = new MemoryStream ();
+            wb.SaveAs (stream);
+            return stream.ToArray ();
+            }
 
 
         /*
-        public static void SetsFlorAn (int intSetID, string strSetTitle, int intSubset, int intParaams)
+        public static void SetsFlorAn (int intSetID, int intSubset, int intParaams)
             {
-            FileSystem.FileClose ();
-            string fltr = "";
-            switch (intSubset)
-                {
-                case 0:
-                        {
-                        fltr = "";
-                        break;
-                        }
-                default:
-                        {
-                        fltr = " AND (Membership & " + Math.Pow (2, intSubset - 1).ToString () + " = " + Math.Pow (2, intSubset - 1).ToString () + ")";
-                        break;
-                        }
-                }
-            DB.DS.Tables ["tblTMP0"].Clear ();
-            -- get data form 5 tables
-             * ----------------------
-             * SELECT DISTINCT
-             * 0 .accID      from  Specie     
-             * 1 .familyID   from  Genera     
-             * 2 .familyName from  Families    
-             * 3 .genusID    from  Species    
-             * 4 .genusName  from  Genera     
-             * 5 .rstat      from  Species    
-             * 6 .rcons      from  Species    
-             * 7 .rchar      from  Species    
-             * 8 .setID      from  Setdata_DS 
-             * 9 .membership from  Setdata_DS 
-            --
-            string strSQL = "
-                SELECT DISTINCT
-                    Species.ID AS SPID
-                   , Genera.familyID
-                   , Families.familyName
-                   , Species.genusID
-                   , Genera.genusName
-                   , Species.rstat
-                   , Species.rcons
-                   , Species.rchar
-                   , Species.CT
-                   , Species.LF
-                   , Setdata_DS.setID
-                   , Setdata_DS.membership
-                FROM 
-                    Families 
-                    INNER JOIN Genera     ON Families.ID      = Genera.familyID
-                    INNER JOIN Species    ON Genera.ID        = Species.genusID 
-                    INNER JOIN DsData     ON Species.ID       = DsData.speciesID 
-                    INNER JOIN Datasets   ON DsData.datasetID = Datasets.ID 
-                    INNER JOIN Setdata_DS ON Datasets.ID      = Setdata_DS.datasetID
-                WHERE 
-                    SetID =  intSetID.ToString ()  
-                    AND rank = 'species'  + fltr;
 
-            DataTable dt = DB.DS.Tables ["tblTMP0"];
-
-            //LINQ
-            int nFam    = (from r in dt.AsEnumerable () select r.Field<int>   ("familyID")).Distinct ().Count ();
-            int nGen    = (from r in dt.AsEnumerable () select r.Field<int>   ("genusID")).Distinct ().Count ();
-            int nSp     = (from r in dt.AsEnumerable () select r.Field<int>   ("SPID")).Distinct ().Count ();
-            int nEndem  = (from r in dt.AsEnumerable () where ((r.Field<int>  ("rchar") & 1)  == 1)  select r.Field<int> ("rchar")).Count ();
-            int nRare   = (from r in dt.AsEnumerable () where ((r.Field<int>  ("rchar") & 2)  == 2)  select r.Field<int> ("rchar")).Count ();
-            int nMed    = (from r in dt.AsEnumerable () where ((r.Field<int>  ("rchar") & 4)  == 4)  select r.Field<int> ("rchar")).Count ();
-            int nRange  = (from r in dt.AsEnumerable () where ((r.Field<int>  ("rchar") & 8)  == 8)  select r.Field<int> ("rchar")).Count ();
-            int nCR     = (from r in dt.AsEnumerable () where ((r.Field<byte> ("rcons") & 64) == 64) select (int) r.Field<byte> ("rcons")).Count ();
-            int nEN     = (from r in dt.AsEnumerable () where ((r.Field<byte> ("rcons") & 32) == 32) select (int) r.Field<byte> ("rcons")).Count ();
-            int nVU     = (from r in dt.AsEnumerable () where ((r.Field<byte> ("rcons") & 16) == 16) select (int) r.Field<byte> ("rcons")).Count ();
-            int nNT     = (from r in dt.AsEnumerable () where ((r.Field<byte> ("rcons") & 8)  == 8)  select (int) r.Field<byte> ("rcons")).Count ();
-            int nLC     = (from r in dt.AsEnumerable () where ((r.Field<byte> ("rcons") & 4)  == 4)  select (int) r.Field<byte> ("rcons")).Count ();
-            int nLR     = (from r in dt.AsEnumerable () where ((r.Field<byte> ("rcons") & 2)  == 2)  select (int) r.Field<byte> ("rcons")).Count ();
-            int nDD     = (from r in dt.AsEnumerable () where ((r.Field<byte> ("rcons") & 1)  == 1)  select (int) r.Field<byte> ("rcons")).Count ();
-            int nNE     = (from r in dt.AsEnumerable () where (r.Field<byte>  ("rcons") == 0) select (int) r.Field<byte> ("rcons")).Count ();
-            int fv1     = nCR * 1024 + nEN * 512 + nVU * 256 + nNT * 128 + nLC * 64 + nLR * 32 + nEndem * 16 + nRare * 8 + nMed * 4 + nRange * 2 + nSp;
-            if (nSp == 0)
-                return;
-            float fv2 = (float) ((100 * fv1 / nSp) / 100.0);
-            //create excel
-            var XL = new Excel.Application ();
-            var WB = XL.Workbooks.Add ("");
-            for (int x = 1; x < 4; x++)
-                WB.Application.Worksheets.Add ();
-            for (int x = 1; x <= 4; x++)
-                WB.Worksheets [x].Name = x.ToString ();
-            var WS1 = WB.Worksheets [1]; //Fam --> nSp, nGen?, Gen --> nSp?, Top 10s
-            var WS2 = WB.Worksheets [2]; //CT-LF chart 
-            var WS3 = WB.Worksheets [3]; //FValue
-            var WS4 = WB.Worksheets [4]; //Ref
-            // ************************************************************************************************************* SHEET1
-            //stats
-            WS1.Cells [1, 1] = "alamut database v2";
-            WS1.Cells [2, 1] = strSetTitle;
-            WS1.Cells [3, 1] = "set id";
-            WS1.Cells [3, 2] = intSetID;
-            WS1.Cells [4, 1] = "subset (all, 1-8)";
-            if (intSubset == 0)
-                WS1.Cells [4, 2] = "all";
-            else
-                WS1.Cells [4, 2] = intSubset;
-            WS1.Cells [5, 1] = "nfam";
-            WS1.Cells [5, 2] = nFam.ToString ();
-            WS1.Cells [6, 1] = "ngen";
-            WS1.Cells [6, 2] = nGen;
-            WS1.Cells [7, 1] = "nspec";
-            WS1.Cells [7, 2] = nSp;
-            WS1.Cells [5, 4] = "s/f";
-            WS1.Cells [5, 5] = Convert.ToInt32 (100.0 * nSp / nFam) / 100.0;
-            WS1.Cells [6, 4] = "g/f";
-            WS1.Cells [6, 5] = Convert.ToInt32 (100.0 * nGen / nFam) / 100.0;
-            WS1.Cells [7, 4] = "s/g";
-            WS1.Cells [7, 5] = Convert.ToInt32 (100.0 * nSp / nGen) / 100.0;
-            //header
-            WS1.Cells [10, 1] = "family";
-            WS1.Cells [10, 2] = "fam";
-            WS1.Cells [10, 3] = "spp[i]";
-            WS1.Cells [10, 4] = "spp[i]%";
-            WS1.Cells [10, 6] = "fam";
-            WS1.Cells [10, 7] = "gen[i]";
-            WS1.Cells [10, 8] = "gen[i]%";
-            WS1.Cells [10, 10] = "fam";
-            WS1.Cells [10, 11] = "genus";
-            WS1.Cells [10, 12] = "gen";
-            WS1.Cells [10, 13] = "spp[i]";
-            WS1.Cells [10, 14] = "spp[i]%";
-            WS1.Cells [5, 2].Font.Color = ColorTranslator.ToOle (Color.Crimson);
-            WS1.Cells [6, 2].Font.Color = ColorTranslator.ToOle (Color.Crimson);
-            WS1.Cells [7, 2].Font.Color = ColorTranslator.ToOle (Color.Crimson);
-            WS1.Cells [5, 5].Font.Color = ColorTranslator.ToOle (Color.Crimson);
-            WS1.Cells [6, 5].Font.Color = ColorTranslator.ToOle (Color.Crimson);
-            WS1.Cells [7, 5].Font.Color = ColorTranslator.ToOle (Color.Crimson);
-            WS1.Cells [10, 1].Font.Color = ColorTranslator.ToOle (Color.DarkBlue);
-            WS1.Cells [10, 2].Font.Color = ColorTranslator.ToOle (Color.DarkBlue);
-            WS1.Cells [10, 3].Font.Color = ColorTranslator.ToOle (Color.DarkBlue);
-            WS1.Cells [10, 4].Font.Color = ColorTranslator.ToOle (Color.DarkBlue);
-            WS1.Cells [10, 6].Font.Color = ColorTranslator.ToOle (Color.DarkBlue);
-            WS1.Cells [10, 7].Font.Color = ColorTranslator.ToOle (Color.DarkBlue);
-            WS1.Cells [10, 8].Font.Color = ColorTranslator.ToOle (Color.DarkBlue);
-            WS1.Cells [10, 10].Font.Color = ColorTranslator.ToOle (Color.DarkBlue);
-            WS1.Cells [10, 11].Font.Color = ColorTranslator.ToOle (Color.DarkBlue);
-            WS1.Cells [10, 12].Font.Color = ColorTranslator.ToOle (Color.DarkBlue);
-            WS1.Cells [10, 13].Font.Color = ColorTranslator.ToOle (Color.DarkBlue);
-            WS1.Cells [10, 14].Font.Color = ColorTranslator.ToOle (Color.DarkBlue);
-
-
-            //LINQs
-            //linq1
-            var Sheet1Data1 = from r in dt.AsEnumerable ()
-                              group r by r.Field<string> ("familyName") into g
-                              orderby g.Count () descending
-                              select new
-                                  {
-                                  f = g.Key,
-                                  c = g.Count ()
-                                  };
-            //linq2
-            var Sheet1Data2 = from r in dt.AsEnumerable ()
-                              group r by r.Field<string> ("familyName") into g
-                              let cnt = g.Select (x => x.Field<string> ("genusName")).Distinct ().Count ()
-                              orderby cnt descending
-                              select new
-                                  {
-                                  fam = g.Key,
-                                  cnt //OR cnt = g.Select(x=> x.Field<string>("genusName")).Distinct().Count()
-                                  };
-            //linq3
-            var Sheet1Data3 = from r in dt.AsEnumerable ()
-                              group r by r.Field<string> ("genusName") into g
-                              orderby g.Count () descending
-                              select new
-                                  {
-                                  gen = g.Key,
-                                  c = g.Count (),
-                                  fam = from z in g select z.Field<string> ("familyName")
-                                  };
-            //OUTPUTs
-            //output1.1
-            int i1 = 0;
-            foreach (var a in Sheet1Data1)
-                {
-                WS1.Cells [i1 + 11, 1] = a.f;
-                WS1.Cells [i1 + 11, 2] = Strings.Left (a.f, 4);
-                WS1.Cells [i1 + 11, 3] = a.c.ToString ();
-                WS1.Cells [i1 + 11, 4] = (Convert.ToInt32 (1000.0 * a.c / nSp) / 10.0).ToString (".0") + "%";
-                i1++;
-                }
-            //output1.2
-            i1 = 0;
-            foreach (var a in Sheet1Data2)
-                {
-                //WS2.Cells [i2 + 10, 6] = a.fam.ToList () [0];
-                WS1.Cells [i1 + 11, 6] = Strings.Left (a.fam, 4);
-                WS1.Cells [i1 + 11, 7] = a.cnt;
-                WS1.Cells [i1 + 11, 8] = (Convert.ToInt32 (1000.0 * a.cnt / nSp) / 10.0).ToString (".0") + "%";
-                i1++;
-                }
-            //output1.3
-            i1 = 0;
-            foreach (var a in Sheet1Data3)
-                {
-                WS1.Cells [i1 + 11, 10] = Strings.Left (a.fam.ToList () [0], 4);
-                WS1.Cells [i1 + 11, 11] = a.gen.ToString ();
-                WS1.Cells [i1 + 11, 12] = Strings.Left (a.gen.ToString (), 4);
-                WS1.Cells [i1 + 11, 13] = a.c;
-                WS1.Cells [i1 + 11, 14] = (Convert.ToInt32 (1000.0 * a.c / nSp) / 10.0).ToString (".0") + "%";
-                i1++;
-                }
             WS1.Columns.AutoFit ();
+
+
             //CHARTs
             //A) STAT graphs
             //chart1.stat1
@@ -3072,10 +2939,6 @@ namespace AlamutB.Services2Backend
             WS2.Cells [1, 2] = "CT count";
             WS2.Cells [1, 4] = "LifeForm (LF)";
             WS2.Cells [1, 5] = "LF count";
-            WS2.Cells [1, 1].Font.Color = ColorTranslator.ToOle (Color.DarkBlue);
-            WS2.Cells [1, 2].Font.Color = ColorTranslator.ToOle (Color.DarkBlue);
-            WS2.Cells [1, 4].Font.Color = ColorTranslator.ToOle (Color.DarkBlue);
-            WS2.Cells [1, 5].Font.Color = ColorTranslator.ToOle (Color.DarkBlue);
             //linq2.1 para CT
             var Sheet2Data = from r in dt.AsEnumerable ()
                              group r by r.Field<string> ("CT") into grpct
@@ -3114,6 +2977,7 @@ namespace AlamutB.Services2Backend
             WS2.Cells [7, 4] = "Na";
             WS2.Cells [7, 5] = nNa;
             WS2.Columns.AutoFit ();
+            
             //CHARTs
             //A) chart2.1 : CT
             var charts2ct1 = WS2.ChartObjects () as ChartObjects;
@@ -3135,6 +2999,7 @@ namespace AlamutB.Services2Backend
             chart2ct2.ApplyLayout (3);
             chart2ct2.HasTitle = true;
             chart2ct2.HasLegend = false;
+
             // ************************************************************************************************************* SHEET3
             // ************************************************************************************************************* SHEET3
             // ************************************************************************************************************* SHEET3
@@ -3154,11 +3019,6 @@ namespace AlamutB.Services2Backend
             WS3.Cells [3, 3] = "Nsp(x)";
             WS3.Cells [3, 4] = "C=10^(x-1)";
             WS3.Cells [3, 5] = "C.Nsp(x)";
-            WS3.Cells [3, 1].Font.Color = ColorTranslator.ToOle (Color.DarkBlue);
-            WS3.Cells [3, 2].Font.Color = ColorTranslator.ToOle (Color.DarkBlue);
-            WS3.Cells [3, 3].Font.Color = ColorTranslator.ToOle (Color.DarkBlue);
-            WS3.Cells [3, 4].Font.Color = ColorTranslator.ToOle (Color.DarkBlue);
-            WS3.Cells [3, 5].Font.Color = ColorTranslator.ToOle (Color.DarkBlue);
             //col1
             WS3.Cells [4, 1] = "11";
             WS3.Cells [5, 1] = "10";
@@ -3303,98 +3163,13 @@ namespace AlamutB.Services2Backend
             chart34.ChartWizard (Source: range34, Title: "Med");
             chart34.ApplyLayout (3);
             chart34.HasLegend = true;
-            // ************************************************************************************************************* SHEET4
-            // ************************************************************************************************************* SHEET4
-            // ************************************************************************************************************* SHEET4
-            // ************************************************************************************************************* SHEET4
-            WS4.Cells [1, 1] = "about";
-            WS4.Cells [1, 2] = "alamut floristic database ver 2 - by dr. majid sharifitehrani";
-            WS4.Cells [2, 1] = "backend";
-            WS4.Cells [2, 2] = DB.BeVersion;
-            WS4.Cells [3, 1] = "owner";
-            WS4.Cells [3, 2] = Client.Owner;
-
-            WS4.Cells [5, 1] = "author";
-            WS4.Cells [5, 2] = "department of biology, faculty of science, university of shahrekord";
-            WS4.Cells [6, 2] = "majid sharifitehrani";
-            WS4.Cells [7, 2] = "systematic botany, phd";
-
-            WS4.Cells [9, 1] = "citation:";
-            WS4.Cells [9, 2] = "2013 Compilation of floristic and herbarium specimens data in Iran: proposal to data structure.";
-            WS4.Cells [9, 2].Font.Color = ColorTranslator.ToOle (Color.DarkBlue);
-
-            WS4.Cells [11, 1] = "resume";
-            WS4.Cells [11, 2] = "https://msht.ir/msht/msht_00.html";
-            WS4.Cells [12, 2] = "https://sku.ac.ir/en/DepartmentGroup/ProfessorForm.aspx?ID=143";
-            WS4.Cells [13, 2] = "https://orcid.org/0000-0002-1590-7655";
-
-
-            WS4.Cells [15, 1] = "contact";
-            WS4.Cells [15, 2] = "msht.ir@gmail.com";
-            WS4.Cells [16, 2] = "sharifi-m@sku.ac.ir";
-            WS4.Cells [17, 2] = "+98 9133112733";
-            WS4.Cells [18, 2] = "www.msht.ir";
-            WS4.Cells [15, 2].Font.Color = ColorTranslator.ToOle (Color.Crimson);
-            WS4.Cells [16, 2].Font.Color = ColorTranslator.ToOle (Color.Crimson);
-            WS4.Cells [17, 2].Font.Color = ColorTranslator.ToOle (Color.Crimson);
-            WS4.Cells [18, 2].Font.Color = ColorTranslator.ToOle (Color.Crimson);
-
-            WS4.Cells [20, 1] = "papers";
-            WS4.Cells [20, 2] = "2012 Development of a database for floristic studies in Iran. Proceedings of The 17th National & 5th International Conference of Biology of Iran. Kerman, Iran.";
-            WS4.Cells [21, 2] = "2013 Compilation of floristic and herbarium specimens data in Iran: proposal to data structure.";
-            WS4.Cells [22, 2] = "2014 Introduction of the new Program ‘CheckName’ with applications in integration, and increased precision and certitude of floristic inventories.";
-            WS4.Cells [23, 2] = "2015 Step from alpha to beta in plant biological diversity  of Iran, Academy of Science, I.R.Iran";
-            WS4.Cells [24, 2] = "2019 APL compiler and ListMaker program for Alamut floristic database";
-
-            WS4.Cells [26, 1] = "case studies";
-            WS4.Cells [26, 2] = "2015 Fritillaria (Liliaceae) in Iran- distribution and nomenclature";
-            WS4.Cells [27, 2] = "2016 Floristic study of Sheet Mountain in Chaharmahal and Bakhtiari Province, Iran";
-            WS4.Cells [28, 2] = "2016 Flora of Jahanbin mountain area- a contribution to Flora of the Central Zagros region of Iran";
-            WS4.Cells [29, 2] = "2017 Plant species diversity in the Central Zagros Region of Iran";
-            WS4.Cells [30, 2] = "2017 Plant species diversity in Jokhaneh plain and southern slope of the Nil Mt. in Kohgilouyeh va Boyerahmad Province (central Zagros region of Iran)";
-            WS4.Cells [31, 2] = "2019 Study of vascular plant species diversity in Bidouiyeh protected area in Bardsir, Kerman";
-
-            //WS4.Cells [33, 1] = "";
-            //WS4.Cells [33, 2] = "";
-            //2018 A Review on the Analysis of Population Genetic Structure using Dominant Molecular Markers and Introducing the New Program STRUCTUREasy
-
-            WS4.Columns.AutoFit ();
 
             // ************************************************************************************************************* SAVE AND EXIT
-            string flnm = "";
-            if (intSubset == 0)
-                {
-                flnm = Application.StartupPath + "FlorAn-" + DateTime.Now.ToString ("yyyyMMddHHmm") + "-" + strSetTitle + "-all" + ".xlsx";
-                }
-            else
-                {
-                flnm = Application.StartupPath + "FlorAn-" + DateTime.Now.ToString ("yyyyMMddHHmm") + "-" + strSetTitle + "-subset" + intSubset.ToString () + ".xlsx";
-                }
-            WB.SaveAs (flnm, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Excel.XlSaveAsAccessMode.xlNoChange, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
-            //save charts as picture
-            flnm = Strings.Left  (flnm, flnm.Length - 5);
-            //chart1stat1.Export (flnm + "11_.bmp", "BMP", null);
-            //chart1stat2.Export (flnm + "12_.bmp", "BMP", null);
-            //chart11x.Export    (flnm + "11x.bmp", "BMP", null);
-            //chart12x.Export    (flnm + "12x.bmp", "BMP", null);
-            //chart13x.Export    (flnm + "13x.bmp", "BMP", null);
-            //chart2ct1.Export   (flnm + "21_.bmp", "BMP", null);
-            //chart2ct2.Export   (flnm + "22_.bmp", "BMP", null);
-            //chart311.Export    (flnm + "311.bmp", "BMP", null);
-            //chart312.Export    (flnm + "312.bmp", "BMP", null);
-            //chart32.Export     (flnm + "32_.bmp", "BMP", null);
-            //chart33.Export     (flnm + "33_.bmp", "BMP", null);
-            //chart34.Export     (flnm + "34_.bmp", "BMP", null);
-            XL.Visible = true;
-            //WB.Close ();
-            //XL.Quit ();
-            //System.Runtime.InteropServices.Marshal.ReleaseComObject (WS1-WS5  WB XL);
-            //GC.Collect ();
-            //GC.WaitForPendingFinalizers ();
-            //WS1-5 WB XL = null;
-            return;
-
             }
+
+
+
+
         public static void CreateMatrices4MultiVarFlorAn (int intSetID, string strSetTitle, int intSubset)
             {
             --
