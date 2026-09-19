@@ -893,6 +893,19 @@ namespace AlamutB.Service
                 return new List<Species> ();
                 }
             }
+        public async Task<List<Occurrence>> Get_MultivarFlorAnData (int setId, int subsetIndex)
+            {
+            var response = await _http.PostAsJsonAsync ($"api/Get_MultivarFlorAnData?subsetIndex={subsetIndex}", setId);
+            if (response.IsSuccessStatusCode)
+                {
+                List<Occurrence> lstOccurrenceData = await response.Content.ReadFromJsonAsync<List<Occurrence>> ();
+                return lstOccurrenceData;
+                }
+            else
+                {
+                return new List<Occurrence> ();
+                }
+            }
         #endregion
         #region REPORT
         #endregion

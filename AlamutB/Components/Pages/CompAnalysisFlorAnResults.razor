@@ -37,18 +37,13 @@ else
                 <br />
                 <!-- Section summary Data -->
                     <div class="variables-section">
-                    @* STATS *@
-                    <h6 class="section-title" style="text-align:center;color:blueviolet">Stats</h6>
-
-                    <hr />
-                    <br />
-                    @* TOP 10s *@
+                    @* Table TOP 10s *@
                     <h6 class="section-title" style="text-align:center;color:blueviolet">Top 10s</h6>
                     <hr />
-                    @* output1.1 — families + species count *@
+                    @* Table1— Top 10 families: species count *@
                         <table class="table table-borderless" style="margin-left:50px;width:600px;">
                             <tr>
-                            <th>Top 10 rich Families</th>
+                            <th>Top 10 species-rich Families</th>
                             <th>species</th>
                             </tr>
                         @foreach (var a in FlorAnData1)
@@ -59,11 +54,21 @@ else
                                 </tr>
                             }
                         </table>
-
-                    @* output1.2 — families + distinct genus count *@
+                        <div class="d-flex justify-content-center">
+                        <br />
+                            <MudChart T="double"
+                                  ChartType="ChartType.Donut"
+                                  Width="90%"
+                                  Height="300px"
+                                  ChartSeries="@([_chartData1])"
+                                  ChartLabels="@_chartLbls1">
+                            </MudChart>
+                        </div>
+                    <hr />
+                    @* Table2— Top 10 families: genus count *@
                         <table class="table table-borderless" style="margin-left:50px;width:600px;">
                             <tr>
-                            <th>Top 10 rich Families</th>
+                            <th>Top 10 genus-rich Families</th>
                             <th>Genera</th>
                             </tr>
                         @foreach (var a in FlorAnData2)
@@ -74,11 +79,21 @@ else
                                 </tr>
                             }
                         </table>
-
-                    @* output1.3 — genera + species count + family *@
+                        <div class="d-flex justify-content-center">
+                        <br />
+                            <MudChart T="double"
+                                  ChartType="ChartType.Donut"
+                                  Width="90%"
+                                  Height="300px"
+                                  ChartSeries="@([_chartData2])"
+                                  ChartLabels="@_chartLbls2">
+                            </MudChart>
+                        </div>
+                    <hr />
+                    @* Table3— Top 10 genera: species count *@
                         <table class="table table-borderless" style="margin-left:50px;width:600px;">
                             <tr>
-                            <th>Top 10 rich Genera</th>
+                            <th>Top 10 species-rich Genera</th>
                             <th>Species</th>
                             </tr>
                         @foreach (var a in FlorAnData3)
@@ -89,40 +104,221 @@ else
                                 </tr>
                             }
                         </table>
-                    </div>
-                <br />
-                <!-- Section Complete List -->
-                    <div style="margin-left:10px;margin-right:100px;">
-                    <h6 style="text-align:center;color:royalblue">Species List <span style="font-size:x-small;color:indianred"> ( @lstSpeciesFlorAn.Count() )</span></h6>
-                    <hr />
-                        <table class="table table-borderless">
-                            <tr>
-                            <th>Family</th>
-                            <th>Species</th>
-                            </tr>
-                        @foreach (Species s in lstSpeciesFlorAn)
-                            {
-                                <tr>
-                                <td><span style="color:indianred;font-size:smaller;"> @s.FamilyName </span></td>
-                                <td><span style="color:darkblue;font-size:smaller;font-style:italic;">@s.GenusName @s.Epithet <span style="color:gray;font-style:normal;">@s.Author</span></span></td>
-                                </tr>
-                            }
-                        </table>
-                    </div>
-                <hr style="color:royalblue;margin-top:50px" />
-
-                    <div class="formula-container">
-                    <br />
-                    <!-- Section Notes -->
-                        <div class="notes-section">
-                            <ul class="notes-list">
-                                <li>
-                                    compiled with: Alamut floristic database 
-                                </li>
-                            </ul>
+                        <div class="d-flex justify-content-center">
+                        <br />
+                            <MudChart T="double"
+                                  ChartType="ChartType.Donut"
+                                  Width="90%"
+                                  Height="300px"
+                                  ChartSeries="@([_chartData3])"
+                                  ChartLabels="@_chartLbls3">
+                            </MudChart>
                         </div>
                     </div>
-
+                <br />
+                <hr />
+                <!-- Section Complete List -->
+                    <div style="margin-left:10px;margin-right:10px;">
+                    <h6 style="text-align:center;color:royalblue">Species List <span style="font-size:x-small;color:indianred"> ( @lstSpeciesFlorAn.Count() )</span></h6>
+                        <MudExpansionPanels>
+                            <MudExpansionPanel Text="list" MaxHeight="150" Expanded="false">
+                                <table class="table table-borderless">
+                                    <tr>
+                                    <th>Family</th>
+                                    <th>Species</th>
+                                    </tr>
+                                @foreach (Species s in lstSpeciesFlorAn)
+                                    {
+                                        <tr>
+                                        <td><span style="color:indianred;font-size:smaller;"> @s.FamilyName </span></td>
+                                        <td><span style="color:darkblue;font-size:smaller;font-style:italic;">@s.GenusName @s.Epithet <span style="color:gray;font-style:normal;">@s.Author</span></span></td>
+                                        </tr>
+                                    }
+                                </table>
+                            </MudExpansionPanel>
+                        </MudExpansionPanels>
+                    </div>
+                <br />
+                @* Table STATS *@
+                <h6 class="section-title" style="text-align:center;color:blueviolet">Stats</h6>
+                <hr />
+                    <div class="notes-section">
+                        <table class="table table-borderless" style="margin-left:150px;width:400px;">
+                            <tr>
+                            <th>stat</th>
+                            <th>value</th>
+                            </tr>
+                            <tr>
+                            <td>Species count</td>
+                            <td><span style="color:indianred">@nSp</span></td>
+                            </tr>
+                            <tr>
+                            <td>Genus count</td>
+                            <td><span style="color:indianred">@nGen</span></td>
+                            </tr>
+                            <tr>
+                            <td>Family count</td>
+                            <td><span style="color:indianred">@nFam</span></td>
+                            </tr>
+                            <tr>
+                            <td>spc / fam</td>
+                            <td><span style="color:royalblue">@nSp / @nFam = @(((float) nSp / nFam).ToString("F3"))  </span></td>
+                            </tr>
+                            <tr>
+                            <td>gen / fam</td>
+                            <td><span style="color:royalblue">@nGen / @nFam = @(((float) nGen / nFam).ToString("F3"))  </span></td>
+                            </tr>
+                            <tr>
+                            <td>spc / gen</td>
+                            <td><span style="color:royalblue">@nSp / @nGen = @(((float) nSp / nGen).ToString("F3"))  </span></td>
+                            </tr>
+                        </table>
+                    </div>
+                <br />
+                @* Table LF , CT *@
+                <hr style="color:royalblue;margin-top:50px" />
+                <h6 class="section-title" style="text-align:center;color:blueviolet">Life Forms</h6>
+                <hr />
+                    <div class="notes-section">
+                        <table class="table table-borderless" style="margin-left:150px;width:400px;">
+                            <tr>
+                            <th>Life form</th>
+                            <th>count</th>
+                            <th>percent</th>
+                            </tr>
+                            <tr>
+                            <td>Ph</td>
+                            <td><span style="color:indianred">@nPh</span></td>
+                            <td><span style="color:royalblue">@(((float) nPh / nSp * 100).ToString("F2")) %</span></td>
+                            </tr>
+                            <tr>
+                            <td>Ch</td>
+                            <td><span style="color:indianred">@nCh</span></td>
+                            <td><span style="color:royalblue">@(((float) nCh / nSp * 100).ToString("F2")) %</span></td>
+                            </tr>
+                            <tr>
+                            <td>He</td>
+                            <td><span style="color:indianred">@nHe</span></td>
+                            <td><span style="color:royalblue">@(((float) nHe / nSp * 100).ToString("F2")) %</span></td>
+                            </tr>
+                            <tr>
+                            <td>Cr</td>
+                            <td><span style="color:indianred">@nCr</span></td>
+                            <td><span style="color:royalblue">@(((float) nCr / nSp * 100).ToString("F2")) %</span></td>
+                            </tr>
+                            <tr>
+                            <td>Th</td>
+                            <td><span style="color:indianred">@nTh</span></td>
+                            <td><span style="color:royalblue">@(((float) nTh / nSp * 100).ToString("F2")) %</span></td>
+                            </tr>
+                            <tr>
+                            <td>Na</td>
+                            <td><span style="color:indianred">@nNa</span></td>
+                            <td><span style="color:royalblue">@(((float) nNa / nSp * 100).ToString("F2")) %</span></td>
+                            </tr>
+                        </table>
+                        <div class="d-flex justify-content-center">
+                        <br />
+                            <MudChart T="double"
+                                  ChartType="ChartType.Donut"
+                                  Width="90%"
+                                  Height="300px"
+                                  ChartSeries="@([new double[]{nPh,nCh,nHe, nCr, nTh, nNa}])"
+                                  ChartLabels='new []{"Ph","Ch","He", "Cr", "Th", "Na"}'>
+                            </MudChart>
+                        </div>
+                    </div>
+                @* Table Endem-Rare-Med *@
+                <hr />
+                <h6 class="section-title" style="text-align:center;color:blueviolet">Rare and Medicinal plants</h6>
+                <hr />
+                    <div class="d-flex justify-content-center">
+                    <br />
+                    @* Rare *@
+                        <MudChart T="double"
+                              ChartType="ChartType.Donut"
+                              Width="90%"
+                              Height="300px"
+                              ChartSeries="@([new double[]{nRare ,nSp-nRare}])"
+                              int nCR=0;
+                              ChartLabels='new []{"Rare:" + ((float)nRare / nSp * 100).ToString("F2") + " %" ,"non-Rare"}'>
+                        </MudChart>
+                    @* Med *@
+                        <MudChart T="double"
+                              ChartType="ChartType.Donut"
+                              Width="90%"
+                              Height="300px"
+                              ChartSeries="@([new double[]{nMed ,nSp-nMed}])"
+                              int nCR=0;
+                              ChartLabels='new []{"Med:" + ((float)nMed / nSp * 100).ToString("F2") + " %" ,"non-Med"}'>
+                        </MudChart>
+                    </div>
+                <br />
+                @* Table CONSERVATION *@
+                <hr style="color:royalblue;margin-top:50px" />
+                <h6 class="section-title" style="text-align:center;color:blueviolet">Conservation status</h6>
+                <hr />
+                    <div class="notes-section">
+                        <table class="table table-borderless" style="margin-left:150px;width:400px;">
+                            <tr>
+                            <th>Category</th>
+                            <th>count</th>
+                            <th>percent</th>
+                            </tr>
+                            <tr>
+                            <td>CR</td>
+                            <td><span style="color:indianred">@nCR</span></td>
+                            <td><span style="color:royalblue">@(((float) nCR / nSp * 100).ToString("F2")) %</span></td>
+                            </tr>
+                            <tr>
+                            <td>EN</td>
+                            <td><span style="color:indianred">@nEN</span></td>
+                            <td><span style="color:royalblue">@(((float) nEN / nSp * 100).ToString("F2")) %</span></td>
+                            </tr>
+                            <tr>
+                            <td>VU</td>
+                            <td><span style="color:indianred">@nVU</span></td>
+                            <td><span style="color:royalblue">@(((float) nVU / nSp * 100).ToString("F2")) %</span></td>
+                            </tr>
+                            <tr>
+                            <td>NT</td>
+                            <td><span style="color:indianred">@nNT</span></td>
+                            <td><span style="color:royalblue">@(((float) nNT / nSp * 100).ToString("F2")) %</span></td>
+                            </tr>
+                            <tr>
+                            <td>LC</td>
+                            <td><span style="color:indianred">@nLC</span></td>
+                            <td><span style="color:royalblue">@(((float) nLC / nSp * 100).ToString("F2")) %</span></td>
+                            </tr>
+                            <tr>
+                            <td>LR</td>
+                            <td><span style="color:indianred">@nLR</span></td>
+                            <td><span style="color:royalblue">@(((float) nLR / nSp * 100).ToString("F2")) %</span></td>
+                            </tr>
+                            <tr>
+                            <td>DD</td>
+                            <td><span style="color:indianred">@nDD</span></td>
+                            <td><span style="color:royalblue">@(((float) nDD / nSp * 100).ToString("F2")) %</span></td>
+                            </tr>
+                            <tr>
+                            <td>NE</td>
+                            <td><span style="color:indianred">@nNE</span></td>
+                            <td><span style="color:royalblue">@(((float) nNE / nSp * 100).ToString("F2")) %</span></td>
+                            </tr>
+                        </table>
+                        <div class="d-flex justify-content-center">
+                        <br />
+                            <MudChart T="double"
+                                  ChartType="ChartType.Donut"
+                                  Width="90%"
+                                  Height="300px"
+                                  ChartSeries="@([new double[]{nEN ,nVU ,nNT ,nLC ,nLR ,nDD ,nNE}])"
+                                  int nCR=0;
+                                  ChartLabels='new []{"EN" ,"VU" ,"NT" ,"LC" ,"LR" ,"DD" ,"NE"}'>
+                            </MudChart>
+                        </div>
+                    </div>
+                @* FOOTER *@
                 <hr style="color:royalblue;margin-top:50px" />
                 @* ScrollToTop *@
                     <div class="d-flex justify-content-center">
@@ -134,7 +330,6 @@ else
             </MudCard>
         </MudContainer>
     }
-
 <br />
 <br />
 <script>window.scrollToTop = () => { window.scrollTo({ top: 0, behavior: 'smooth' }); };</script>
@@ -175,6 +370,13 @@ else
     int nDD = 0;
     int nNE = 0;
     int fv1 = 0;
+    //
+    int nPh = 0;
+    int nCh = 0;
+    int nHe = 0;
+    int nCr = 0;
+    int nTh = 0;
+    int nNa = 0;
     // DTOs
     public record FamCount (string f, int c);
     public record FamGenCount (string fam, int cnt);
@@ -183,6 +385,13 @@ else
     private List<FamCount> FlorAnData1 = new();
     private List<FamGenCount> FlorAnData2 = new();
     private List<GenCount> FlorAnData3 = new();
+
+    private double [] _chartData1 = Array.Empty<double>();
+    private string [] _chartLbls1 = Array.Empty<string>();
+    private double [] _chartData2 = Array.Empty<double>();
+    private string [] _chartLbls2 = Array.Empty<string>();
+    private double [] _chartData3 = Array.Empty<double>();
+    private string [] _chartLbls3 = Array.Empty<string>();
 
     //LifeCycleEvents
     protected override async Task OnInitializedAsync ()
@@ -222,20 +431,25 @@ else
         nDD = lstSpeciesFlorAn.Count(r => (r.ConsStatus & 1) == 1);
         nNE = lstSpeciesFlorAn.Count(r => r.ConsStatus == 0);
         fv1 = nCR * 1024 + nEN * 512 + nVU * 256 + nNT * 128 + nLC * 64 + nLR * 32 + nEndem * 16 + nRare * 8 + nMed * 4 + nRange * 2 + nSp;
-        //
         FlorAnData1 = (from r in lstSpeciesFlorAn
                        group r by r.FamilyName into g
                        orderby g.Count() descending
                        select new FamCount(g.Key, g.Count()))
                        .Take(10)
                        .ToList();
+        _chartData1 = FlorAnData1.Select(x => (double) x.c).ToArray();
+        _chartLbls1 = FlorAnData1.Select(x => x.f).ToArray();
+
         FlorAnData2 = (from r in lstSpeciesFlorAn
                        group r by r.FamilyName into g
                        let cnt = g.Select(x => x.GenusName).Distinct().Count()
                        orderby cnt descending
                        select new FamGenCount(g.Key, cnt))
-                       .Take(10)
-                       .ToList();
+                               .Take(10)
+                               .ToList();
+        _chartData2 = FlorAnData2.Select(x => (double) x.cnt).ToArray();
+        _chartLbls2 = FlorAnData2.Select(x => x.fam).ToArray();
+
         FlorAnData3 = (from r in lstSpeciesFlorAn
                        group r by r.GenusName into g
                        orderby g.Count() descending
@@ -245,6 +459,30 @@ else
                            g.Select(z => z.FamilyName).FirstOrDefault()))
                           .Take(10)
                       .ToList();
+        _chartData3 = FlorAnData3.Select(x => (double) x.c).ToArray();
+        _chartLbls3 = FlorAnData3.Select(x => x.gen).ToArray();
+
+
+
+
+        //linq para CT
+        var FlorAnData4 = (from r in lstSpeciesFlorAn
+                           group r by r.Chorotype into grpct
+                           select new
+                               {
+                               ct = grpct.Key,
+                               ctcount = grpct.Key.Count()
+                               })
+                          .Take(10)
+                      .ToList();
+
+        //linq para LF
+        nPh = lstSpeciesFlorAn.Count(r => r.Lifeform == "Ph");
+        nCh = lstSpeciesFlorAn.Count(r => r.Lifeform == "Ch");
+        nHe = lstSpeciesFlorAn.Count(r => r.Lifeform == "He");
+        nCr = lstSpeciesFlorAn.Count(r => r.Lifeform == "Cr");
+        nTh = lstSpeciesFlorAn.Count(r => r.Lifeform == "Th");
+        nNa = lstSpeciesFlorAn.Count(r => r.Lifeform == "Na");
         }
     //methods
     public string PersianDate (DateTimeOffset? dt)

@@ -63,9 +63,9 @@ else
                     <MudToggleItem Value=@("comparesets")
                                    SelectedIcon="@Icons.Material.Outlined.JoinLeft"
                                    Text="Compare Sets" />
-                    <MudToggleItem Value=@("cooccurence")
+                    <MudToggleItem Value=@("cooccurrence")
                                    SelectedIcon="@Icons.Material.Outlined.Dashboard"
-                                   Text="Cooccurence" />
+                                   Text="Cooccurrence" />
                     <MudToggleItem Value=@("climagraph")
                                    SelectedIcon="@Icons.Material.Outlined.Cloud"
                                    Text="ClimaGraph" />
@@ -96,9 +96,9 @@ else
                     {
                     <CompAnalysisSets AnalysisType="@_cmd" OnSelectedSetsReceived="GetSelectedSetsFromComponent" />
                     }
-                else if (_cmd == "cooccurence")
+                else if (_cmd == "cooccurrence")
                     {
-                    @* component for cooccurence *@
+                    @* component for cooccurrence *@
                     }
                 else if ((_cmd == "climagraph") || (_cmd == "multivarcliman"))
                     {
@@ -118,7 +118,7 @@ else
                     }
                 else if (_cmd == "ShowMultivarFlorAnResults")
                     {
-                    @* component for MultivarFlorAn Results *@
+                    <CompAnalysisMultivarFlorAnResults lstSelectedDatasets="lstSelectedDatasets" lstOccurrenceData="lstOccurrenceData" OnAnalysisFlorAnResultsClosed="BtnCloseAnalysisMultivarFlorAnResults" />
                     }
                 else if (_cmd == "ShowCompareSetsResults")
                     {
@@ -156,6 +156,7 @@ else
     public List<Diversity> lstDiversities = new List<Diversity>();
     public FV FVStats = new FV();
     public List<Species> lstSpeciesFlorAn = new List<Species>();
+    public List<Occurrence> lstOccurrenceData = new List<Occurrence>();
 
     Set set = new Set();
     Dataset dataset = new Dataset();
@@ -297,12 +298,17 @@ else
                     }
             case "multivarfloran":
                     {
-                    Snackbar.Add($"selcted Sets received for multivarfloran!", Severity.Info, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+                    _hasFetched = false;
+                    lstSelectedDatasets = await feService.Read_DatasetsBySubsetIndex(lstSelectedSets [0].SetId, lstSelectedSets [0].SelectedSubset);
+                    lstOccurrenceData = await feService.Get_MultivarFlorAnData(lstSelectedSets [0].SetId, lstSelectedSets [0].SelectedSubset);
+                    appState.SetSetName(lstSelectedSets [0].SetName);
+                    _hasFetched = true;
+                    _cmd = "ShowMultivarFlorAnResults";
                     break;
                     }
-            case "cooccurence":
+            case "cooccurrence":
                     {
-                    Snackbar.Add($"selcted Sets received for cooccurence!", Severity.Info, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+                    Snackbar.Add($"selcted Sets received for cooccurrence!", Severity.Info, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
                     break;
                     }
             case "climagraph":
@@ -335,6 +341,11 @@ else
     private void BtnCloseAnalysisFlorAnResults ()
         {
         _cmd = "floran";
+        StateHasChanged();
+        }
+    private void BtnCloseAnalysisMultivarFlorAnResults ()
+        {
+        _cmd = "multivarfloran";
         StateHasChanged();
         }
 

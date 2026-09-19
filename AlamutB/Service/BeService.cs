@@ -8,6 +8,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.VisualBasic;
 using System.Data;
 using System.Drawing;
+using System.Text;
 using static MudBlazor.CategoryTypes;
 using Order = AlamutS.Models.Order;
 using Station = AlamutS.Models.Station;
@@ -2868,332 +2869,72 @@ namespace AlamutB.Services2Backend
             wb.SaveAs (stream);
             return stream.ToArray ();
             }
-
-
-        /*
-        public static void SetsFlorAn (int intSetID, int intSubset, int intParaams)
+        public async Task<List<Occurrence>> Get_MultivarFlorAnDataAsync (int setId, int subsetIndex)
             {
+            string? connString = _config.GetConnectionString ("cnni");
+            string sql = "Analyses.Get_MultivarFlorAnData";
 
-            WS1.Columns.AutoFit ();
-
-
-            //CHARTs
-            //A) STAT graphs
-            //chart1.stat1
-            var charts1stat1 = WS1.ChartObjects () as ChartObjects;
-            var chartObject1stat1 = charts1stat1.Add (650, 0, 200, 150);
-            var chart1stat1 = chartObject1stat1.Chart;
-            var range1stat1 = (Excel.Range) WS1.Range [WS1.Cells [5, 1], WS1.Cells [7, 2]];
-            chart1stat1.ChartType = XlChartType.xlColumnClustered;
-            chart1stat1.ChartWizard (Source: range1stat1, Title: "taxonomic diversity");
-            chart1stat1.ApplyLayout (3);
-            chart1stat1.HasTitle = false;
-            chart1stat1.HasLegend = false;
-            //chart1.stat2
-            var charts1stat2 = WS1.ChartObjects () as ChartObjects;
-            var chartObject1stat2 = charts1stat2.Add (850, 0, 200, 150);
-            var chart1stat2 = chartObject1stat2.Chart;
-            var range1stat2 = (Excel.Range) WS1.Range [WS1.Cells [5, 4], WS1.Cells [7, 5]];
-            chart1stat2.ChartType = XlChartType.xlColumnClustered;
-            chart1stat2.ChartWizard (Source: range1stat2, Title: "s/f/g");
-            chart1stat2.ApplyLayout (3);
-            chart1stat2.HasTitle = false;
-            chart1stat2.HasLegend = false;
-            //B) FlorAn Charts
-            //TOP 10s
-            //chart1.1x
-            var charts11x = WS1.ChartObjects () as ChartObjects;
-            var chartObject11x = charts11x.Add (650, 150, 400, 200);
-            var chart11x = chartObject11x.Chart;
-            var range11x = (Excel.Range) WS1.Range [WS1.Cells [11, 2], WS1.Cells [20, 3]];
-            chart11x.ChartType = XlChartType.xlColumnClustered;
-            chart11x.HasTitle = true;
-            chart11x.ChartWizard (Source: range11x, Title: "species rich fams");
-            chart11x.ApplyLayout (3);
-            chart11x.HasLegend = false;
-            //chart1.2x
-            var charts12x = WS1.ChartObjects () as ChartObjects;
-            var chartObject12x = charts12x.Add (650, 350, 400, 200);
-            var chart12x = chartObject12x.Chart;
-            var range12x = (Excel.Range) WS1.Range [WS1.Cells [11, 6], WS1.Cells [20, 7]];
-            chart12x.ChartType = XlChartType.xlColumnClustered;
-            chart12x.HasTitle = true;
-            chart12x.ChartWizard (Source: range12x, Title: "generic rich fams");
-            chart12x.ApplyLayout (3);
-            chart12x.HasLegend = false;
-            //chart1.3x
-            var charts13x = WS1.ChartObjects () as ChartObjects;
-            var chartObject13x = charts13x.Add (650, 550, 400, 200);
-            var chart13x = chartObject13x.Chart;
-            var range13x = (Excel.Range) WS1.Range [WS1.Cells [11, 12], WS1.Cells [20, 13]];
-            chart13x.ChartType = XlChartType.xlColumnClustered;
-            chart13x.HasTitle = true;
-            chart13x.ChartWizard (Source: range13x, Title: "species rich genea");
-            chart13x.ApplyLayout (3);
-            chart13x.HasLegend = false;
-
-            // ************************************************************************************************************* SHEET2
-            // ************************************************************************************************************* SHEET2
-            //CT-LF
-            WS2.Cells [1, 1] = "ChoroYype (CT)";
-            WS2.Cells [1, 2] = "CT count";
-            WS2.Cells [1, 4] = "LifeForm (LF)";
-            WS2.Cells [1, 5] = "LF count";
-            //linq2.1 para CT
-            var Sheet2Data = from r in dt.AsEnumerable ()
-                             group r by r.Field<string> ("CT") into grpct
-                             select new
-                                 {
-                                 ct = grpct.Key,
-                                 ctcount = grpct.Key.Count ()
-                                 };
-            int i2 = 0;
-            foreach (var a in Sheet2Data)
+            await using SqlConnection cnn = new (connString);
+            await using SqlCommand cmd = new (sql, cnn)
                 {
-                if (a.ct.ToString () != "")
+                CommandType = CommandType.StoredProcedure
+                };
+
+            cmd.Parameters.AddWithValue ("@SetId", setId);
+            cmd.Parameters.AddWithValue ("@SubsetIndex", subsetIndex);
+            await cnn.OpenAsync ();
+            await using SqlDataReader reader = await cmd.ExecuteReaderAsync ();
+            List<Occurrence> lstOccurrenceData = new List<Occurrence> ();
+            while (await reader.ReadAsync ())
+                {
+                lstOccurrenceData.Add (new Occurrence
                     {
-                    WS2.Cells [i2 + 2, 1] = a.ct.ToString ();
-                    WS2.Cells [i2 + 2, 2] = a.ctcount.ToString (); //OR: a.ct.ToString ().Count ();
-                    i2++;
-                    }
+                    DatasetId = reader.GetInt32 (0),
+                    DatasetName = reader.GetString (1),
+                    SpeciesId = reader.GetString (2),
+                    AcceptedId = reader.GetString (3),
+                    SciName = reader.GetString (4)
+                    });
                 }
-            //linq2.2 para LF
-            int nPh = (from r in dt.AsEnumerable () where (r.Field<string> ("LF") == "Ph") select r.Field<string> ("LF")).Count ();
-            int nCh = (from r in dt.AsEnumerable () where (r.Field<string> ("LF") == "Ch") select r.Field<string> ("LF")).Count ();
-            int nHe = (from r in dt.AsEnumerable () where (r.Field<string> ("LF") == "He") select r.Field<string> ("LF")).Count ();
-            int nCr = (from r in dt.AsEnumerable () where (r.Field<string> ("LF") == "Cr") select r.Field<string> ("LF")).Count ();
-            int nTh = (from r in dt.AsEnumerable () where (r.Field<string> ("LF") == "Th") select r.Field<string> ("LF")).Count ();
-            int nNa = (from r in dt.AsEnumerable () where (r.Field<string> ("LF") == "Na") select r.Field<string> ("LF")).Count ();
-            WS2.Cells [2, 4] = "Ph";
-            WS2.Cells [2, 5] = nPh;
-            WS2.Cells [3, 4] = "Ch";
-            WS2.Cells [3, 5] = nCh;
-            WS2.Cells [4, 4] = "He";
-            WS2.Cells [4, 5] = nHe;
-            WS2.Cells [5, 4] = "Cr";
-            WS2.Cells [5, 5] = nCr;
-            WS2.Cells [6, 4] = "Th";
-            WS2.Cells [6, 5] = nTh;
-            WS2.Cells [7, 4] = "Na";
-            WS2.Cells [7, 5] = nNa;
-            WS2.Columns.AutoFit ();
-            
-            //CHARTs
-            //A) chart2.1 : CT
-            var charts2ct1 = WS2.ChartObjects () as ChartObjects;
-            var chartObject2ct1 = charts2ct1.Add (150, 100, 750, 200);
-            var chart2ct1 = chartObject2ct1.Chart;
-            var range2ct1 = (Excel.Range) WS2.Range [WS2.Cells [2, 1], WS2.Cells [i2 + 1, 2]]; //i2: number of ct cats
-            chart2ct1.ChartType = XlChartType.xlColumnClustered;
-            chart2ct1.ChartWizard (Source: range2ct1, Title: "Chorotypes");
-            chart2ct1.ApplyLayout (3);
-            chart2ct1.HasTitle = true;
-            chart2ct1.HasLegend = false;
-            //B) chart2.2 : LF
-            var charts2ct2 = WS2.ChartObjects () as ChartObjects;
-            var chartObject2ct2 = charts2ct2.Add (150, 300, 360, 200);
-            var chart2ct2 = chartObject2ct2.Chart;
-            var range2ct2 = (Excel.Range) WS2.Range [WS2.Cells [2, 4], WS2.Cells [7, 5]];
-            chart2ct2.ChartType = XlChartType.xlColumnClustered;
-            chart2ct2.ChartWizard (Source: range2ct2, Title: "Life forms");
-            chart2ct2.ApplyLayout (3);
-            chart2ct2.HasTitle = true;
-            chart2ct2.HasLegend = false;
-
-            // ************************************************************************************************************* SHEET3
-            // ************************************************************************************************************* SHEET3
-            // ************************************************************************************************************* SHEET3
-            WS3.Cells [1, 1] = "FV";
-            WS3.Cells [1, 2] = "Floristic Value";
-            WS3.Cells [1, 6] = "dataset";
-            WS3.Cells [2, 6] = strSetTitle;
-            WS3.Cells [1, 8] = "sbset";
-            if (intSubset == 0)
-                WS3.Cells [2, 8] = "all";
-            else
-                WS3.Cells [2, 8] = intSubset;
-            //CALCs
-            //row
-            WS3.Cells [3, 1] = "x";
-            WS3.Cells [3, 2] = "Cat";
-            WS3.Cells [3, 3] = "Nsp(x)";
-            WS3.Cells [3, 4] = "C=10^(x-1)";
-            WS3.Cells [3, 5] = "C.Nsp(x)";
-            //col1
-            WS3.Cells [4, 1] = "11";
-            WS3.Cells [5, 1] = "10";
-            WS3.Cells [6, 1] = "9";
-            WS3.Cells [7, 1] = "8";
-            WS3.Cells [8, 1] = "7";
-            WS3.Cells [9, 1] = "6";
-            WS3.Cells [10, 1] = "5";
-            WS3.Cells [11, 1] = "4";
-            WS3.Cells [12, 1] = "3";
-            WS3.Cells [13, 1] = "2";
-            WS3.Cells [14, 1] = "1";
-            //col2
-            WS3.Cells [4, 2] = "CR";
-            WS3.Cells [5, 2] = "EN";
-            WS3.Cells [6, 2] = "VU";
-            WS3.Cells [7, 2] = "NT";
-            WS3.Cells [8, 2] = "LC";
-            WS3.Cells [9, 2] = "LR";
-            WS3.Cells [10, 2] = "Endem";
-            WS3.Cells [11, 2] = "Rare";
-            WS3.Cells [12, 2] = "Med";
-            WS3.Cells [13, 2] = "Range";
-            WS3.Cells [14, 2] = "Occurrence";
-            //col3
-            WS3.Cells [4, 3] = nCR;
-            WS3.Cells [5, 3] = nEN;
-            WS3.Cells [6, 3] = nVU;
-            WS3.Cells [7, 3] = nNT;
-            WS3.Cells [8, 3] = nLC;
-            WS3.Cells [9, 3] = nLR;
-            WS3.Cells [10, 3] = nEndem;
-            WS3.Cells [11, 3] = nRare;
-            WS3.Cells [12, 3] = nMed;
-            WS3.Cells [13, 3] = nRange;
-            WS3.Cells [14, 3] = nSp;
-            //col4
-            WS3.Cells [4, 4] = "1024";
-            WS3.Cells [5, 4] = "512";
-            WS3.Cells [6, 4] = "256";
-            WS3.Cells [7, 4] = "128";
-            WS3.Cells [8, 4] = "64";
-            WS3.Cells [9, 4] = "32";
-            WS3.Cells [10, 4] = "16";
-            WS3.Cells [11, 4] = "8";
-            WS3.Cells [12, 4] = "4";
-            WS3.Cells [13, 4] = "2";
-            WS3.Cells [14, 4] = "1";
-            //col5
-            WS3.Cells [4, 5] = 1024 * nCR;
-            WS3.Cells [5, 5] = 512 * nEN;
-            WS3.Cells [6, 5] = 256 * nVU;
-            WS3.Cells [7, 5] = 128 * nNT;
-            WS3.Cells [8, 5] = 64 * nLC;
-            WS3.Cells [9, 5] = 32 * nLR;
-            WS3.Cells [10, 5] = 16 * nEndem;
-            WS3.Cells [11, 5] = 8 * nRare;
-            WS3.Cells [12, 5] = 4 * nMed;
-            WS3.Cells [13, 5] = 2 * nRange;
-            WS3.Cells [14, 5] = 1 * nSp;
-            //fv
-            WS3.Cells [15, 4] = "fv";
-            WS3.Cells [15, 5] = 1024 * nCR + 512 * nEN + 256 * nVU + 128 * nNT + 64 * nLC + 32 * nLR + 16 * nEndem + 8 * nRare + 4 * nMed + 2 * nRange + nSp;
-            WS3.Cells [16, 4] = "fv'";
-            WS3.Cells [16, 5] = Convert.ToInt32 (100.0 * (1024.0 * nCR + 512 * nEN + 256 * nVU + 128 * nNT + 64 * nLC + 32 * nLR + 16 * nEndem + 8 * nRare + 4 * nMed + 2 * nRange + nSp) / nSp) / 100.0;
-            WS3.Cells [15, 5].Font.Color = ColorTranslator.ToOle (Color.Crimson);
-            WS3.Cells [16, 5].Font.Color = ColorTranslator.ToOle (Color.Crimson);
-
-            //data for charts
-            WS3.Cells [20, 2] = "cons";
-            WS3.Cells [20, 3] = nCR + nEN + nVU + nNT + nLC + nLR;
-            WS3.Cells [20, 4] = (Convert.ToInt32 ((nCR + nEN + nVU + nNT + nLC + nLR) * 10000 / (nSp * 1.0)) / 100.0) + "%";
-            WS3.Cells [20, 4].Font.Color = ColorTranslator.ToOle (Color.Crimson);
-            WS3.Cells [21, 2] = "DD+NE";
-            WS3.Cells [21, 3] = nSp - (nCR + nEN + nVU + nNT + nLC + nLR);
-            WS3.Cells [22, 2] = "endem";
-            WS3.Cells [22, 3] = nEndem;
-            WS3.Cells [22, 4] = (Convert.ToInt32 (nEndem * 10000 / (nSp * 1.0)) / 100.0) + "%";
-            WS3.Cells [22, 4].Font.Color = ColorTranslator.ToOle (Color.Crimson);
-            WS3.Cells [23, 2] = "non endem";
-            WS3.Cells [23, 3] = nSp - nEndem;
-            WS3.Cells [24, 2] = "rare";
-            WS3.Cells [24, 3] = nRare;
-            WS3.Cells [24, 4] = (Convert.ToInt32 (nRare * 10000 / (nSp * 1.0)) / 100.0) + "%";
-            WS3.Cells [24, 4].Font.Color = ColorTranslator.ToOle (Color.Crimson);
-            WS3.Cells [25, 2] = "non rare";
-            WS3.Cells [25, 3] = nSp - nRare;
-            WS3.Cells [26, 2] = "med";
-            WS3.Cells [26, 3] = nMed;
-            WS3.Cells [26, 4] = (Convert.ToInt32 (nMed * 10000 / (nSp * 1.0)) / 100.0) + "%";
-            WS3.Cells [26, 4].Font.Color = ColorTranslator.ToOle (Color.Crimson);
-            WS3.Cells [27, 2] = "non med";
-            WS3.Cells [27, 3] = nSp - nMed;
-            WS3.Columns.AutoFit ();
-            //chart311:consPie:conservarion
-            var charts311 = WS3.ChartObjects () as ChartObjects;
-            var chartObject311 = charts311.Add (280, 50, 150, 150);
-            var chart311 = chartObject311.Chart;
-            var range311 = (Excel.Range) WS3.Range [WS3.Cells [20, 2], WS3.Cells [21, 3]];
-            chart311.ChartType = XlChartType.xlDoughnut;
-            chart311.HasTitle = false;
-            chart311.ChartWizard (Source: range311, Title: "Cons");
-            chart311.ApplyLayout (3);
-            chart311.HasLegend = true;
-            //chart312:consBar:conservarion
-            var charts312 = WS3.ChartObjects () as ChartObjects;
-            var chartObject312 = charts312.Add (430, 50, 300, 150);
-            var chart312 = chartObject312.Chart;
-            var range312 = (Excel.Range) WS3.Range [WS3.Cells [4, 2], WS3.Cells [9, 3]];
-            chart312.ChartType = XlChartType.xlColumnClustered;
-            chart312.HasTitle = false;
-            chart312.ChartWizard (Source: range312, Title: "Cons");
-            chart312.ApplyLayout (3);
-            chart312.HasLegend = false;
-            //chart32:consPie:endem
-            var charts32 = WS3.ChartObjects () as ChartObjects;
-            var chartObject32 = charts32.Add (280, 200, 150, 150);
-            var chart32 = chartObject32.Chart;
-            var range32 = (Excel.Range) WS3.Range [WS3.Cells [22, 2], WS3.Cells [23, 3]];
-            chart32.ChartType = XlChartType.xlDoughnut;
-            chart32.HasTitle = false;
-            chart32.ChartWizard (Source: range32, Title: "Endem");
-            chart32.ApplyLayout (3);
-            chart32.HasLegend = true;
-            //chart33:consPie:rare
-            var charts33 = WS3.ChartObjects () as ChartObjects;
-            var chartObject33 = charts33.Add (430, 200, 150, 150);
-            var chart33 = chartObject33.Chart;
-            var range33 = (Excel.Range) WS3.Range [WS3.Cells [24, 2], WS3.Cells [25, 3]];
-            chart33.ChartType = XlChartType.xlDoughnut;
-            chart33.HasTitle = false;
-            chart33.ChartWizard (Source: range33, Title: "Rare");
-            chart33.ApplyLayout (3);
-            chart33.HasLegend = true;
-            //chart34:consPie:med
-            var charts34 = WS3.ChartObjects () as ChartObjects;
-            var chartObject34 = charts34.Add (580, 200, 150, 150);
-            var chart34 = chartObject34.Chart;
-            var range34 = (Excel.Range) WS3.Range [WS3.Cells [26, 2], WS3.Cells [27, 3]];
-            chart34.ChartType = XlChartType.xlDoughnut;
-            chart34.HasTitle = false;
-            chart34.ChartWizard (Source: range34, Title: "Med");
-            chart34.ApplyLayout (3);
-            chart34.HasLegend = true;
-
-            // ************************************************************************************************************* SAVE AND EXIT
+            await cnn.CloseAsync ();
+            /*
+            //1 Get the distinct species and datasets, in a stable order.
+            var speciesIds = lstOccurrenceData
+                .Select (o => o.SpeciesId)
+                .Distinct ()
+                .OrderBy (id => id) //string ordering
+                .ToList ();
+            var datasetIds = lstOccurrenceData
+                .Select (o => o.DatasetId)
+                .Distinct ()
+                .OrderBy (id => id)
+                .ToList ();
+            //2 Build lookup maps
+            var speciesIndex = new Dictionary<string, int> (); //string key
+            for (int i = 0; i < speciesIds.Count; i++)
+                {
+                speciesIndex [speciesIds [i]] = i;
+                }
+            var datasetIndex = new Dictionary<int, int> ();
+            for (int j = 0; j < datasetIds.Count; j++)
+                {
+                datasetIndex [datasetIds [j]] = j;
+                }
+            //3 allocate the matrix and flip the 1(s)
+            int [,] RawMatrix = new int [speciesIds.Count, datasetIds.Count];
+            foreach (var occ in lstOccurrenceData)
+                {
+                int i = speciesIndex [occ.SpeciesId];   //string lookup → int row
+                int j = datasetIndex [occ.DatasetId];   //int lookup → int column
+                RawMatrix [i, j] = 1;
+                }
+             */
+            return lstOccurrenceData;
             }
 
-
-
-
+        /*
         public static void CreateMatrices4MultiVarFlorAn (int intSetID, string strSetTitle, int intSubset)
             {
-            --
-             * r,c?
-             * fill tblMatrixR (r)
-             * fill tblMatrixB (c)
-             * fill MatrixD (r,c)
-             * Let calling method use these data
-             --
-            FileSystem.FileClose ();
-            string fltr = "";
-            switch (intSubset)
-                {
-                case 0:
-                        {
-                        fltr = "";
-                        break;
-                        }
-                default:
-                        {
-                        fltr = " AND (Membership & " + Math.Pow (2, intSubset - 1).ToString () + " = " + Math.Pow (2, intSubset - 1).ToString () + ")";
-                        break;
-                        }
-                }
             --
                RunSQL "SELECT ID, Abbr INTO [tbl_C] FROM Collections WHERE Sx=True ORDER BY Abbr;"
                RunSQL "SELECT DISTINCT Binomials.ID, Binomials.SciName INTO [tbl_R] FROM (Genera INNER JOIN ((Specimens INNER JOIN Collections ON Specimens.CollectionID = Collections.ID) INNER JOIN Binomials ON Specimens.Binomial = Binomials.ID) ON Genera.ID = Binomials.Genus_ID) INNER JOIN Families ON Genera.Family = Families.ID WHERE Collections.Sx=True AND Families.Sel4NTSYSpc=True AND Right(Binomials.SciName, 3) <> 'sp.' ORDER BY Binomials.SciName;"

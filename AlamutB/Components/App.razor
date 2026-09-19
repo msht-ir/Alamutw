@@ -19,19 +19,32 @@
 
     <body>
     <Routes @rendermode="InteractiveServer" />
-        <script>
-            window.downloadFileFromStream = async (fileName, contentStreamReference) => {
-                const arrayBuffer = await contentStreamReference.arrayBuffer();
-                const blob = new Blob([arrayBuffer]);
-                const url = URL.createObjectURL(blob);
-                const anchorElement = document.createElement('a');
-                anchorElement.href = url;
-                anchorElement.download = fileName ?? '';
-                anchorElement.click();
-                anchorElement.remove();
-                URL.revokeObjectURL(url);
-            }
-        </script>
+    <script>
+        window.downloadFileFromStream = async (fileName, contentStreamReference) => {
+            const arrayBuffer = await contentStreamReference.arrayBuffer();
+            const blob = new Blob([arrayBuffer]);
+            const url = URL.createObjectURL(blob);
+            const anchorElement = document.createElement('a');
+            anchorElement.href = url;
+            anchorElement.download = fileName ?? '';
+            anchorElement.click();
+            anchorElement.remove();
+            URL.revokeObjectURL(url);
+        }
+    </script>
+    <script>
+        window.downloadTextFile = (fileName, mimeType, text) => {
+            const blob = new Blob([text], { type: mimeType });
+            const url  = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+    </script>
     <script src="_framework/blazor.web.js"></script>
     <script src="js/bootstrap.js"></script>
     <script src="js/site.js"></script>

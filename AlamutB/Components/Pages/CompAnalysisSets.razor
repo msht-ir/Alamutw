@@ -76,14 +76,6 @@ else
                                     <img src="/img/icoGo.png" width="22" />
                                     </button>
                                 }
-                            @* MAP *@
-                                <button type="button"
-                                    class="btn btn-link"
-                                    style="margin-left:1px"
-                                    @onclick='() => BtnListSetData(set.SetId, true)'
-                                    Title="map">
-                                <img src="/img/icoMap.png" width="22" />
-                                </button>
                             @* Note *@
                                 <button type="button"
                                     class="btn btn-link"
@@ -676,13 +668,6 @@ else
             {
             item.IsSelected = true;
             }
-        // foreach(Set s in lstSets)
-        //     {
-        //     if(s.SetId == setId)
-        //         {
-        //         s.IsSelected = true;
-        //         }
-        //     }
         await RollbackListOfSelectedSets();
         }
     private async Task RollbackListOfSelectedSets ()

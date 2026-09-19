@@ -476,4 +476,12 @@ namespace AlamutS.Models
         public int FV1 { get; set; }
         public decimal FV2 { get; set; }
         }
+    public class Occurrence
+        {
+        public int DatasetId { get; set; }
+        public string DatasetName { get; set; }
+        public string SpeciesId { get; set; }
+        public string AcceptedId { get; set; }
+        public string SciName { get; set; }
+        }
     }
