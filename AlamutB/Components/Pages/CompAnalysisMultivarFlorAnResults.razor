@@ -49,21 +49,93 @@ else
                         </table>
                     </div>
                 <hr />
-                <div>
-                    <p>An R Script is created containing required data and codes to analyze the (sub)set with Clustering and HeatMap methods.
-                        Assuming R is installed on the client, download and Run the R-Script. 
-                        Result would be four dendrograms and a HeatMap plot in a pdf file </p>
-                </div>
-                <hr />
-                <!-- Section save R Script -->
-                    <div class="d-flex justify-content-center align-items-center">
-                    <hr />
-                        <button class="btn btn-primary" @onclick="DownloadRScript">
-                        Download R-Script.R
-                        </button>
+                @* Download R-Scripts *@
+                    <div class="d-flex justify-content-center align-items-center" style="margin-left:20px; width:600px;">
+                        <table class="table table-borderless">
+                            <tr>
+                                <td>
+                                <MudIconButton OnClick='() => DownloadRScript("cluster")'
+                                               Icon="@Icons.Material.Filled.Download"
+                                               Color="Color.Primary"
+                                               Size="Size.Medium"
+                                               Title="Switchboard" />
+                                <span style="color:indianRed;font-weight:normal;font-size:smaller"> Clustering </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                <MudIconButton OnClick='() => DownloadRScript("heatmap")'
+                                               Icon="@Icons.Material.Filled.Download"
+                                               Color="Color.Primary"
+                                               Size="Size.Medium"
+                                               Title="Switchboard" />
+                                <span style="color:indianRed;font-weight:normal;font-size:smaller"> Heatmap </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                <MudIconButton OnClick='() => DownloadRScript("pca")'
+                                               Icon="@Icons.Material.Filled.Download"
+                                               Color="Color.Primary"
+                                               Size="Size.Medium"
+                                               Title="Switchboard" />
+                                <span style="color:indianRed;font-weight:normal;font-size:smaller"> PCA </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                <MudIconButton OnClick='() => DownloadRScript("pcoa")'
+                                               Icon="@Icons.Material.Filled.Download"
+                                               Color="Color.Primary"
+                                               Size="Size.Medium"
+                                               Title="Switchboard" />
+                                <span style="color:indianRed;font-weight:normal;font-size:smaller"> PCoA </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                <MudIconButton OnClick='() => DownloadRScript("nmds")'
+                                               Icon="@Icons.Material.Filled.Download"
+                                               Color="Color.Primary"
+                                               Size="Size.Medium"
+                                               Title="Switchboard" />
+                                <span style="color:indianRed;font-weight:normal;font-size:smaller"> NMDS </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                <MudIconButton OnClick='() => DownloadRScript("fgs")'
+                                               Icon="@Icons.Material.Filled.Download"
+                                               Color="Color.Primary"
+                                               Size="Size.Medium"
+                                               Title="Switchboard" />
+                                <span style="color:indianRed;font-weight:normal;font-size:smaller"> Family/Genus - Genus/species </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                <MudIconButton OnClick='() => DownloadRScript("speciesrichness")'
+                                               Icon="@Icons.Material.Filled.Download"
+                                               Color="Color.Primary"
+                                               Size="Size.Medium"
+                                               Title="Switchboard" />
+                                <span style="color:indianRed;font-weight:normal;font-size:smaller"> Species Richness </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                <MudIconButton OnClick='() => DownloadRScript("speciesareacurve")'
+                                               Icon="@Icons.Material.Filled.Download"
+                                               Color="Color.Primary"
+                                               Size="Size.Medium"
+                                               Title="Switchboard" />
+                                <span style="color:indianRed;font-weight:normal;font-size:smaller"> Species Area Curve </span>
+                                </td>
+                            </tr>
+                        </table>
                     </div>
                 @* FOOTER *@
-                <hr style="color:royalblue;margin-top:50px" />
+                <hr style="color:royalblue;margin-top:40px" />
                 @* ScrollToTop *@
                     <div class="d-flex justify-content-center">
                         <button class="btn btn-link pulse-hover" @onclick="OnClose">
@@ -116,89 +188,10 @@ else
         appState.OnChange -= TriggerRender;
         }
     //Clacs
-    public static string BuildRScript (int [,] RawMatrix, IReadOnlyList<string> speciesIds, IReadOnlyList<string> datasetLabels, string pdfPath = "RClustering.pdf")
+    private async Task DownloadRScript (string _scryptType)
         {
-        int nSpecies = RawMatrix.GetLength(0);
-        int nDatasets = RawMatrix.GetLength(1);
-
-        var sb = new StringBuilder();
-
-        sb.AppendLine("# Auto-generated by iHerbs.MultiFlorAn");
-        sb.AppendLine("# Rows of RawMatrix = species, columns = datasets.");
-        sb.AppendLine();
-
-        // --- dataset labels (used later as row names of M) ---
-        sb.Append("DSn = c(");
-        for (int j = 0; j < nDatasets; j++)
-            {
-            sb.Append('"').Append(Escape(datasetLabels [j])).Append('"');
-            if (j < nDatasets - 1)
-                sb.Append(", ");
-            }
-        sb.AppendLine(")");
-        sb.AppendLine();
-
-        // --- one R vector per dataset, containing presence/absence of each species ---
-        //     DS1 = c(1,0,1,0,...)  → column j of RawMatrix
-for (int j = 0; j < nDatasets; j++)
-{
-    sb.Append("DS").Append(j + 1).Append(" = c(");
-    for (int i = 0; i < nSpecies; i++)
-    {
-        sb.Append(RawMatrix[i, j]);
-        if (i < nSpecies - 1)
-        {
-            sb.Append(", ");
-            // Break line every 200 values
-            if ((i + 1) % 200 == 0)
-            {
-                sb.AppendLine();
-            }
-        }
-    }
-    sb.AppendLine(")");
-}
-sb.AppendLine();
-        // --- stack datasets as rows of M (same orientation as your VBA) ---
-        sb.Append("M = rbind(");
-        for (int j = 0; j < nDatasets; j++)
-            {
-            sb.Append("DS").Append(j + 1);
-            if (j < nDatasets - 1)
-                sb.Append(", ");
-            }
-        sb.AppendLine(")");
-        sb.AppendLine();
-
-        // --- give the rows meaningful names so the dendrogram is readable ---
-        sb.AppendLine("rownames(M) = DSn");
-        sb.AppendLine();
-
-        // --- the rest is your original analysis ---
-        sb.AppendLine("DF = data.frame(M)");
-        sb.AppendLine("DistDF = dist(DF)");
-        sb.AppendLine();
-        sb.AppendLine("DFClust1 <- hclust(DistDF, 'single')");
-        sb.AppendLine("DFClust2 <- hclust(DistDF, 'complete')");
-        sb.AppendLine("DFClust3 <- hclust(DistDF, 'average')");
-        sb.AppendLine("DFClust4 <- hclust(DistDF, 'centroid')");
-        sb.AppendLine();
-        sb.AppendLine($"pdf('{pdfPath.Replace("\\", "/")}')");
-        sb.AppendLine("par(mfrow = c(2, 2))");
-        sb.AppendLine("plot(DFClust1, hang = -1, main = 'single', cex = 0.5)");
-        sb.AppendLine("plot(DFClust2, hang = -1, main = 'complete', cex = 0.5)");
-        sb.AppendLine("plot(DFClust3, hang = -1, main = 'average', cex = 0.5)");
-        sb.AppendLine("plot(DFClust4, hang = -1, main = 'centroid', cex = 0.5)");
-        sb.AppendLine("heatmap(M,cexRow = 0.5, cexCol = 0.5)");
-        sb.AppendLine("dev.off()");   // ← must close the PDF device
-
-        return sb.ToString();
-        }
-    private async Task DownloadRScript ()
-        {
-        //1. Get data
-        // lstOccurrenceData is already passes as [parameter]
-        //2. Build RawMatrix (from the earlier answer)
+        //1 get data: lstOccurrenceData is already passes as [parameter]
+        //2 build RawMatrix - species / dataset indexing 
         var speciesIds = lstOccurrenceData
             .Select(o => o.SpeciesId)
             .Distinct(StringComparer.Ordinal)
@@ -222,19 +215,808 @@ sb.AppendLine();
             int j = datasetIndex [occ.DatasetId];
             RawMatrix [i, j] = 1;
             }
-        // 3. Dataset labels (use the same abbreviations you had in VBA).
-        //    If you already fetched them from Collections, use that list.
-        //    Otherwise fall back to the numeric DatasetId.
-        //--var datasetLabels = datasetIds.Select(id => id.ToString()).ToList();
-        var datasetLabels = lstOccurrenceData
-            .Select(o => o.DatasetName)
-            .Distinct()
-            .OrderBy(id => id)
+        //build aligned per-dataset metadata (key=DatasetId)
+        var datasetInfo = lstSelectedDatasets
+            .Where(d => datasetIndex.ContainsKey(d.DatasetId))
+            .OrderBy(d => d.DatasetId)
+            .Select(d => new
+                {
+                d.DatasetId,
+                DatasetName = string.IsNullOrWhiteSpace(d.DatasetName) ? "Na" : d.DatasetName,
+                CountryId = d.CountryId, //int
+                ProvinceName = string.IsNullOrWhiteSpace(d.ProvinceName) ? "" : d.ProvinceName
+                })
             .ToList();
-        // 4. Build the R script text.
-        string script = BuildRScript(RawMatrix, speciesIds, datasetLabels, pdfPath: "RClustering.pdf");
-        // 5. Hand it to the browser → user picks where to save.
-        await JS.InvokeVoidAsync("downloadTextFile","RScript.R", "text/plain;charset=utf-8", script);
+        //fallback: patch datasets present in occurrences but missing from lstSelectedDatasets
+        if (datasetInfo.Count != datasetIds.Count)
+            {
+            var known = new HashSet<int>(datasetInfo.Select(d => d.DatasetId));
+            foreach (var id in datasetIds.Where(id => !known.Contains(id)))
+                {
+                var occ = lstOccurrenceData.First(o => o.DatasetId == id);
+                datasetInfo.Add(new
+                    {
+                    DatasetId = id,
+                    DatasetName = string.IsNullOrWhiteSpace(occ.DatasetName) ? "Na" : occ.DatasetName,
+                    CountryId = 0,        //sentinel for unknown
+                    ProvinceName = ""     //empty string
+                    });
+                }
+            datasetInfo = datasetInfo.OrderBy(d => d.DatasetId).ToList();
+            }
+        //extract aligned lists
+        var datasetLabels = datasetInfo.Select(d => d.DatasetName).ToList();
+        var countryIds = datasetInfo.Select(d => d.CountryId).ToList();         //List<int>
+        var provinceNames = datasetInfo.Select(d => d.ProvinceName).ToList();   //List<string>
+        //4 Build R-script
+        string _strScript = "";
+        switch (_scryptType)
+            {
+            case "cluster":
+                    {
+                    _strScript = BuildRScript_Cluster(RawMatrix, speciesIds, datasetLabels);
+                    await JS.InvokeVoidAsync("downloadTextFile", "RScript_Cluster.R", "text/plain;charset=utf-8", _strScript);
+                    break;
+                    }
+            case "kmeans":
+                    {
+                    break;
+                    }
+            case "heatmap":
+                    {
+                    _strScript = BuildRScript_Heatmap(RawMatrix, speciesIds, datasetLabels);
+                    await JS.InvokeVoidAsync("downloadTextFile", "RScript_Heatmap.R", "text/plain;charset=utf-8", _strScript);
+                    break;
+                    }
+            case "pca":
+                    {
+                    _strScript = BuildRScript_PCA(RawMatrix, speciesIds, datasetLabels, countryIds, provinceNames);
+                    await JS.InvokeVoidAsync("downloadTextFile", "RScript_PCA.R", "text/plain;charset=utf-8", _strScript);
+                    break;
+                    }
+            case "pcoa":
+                    {
+                    _strScript = BuildRScript_PCOA(RawMatrix, speciesIds, datasetLabels, countryIds, provinceNames);
+                    await JS.InvokeVoidAsync("downloadTextFile", "RScript_PCoA.R", "text/plain;charset=utf-8", _strScript);
+                    break;
+                    }
+            case "nmds":
+                    {
+                    break;
+                    }
+            case "fga":
+                    {
+                    break;
+                    }
+            case "speciesrichness":
+                    {
+                    break;
+                    }
+            case "speciesareacurve":
+                    {
+                    break;
+                    }
+            case "diversity":
+                    {
+                    break;
+                    }
+            default:
+                    {
+                    return;
+                    }
+            }
+        }
+    public static string BuildRScript_Cluster (int [,] RawMatrix, IReadOnlyList<string> speciesIds, IReadOnlyList<string> datasetLabels)
+        {
+        int nSpecies = RawMatrix.GetLength(0);
+        int nDatasets = RawMatrix.GetLength(1);
+        var sb = new StringBuilder();
+        sb.AppendLine("# Auto-generated by Alamut.MultiFlorAn");
+        sb.AppendLine("# Rows of RawMatrix = species, columns = datasets.");
+        sb.AppendLine();
+        //dataset labels (used later as row names of M)
+        sb.Append("DSn = c(");
+        for (int j = 0; j < nDatasets; j++)
+            {
+            sb.Append('"').Append(Escape(datasetLabels [j])).Append('"');
+            if (j < nDatasets - 1)
+                sb.Append(", ");
+            }
+        sb.AppendLine(")");
+        sb.AppendLine();
+        for (int j = 0; j < nDatasets; j++)
+            {
+            sb.Append("DS").Append(j + 1).Append(" = c(");
+            for (int i = 0; i < nSpecies; i++)
+                {
+                sb.Append(RawMatrix [i, j]);
+                if (i < nSpecies - 1)
+                    {
+                    sb.Append(", ");
+                    //break line every 200 values
+                    if ((i + 1) % 200 == 0)
+                        {
+                        sb.AppendLine();
+                        }
+                    }
+                }
+            sb.AppendLine(")");
+            }
+        sb.AppendLine();
+        //stack datasets as rows of M
+        sb.Append("M = rbind(");
+        for (int j = 0; j < nDatasets; j++)
+            {
+            sb.Append("DS").Append(j + 1);
+            if (j < nDatasets - 1)
+                sb.Append(", ");
+            }
+        sb.AppendLine(")");
+        sb.AppendLine();
+        //give the rows meaningful names so the dendrogram is readable
+        sb.AppendLine("rownames(M) = DSn");
+        sb.AppendLine();
+        //analysis
+        sb.AppendLine("DF = data.frame(M)");
+        sb.AppendLine("DistDF = dist(DF, method = 'binary')");
+        sb.AppendLine();
+        sb.AppendLine("DFClust1 <- hclust(DistDF, 'single')");
+        sb.AppendLine("DFClust2 <- hclust(DistDF, 'complete')");
+        sb.AppendLine("DFClust3 <- hclust(DistDF, 'average')");
+        sb.AppendLine("DFClust4 <- hclust(DistDF, 'centroid')");
+        sb.AppendLine();
+        sb.AppendLine($"pdf('RScript_Cluster.pdf')");
+        sb.AppendLine("par(mfrow = c(2, 2))");
+        sb.AppendLine("plot(DFClust1, hang = -1, main = 'single', cex = 0.5)");
+        sb.AppendLine("plot(DFClust2, hang = -1, main = 'complete', cex = 0.5)");
+        sb.AppendLine("plot(DFClust3, hang = -1, main = 'average', cex = 0.5)");
+        sb.AppendLine("plot(DFClust4, hang = -1, main = 'centroid', cex = 0.5)");
+        sb.AppendLine("dev.off()");
+        return sb.ToString();
+        }
+    public static string BuildRScript_Heatmap (int [,] RawMatrix, IReadOnlyList<string> speciesIds, IReadOnlyList<string> datasetLabels)
+        {
+        int nSpecies = RawMatrix.GetLength(0);
+        int nDatasets = RawMatrix.GetLength(1);
+        var sb = new StringBuilder();
+        sb.AppendLine("# Auto-generated by Alamut.MultiFlorAn");
+        sb.AppendLine("# Rows of RawMatrix = species, columns = datasets.");
+        sb.AppendLine();
+        //dataset labels (used later as row names of M)
+        sb.Append("DSn = c(");
+        for (int j = 0; j < nDatasets; j++)
+            {
+            sb.Append('"').Append(Escape(datasetLabels [j])).Append('"');
+            if (j < nDatasets - 1)
+                sb.Append(", ");
+            }
+        sb.AppendLine(")");
+        sb.AppendLine();
+        for (int j = 0; j < nDatasets; j++)
+            {
+            sb.Append("DS").Append(j + 1).Append(" = c(");
+            for (int i = 0; i < nSpecies; i++)
+                {
+                sb.Append(RawMatrix [i, j]);
+                if (i < nSpecies - 1)
+                    {
+                    sb.Append(", ");
+                    //break line every 200 values
+                    if ((i + 1) % 200 == 0)
+                        {
+                        sb.AppendLine();
+                        }
+                    }
+                }
+            sb.AppendLine(")");
+            }
+        sb.AppendLine();
+        //stack datasets as rows of M
+        sb.Append("M = rbind(");
+        for (int j = 0; j < nDatasets; j++)
+            {
+            sb.Append("DS").Append(j + 1);
+            if (j < nDatasets - 1)
+                sb.Append(", ");
+            }
+        sb.AppendLine(")");
+        sb.AppendLine();
+        //give the rows meaningful names so the dendrogram is readable
+        sb.AppendLine("rownames(M) = DSn");
+        sb.AppendLine();
+        //analysis
+        sb.AppendLine("DF = data.frame(M)");
+        sb.AppendLine("DistDF = dist(DF, method = 'binary')");
+        sb.AppendLine();
+        sb.AppendLine($"pdf('RScript_Heatmap.pdf')");
+        sb.AppendLine("heatmap(M,cexRow = 0.7, cexCol = 0.5,");
+        sb.AppendLine("col = c('white', 'black'),");
+        sb.AppendLine("scale = 'none',");
+        sb.AppendLine("margins = c(8, 8),");
+        sb.AppendLine("main = 'Binary Presence / Absence Heatmap')");
+        sb.AppendLine("dev.off()");
+        return sb.ToString();
+        }
+    public static string BuildRScript_PCA (int [,] RawMatrix, IReadOnlyList<string> speciesIds, IReadOnlyList<string> datasetLabels, IReadOnlyList<int> countryIds = null, IReadOnlyList<string> provinceNames = null)
+        {
+        int nSpecies = RawMatrix.GetLength(0);
+        int nDatasets = RawMatrix.GetLength(1);
+        var sb = new StringBuilder();
+        //0 HEADER + PACKAGES
+        sb.AppendLine("# Auto-generated by Alamut.MultivarFlorAn");
+        sb.AppendLine("# Rows of RawMatrix = species, columns = datasets.");
+        sb.AppendLine();
+        sb.AppendLine("# 0 PACKAGES");
+        sb.AppendLine("suppressPackageStartupMessages({");
+        sb.AppendLine("  library(vegan)");
+        sb.AppendLine("  library(ggplot2)");
+        sb.AppendLine("  library(dplyr)");
+        sb.AppendLine("  library(ggrepel)");
+        sb.AppendLine("  library(bipartite)");
+        sb.AppendLine("  library(igraph)");
+        sb.AppendLine("})");
+        sb.AppendLine();
+        //1 DATASET NAMES
+        sb.Append("# Site names (Datasets)").AppendLine();
+        sb.Append("DSn <- c(");
+        for (int j = 0; j < nDatasets; j++)
+            {
+            sb.Append('"').Append(Escape(datasetLabels [j])).Append('"');
+            if (j < nDatasets - 1)
+                sb.Append(", ");
+            }
+        sb.AppendLine(")");
+        sb.AppendLine();
+        //2 ONE R VECTOR PER DATASET (species presence/absence)
+        for (int j = 0; j < nDatasets; j++)
+            {
+            sb.Append("DS").Append(j + 1).Append(" <- c(");
+            for (int i = 0; i < nSpecies; i++)
+                {
+                sb.Append(RawMatrix [i, j]);
+                if (i < nSpecies - 1)
+                    {
+                    sb.Append(", ");
+                    if ((i + 1) % 200 == 0)
+                        sb.AppendLine();
+                    }
+                }
+            sb.AppendLine(")");
+            }
+        sb.AppendLine();
+        //3 STACK DATASETS INTO M (rows = datasets, cols = species)
+        sb.Append("# Combine DS vectors to a matrix").AppendLine();
+        sb.Append("M <- rbind(");
+        for (int j = 0; j < nDatasets; j++)
+            {
+            sb.Append("DS").Append(j + 1);
+            if (j < nDatasets - 1)
+                sb.Append(", ");
+            }
+        sb.AppendLine(")");
+        sb.AppendLine();
+        sb.AppendLine("# clean site names: trim + inner whitespace -> _");
+        sb.AppendLine("DSn <- trimws(gsub(\"\\\\s+\", \"_\", DSn))");
+        sb.AppendLine("stopifnot(nrow(M) == length(DSn))");
+        sb.AppendLine("rownames(M) <- DSn");
+        sb.AppendLine("colnames(M) <- paste0(\"sp_\", seq_len(ncol(M)))");
+        sb.AppendLine();
+        //4 DATA FRAME
+        sb.AppendLine("DF <- data.frame(M)");
+        sb.AppendLine();
+        //5 METADATA: site + countryId (int) + province (string)
+        bool hasCountry = countryIds != null && countryIds.Count == nDatasets;
+        bool hasProvince = provinceNames != null && provinceNames.Count == nDatasets;
+        sb.AppendLine("# meta data");
+        sb.AppendLine("meta <- data.frame(");
+        sb.AppendLine("  site = DSn,");
+        //countryId -- bare integers, NO quotes -> R integer vector
+        sb.Append("  countryId = c(");
+        if (hasCountry)
+            {
+            for (int j = 0; j < nDatasets; j++)
+                {
+                sb.Append(countryIds [j]);
+                if (j < nDatasets - 1)
+                    sb.Append(", ");
+                }
+            }
+        else
+            {
+            for (int j = 0; j < nDatasets; j++)
+                {
+                sb.Append("NA");
+                if (j < nDatasets - 1)
+                    sb.Append(", ");
+                }
+            }
+        sb.AppendLine("),");
+
+        //province -- quoted strings
+        sb.Append("  province = c(");
+        if (hasProvince)
+            {
+            for (int j = 0; j < nDatasets; j++)
+                {
+                sb.Append('"').Append(Escape(provinceNames [j] ?? "")).Append('"');
+                if (j < nDatasets - 1)
+                    sb.Append(", ");
+                }
+            }
+        else
+            {
+            for (int j = 0; j < nDatasets; j++)
+                {
+                sb.Append("\"\"");
+                if (j < nDatasets - 1)
+                    sb.Append(", ");
+                }
+            }
+        sb.AppendLine("),");
+        sb.AppendLine("  stringsAsFactors = FALSE)");
+        sb.AppendLine("meta$country <- factor(meta$countryId)   # categorical for ggplot legend");
+        sb.AppendLine("meta$province <- factor(meta$province)   # categorical for shape legend");
+        sb.AppendLine("rownames(meta) <- meta$site");
+        sb.AppendLine();
+        //6 SANITY CHECKS
+        sb.AppendLine("# Sanity checks");
+        sb.AppendLine("cat('Matrix dimensions:', dim(DF), '\\n')");
+        sb.AppendLine("cat('Species richness per dataset:\\n')");
+        sb.AppendLine("print(rowSums(DF))");
+        sb.AppendLine("cat('Species present in >=1 dataset:', sum(colSums(DF) > 0), '\\n')");
+        sb.AppendLine("cat('All-zero species:', sum(colSums(DF) == 0), '\\n')");
+        sb.AppendLine("cat('Empty datasets:', sum(rowSums(DF) == 0), '\\n')");
+        sb.AppendLine("stopifnot(all(rowSums(DF) > 0))   # no empty sites");
+        sb.AppendLine();
+        //7 ALIGNMENT + FILTER
+        sb.AppendLine("# verify alignment");
+        sb.AppendLine("stopifnot(all(rownames(DF) == meta$site))");
+        sb.AppendLine();
+        sb.AppendLine("# drop species absent from all datasets");
+        sb.AppendLine("DF <- DF[, colSums(DF) > 0, drop = FALSE]");
+        sb.AppendLine("cat('Species retained after filtering:', ncol(DF), '\\n')");
+        sb.AppendLine();
+        //8 DISTANCES
+        sb.AppendLine("# Jaccard distance");
+        sb.AppendLine("DistJ <- vegdist(DF, method = 'jaccard', binary = TRUE)");
+        sb.AppendLine();
+        sb.AppendLine("# Optional: Sorensen (Bray-Curtis on binary)");
+        sb.AppendLine("DistS <- vegdist(DF, method = 'bray', binary = TRUE)");
+        sb.AppendLine();
+        //9 OPEN PDF
+        sb.AppendLine("pdf('RScript_PCA.pdf', width = 10, height = 8)");
+        sb.AppendLine();
+        //10 PCoA
+        sb.AppendLine("# PCoA");
+        sb.AppendLine("pcoa <- cmdscale(DistJ, k = 2, eig = TRUE)");
+        sb.AppendLine("eig <- pcoa$eig");
+        sb.AppendLine("eig[eig < 0] <- 0");
+        sb.AppendLine("var_exp <- round(100 * eig / sum(eig), 1)");
+        sb.AppendLine("cat('PCoA variance explained - Axis1:', var_exp[1], '%  Axis2:', var_exp[2], '%\\n')");
+        sb.AppendLine();
+        sb.AppendLine("pcoa_df <- data.frame(");
+        sb.AppendLine("  PCoA1 = pcoa$points[, 1],");
+        sb.AppendLine("  PCoA2 = pcoa$points[, 2],");
+        sb.AppendLine("  site  = rownames(pcoa$points)");
+        sb.AppendLine(") %>% left_join(meta, by = 'site')");
+        sb.AppendLine();
+        sb.AppendLine("# PCoA colored by country, shaped by province");
+        sb.AppendLine("p_pcoa <- ggplot(pcoa_df, aes(PCoA1, PCoA2, color = country, shape = province)) +");
+        sb.AppendLine("  geom_point(size = 3, alpha = 0.85) +");
+        sb.AppendLine("  stat_ellipse(aes(group = country), level = 0.95, linetype = 2) +");
+        sb.AppendLine("  labs(x = paste0('PCoA1 (', var_exp[1], '%)'),");
+        sb.AppendLine("       y = paste0('PCoA2 (', var_exp[2], '%)'),");
+        sb.AppendLine("       color = 'Country', shape = 'Province') +");
+        sb.AppendLine("  theme_bw()");
+        sb.AppendLine("print(p_pcoa)");
+        sb.AppendLine();
+        //11 NMDS
+        sb.AppendLine("# NMDS");
+        sb.AppendLine("set.seed(123)");
+        sb.AppendLine("nmds <- metaMDS(DistJ, k = 2, trymax = 200, autotransform = FALSE)");
+        sb.AppendLine("cat('NMDS stress:', round(nmds$stress, 4), '\\n')");
+        sb.AppendLine();
+        sb.AppendLine("nmds_df <- data.frame(");
+        sb.AppendLine("  NMDS1 = scores(nmds, display = 'sites')[, 1],");
+        sb.AppendLine("  NMDS2 = scores(nmds, display = 'sites')[, 2],");
+        sb.AppendLine("  site  = rownames(scores(nmds, display = 'sites'))");
+        sb.AppendLine(") %>% left_join(meta, by = 'site')");
+        sb.AppendLine();
+        sb.AppendLine("# NMDS colored by country, shaped by province");
+        sb.AppendLine("p_nmds <- ggplot(nmds_df, aes(NMDS1, NMDS2, color = country, shape = province)) +");
+        sb.AppendLine("  geom_point(size = 3, alpha = 0.85) +");
+        sb.AppendLine("  stat_ellipse(aes(group = country), level = 0.95, linetype = 2) +");
+        sb.AppendLine("  annotate('text', x = Inf, y = Inf, hjust = 1.1, vjust = 1.5,");
+        sb.AppendLine("           label = paste0('Stress = ', round(nmds$stress, 3))) +");
+        sb.AppendLine("  labs(color = 'Country', shape = 'Province') +");
+        sb.AppendLine("  theme_bw()");
+        sb.AppendLine("print(p_nmds)");
+        sb.AppendLine();
+        sb.AppendLine("# NMDS with site labels");
+        sb.AppendLine("p_label <- ggplot(nmds_df, aes(NMDS1, NMDS2, color = country)) +");
+        sb.AppendLine("  geom_point(size = 2) +");
+        sb.AppendLine("  geom_text_repel(aes(label = site), size = 2.5, max.overlaps = 30) +");
+        sb.AppendLine("  theme_bw()");
+        sb.AppendLine("print(p_label)");
+        sb.AppendLine();
+        //12 STATISTICS
+        sb.AppendLine("# PERMANOVA: do countries differ?");
+        sb.AppendLine("permanova <- adonis2(DistJ ~ country, data = meta, permutations = 999)");
+        sb.AppendLine("print(permanova)");
+        sb.AppendLine();
+        sb.AppendLine("# Check dispersion homogeneity (CRITICAL)");
+        sb.AppendLine("bd <- betadisper(DistJ, meta$country)");
+        sb.AppendLine("print(permutest(bd))");
+        sb.AppendLine("plot(bd)");
+        sb.AppendLine();
+        sb.AppendLine("# ANOSIM (alternative)");
+        sb.AppendLine("print(anosim(DistJ, meta$country, permutations = 999))");
+        sb.AppendLine();
+        //13 G/S and F/G ratios (placeholder taxonomy)
+        sb.AppendLine("# Example taxonomy table (replace with your real data)");
+        sb.AppendLine("taxo <- data.frame(");
+        sb.AppendLine("  species = colnames(DF),");
+        sb.AppendLine("  genus   = paste0('genus_', sample(1:80, ncol(DF), replace = TRUE)),");
+        sb.AppendLine("  family  = paste0('family_', sample(1:30, ncol(DF), replace = TRUE))");
+        sb.AppendLine(")");
+        sb.AppendLine();
+        sb.AppendLine("G_S <- sapply(seq_len(nrow(DF)), function(i) {");
+        sb.AppendLine("  spp <- colnames(DF)[DF[i, ] == 1]");
+        sb.AppendLine("  genera <- unique(taxo$genus[taxo$species %in% spp])");
+        sb.AppendLine("  length(genera) / length(spp)");
+        sb.AppendLine("})");
+        sb.AppendLine();
+        sb.AppendLine("F_G <- sapply(seq_len(nrow(DF)), function(i) {");
+        sb.AppendLine("  spp <- colnames(DF)[DF[i, ] == 1]");
+        sb.AppendLine("  fams <- unique(taxo$family[taxo$species %in% spp])");
+        sb.AppendLine("  gens <- unique(taxo$genus[taxo$species %in% spp])");
+        sb.AppendLine("  length(fams) / length(gens)");
+        sb.AppendLine("})");
+        sb.AppendLine();
+        sb.AppendLine("meta$G_S <- G_S");
+        sb.AppendLine("meta$F_G <- F_G");
+        sb.AppendLine();
+        sb.AppendLine("print(");
+        sb.AppendLine("  ggplot(meta, aes(G_S, F_G, color = country)) +");
+        sb.AppendLine("    geom_point(size = 3) +");
+        sb.AppendLine("    geom_text_repel(aes(label = site), size = 2.5) +");
+        sb.AppendLine("    theme_bw() +");
+        sb.AppendLine("    labs(x = 'G/S ratio', y = 'F/G ratio')");
+        sb.AppendLine(")");
+        sb.AppendLine();
+        //14 RICHNESS BARPLOT
+        sb.AppendLine("richness_df <- data.frame(");
+        sb.AppendLine("  site     = rownames(DF),");
+        sb.AppendLine("  richness = rowSums(DF)");
+        sb.AppendLine(") %>% left_join(meta, by = 'site')");
+        sb.AppendLine();
+        sb.AppendLine("print(");
+        sb.AppendLine("  ggplot(richness_df, aes(x = reorder(site, richness), y = richness, fill = country)) +");
+        sb.AppendLine("    geom_col() +");
+        sb.AppendLine("    coord_flip() +");
+        sb.AppendLine("    labs(x = NULL, y = 'Species richness') +");
+        sb.AppendLine("    theme_bw()");
+        sb.AppendLine(")");
+        sb.AppendLine();
+        //15 CLOSE PDF
+        sb.AppendLine("dev.off()");
+        sb.Append("cat(\"Done. Output written to RScript_PCO.pdf\\n\")\n");
+        return sb.ToString();
+        }
+    public static string BuildRScript_PCOA (int [,] RawMatrix, IReadOnlyList<string> speciesIds, IReadOnlyList<string> datasetLabels, IReadOnlyList<int> countryIds = null, IReadOnlyList<string> provinceNames = null)
+        {
+        int nSpecies = RawMatrix.GetLength(0);
+        int nDatasets = RawMatrix.GetLength(1);
+        var sb = new StringBuilder();
+
+        // ---------------------------------------------------------------
+        // 0. HEADER + PACKAGES
+        // ---------------------------------------------------------------
+        sb.AppendLine("# Auto-generated by iHerbs.MultiFlorAn");
+        sb.AppendLine("# Rows of RawMatrix = species, columns = datasets.");
+        sb.AppendLine();
+        sb.AppendLine("# ---- 0. PACKAGES ----");
+        sb.AppendLine("suppressPackageStartupMessages({");
+        sb.AppendLine("  library(vegan)");
+        sb.AppendLine("  library(ggplot2)");
+        sb.AppendLine("  library(dplyr)");
+        sb.AppendLine("  library(ggrepel)");
+        sb.AppendLine("})");
+        sb.AppendLine();
+
+        // ---------------------------------------------------------------
+        // 1. DATASET NAMES
+        // ---------------------------------------------------------------
+        sb.Append("# Site names (Datasets)").AppendLine();
+        sb.Append("DSn <- c(");
+        for (int j = 0; j < nDatasets; j++)
+            {
+            sb.Append('"').Append(Escape(datasetLabels [j])).Append('"');
+            if (j < nDatasets - 1)
+                sb.Append(", ");
+            }
+        sb.AppendLine(")");
+        sb.AppendLine();
+
+        // ---------------------------------------------------------------
+        // 2. ONE R VECTOR PER DATASET (species presence/absence)
+        // ---------------------------------------------------------------
+        for (int j = 0; j < nDatasets; j++)
+            {
+            sb.Append("DS").Append(j + 1).Append(" <- c(");
+            for (int i = 0; i < nSpecies; i++)
+                {
+                sb.Append(RawMatrix [i, j]);
+                if (i < nSpecies - 1)
+                    {
+                    sb.Append(", ");
+                    if ((i + 1) % 200 == 0)
+                        sb.AppendLine();
+                    }
+                }
+            sb.AppendLine(")");
+            }
+        sb.AppendLine();
+
+        // ---------------------------------------------------------------
+        // 3. STACK DATASETS INTO M (rows = datasets, cols = species)
+        // ---------------------------------------------------------------
+        sb.Append("# Combine DS vectors to a matrix").AppendLine();
+        sb.Append("M <- rbind(");
+        for (int j = 0; j < nDatasets; j++)
+            {
+            sb.Append("DS").Append(j + 1);
+            if (j < nDatasets - 1)
+                sb.Append(", ");
+            }
+        sb.AppendLine(")");
+        sb.AppendLine();
+        sb.AppendLine("# clean site names: trim + inner whitespace -> _");
+        sb.AppendLine("DSn <- trimws(gsub(\"\\\\s+\", \"_\", DSn))");
+        sb.AppendLine("stopifnot(nrow(M) == length(DSn))");
+        sb.AppendLine("rownames(M) <- DSn");
+        sb.AppendLine("colnames(M) <- paste0(\"sp_\", seq_len(ncol(M)))");
+        sb.AppendLine();
+
+        // ---------------------------------------------------------------
+        // 4. DATA FRAME
+        // ---------------------------------------------------------------
+        sb.AppendLine("DF <- data.frame(M)");
+        sb.AppendLine();
+
+        // ---------------------------------------------------------------
+        // 5. METADATA: site + countryId (int) + province (string)
+        // ---------------------------------------------------------------
+        bool hasCountry = countryIds != null && countryIds.Count == nDatasets;
+        bool hasProvince = provinceNames != null && provinceNames.Count == nDatasets;
+
+        sb.AppendLine("# meta data");
+        sb.AppendLine("meta <- data.frame(");
+        sb.AppendLine("  site = DSn,");
+
+        // countryId -- bare integers, NO quotes -> R integer vector
+        sb.Append("  countryId = c(");
+        if (hasCountry)
+            {
+            for (int j = 0; j < nDatasets; j++)
+                {
+                sb.Append(countryIds [j]);
+                if (j < nDatasets - 1)
+                    sb.Append(", ");
+                }
+            }
+        else
+            {
+            for (int j = 0; j < nDatasets; j++)
+                {
+                sb.Append("NA");
+                if (j < nDatasets - 1)
+                    sb.Append(", ");
+                }
+            }
+        sb.AppendLine("),");
+
+        // province -- quoted strings
+        sb.Append("  province = c(");
+        if (hasProvince)
+            {
+            for (int j = 0; j < nDatasets; j++)
+                {
+                sb.Append('"').Append(Escape(provinceNames [j] ?? "")).Append('"');
+                if (j < nDatasets - 1)
+                    sb.Append(", ");
+                }
+            }
+        else
+            {
+            for (int j = 0; j < nDatasets; j++)
+                {
+                sb.Append("\"\"");
+                if (j < nDatasets - 1)
+                    sb.Append(", ");
+                }
+            }
+        sb.AppendLine("),");
+        sb.AppendLine("  stringsAsFactors = FALSE)");
+        sb.AppendLine("meta$country <- factor(meta$countryId)   # categorical for ggplot legend");
+        sb.AppendLine("meta$province <- factor(meta$province)   # categorical for shape legend");
+        sb.AppendLine("rownames(meta) <- meta$site");
+        sb.AppendLine();
+
+        // ---------------------------------------------------------------
+        // 6. SANITY CHECKS
+        // ---------------------------------------------------------------
+        sb.AppendLine("# Sanity checks");
+        sb.AppendLine("cat('Matrix dimensions:', dim(DF), '\\n')");
+        sb.AppendLine("cat('Species richness per dataset:\\n')");
+        sb.AppendLine("print(rowSums(DF))");
+        sb.AppendLine("cat('Species present in >=1 dataset:', sum(colSums(DF) > 0), '\\n')");
+        sb.AppendLine("cat('All-zero species:', sum(colSums(DF) == 0), '\\n')");
+        sb.AppendLine("cat('Empty datasets:', sum(rowSums(DF) == 0), '\\n')");
+        sb.AppendLine("stopifnot(all(rowSums(DF) > 0))   # no empty sites");
+        sb.AppendLine();
+
+        // ---------------------------------------------------------------
+        // 7. ALIGNMENT + FILTER
+        // ---------------------------------------------------------------
+        sb.AppendLine("# verify alignment");
+        sb.AppendLine("stopifnot(all(rownames(DF) == meta$site))");
+        sb.AppendLine();
+        sb.AppendLine("# drop species absent from all datasets");
+        sb.AppendLine("DF <- DF[, colSums(DF) > 0, drop = FALSE]");
+        sb.AppendLine("cat('Species retained after filtering:', ncol(DF), '\\n')");
+        sb.AppendLine();
+
+        // ---------------------------------------------------------------
+        // 8. DISTANCES
+        // ---------------------------------------------------------------
+        sb.AppendLine("# Jaccard distance");
+        sb.AppendLine("DistJ <- vegdist(DF, method = 'jaccard', binary = TRUE)");
+        sb.AppendLine();
+        sb.AppendLine("# Optional: Sorensen (Bray-Curtis on binary)");
+        sb.AppendLine("DistS <- vegdist(DF, method = 'bray', binary = TRUE)");
+        sb.AppendLine();
+
+        // ---------------------------------------------------------------
+        // 9. OPEN PDF
+        // ---------------------------------------------------------------
+        sb.AppendLine("pdf('RScript_PCO.pdf', width = 10, height = 8)");
+        sb.AppendLine();
+
+        // ---------------------------------------------------------------
+        // 10. PCoA
+        // ---------------------------------------------------------------
+        sb.AppendLine("# ---- PCoA ----");
+        sb.AppendLine("pcoa <- cmdscale(DistJ, k = 2, eig = TRUE)");
+        sb.AppendLine("eig <- pcoa$eig");
+        sb.AppendLine("eig[eig < 0] <- 0");
+        sb.AppendLine("var_exp <- round(100 * eig / sum(eig), 1)");
+        sb.AppendLine("cat('PCoA variance explained - Axis1:', var_exp[1], '%  Axis2:', var_exp[2], '%\\n')");
+        sb.AppendLine();
+        sb.AppendLine("pcoa_df <- data.frame(");
+        sb.AppendLine("  PCoA1 = pcoa$points[, 1],");
+        sb.AppendLine("  PCoA2 = pcoa$points[, 2],");
+        sb.AppendLine("  site  = rownames(pcoa$points)");
+        sb.AppendLine(") %>% left_join(meta, by = 'site')");
+        sb.AppendLine();
+        sb.AppendLine("# PCoA colored by country, shaped by province");
+        sb.AppendLine("p_pcoa <- ggplot(pcoa_df, aes(PCoA1, PCoA2, color = country, shape = province)) +");
+        sb.AppendLine("  geom_point(size = 3, alpha = 0.85) +");
+        sb.AppendLine("  stat_ellipse(aes(group = country), level = 0.95, linetype = 2) +");
+        sb.AppendLine("  labs(x = paste0('PCoA1 (', var_exp[1], '%)'),");
+        sb.AppendLine("       y = paste0('PCoA2 (', var_exp[2], '%)'),");
+        sb.AppendLine("       color = 'Country', shape = 'Province') +");
+        sb.AppendLine("  theme_bw()");
+        sb.AppendLine("print(p_pcoa)");
+        sb.AppendLine();
+
+        // ---------------------------------------------------------------
+        // 11. NMDS
+        // ---------------------------------------------------------------
+        sb.AppendLine("# ---- NMDS ----");
+        sb.AppendLine("set.seed(123)");
+        sb.AppendLine("nmds <- metaMDS(DistJ, k = 2, trymax = 200, autotransform = FALSE)");
+        sb.AppendLine("cat('NMDS stress:', round(nmds$stress, 4), '\\n')");
+        sb.AppendLine();
+        sb.AppendLine("nmds_df <- data.frame(");
+        sb.AppendLine("  NMDS1 = scores(nmds, display = 'sites')[, 1],");
+        sb.AppendLine("  NMDS2 = scores(nmds, display = 'sites')[, 2],");
+        sb.AppendLine("  site  = rownames(scores(nmds, display = 'sites'))");
+        sb.AppendLine(") %>% left_join(meta, by = 'site')");
+        sb.AppendLine();
+        sb.AppendLine("# NMDS colored by country, shaped by province");
+        sb.AppendLine("p_nmds <- ggplot(nmds_df, aes(NMDS1, NMDS2, color = country, shape = province)) +");
+        sb.AppendLine("  geom_point(size = 3, alpha = 0.85) +");
+        sb.AppendLine("  stat_ellipse(aes(group = country), level = 0.95, linetype = 2) +");
+        sb.AppendLine("  annotate('text', x = Inf, y = Inf, hjust = 1.1, vjust = 1.5,");
+        sb.AppendLine("           label = paste0('Stress = ', round(nmds$stress, 3))) +");
+        sb.AppendLine("  labs(color = 'Country', shape = 'Province') +");
+        sb.AppendLine("  theme_bw()");
+        sb.AppendLine("print(p_nmds)");
+        sb.AppendLine();
+        sb.AppendLine("# NMDS with site labels");
+        sb.AppendLine("p_label <- ggplot(nmds_df, aes(NMDS1, NMDS2, color = country)) +");
+        sb.AppendLine("  geom_point(size = 2) +");
+        sb.AppendLine("  geom_text_repel(aes(label = site), size = 2.5, max.overlaps = 30) +");
+        sb.AppendLine("  theme_bw()");
+        sb.AppendLine("print(p_label)");
+        sb.AppendLine();
+
+        // ---------------------------------------------------------------
+        // 12. STATISTICS
+        // ---------------------------------------------------------------
+        sb.AppendLine("# PERMANOVA: do countries differ?");
+        sb.AppendLine("permanova <- adonis2(DistJ ~ country, data = meta, permutations = 999)");
+        sb.AppendLine("print(permanova)");
+        sb.AppendLine();
+        sb.AppendLine("# Check dispersion homogeneity (CRITICAL)");
+        sb.AppendLine("bd <- betadisper(DistJ, meta$country)");
+        sb.AppendLine("print(permutest(bd))");
+        sb.AppendLine("plot(bd)");
+        sb.AppendLine();
+        sb.AppendLine("# ANOSIM (alternative)");
+        sb.AppendLine("print(anosim(DistJ, meta$country, permutations = 999))");
+        sb.AppendLine();
+
+        // ---------------------------------------------------------------
+        // 13. G/S and F/G ratios (placeholder taxonomy)
+        // ---------------------------------------------------------------
+        sb.AppendLine("# Example taxonomy table (replace with your real data)");
+        sb.AppendLine("taxo <- data.frame(");
+        sb.AppendLine("  species = colnames(DF),");
+        sb.AppendLine("  genus   = paste0('genus_', sample(1:80, ncol(DF), replace = TRUE)),");
+        sb.AppendLine("  family  = paste0('family_', sample(1:30, ncol(DF), replace = TRUE))");
+        sb.AppendLine(")");
+        sb.AppendLine();
+        sb.AppendLine("G_S <- sapply(seq_len(nrow(DF)), function(i) {");
+        sb.AppendLine("  spp <- colnames(DF)[DF[i, ] == 1]");
+        sb.AppendLine("  genera <- unique(taxo$genus[taxo$species %in% spp])");
+        sb.AppendLine("  length(genera) / length(spp)");
+        sb.AppendLine("})");
+        sb.AppendLine();
+        sb.AppendLine("F_G <- sapply(seq_len(nrow(DF)), function(i) {");
+        sb.AppendLine("  spp <- colnames(DF)[DF[i, ] == 1]");
+        sb.AppendLine("  fams <- unique(taxo$family[taxo$species %in% spp])");
+        sb.AppendLine("  gens <- unique(taxo$genus[taxo$species %in% spp])");
+        sb.AppendLine("  length(fams) / length(gens)");
+        sb.AppendLine("})");
+        sb.AppendLine();
+        sb.AppendLine("meta$G_S <- G_S");
+        sb.AppendLine("meta$F_G <- F_G");
+        sb.AppendLine();
+        sb.AppendLine("print(");
+        sb.AppendLine("  ggplot(meta, aes(G_S, F_G, color = country)) +");
+        sb.AppendLine("    geom_point(size = 3) +");
+        sb.AppendLine("    geom_text_repel(aes(label = site), size = 2.5) +");
+        sb.AppendLine("    theme_bw() +");
+        sb.AppendLine("    labs(x = 'G/S ratio', y = 'F/G ratio')");
+        sb.AppendLine(")");
+        sb.AppendLine();
+
+        // ---------------------------------------------------------------
+        // 14. RICHNESS BARPLOT
+        // ---------------------------------------------------------------
+        sb.AppendLine("richness_df <- data.frame(");
+        sb.AppendLine("  site     = rownames(DF),");
+        sb.AppendLine("  richness = rowSums(DF)");
+        sb.AppendLine(") %>% left_join(meta, by = 'site')");
+        sb.AppendLine();
+        sb.AppendLine("print(");
+        sb.AppendLine("  ggplot(richness_df, aes(x = reorder(site, richness), y = richness, fill = country)) +");
+        sb.AppendLine("    geom_col() +");
+        sb.AppendLine("    coord_flip() +");
+        sb.AppendLine("    labs(x = NULL, y = 'Species richness') +");
+        sb.AppendLine("    theme_bw()");
+        sb.AppendLine(")");
+        sb.AppendLine();
+
+        // ---------------------------------------------------------------
+        // 15. CLOSE PDF
+        // ---------------------------------------------------------------
+        sb.AppendLine("dev.off()");
+        sb.Append("cat(\"Done. Output written to RScript_PCO.pdf\\n\")\n");
+
+        return sb.ToString();
         }
     private static string Escape (string s) =>
         s.Replace("\\", "\\\\").Replace("\"", "\\\"");

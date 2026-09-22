@@ -1329,7 +1329,8 @@ namespace AlamutB.Services2Backend
                         TempAver = reader.GetDecimal (17),
                         Precipitation = reader.GetDecimal (18),
                         DatasetTags = reader.GetInt32 (19),
-                        CountryId = reader.GetByte (20)
+                        CountryId = reader.GetByte (20),
+                        ProvinceName = reader.GetString (21)
                         });
                     }
                 await cnn.CloseAsync ();
@@ -1379,7 +1380,8 @@ namespace AlamutB.Services2Backend
                         TempAver = reader.GetDecimal (17),
                         Precipitation = reader.GetDecimal (18),
                         DatasetTags = reader.GetInt32 (19),
-                        CountryId = reader.GetByte (20)
+                        CountryId = reader.GetByte (20),
+                        ProvinceName = reader.GetString (21)
                         });
                     }
                 await cnn.CloseAsync ();
@@ -1430,7 +1432,8 @@ namespace AlamutB.Services2Backend
                         TempAver = reader.GetDecimal (17),
                         Precipitation = reader.GetDecimal (18),
                         DatasetTags = reader.GetInt32 (19),
-                        CountryId = reader.GetByte (20)
+                        CountryId = reader.GetByte (20),
+                        ProvinceName = reader.GetString (21)
                         });
                     }
                 await cnn.CloseAsync ();
@@ -1482,7 +1485,8 @@ namespace AlamutB.Services2Backend
                         TempAver = reader.GetDecimal (17),
                         Precipitation = reader.GetDecimal (18),
                         DatasetTags = reader.GetInt32 (19),
-                        CountryId = reader.GetByte (20)
+                        CountryId = reader.GetByte (20),
+                        ProvinceName = reader.GetString (21)
                         });
                     }
                 await cnn.CloseAsync ();
@@ -1498,7 +1502,7 @@ namespace AlamutB.Services2Backend
         public async Task<Dataset> Read_DatasetAsync (int datasetId)
             {
             string? connString = _config.GetConnectionString ("cnni");
-            string sql = "DT.Read_Datasets";
+            string sql = "DT.Read_DatasetById";
             using SqlConnection cnn = new (connString);
             try
                 {
@@ -1525,12 +1529,13 @@ namespace AlamutB.Services2Backend
                     dataset.AltMax = reader.GetInt32 (12);
                     dataset.AltMin = reader.GetInt32 (13);
                     dataset.AltAver = reader.GetInt32 (14);
-                    dataset.TempMax = reader.GetInt32 (15);
-                    dataset.TempMin = reader.GetInt32 (16);
-                    dataset.TempAver = reader.GetInt32 (17);
-                    dataset.Precipitation = reader.GetInt32 (18);
+                    dataset.TempMax = reader.GetDecimal (15);
+                    dataset.TempMin = reader.GetDecimal (16);
+                    dataset.TempAver = reader.GetDecimal (17);
+                    dataset.Precipitation = reader.GetDecimal (18);
                     dataset.DatasetTags = reader.GetInt32 (19);
                     dataset.CountryId = reader.GetByte (20);
+                    dataset.ProvinceName = reader.GetString (21);
                     }
                 await cnn.CloseAsync ();
                 return dataset;
@@ -1579,7 +1584,8 @@ namespace AlamutB.Services2Backend
                         TempAver = reader.GetDecimal (17),
                         Precipitation = reader.GetDecimal (18),
                         DatasetTags = reader.GetInt32 (19),
-                        CountryId = reader.GetByte (20)
+                        CountryId = reader.GetByte (20),
+                        ProvinceName = reader.GetString (21)
                         });
                     }
                 await cnn.CloseAsync ();

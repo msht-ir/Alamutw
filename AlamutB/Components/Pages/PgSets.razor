@@ -20,7 +20,7 @@
     }
 else
     {
-        <div style="text-align: left; margin:15px;">
+        <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-2 px-0">
         <MudIconButton OnClick="BtnBack"
                        Icon="@Icons.Material.Filled.Menu"
                        Color="Color.Primary"
@@ -29,7 +29,7 @@ else
             <button class="btn btn-link pulse-hover" @onclick="BtnAddNewSet">
             <img src="/img/icoAdd1.png" width="24" />
             </button>
-        </div>
+        </MudContainer>
     @if (appState.Cmd == "ShowNoteInDialog")
         {
         <Modal_ShowNote OnClose="HandleModalClose" />
@@ -178,7 +178,7 @@ else
                                 {
                                 @* LIST SetData *@
                                     <MudCard Class="mx-0">
-                                        <MudCardContent Style="background-color:rgba(240,240,240);">
+                                        <MudCardContent Style="background-color:rgba(244,244,244);">
                                         <h6 style="text-align:center;color:royalblue">Datasets <span style="font-size:x-small;color:indianred"> ( count: @lstSetData.Count() )</span></h6>
                                         <hr style="color:indianred" />
                                         @* Filter *@
@@ -220,6 +220,14 @@ else
                                                                    style="margin-left:1px;margin-right:1px;"
                                                                    type="checkbox"
                                                                    @bind="setData.IsSelected" />
+                                                            @* Edit *@
+                                                                <button type="button"
+                                                                    class="btn btn-link"
+                                                                    style="margin-left:1px"
+                                                                    @onclick='() => BtnEditDataset(setData)'
+                                                                    Title=@($"edit dataset id: {setData.DatasetId}")>
+                                                                <img src="/img/icoRename.png" width="24" />
+                                                                </button>
                                                             <span style="font-size:smaller;margin-left:10px;">@setData.DatasetName </span>
                                                             </div>
                                                         </td>
@@ -259,6 +267,18 @@ else
                                                             </button>
                                                         </td>
                                                     </tr>
+                                                @if ((_cmd2 == "cmdEditDataset") && (setData.DatasetId == _datasetId))
+                                                    {
+                                                    <br />
+                                                        <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-1 mb-4 px-0">
+                                                            <MudCard Class="mx-0">
+                                                                <MudCardContent Style="background-color:rgba(240,240,240);">
+                                                                @* SHOW COMPONENT *@
+                                                                <CompDataset dataset="dataSet" OnClose="CloseComponent" />
+                                                                </MudCardContent>
+                                                            </MudCard>
+                                                        </MudContainer>
+                                                    }
                                                 }
                                             </table>
                                         <hr />
@@ -305,7 +325,7 @@ else
                                                                 <img src="/img/icoCancel.png" width="18" />
                                                                 </button>
                                                             </div>
-                                                            <br />
+                                                        <br />
                                                         @foreach (Dataset dataset in lstDatasets)
                                                             {
                                                                 <div class="d-flex align-items-center mb-1">
@@ -399,7 +419,7 @@ else
     public MudTextField<string> refFilterDatasets;
     private string _datasetFilter = "";
     List<Dataset> lstDatasets = new();
-    Dataset dataSet = new Dataset();
+    public Dataset dataSet = new Dataset();
 
     public MudSelect<int> refCountries;
     private List<Country> lstCountries = new List<Country>();
@@ -410,6 +430,7 @@ else
     string _cmd = "";
     string _cmd2 = "";
     public bool _hasFetched = false;
+    private int _datasetId = 0;
 
     //LifeCycleEvents
     protected override async Task OnInitializedAsync ()
@@ -423,7 +444,7 @@ else
         user.UserId = Convert.ToInt32(appState.UserId);
         user.Username = appState.Username ?? "";
         await ReadSets();
-        await ReadCoutries ();
+        await ReadCoutries();
         _hasFetched = true;
         }
     private void TriggerRender ()
@@ -435,11 +456,6 @@ else
         appState.OnChange -= TriggerRender;
         }
     //btns
-    private void CloseComponent ()
-        {
-        //RollBack of Component 'Dataset'
-        _cmd = "";
-        }
     private void BtnCancel ()
         {
         _cmd = "";
@@ -760,6 +776,32 @@ else
         lstSets = await feService.Read_Sets(user.UserId);
         _hasFetched = true;
         StateHasChanged();
+        }
+    public async Task BtnEditDataset (SetData sd)
+        {
+        if (sd != null)
+            {
+            _cmd2 = (_cmd2 == "cmdEditDataset") ? "" : "cmdEditDataset";
+            if (_cmd2 != "")
+                lstDatasets.FirstOrDefault(ds2 => ds2.DatasetId == sd.DatasetId)?.IsSelected = true;
+            _datasetId = sd.DatasetId;
+            dataSet = await feService.Read_Dataset (_datasetId);
+            StateHasChanged();
+            }
+        else
+            {
+            Snackbar.Add("Select a Dataset first", Severity.Warning);
+            }
+        }
+    private async Task CloseComponent ()
+        {
+        //rollBack for Component 'Dataset'
+        _hasFetched = false;
+        await BtnShowAllDatasets();
+        lstDatasets.Where(d => d.DatasetId == _datasetId).ToList().ForEach(d => d.IsSelected = true);
+        //OR: foreach(var item in lstDatasets.Where (d=>d.DatasetId == _datasetId)) {item.IsSelected = true};
+        _hasFetched = true;
+        _cmd2 = "";
         }
 
     }

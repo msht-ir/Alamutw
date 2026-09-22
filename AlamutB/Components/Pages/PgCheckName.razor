@@ -34,16 +34,16 @@ else if (appState.Cmd == "cmdCreateNote")
     }
 else
     {
-        <div style="text-align: left; margin:15px;">
-        <MudIconButton OnClick="BtnBack"
-                       Icon="@Icons.Material.Filled.Menu"
-                       Color="Color.Primary"
-                       Size="Size.Large"
-                       Title="Switchboard" />
-            <button class="btn btn-link pulse-hover" @onclick="BtnAddNewDataset">
-            <img src="/img/icoAdd1.png" width="24" />
-            </button>
-        </div>
+        <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-2 px-0">
+            <MudIconButton OnClick="BtnBack"
+                           Icon="@Icons.Material.Filled.Menu"
+                           Color="Color.Primary"
+                           Size="Size.Large"
+                           Title="Switchboard" />
+                <button class="btn btn-link pulse-hover" @onclick="BtnAddNewDataset">
+                <img src="/img/icoAdd1.png" width="24" />
+                </button>
+        </MudContainer>
         <EditForm Model="lstNotes">
         @* ADD NEW DATASET *@
         @if (_cmd1 == "cmdAddNewDataset")
