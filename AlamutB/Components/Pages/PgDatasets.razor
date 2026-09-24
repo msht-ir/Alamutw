@@ -278,8 +278,9 @@ else
             }
         appState.SetCmd("");
         user.UserId = Convert.ToInt32(appState.UserId);
+        user.UserTags = Convert.ToInt32(appState.UserTags);
         user.Username = appState.Username ?? "";
-        lstDatasets = await feService.Read_Datasets(user.UserId, 1);
+        lstDatasets = await feService.Read_Datasets (((user.UserTags & 4) == 4) ? 0 : user.UserId, 1); //UserTags=4:GoldAcc, userId=0 : to get datasets of all users (see: stored procedure)
         await ReadCoutries();
         _hasFetched = true;
         }
@@ -346,7 +347,7 @@ else
     public async Task BtnShowAllDatasets ()
         {
         lstDatasets.Clear();
-        lstDatasets = await feService.Read_Datasets(user.UserId, 1);
+        lstDatasets = await feService.Read_Datasets (((user.UserTags & 4) == 4) ? 0 : user.UserId, 1); //UserTags=4:GoldAcc, userId=0 : to get datasets of all users (see: stored procedure)
         StateHasChanged();
         }
     public async Task BtnReportDatasets (int Id)
@@ -496,14 +497,21 @@ else
         }
     private async Task OnCountryChanged (int newValue)
         {
-        var oldValue = _countryId;
-        _countryId = newValue;
-        if (_countryId != 0)
+        if((user.UserTags & 4) != 4)
             {
-            _cmd = "";
-            lstDatasets = await feService.Read_DatasetsByCountryId(_countryId);
+            Snackbar.Add("Account limited", Severity.Warning);
             }
-        StateHasChanged();
+        else
+            {
+            var oldValue = _countryId;
+            _countryId = newValue;
+            if (_countryId != 0)
+                {
+                _cmd = "";
+                lstDatasets = await feService.Read_DatasetsByCountryId (_countryId);
+                }
+            StateHasChanged();            
+            }
         }
     private async Task ReadCoutries ()
         {

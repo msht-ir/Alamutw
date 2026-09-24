@@ -532,6 +532,7 @@ else
                             <h6 style="text-align:center;color:royalblue">@_SpeciesListType<span style="font-size:x-small;color:indianred"> ( Count @lstSpecies.Count() )</span></h6>
                             }
                         <hr style="color:indianred" />
+                        @* 4CMDs: Search, All, Invert, delete/add *@
                             <div class="d-flex gap-3 justify-content-center align-items-center" style="margin-top:15px;margin-bottom:15px;">
                             <MudIconButton Icon="@Icons.Material.Filled.Search"
                                            Color="Color.Secondary"
@@ -565,7 +566,8 @@ else
                                                Title="add selected species to dataset" />
                                 }
                             </div>
-                        @if (_cmd == "cmdFilterSpeciesList")
+                        @* FILTER Species List *@
+                            @if (_cmd == "cmdFilterSpeciesList")
                             {
                                 <div class="d-flex">
                                 <MudTextField @ref="refFilterSpeciesList"
@@ -591,13 +593,6 @@ else
                                            style="margin-left:1px;margin-right:1px;"
                                            type="checkbox"
                                            @bind-value="datasetdata.IsSelected" />
-                                        @* <button type="button"
-                                            class="btn btn-link"
-                                            style="margin-left:1px"
-                                            @onclick='() => BtnReportSpecies(datasetData.SpeciesId)'
-                                            Title="Edit Species">
-                                        <img src="/img/icoFolderS.png" width="22" />
-                                        </button> *@
                                         <button type="button"
                                             class="btn btn-link"
                                             style="margin-left:1px"
@@ -625,13 +620,6 @@ else
                                            style="margin-left:1px;margin-right:1px;"
                                            type="checkbox"
                                            @bind-value="species.IsSelected" />
-                                        <button type="button"
-                                            class="btn btn-link"
-                                            style="margin-left:1px"
-                                            @onclick='() => BtnReportSpecies(species.SpeciesId)'
-                                            Title="Edit Species">
-                                        <img src="/img/icoFolderS.png" width="22" />
-                                        </button>
                                         <button type="button"
                                             class="btn btn-link"
                                             style="margin-left:1px"
@@ -766,7 +754,7 @@ else
             appState.SetMessage("");
             lstApgGroups = await feService.Read_ApgGroups();
             user.UserId = Convert.ToInt32(appState.UserId);
-            lstDatasets = await feService.Read_Datasets(user.UserId, 3);
+            lstDatasets = await feService.Read_Datasets (user.UserId, 3); //3:LM
             await ListAllDatasets();
             //_cmd = "cmdSearchGenera";
             _hasFetched = true;
@@ -1000,7 +988,7 @@ else
         _datasetId = 0;
         _datasetSearchText = datasetKeyword; //keep the search text
         lstSpecies = new();
-        lstDatasets = await feService.Read_DatasetsBySearch(user.UserId, 3, datasetKeyword);
+        lstDatasets = await feService.Read_DatasetsBySearch (user.UserId, 3, datasetKeyword); //3:LM
         _cmd = "";
         StateHasChanged();
         }
@@ -1008,7 +996,7 @@ else
         {
         _datasetId = 0;
         lstSpecies = new();
-        lstDatasets = await feService.Read_Datasets(user.UserId, 3);
+        lstDatasets = await feService.Read_Datasets (user.UserId, 3); //3:LM
         _cmd = "";
         StateHasChanged();
         }
@@ -1089,7 +1077,7 @@ else
         if (result)
             {
             Snackbar.Add("dataset created", Severity.Success);
-            lstDatasets = await feService.Read_Datasets(user.UserId, 3);
+            lstDatasets = await feService.Read_Datasets (user.UserId, 3); //3:LM
             _cmd = "";
             StateHasChanged();
             }
@@ -1154,7 +1142,7 @@ else
         if (_SpeciesListType.StartsWith("Dataset"))
             {
             lstDatasetData = lstDatasetData.Where(s => s.SciName?.Contains(_speciesListFilter, StringComparison.OrdinalIgnoreCase) == true).ToList();
-            _SpeciesListType = "Dataset Filtered"; //keep 'Dataset' at start position, so List type can be recognized in the page-code above
+            _SpeciesListType = "Dataset Filtered"; //keep word 'Dataset' at start position, so List type can be recognized in the page-code above
             }
         else
             {
@@ -1218,10 +1206,6 @@ else
             _SpeciesListType = "Related Taxa";
             StateHasChanged();
             }
-        }
-    public async Task BtnReportSpecies (string Id)
-        {
-
         }
     //methods
     //handle Keys

@@ -414,6 +414,7 @@ namespace AlamutB.Service
             }
         public async Task<List<Dataset>> Read_Datasets (int userId, int datasetType)
             {
+            //notice: to get datasets of all users from DB, set userId = 0 (see stored procedure) 
             var response = await _http.PostAsJsonAsync ($"api/Read_Datasets?datasetType={datasetType}", userId);
             if (response.IsSuccessStatusCode)
                 {
@@ -453,6 +454,7 @@ namespace AlamutB.Service
             }
         public async Task<List<Dataset>> Read_DatasetsBySearch (int userId, int datasetType, string datasetKeyword)
             {
+            //notice: to get datasets of all users from DB, set userId = 0 (see stored procedure) 
             var response = await _http.PostAsJsonAsync ($"api/Read_DatasetsBySearch?userId={userId}&datasetType={datasetType}", datasetKeyword);
             if (response.IsSuccessStatusCode)
                 {

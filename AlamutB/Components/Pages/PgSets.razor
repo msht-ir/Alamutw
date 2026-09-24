@@ -340,7 +340,7 @@ else
                                                         <hr style="color:royalblue;margin-top:50px" />
                                                         @* Add Selected Datasets to the Set *@
                                                             <button class="btn btn-link pulse-hover" @onclick="() => AddSelectedDatasetsToSet(set.SetId)">
-                                                            <img src="/img/icoSave1.png" width="24" title="add datasets to this set" />
+                                                            <img src="/img/icoListAddNew.png" width="36" title="add datasets to this set" />
                                                             </button>
                                                         @* Close the List *@
                                                             <button class="btn btn-link pulse-hover" @onclick="CloseDatasetsList">
@@ -353,13 +353,13 @@ else
                                         else
                                             {
                                                 <div class="d-flex gap-4 align-items-center justify-content-center">
-                                                @* Close List of Datasets *@
-                                                    <button class="btn btn-link pulse-hover" @onclick="CloseSetDataList">
-                                                    <img src="/img/icoGotoTop2.png" width="26" />
-                                                    </button>
                                                 @* Add Datasets *@
                                                     <button class="btn btn-link pulse-hover" @onclick="() => BtnAddDatasetsToSet(set.SetId)">
                                                     <img src="/img/icoAdd1.png" width="22" title="add datasets to this set" />
+                                                    </button>
+                                                @* Close List of Datasets *@
+                                                    <button class="btn btn-link pulse-hover" @onclick="CloseSetDataList">
+                                                    <img src="/img/icoGotoTop2.png" width="24" />
                                                     </button>
                                                 @* Save Subsets Changes *@
                                                     <button class="btn btn-link pulse-hover" @onclick="() => BtnSaveSubsets(set)">
@@ -382,12 +382,8 @@ else
             </EditForm>
         }
     <br />
+    @* GOTO TOP *@
         <div class="gap-4" style="display: flex;  justify-content: center; align-items: center;">
-        @* <MudIconButton OnClick="BtnBack"
-                       Icon="@Icons.Material.Filled.Menu"
-                       Color="Color.Primary"
-                       Size="Size.Large"
-                       Title="Switchboard" /> *@
             <button class="btn btn-link pulse-hover" @onclick="ScrollToTop">
             <img src="/img/icoGotoTop2.png" width="32" />
             </button>
@@ -756,13 +752,20 @@ else
         }
     private async Task OnCountryChanged (int newValue)
         {
-        var oldValue = _countryId;
-        _countryId = newValue;
-        if (_countryId != 0)
+        if((user.UserTags & 4) != 4)
             {
-            lstDatasets = await feService.Read_DatasetsByCountryId(_countryId);
+            Snackbar.Add("Account limited", Severity.Warning);
             }
-        StateHasChanged();
+        else
+            {
+            var oldValue = _countryId;
+            _countryId = newValue;
+            if (_countryId != 0)
+                {
+                lstDatasets = await feService.Read_DatasetsByCountryId(_countryId);
+                }
+            StateHasChanged();            
+            }
         }
     private async Task ReadCoutries ()
         {

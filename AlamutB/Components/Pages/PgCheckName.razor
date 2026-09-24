@@ -728,27 +728,27 @@ else
         dataset.DatasetType = 2;
         _cmd1 = (_cmd1 == "cmdAddNewDataset") ? "" : "cmdAddNewDataset";
         }
-    private async Task CreateDataset (string DatasetName)
-        {
-        //dataTypes: 1FL 2CN 3LM 4ST
-        int userId = Convert.ToInt32(appState.UserId);
-        Dataset Dataset = (new Dataset
-            {
-            UserId = userId,
-            DatasetType = 2,
-            DatasetAbbr = "new CN List",
-            DatasetName = DatasetName,
-            DatasetTags = 0
-            });
-        bool result = await feService.Create_Dataset(Dataset);
-        if (result)
-            {
-            Snackbar.Add("dataset created", Severity.Success, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
-            lstDatasets = await feService.Read_Datasets(userId, 2);
-            _cmd1 = "";
-            StateHasChanged();
-            }
-        }
+    // private async Task CreateDataset (string DatasetName)
+    //     {
+    //     --dataTypes: 1FL 2CN 3LM 4ST
+    //     int userId = Convert.ToInt32(appState.UserId);
+    //     Dataset Dataset = (new Dataset
+    //         {
+    //         UserId = userId,
+    //         DatasetType = 2,
+    //         DatasetAbbr = "new CN List",
+    //         DatasetName = DatasetName,
+    //         DatasetTags = 0
+    //         });
+    //     bool result = await feService.Create_Dataset(Dataset);
+    //     if (result)
+    //         {
+    //         Snackbar.Add("dataset created", Severity.Success, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+    //         lstDatasets = await feService.Read_Datasets(userId, 2);
+    //         _cmd1 = "";
+    //         StateHasChanged();
+    //         }
+    //     }
     private void BtnEditDataset (Dataset dataset)
         {
         if (dataset != null)

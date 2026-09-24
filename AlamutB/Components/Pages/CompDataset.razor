@@ -354,21 +354,29 @@ else
         }
     private async Task BtnSaveDataset ()
         {
-        bool result;
-        if (dataset.DatasetId > 0)
+        if(dataset.ProvinceId == 0)
             {
-            result = await feService.Update_Dataset(dataset);
+            Snackbar.Add("select a province", Severity.Warning, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+            return;
             }
         else
             {
-            result = await feService.Create_Dataset(dataset);
-            }
-        if (result)
-            {
-            Snackbar.Add("saved", Severity.Success);
-            _cmd = "";
-            StateHasChanged();
-            await OnCloseClick();
+            bool result;
+            if (dataset.DatasetId > 0)
+                {
+                result = await feService.Update_Dataset(dataset);
+                }
+            else
+                {
+                result = await feService.Create_Dataset(dataset);
+                }
+            if (result)
+                {
+                Snackbar.Add("saved", Severity.Success);
+                _cmd = "";
+                StateHasChanged();
+                await OnCloseClick();
+                }            
             }
         }
 

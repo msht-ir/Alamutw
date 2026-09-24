@@ -160,7 +160,7 @@
     public async Task BtnLogin ()
         {
         user = await feService.Read_User(_username, _password) ?? new User();
-        if (user.UserId != 0)
+        if ((user.UserId != 0) && ((user.UserTags & 1) == 1))
             {
             appState.SetUserLoginStatus(1);
             appState.SetUserId(user.UserId);
@@ -186,7 +186,7 @@
             }
         else
             {
-            Snackbar.Add("incorrect username or password!", Severity.Warning);
+            Snackbar.Add("incorrect username or password or user inactve", Severity.Warning);
             return;
             }
         }
