@@ -45,17 +45,6 @@ else
                         <h6 style="text-align:center;color:royalblue">Dataset<span style="font-size:x-small;color:indianred"> ( count @lstDatasets.Count() )</span></h6>
                         @* FILTER *@
                             <div class="d-flex gap-3">
-                            <MudTextField @ref="refFilterDatasets"
-                                          @bind-Value="_datasetFilter"
-                                          Label="search datasets"
-                                          Variant="Variant.Text"
-                                          Margin="Margin.Dense"
-                                          Autocomplete="off"
-                                          Adornment="Adornment.Start"
-                                          AdornmentIcon="@Icons.Material.Filled.Search"
-                                          OnAdornmentClick="@(() => FilterDatasets (_datasetFilter))"
-                                          Class="my-textfield" />
-
                             @* Country *@
                                 <MudAutocomplete T="int"
                                              Label="country"
@@ -73,10 +62,40 @@ else
                                         </span>
                                     </ItemTemplate>
                                 </MudAutocomplete>
-                                <button class="btn btn-link" style="margin-left:20px;" Title="show all" @onclick="BtnShowAllDatasets">
-                                <img src="/img/icoList1.png" width="20" />
-                                </button>
-
+                            @* Search datasets *@
+                            <MudTextField @ref="refFilterDatasets"
+                                          @bind-Value="_datasetFilter"
+                                          Label="search datasets"
+                                          Variant="Variant.Text"
+                                          Margin="Margin.Dense"
+                                          Autocomplete="off"
+                                          Adornment="Adornment.Start"
+                                          AdornmentIcon="@Icons.Material.Filled.Search"
+                                          OnAdornmentClick="@(() => FilterDatasets (_datasetFilter))"
+                                          Class="my-textfield" />
+                            @* SORT BY *@
+                                <div>
+                                    <MudSelect T="int"
+                                           @ref="refSortMode"
+                                           @bind-value="sortMode"
+                                           Label="sort by"
+                                           Class="my-select"
+                                           Variant="Variant.Text"
+                                           Margin="Margin.Dense"
+                                           Adornment="Adornment.Start"
+                                           AdornmentIcon="@Icons.Material.Filled.Sort"
+                                          OnAdornmentClick="@(() => SortDatasets (sortMode))"
+                                           Style="color:royalblue;width:140px;font-size:small;margin-left:15px;margin-right:20px;">
+                                    <MudSelectItem Value="0">Name</MudSelectItem>
+                                    <MudSelectItem Value="1">Abbr</MudSelectItem>
+                                    <MudSelectItem Value="2">Year</MudSelectItem>
+                                    <MudSelectItem Value="3">Province</MudSelectItem>
+                                    </MudSelect>
+                                </div>
+                            @* SHOW ALL *@
+                            <button class="btn btn-link" style="margin-top:10px;margin-left:20px;" Title="list all datasets" @onclick="BtnShowAllDatasets">
+                            <img src="/img/icoList1.png" width="20" />
+                            </button>
                             </div>
                         <br />
                         <br />
@@ -112,7 +131,7 @@ else
                                         Title=@($"show species in dataset id: {dataset.DatasetId}")>
                                     <img src="/img/icoList1.png" width="22" />
                                     </button>
-                                <span style="font-size:small"> @dataset.DatasetName </span>
+                                <span style="font-size:small"> <span style="font-size:x-small; color:darkgray">@dataset.RefYear</span> @dataset.DatasetName </span>
                                 &nbsp;
                                 <span style="color:indianred;font-size:x-small;font-weight:normal;"> &nbsp; (<span style="color:royalblue;font-size:x-small;font-weight:normal;"> @dataset.DatasetId </span>) </span>
                                 </div>
@@ -203,11 +222,11 @@ else
         }
     <br />
         <div class="gap-4" style="display: flex;  justify-content: center; align-items: center;">
-        <MudIconButton OnClick="BtnBack"
+        @* <MudIconButton OnClick="BtnBack"
                        Icon="@Icons.Material.Filled.Menu"
                        Color="Color.Primary"
                        Size="Size.Large"
-                       Title="Switchboard" />
+                       Title="Switchboard" /> *@
             <button class="btn btn-link pulse-hover" @onclick="ScrollToTop">
             <img src="/img/icoGotoTop2.png" width="32" />
             </button>
@@ -241,6 +260,10 @@ else
     Country country = new Country();
     public int _countryId = 0;
     public string _countryName = "";
+
+    //SortMode
+    public MudSelect<int> refSortMode;
+    public int sortMode = 0;
 
     string _cmd = "";
     public bool _hasFetched = false;
@@ -292,6 +315,33 @@ else
         {
         lstDatasets = lstDatasets.Where(s => s.DatasetName?.Contains(_datasetFilter, StringComparison.OrdinalIgnoreCase) == true).ToList();
         StateHasChanged();
+        }
+    public async Task SortDatasets (int _sortMode)
+        {
+        switch (_sortMode)
+            {
+            case 0:
+                    {
+                    lstDatasets = lstDatasets.OrderBy(d => d.DatasetName).ToList();
+                    break;
+                    }
+            case 1:
+                    {
+                    lstDatasets = lstDatasets.OrderBy(d => d.DatasetAbbr).ToList();
+                    break;
+                    }
+            case 2:
+                    {
+                    lstDatasets = lstDatasets.OrderBy(d => d.RefYear).ToList();
+                    break;
+                    }
+            case 3:
+                    {
+                    lstDatasets = lstDatasets.OrderBy(d => d.ProvinceId).ToList();
+                    break;
+                    }
+            }
+        StateHasChanged ();
         }
     public async Task BtnShowAllDatasets ()
         {

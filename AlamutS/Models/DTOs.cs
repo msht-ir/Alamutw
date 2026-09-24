@@ -113,9 +113,7 @@ namespace AlamutS.Models
                     UserTags &= ~256;
                 }
             }
-        public List<Set> StudentGroups { get; set; } = new List<Set> ();
-        public List<Dataset> StudentCourses { get; set; } = new List<Dataset> ();
-        public List<Note> StudentNotes { get; set; } = new List<Note> ();
+        public List<Note> UserNotes { get; set; } = new List<Note> ();
         }
     public class Setting
         {
@@ -173,7 +171,7 @@ namespace AlamutS.Models
         {
         public string SpeciesId { get; set; } = "";
         public string AcceptedId { get; set; } = "";
-        public int?    ApgGroupId { get; set; } = 0;
+        public int?   ApgGroupId { get; set; } = 0;
         public string? ApgGroupName { get; set; } = "";
         public int? OrderId { get; set; } = 0;
         public string? OrderName { get; set; } = "";

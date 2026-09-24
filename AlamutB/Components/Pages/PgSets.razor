@@ -352,18 +352,20 @@ else
                                             }
                                         else
                                             {
-                                            @* Add Datasets *@
-                                                <button class="btn btn-link pulse-hover" @onclick="() => BtnAddDatasetsToSet(set.SetId)">
-                                                <img src="/img/icoAdd1.png" width="22" title="add datasets to this set" />
-                                                </button>
-                                            @* Save Subsets Changes *@
-                                                <button class="btn btn-link pulse-hover" @onclick="() => BtnSaveSubsets(set)">
-                                                <img src="/img/icoSave2.png" width="22" title="add datasets to this set" />
-                                                </button>
-                                            @* Close List of Datasets *@
-                                                <button class="btn btn-link pulse-hover" @onclick="CloseSetDataList">
-                                                <img src="/img/icoGotoTop2.png" width="26" />
-                                                </button>
+                                                <div class="d-flex gap-4 align-items-center justify-content-center">
+                                                @* Close List of Datasets *@
+                                                    <button class="btn btn-link pulse-hover" @onclick="CloseSetDataList">
+                                                    <img src="/img/icoGotoTop2.png" width="26" />
+                                                    </button>
+                                                @* Add Datasets *@
+                                                    <button class="btn btn-link pulse-hover" @onclick="() => BtnAddDatasetsToSet(set.SetId)">
+                                                    <img src="/img/icoAdd1.png" width="22" title="add datasets to this set" />
+                                                    </button>
+                                                @* Save Subsets Changes *@
+                                                    <button class="btn btn-link pulse-hover" @onclick="() => BtnSaveSubsets(set)">
+                                                    <img src="/img/icoSave2.png" width="22" title="save changes to subsets" />
+                                                    </button>
+                                                </div>
                                             }
                                         </MudCardContent>
                                     </MudCard>
@@ -381,11 +383,11 @@ else
         }
     <br />
         <div class="gap-4" style="display: flex;  justify-content: center; align-items: center;">
-        <MudIconButton OnClick="BtnBack"
+        @* <MudIconButton OnClick="BtnBack"
                        Icon="@Icons.Material.Filled.Menu"
                        Color="Color.Primary"
                        Size="Size.Large"
-                       Title="Switchboard" />
+                       Title="Switchboard" /> *@
             <button class="btn btn-link pulse-hover" @onclick="ScrollToTop">
             <img src="/img/icoGotoTop2.png" width="32" />
             </button>
@@ -717,6 +719,22 @@ else
             Snackbar.Add("Select a Set first", Severity.Warning);
             }
         }
+    public async Task BtnEditDataset (SetData sd)
+        {
+        if (sd != null)
+            {
+            _cmd2 = (_cmd2 == "cmdEditDataset") ? "" : "cmdEditDataset";
+            if (_cmd2 != "")
+                lstSetData.FirstOrDefault(ds2 => ds2.DatasetId == sd.DatasetId)?.IsSelected = true;
+            _datasetId = sd.DatasetId;
+            dataSet = await feService.Read_Dataset(_datasetId);
+            StateHasChanged();
+            }
+        else
+            {
+            Snackbar.Add("Select a Dataset first", Severity.Warning);
+            }
+        }
 
     //search by country
     private string GetCountryName (int id)
@@ -776,22 +794,6 @@ else
         lstSets = await feService.Read_Sets(user.UserId);
         _hasFetched = true;
         StateHasChanged();
-        }
-    public async Task BtnEditDataset (SetData sd)
-        {
-        if (sd != null)
-            {
-            _cmd2 = (_cmd2 == "cmdEditDataset") ? "" : "cmdEditDataset";
-            if (_cmd2 != "")
-                lstDatasets.FirstOrDefault(ds2 => ds2.DatasetId == sd.DatasetId)?.IsSelected = true;
-            _datasetId = sd.DatasetId;
-            dataSet = await feService.Read_Dataset (_datasetId);
-            StateHasChanged();
-            }
-        else
-            {
-            Snackbar.Add("Select a Dataset first", Severity.Warning);
-            }
         }
     private async Task CloseComponent ()
         {

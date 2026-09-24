@@ -160,17 +160,31 @@ else
                             <td>Family count</td>
                             <td><span style="color:indianred">@nFam</span></td>
                             </tr>
+                            @* s/f g/f s/g *@
                             <tr>
                             <td>spc / fam</td>
-                            <td><span style="color:royalblue">@nSp / @nFam = @(((float) nSp / nFam).ToString("F3"))  </span></td>
+                            <td><span style="color:royalblue">@(((float) nSp / nFam).ToString("F3"))  </span></td>
                             </tr>
                             <tr>
                             <td>gen / fam</td>
-                            <td><span style="color:royalblue">@nGen / @nFam = @(((float) nGen / nFam).ToString("F3"))  </span></td>
+                            <td><span style="color:royalblue">@(((float) nGen / nFam).ToString("F3"))  </span></td>
                             </tr>
                             <tr>
                             <td>spc / gen</td>
-                            <td><span style="color:royalblue">@nSp / @nGen = @(((float) nSp / nGen).ToString("F3"))  </span></td>
+                            <td><span style="color:royalblue">@(((float) nSp / nGen).ToString("F3"))  </span></td>
+                            </tr>
+                            @* f/g f/s g/s *@
+                            <tr>
+                            <td>fam / gen</td>
+                            <td><span style="color:darkgreen">@((nFam / (float) nGen).ToString("F3"))  </span></td>
+                            </tr>
+                            <tr>
+                            <td>fam / spc</td>
+                            <td><span style="color:darkgreen">@((nFam / (float) nSp).ToString("F3"))  </span></td>
+                            </tr>
+                            <tr>
+                            <td>gen / spc</td>
+                            <td><span style="color:darkgreen">@((nGen / (float) nSp).ToString("F3"))  </span></td>
                             </tr>
                         </table>
                     </div>
