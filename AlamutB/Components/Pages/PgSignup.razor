@@ -19,18 +19,17 @@
                 <MudCard Class="mx-auto">
                     <MudCardContent Style="background-color:rgba(249,249,249);">
                         <div style="text-align:left">
-                        Your account will be created immediately.<br />
-                        Contact via email if furture help is needed.<br />
-                        Preferably, setup Alamut app on your own server for best practice.<br />
-                        You may contact for detailed info on database tables.<br />
                         <br />
                         <span style="font-weight:bold;color:indianred">notice:</span><br />
                             <ul>
                                 <li>
-                                use Alamut for: educational/research purposes<br />
+                                Your account will be created immediately.<br />
                                 </li>
                                 <li>
-                                try setting up your own server (I will help you)<br />
+                                You can setup your own server, contact for guides if needed<br />
+                                </li>
+                                <li>
+                                Use Alamut free for educational / personal purposes. <br />
                                 </li>
                             </ul>
                             <div class="form-check form-check-inline" style="padding-top:8px;">
@@ -244,13 +243,12 @@
                 var message = new MarkupString(@$"
                     <span style='color:indianred'>Your</span> account created! 
                     <br><br><ul>
-                    <li>Your account may require to be activated by the admin (check) </li>
                     <li>Please don't create repeatitive accounts. </li>
-                    <li>Contact admin email at mshtir@gmail.com for more info</li>
+                    <li>Contact admin at mshtir@gmail.com for more info</li>
                     <br>
                     your email:<br>{user.UserEmail}<br><br><hr style=color:blue>
                     <span style='color:indianred'> You can login to </span> 
-                    <strong>' {user.Username} '</strong> account if your account is activated.
+                    <strong>' {user.Username} '</strong> account now.
                     <hr style=color:blue>
                     ");
                 bool? confirmResult = await DialogService.ShowMessageBoxAsync(title: "Alamut accounts", markupMessage: message, yesText: "OK");

@@ -79,14 +79,16 @@ namespace AlamutB.Services2Backend
                 await cnn.CloseAsync ();
                 if (userOut.UserId > 0)
                     {
-                    //await LogAsync (userOut.UserId, cnn);
                     return userOut;
                     }
-                return new User ();
+                else
+                    {
+                    return new User ();
+                    }
                 }
             catch (Exception ex)
                 {
-                Console.WriteLine ("LoginAsTeacher error: " + ex.Message);
+                Console.WriteLine ("Login error: " + ex.Message);
                 cnn.Close ();
                 return new User ();
                 }
