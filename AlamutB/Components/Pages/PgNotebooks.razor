@@ -33,11 +33,12 @@ else
     {
     <div style="font-size:larger; text-align:center;color:black">@appState.UserNickname</div>
         <div style="text-align:left; max-width:500px; margin: 0 auto;">
-        <MudIconButton OnClick="BtnBack"
+        <hr />
+        @* <MudIconButton OnClick="BtnBack"
                        Icon="@Icons.Material.Filled.Menu"
                        Color="Color.Primary"
                        Size="Size.Large"
-                       Title="Switchboard" />
+                       Title="Switchboard" /> *@
             <button class="btn btn-link pulse-hover" @onclick="CreateStickyNote">
             <img src="/img/icoNoteStickyAdd.png" width="28" title="add new quick-note" />
             </button>
@@ -192,7 +193,7 @@ else
                                                         <img src="/img/icoOn.png" width="26" title="set as not-Todo" />
                                                         </button>
                                                         <button class="btn btn-link pulse-hover" @onclick="() => BtnEditNoteInDialog(dueNotex)">
-                                                        <img src="/img/icoRename.png" width="28" title="edit note" />
+                                                        <img src="/img/icoEditPen.png" width="22" title="edit note" />
                                                         </button>
                                                     @if (dueNotex.NoteText.Length > 100)
                                                         {
@@ -281,11 +282,11 @@ else
                                     else
                                         {
                                             <div style="text-align: center;">
-                                                <button class="btn btn-link pulse-hover" @onclick="() => BtnAddNewSection(notebook.NotebookId)">
-                                                <img src="/img/icoBookmarkAdd.png" width="28" title="add new section" />
-                                                </button>
                                                 <button class="btn btn-link pulse-hover" type="button" @onclick="() => BtnEditNotebook(notebook.NotebookId)">
-                                                <img src="/img/icoRename.png" width="34" title="edit notebook" />
+                                                <img src="/img/icoRename.png" width="30" title="edit notebook" />
+                                                </button>
+                                                <button class="btn btn-link pulse-hover" @onclick="() => BtnAddNewSection(notebook.NotebookId)">
+                                                <img src="/img/icoBookmarkAdd.png" width="26" title="add new section" />
                                                 </button>
                                             <hr style="color:red" />
                                             </div>
@@ -388,14 +389,14 @@ else
                                                                     {
                                                                     @* SECTION BUTTONS *@
                                                                         <div style="text-align:center">
-                                                                            <button class="btn btn-link pulse-animation" @onclick="() => BtnCreateNewSectionNote(section)">
-                                                                            <img src="/img/icoNoteStickyAdd.png" width="24" title="new note" />
-                                                                            </button>
                                                                             <button class="btn btn-link pulse-hover" type="button" @onclick="() => BtnEditSection(section.SectionId)">
                                                                             <img src="/img/icoRename.png" width="30" title="edit section" />
                                                                             </button>
                                                                             <button class="btn btn-link pulse-hover" type="button" @onclick="() => BtnReplaceSection(section.SectionId)">
                                                                             <img src="/img/icoMoveToNoteBook.png" width="32" title="move section to another notebook" />
+                                                                            </button>
+                                                                            <button class="btn btn-link pulse-animation" @onclick="() => BtnCreateNewSectionNote(section)">
+                                                                            <img src="/img/icoNoteStickyAdd.png" width="24" title="new note" />
                                                                             </button>
                                                                         </div>
                                                                     @* 2.3 NOTES *@
@@ -503,7 +504,7 @@ else
                                                                                                             </MudMenuItem>
                                                                                                         </MudMenu>
                                                                                                         <button class="btn btn-link pulse-hover" @onclick="() => BtnEditNoteInDialog(notex)">
-                                                                                                        <img src="/img/icoRename.png" width="28" title="edit note" />
+                                                                                                        <img src="/img/icoEditPen.png" width="22" title="edit note" />
                                                                                                         </button>
                                                                                                     @if (notex.NoteText.Length > 100)
                                                                                                         {

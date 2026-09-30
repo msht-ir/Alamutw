@@ -18,14 +18,13 @@
     }
 else
     {
-        <div style="text-align: left; margin:15px;">
+        @* <div style="text-align: left; margin:15px;">
         <MudIconButton OnClick="BtnBack"
                        Icon="@Icons.Material.Filled.Menu"
                        Color="Color.Primary"
                        Size="Size.Large"
                        Title="Switchboard" />
-        </div>
-    <hr />
+        </div> *@
         <EditForm Model="lstNotes">
         @if (appState.Cmd == "ShowNoteInDialog")
             {
@@ -33,17 +32,131 @@ else
             }
         else
             {
-
+        @* ---------------------------------------------------------------------------------- 3 SEARCH Species *@
+            <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-2 px-0">
+                <MudCard Class="mx-auto">
+                    <MudCardContent Style="background-color:rgba(249,249,249);">
+                        <div class="d-flex align-content-center align-items-center">
+                        <MudTextField T="string"
+                                      @ref="refSearchSpecies"
+                                      @bind-Value="_speciesSearchText"
+                                      OnKeyDown="HandleKey_SearchboxSpecies"
+                                      Label="search species"
+                                      Variant="Variant.Text"
+                                      Margin="Margin.Dense"
+                                      Immediate="true"
+                                      Adornment="Adornment.Start"
+                                      AdornmentIcon="@Icons.Material.Filled.Search"
+                                      OnAdornmentClick='()=>SearchSpecies(_speciesSearchText)'
+                                      Style="font-family:Tahoma;"
+                                      Class="my-textfield" />
+                        </div>
+                    </MudCardContent>
+                </MudCard>
+            </MudContainer>
+        @* ---------------------------------------------------------------------------------- 4 LIST Species *@
+        @if ((lstSpecies.Count > 0) || (lstDatasetData.Count > 0))
+            {
+                <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-2 px-0">
+                    <MudCard Class="mx-0">
+                        <MudCardContent Style="background-color:rgba(249,249,249);">
+                            @if (_SpeciesListType.StartsWith("Dataset"))
+                            {
+                            <h6 style="text-align:center;color:royalblue">@_SpeciesListType<span style="font-size:x-small;color:indianred"> ( Count @lstDatasetData.Count() )</span></h6>
+                            }
+                        else
+                            {
+                            <h6 style="text-align:center;color:royalblue">@_SpeciesListType<span style="font-size:x-small;color:indianred"> ( Count @lstSpecies.Count() )</span></h6>
+                            }
+                        <hr style="color:indianred" />
+                        @* 4CMDs: Search, All, Invert, delete/add *@
+                            <div class="d-flex gap-3 justify-content-center align-items-center" style="margin-top:15px;margin-bottom:15px;">
+                            <MudIconButton Icon="@Icons.Material.Filled.Search"
+                                           Color="Color.Secondary"
+                                           Size="Size.Medium"
+                                           OnClick="BtnFilterSpeciesList"
+                                           Title="Filter Species List" />
+                            <MudIconButton Icon="@Icons.Material.Filled.DoneAll"
+                                           Color="Color.Primary"
+                                           Size="Size.Medium"
+                                           OnClick="BtnSelectAllSpecies"
+                                           Title="Select all" />
+                            <MudIconButton Icon="@Icons.Material.Filled.Rule"
+                                           Color="Color.Primary"
+                                           Size="Size.Medium"
+                                           OnClick="BtnInvertSelection"
+                                           Title="Invert Selection" />
+                            </div>
+                        @* FILTER TextBox for Species List *@
+                        @if (_cmd == "cmdFilterSpeciesList")
+                            {
+                                <div class="d-flex">
+                                <MudTextField @ref="refFilterSpeciesList"
+                                              @bind-Value="_speciesListFilter"
+                                              Label="search results"
+                                              Variant="Variant.Text"
+                                              Margin="Margin.Dense"
+                                              Immediate="true"
+                                              Adornment="Adornment.End"
+                                              AdornmentIcon="@Icons.Material.Filled.Search"
+                                              OnAdornmentClick='@(() => FilterSpeciesList(_speciesListFilter))'
+                                              Class="my-textfield" />
+                                </div>
+                            <br />
+                            <br />
+                            }
+                            @foreach (Species species in lstSpecies)
+                                {
+                                    <div class="d-flex align-items-center mb-1">
+                                    <input class="form-check-input"
+                                           style="margin-left:1px;margin-right:1px;"
+                                           type="checkbox"
+                                           @bind="species.IsSelected" />
+                                        <button type="button"
+                                            class="btn btn-link"
+                                            style="margin-left:1px"
+                                            @onclick='() => BtnShowSubspecies(species)'
+                                            Title="Show sub-Species">
+                                        <img src="/img/icoList1.png" width="24" />
+                                        </button>
+                                        <button type="button"
+                                            class="btn btn-link"
+                                            style="margin-left:1px"
+                                            @onclick='() => BtnShowSubspecies(species)'
+                                            Title="Show sub-Species">
+                                        <img src="/img/icoSets1.png" width="26" />
+                                        </button>
+                                        <button type="button"
+                                            class="btn btn-link"
+                                            style="margin-left:1px"
+                                            @onclick='() => BtnShowSubspecies(species)'
+                                            Title="Show sub-Species">
+                                        <img src="/img/icoMap.png" width="24" />
+                                        </button>
+                                    <span style="font-size:smaller">@species.SciName </span>
+                                    <span style="font-size:smaller;color:forestgreen">&nbsp; @((species.NomStatus == 1) ? " valid " : "") </span>
+                                    <span style="font-size:smaller;color:darkgoldenrod">&nbsp; @((species.TaxStatus == 1) ? " accepted " : "") </span>
+                                    </div>
+                                }
+                        </MudCardContent>
+                    </MudCard>
+                </MudContainer>
+            }
             }
         </EditForm>
     }
+    <hr />
 <br />
-<br />
+<div class="gap-4" style="display: flex;  justify-content: center; align-items: center;">
+    <button class="btn btn-link pulse-hover" @onclick="ScrollToTop">
+    <img src="/img/icoGotoTop2.png" width="32" />
+    </button>
+</div>
 
+<br />
     <script>
     window.scrollToTop = () => { window.scrollTo({ top: 0, behavior: 'smooth' }); };
     </script>
-
 
 @code {
     [Parameter]
@@ -60,14 +173,50 @@ else
     private MudSelect<int> refSections;
     int NotebookId = 0;
     int SectionId = 0;
-    string _cmd = "";
 
-    User user = new User();
+    private User user = new User();
+    public MudTextField<string> reftxtSearch;
+    public string strSearch = "";
+    public MudNumericField<int> txtPageNumber;
+    public int intPageNumber = 0;
+
     List<Note> lstNotes = new List<Note>();
     List<Notebook> lstNotebooks = new List<Notebook>();
     List<Section> lstSections = new List<Section>();
     string _ShowNotebooksMode = "active";
+    //dataset
+    public MudSelect<int> refDatasets;
+    public MudTextField<string> refNewDataset;
+    public MudTextField<string> refSearchDataset;
+    List<Dataset>? lstDatasets = new();
+    public Dataset dataset = new Dataset();
+    public int _datasetId = 0;
+    public string _datasetName = "";
+    public string _datasetSearchText = "";
+
+    //species
+    public MudTextField<string> refNewSpecies;
+    public MudTextField<string> refSearchSpecies;
+    public MudSelect<int> refSpecies;
+    public string _speciesSearchText = "";
+    //species
+    public MudTextField<string> refFilterSpeciesList;
+    List<Species> lstSpecies = new();
+    Species species = new Species();
+    List<DatasetData> lstDatasetData = new();
+    DatasetData datasetdata = new DatasetData();
+
+    private string _speciesId = "";
+    private string _speciesName = "";
+    private string _speciesListFilter = "";
+
+    //misc vars
+    public int i = 0;
+    public string _cmd = "";
+    public string _SpeciesListType = "-";
     public bool _hasFetched = false;
+    public bool requestFeedback { get; set; } = false;
+
 
     //LifeCycleEvents
     protected override async Task OnInitializedAsync ()
@@ -100,6 +249,167 @@ else
         {
         Navman.NavigateTo("/Switchboard");
         }
+    //Species
+    private async Task SearchSpecies (string speciesKeywords)
+        {
+        _speciesSearchText = speciesKeywords; //keep the search text
+        var words = speciesKeywords.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (words.Length < 2)
+            {
+            return;
+            }
+        else if((words[0].Length < 2) || (words[1].Length < 2))
+            {
+            Snackbar.Add($"short keywords!", Severity.Warning);
+            return;            
+            } 
+        else
+        {
+            _cmd = "";
+            _SpeciesListType = "Species search";
+            lstSpecies = new();
+            lstSpecies = await feService.Read_SpeciesBySearch(words [0], words [1]);
+            StateHasChanged();
+        }
+    }
+    private async Task HandleKey_SearchboxSpecies (KeyboardEventArgs e)
+        {
+        if (e.Key == "Enter")
+            {
+            await SearchSpecies(_speciesSearchText);
+            return;
+            }
+        if (e.Key == "Escape")
+            {
+            strSearch = "";
+            await InvokeAsync(StateHasChanged);
+            }
+        }
+    public async Task BtnFilterSpeciesList ()
+    {
+        _cmd = _cmd == "cmdFilterSpeciesList" ? "" : "cmdFilterSpeciesList";
+        StateHasChanged();
+    }
+    public async Task FilterSpeciesList (string _speciesListFilter)
+    {
+        if (_SpeciesListType.StartsWith("Dataset"))
+        {
+            lstDatasetData = lstDatasetData.Where(s => s.SciName?.Contains(_speciesListFilter, StringComparison.OrdinalIgnoreCase) == true).ToList();
+            _SpeciesListType = "Dataset Filtered"; //keep word 'Dataset' at start position, so List type can be recognized in the page-code above
+        }
+        else
+        {
+            lstSpecies = lstSpecies.Where(s => s.SciName?.Contains(_speciesListFilter, StringComparison.OrdinalIgnoreCase) == true).ToList();
+            _SpeciesListType = "List Filtered";
+        }
+        StateHasChanged();
+    }
+    public async Task BtnShowSubspecies (Species species)
+        {
+        var words = species.SciName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (words.Length < 2)
+            {
+            return;
+            }
+        else
+            {
+            lstSpecies = await feService.Read_Subspecies(words [0], words [1]);
+            _SpeciesListType = "Related Taxa";
+            StateHasChanged();
+            }
+        }
+    //List Species
+    public async Task BtnSelectAllSpecies ()
+    {
+        if (_SpeciesListType.StartsWith("Dataset"))
+        {
+            foreach (DatasetData datasetData in lstDatasetData)
+            {
+                datasetData.IsSelected = true;
+            }
+        }
+        else
+        {
+            foreach (Species species in lstSpecies)
+            {
+                species.IsSelected = true;
+            }
+        }
+        StateHasChanged();
+    }
+    public async Task BtnInvertSelection ()
+    {
+        if (_SpeciesListType.StartsWith("Dataset"))
+        {
+            foreach (DatasetData datasetData in lstDatasetData)
+            {
+                datasetData.IsSelected = (datasetData.IsSelected) ? false : true;
+            }
+        }
+        else
+        {
+            foreach (Species species in lstSpecies)
+            {
+                species.IsSelected = (species.IsSelected) ? false : true;
+            }
+        }
+        StateHasChanged();
+    }
+    //Add-Remove Species to Dataset
+    private async Task BtnAddSelectedSpeciesToDataset (int datasetId)
+    {
+        int counter = 0;
+        if (datasetId != 0)
+        {
+            foreach (Species spc in lstSpecies)
+            {
+                if (spc.IsSelected)
+                {
+                    DatasetData datasetData = new DatasetData()
+                        {
+                        DatasetDataId = 0,
+                        DatasetId = datasetId,
+                        SpeciesId = spc.SpeciesId,
+                        Infraspecific = "",
+                        LineString = "",
+                        ParsedGenus = "",
+                        ParsedEpithet = ""
+                        };
+                    bool results = await feService.Create_DatasetData(datasetData);
+                    counter++;
+                }
+            }
+            Snackbar.Add($"{@counter} items added to the dataset", Severity.Success);
+            StateHasChanged();
+        }
+        else
+        {
+            Snackbar.Add("Select a Dataset", Severity.Warning);
+        }
+    }
+    private async Task BtnRemoveSelectedSpeciesFromDataset (int datasetId)
+    {
+        int counter = 0;
+        if (datasetId != 0)
+        {
+            foreach (DatasetData dsd in lstDatasetData)
+            {
+                if (dsd.IsSelected)
+                {
+                    bool results = await feService.Delete_DatasetData(dsd.DatasetDataId);
+                    counter++;
+                }
+            }
+            Snackbar.Add($"{@counter} items removed from the dataset", Severity.Warning);
+            lstDatasetData = await feService.Read_DatasetData(datasetId);
+            _SpeciesListType = "Dataset";
+            StateHasChanged();
+        }
+        else
+        {
+            Snackbar.Add("Select a Dataset", Severity.Warning);
+        }
+    }
     //convert date
     public string PersianDate (DateTimeOffset? dt)
         {
@@ -121,4 +431,27 @@ else
         _hasFetched = true;
         StateHasChanged();
         }
+            public async Task BtnCreateStickyNote (int refType, int refId)
+        {
+        if (refId > 0)
+            {
+            //refTypes: 1:ApgGroup 2:Order 3 ّFamily 4:Genus 5:Species 6:DatasetFL 7:DatasetCN 8:DatasetLM 9:Station 10:Set 11:SetData 12:Section 13:User'sNote
+            appState.SetNoteRefId(refId);
+            appState.SetNoteRefType(refType);
+            appState.SetCmd("cmdCreateNote");
+            StateHasChanged();
+            //After the Modal_CreateNote is closed, HandleModalClose will refresh the list
+            //to handel close event, I added in the Modal_CreateNote: [Parameter] public EventCallback OnClose
+            }
+        else
+            {
+            Snackbar.Add($"select an item first", Severity.Warning);
+            }
+        }
+    //Back
+    private async Task ScrollToTop ()
+        {
+        await JS.InvokeVoidAsync("scrollToTop");
+        }
+
     }

@@ -47,24 +47,6 @@ else
                             </MudContainer>
                         <hr style="border-color:red" />
                         }
-                    @* @if (_cmd == "cmdAddNewDataset")
-                        {
-                            <div class="d-flex">
-                            <MudTextField @ref="refNewDataset"
-                                          @bind-Value="_datasetName"
-                                          Label="new dataset name"
-                                          Variant="Variant.Text"
-                                          Margin="Margin.Dense"
-                                          Autocomplete="off"
-                                          Adornment="Adornment.End"
-                                          AdornmentIcon="@Icons.Material.Filled.Save"
-                                          OnAdornmentClick="@(() => CreateDataset (_datasetName))"
-                                          Class="my-textfield" />
-                                <button class="btn btn-link" style="margin-left:20px;" Title="cancel" @onclick="BtnCancel">
-                                <img src="/img/icoCancel.png" width="20" />
-                                </button>
-                            </div>
-                        } *@
                     else if (_cmd == "cmdEditDataset")
                         {
                         <br />
