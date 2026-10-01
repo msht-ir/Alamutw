@@ -25,7 +25,7 @@ else
         else
             {
                 <h6 style="font-size:smaller;color:indianred">
-                @if((Convert.ToInt32(appState.UserTags) & 2) == 2 || (user.UserId == dataset.UserId))
+                @if ((Convert.ToInt32(appState.UserTags) & 256) == 256 || (user.UserId == dataset.UserId))
                     {
                     <button class="btn btn-link" @onclick="BtnSaveDataset">
                     <img src="/img/icoSave2.png" width="18" title="save / update" />
@@ -259,7 +259,7 @@ else
         </EditForm>
     @* FOOTER *@
         <div style="text-align: center; margin:10px;">
-        @if((Convert.ToInt32(appState.UserTags) & 2) == 2 || (user.UserId == dataset.UserId))
+        @if ((Convert.ToInt32(appState.UserTags) & 256) == 256 || (user.UserId == dataset.UserId) || (dataset.DatasetId == 0))
             {
             <button class="btn btn-link" @onclick="BtnSaveDataset">
             <img src="/img/icoSave2.png" width="22" title="save / update" />
@@ -358,9 +358,19 @@ else
         }
     private async Task BtnSaveDataset ()
         {
-        if(dataset.ProvinceId == 0)
+        if(dataset.DatasetName.Trim().Length < 6)
             {
-            Snackbar.Add("select a province", Severity.Warning, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+            Snackbar.Add("Enter a (+5 char long) name", Severity.Info, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+            return;
+            }
+        else if (dataset.ProvinceId == 0)
+            {
+            Snackbar.Add("select country and province", Severity.Warning, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+            return;
+            }
+        else if (dataset.DatasetType == 0)
+            {
+            Snackbar.Add("select dataset type", Severity.Warning, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
             return;
             }
         else
@@ -372,6 +382,7 @@ else
                 }
             else
                 {
+                dataset.UserId = user.UserId;
                 result = await feService.Create_Dataset(dataset);
                 }
             if (result)
@@ -426,7 +437,7 @@ else
     //methods
     public string PersianDate (DateTimeOffset? dt)
         {
-        if ((Convert.ToInt32(appState.UserTags) & 256) == 256)
+        if ((Convert.ToInt32(appState.UserTags) & 2) == 2)
             {
             return feService.ToPersianDate(dt.ToString());
             }

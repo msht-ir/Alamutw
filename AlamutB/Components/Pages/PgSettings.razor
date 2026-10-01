@@ -193,9 +193,9 @@ else
         pass.CurrentPass = "";
         pass.NewPass = "";
         pass.RepeatPass = "";
-        _remindDueNotes = ((Convert.ToInt32(appState.UserTags) & 16) == 16);
-        _dueNotesDays7 = ((Convert.ToInt32(appState.UserTags) & 32) == 32);
-        _useFaCalendar = ((Convert.ToInt32(appState.UserTags) & 256) == 256);
+        _remindDueNotes = ((Convert.ToInt32(appState.UserTags) & 4) == 4);
+        _dueNotesDays7 = ((Convert.ToInt32(appState.UserTags) & 8) == 8);
+        _useFaCalendar = ((Convert.ToInt32(appState.UserTags) & 2) == 2);
         loginStatus = Convert.ToInt32(appState.UserLoginStatus);
         appState.SetCmd("");
         _hasFetched = true;
@@ -242,29 +242,29 @@ else
             //showDueNotes
             if (_remindDueNotes)
                 {
-                user.UserTags |= 16;
+                user.UserTags |= 4;
                 }
             else
                 {
-                user.UserTags &= ~16;
+                user.UserTags &= ~4;
                 }
             //dueNotesDays14
             if (_dueNotesDays7)
                 {
-                user.UserTags |= 32;
+                user.UserTags |= 8;
                 }
             else
                 {
-                user.UserTags &= ~32;
+                user.UserTags &= ~8;
                 }
             //calendarFa
             if (_useFaCalendar)
                 {
-                user.UserTags |= 256;
+                user.UserTags |= 2;
                 }
             else
                 {
-                user.UserTags &= ~256;
+                user.UserTags &= ~2;
                 }
             bool result = await feService.Update_User(user);
             if (result)
@@ -299,7 +299,7 @@ else
         }
     public string PersianDate (DateTimeOffset? dt)
         {
-        if ((Convert.ToInt32(appState.UserTags) & 256) == 256)
+        if ((Convert.ToInt32(appState.UserTags) & 2) == 2)
             {
             return feService.ToPersianDate(dt.ToString());
             }

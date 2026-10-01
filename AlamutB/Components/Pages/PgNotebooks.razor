@@ -151,7 +151,7 @@ else
                             <button class="btn btn-link pulse-animation" @onclick="() => BtnReadNotesDue()">
                             <img src="img/icoClockRed.png" width="30" style="margin-right:10px;" />
                             </button>
-                        <h5 style="color:mediumslateblue">Todo Notes <span style="font-size:x-small;color:indianred">@((user.UserTags & 32) == 32 ? "(\u00B1 7 days)" : "(\u00B1 3 days)")</span> </h5>
+                        <h5 style="color:mediumslateblue">Todo Notes <span style="font-size:x-small;color:indianred">@((user.UserTags & 8) == 8 ? "(\u00B1 7 days)" : "(\u00B1 3 days)")</span> </h5>
                         </button>
                     </h4>
                     <div id="@collapseId_due" class="accordion-collapse collapse" data-bs-parent="#accordionNotebooks">
@@ -958,9 +958,9 @@ else
         {
         user.UserTags = Convert.ToInt32(appState.UserTags);
         user.UserId = Convert.ToInt32(appState.UserId);
-        if ((user.UserTags & 16) == 16)
+        if ((user.UserTags & 4) == 4)
             {
-            lstDueNotes = await feService.Read_NotesDue(user.UserId, ((user.UserTags & 32) == 32) ? 14 : 7);
+            lstDueNotes = await feService.Read_NotesDue(user.UserId, ((user.UserTags & 8) == 8) ? 14 : 7);
             }
         StateHasChanged();
         }
@@ -1052,7 +1052,7 @@ else
             bool result = await feService.Update_Note(note);
             if (result)
                 {
-                lstDueNotes = await feService.Read_NotesDue(user.UserId, ((user.UserTags & 32) == 32) ? 14 : 7);
+                lstDueNotes = await feService.Read_NotesDue(user.UserId, ((user.UserTags & 8) == 8) ? 14 : 7);
                 StateHasChanged();
                 }
             else
@@ -1200,7 +1200,7 @@ else
     //convert date
     public string PersianDate (DateTimeOffset? dt)
         {
-        if ((Convert.ToInt32(appState.UserTags) & 256) == 256)
+        if ((Convert.ToInt32(appState.UserTags) & 2) == 2)
             {
             return feService.ToPersianDate(dt.ToString());
             }
@@ -1232,9 +1232,9 @@ else
             //refresh searched notes, as one of them may be editted
             await BtnReadNotesBySearch();
             }
-        if ((user.UserTags & 16) == 16)
+        if ((user.UserTags & 4) == 4)
             {
-            lstDueNotes = await feService.Read_NotesDue(user.UserId, ((user.UserTags & 32) == 32) ? 14 : 7);
+            lstDueNotes = await feService.Read_NotesDue(user.UserId, ((user.UserTags & 8) == 8) ? 14 : 7);
             }
         StateHasChanged();
         }

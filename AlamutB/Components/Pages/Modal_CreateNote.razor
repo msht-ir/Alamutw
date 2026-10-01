@@ -209,21 +209,21 @@
             _PersianMonth = dT1Offset.Month;
             _PersianDay = dT1Offset.Day;
             _date = dT1Offset.LocalDateTime;
-            _time = ((Convert.ToInt32(appState.UserTags) & 256) == 256) ? dT1Offset.TimeOfDay.Add(new TimeSpan(+3, +30, 0)) : dT1Offset.TimeOfDay;
+            _time = ((Convert.ToInt32(appState.UserTags) & 2) == 2) ? dT1Offset.TimeOfDay.Add(new TimeSpan(+3, +30, 0)) : dT1Offset.TimeOfDay;
             //DT2 (NoteDateTimeDue)
             DateTimeOffset dT2Offset = DateTimeOffset.Parse(appState.NoteDateTimeDue);
             _PersianYear = dT2Offset.Year;
             _PersianMonth = dT2Offset.Month;
             _PersianDay = dT2Offset.Day;
             _dueDate = dT2Offset.LocalDateTime;
-            _dueTime = ((Convert.ToInt32(appState.UserTags) & 256) == 256) ? dT2Offset.TimeOfDay.Add(new TimeSpan(+3, +30, 0)) : dT2Offset.TimeOfDay;
+            _dueTime = ((Convert.ToInt32(appState.UserTags) & 2) == 2) ? dT2Offset.TimeOfDay.Add(new TimeSpan(+3, +30, 0)) : dT2Offset.TimeOfDay;
             //END PARSE DATETIME
             note.NoteText = appState.NoteText ?? "";
             note.IsRtl = Convert.ToBoolean(appState.NoteTags & 1);
             note.IsShared = Convert.ToBoolean(appState.NoteTags & 2);
             note.IsTodo = Convert.ToBoolean(appState.NoteTags & 8);
             }
-        _persianCulture = ((Convert.ToInt32(appState.UserTags) & 256) == 256) ? new CultureInfo("fa-IR") : new CultureInfo("en-US");
+        _persianCulture = ((Convert.ToInt32(appState.UserTags) & 2) == 2) ? new CultureInfo("fa-IR") : new CultureInfo("en-US");
         _hasFetched = true;
         }
     private void TriggerRender ()

@@ -753,9 +753,10 @@ else
         }
     private async Task OnCountryChanged (int newValue)
         {
-        if((user.UserTags & 4) != 4)
+        if((user.UserTags & 384) == 0)
             {
-            Snackbar.Add("Account limited", Severity.Warning);
+            //384:256+128(admin+gold)
+            Snackbar.Add("not available in silver / demo account", Severity.Info);
             }
         else
             {
@@ -782,7 +783,7 @@ else
     //methods
     public string PersianDate (DateTimeOffset? dt)
         {
-        if ((Convert.ToInt32(appState.UserTags) & 256) == 256)
+        if ((Convert.ToInt32(appState.UserTags) & 2) == 2)
             {
             return feService.ToPersianDate(dt.ToString());
             }

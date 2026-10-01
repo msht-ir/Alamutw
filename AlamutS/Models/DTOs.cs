@@ -25,7 +25,7 @@ namespace AlamutS.Models
                     UserTags &= ~1;
                 }
             }
-        public bool AdminAcc
+        public bool UseFaCalendar
             {
             get => (UserTags & 2) == 2;
             set
@@ -36,7 +36,7 @@ namespace AlamutS.Models
                     UserTags &= ~2;
                 }
             }
-        public bool GoldAcc
+        public bool RemindDueNotes
             {
             get => (UserTags & 4) == 4;
             set
@@ -47,7 +47,7 @@ namespace AlamutS.Models
                     UserTags &= ~4;
                 }
             }
-        public bool SilverAcc
+        public bool DueNotesDays
             {
             get => (UserTags & 8) == 8;
             set
@@ -58,7 +58,7 @@ namespace AlamutS.Models
                     UserTags &= ~8;
                 }
             }
-        public bool RemindDueNotes
+        public bool CanChangeNickname
             {
             get => (UserTags & 16) == 16;
             set
@@ -69,7 +69,7 @@ namespace AlamutS.Models
                     UserTags &= ~16;
                 }
             }
-        public bool DueNotesDays
+        public bool OnExpireInactive
             {
             get => (UserTags & 32) == 32;
             set
@@ -80,7 +80,7 @@ namespace AlamutS.Models
                     UserTags &= ~32;
                 }
             }
-        public bool CanChangeNickname
+        public bool SilverAcc
             {
             get => (UserTags & 64) == 64;
             set
@@ -91,7 +91,7 @@ namespace AlamutS.Models
                     UserTags &= ~64;
                 }
             }
-        public bool OnExpireInactive
+        public bool GoldAcc
             {
             get => (UserTags & 128) == 128;
             set
@@ -102,7 +102,7 @@ namespace AlamutS.Models
                     UserTags &= ~128;
                 }
             }
-        public bool UseFaCalendar
+        public bool AdminAcc
             {
             get => (UserTags & 256) == 256;
             set

@@ -16,22 +16,10 @@
     }
 else
     {
-        <div style="text-align: left; margin-left:15px;">
-        <MudIconButton OnClick="BtnBack"
-                       Icon="@Icons.Material.Filled.Menu"
-                       Color="Color.Primary"
-                       Size="Size.Large"
-                       Title="Switchboard" />
-        </div>
     <hr />
         <EditForm Model="user">
         <CompInfoTech />
             <div class="gap-4" style="display: flex;  justify-content: center; align-items: center;">
-            <MudIconButton OnClick="BtnBack"
-                           Icon="@Icons.Material.Filled.Menu"
-                           Color="Color.Primary"
-                           Size="Size.Large"
-                           Title="Switchboard" />
                 <button class="btn btn-link pulse-hover" @onclick="ScrollToTop">
                 <img src="/img/icoGotoTop2.png" width="32" />
                 </button>
@@ -91,7 +79,7 @@ else
     //methods
     public string PersianDate (DateTimeOffset? dt)
         {
-        if ((Convert.ToInt32(appState.UserTags) & 256) == 256)
+        if ((Convert.ToInt32(appState.UserTags) & 2) == 2)
             {
             return feService.ToPersianDate(dt.ToString());
             }

@@ -135,38 +135,45 @@ else
                                         <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-4 mb-4 px-0">
                                             <MudCard Class="mx-0">
                                                 <MudCardContent Style="background-color:rgb(254,254,254);">
-                                                <h6 style="text-align:center;color:royalblue">in datasets: <span style="font-size:x-small;color:indianred"> ( Count @lstDatasets.Count() )</span></h6>
-                                                <hr style="color:indianred" />
-                                                @foreach (Dataset _ds in lstDatasets)
+                                                @if(lstDatasets.Count() == 0)
                                                     {
-                                                        <div class="d-flex align-items-center mb-1">
-                                                        <input class="form-check-input"
-                                                               style="margin-left:1px;margin-right:1px;"
-                                                               type="checkbox"
-                                                               @bind="_ds.IsSelected" />
-                                                            <button type="button"
-                                                                class="btn btn-link"
-                                                                style="margin-left:1px"
-                                                                @onclick='() => BtnShowDatasetInfo(_ds)'
-                                                                Title="Dataset Info">
-                                                            <img src="/img/icoFolderSearch.png" width="22" />
-                                                            </button>
-                                                        <span style="font-size:smaller">@_ds.DatasetName </span>
-                                                        <span style="font-size:smaller;color:forestgreen">&nbsp; ( @_ds.DatasetAbbr - @_ds.ProvinceName)</span>
-                                                        </div>
-                                                        @if ((_cmd2 == "cmdEditDataset") && (_ds.DatasetId == _datasetId))
-                                                            {
-                                                            @* Edit Dataset *@
-                                                            <br />
-                                                                <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-1 mb-4 px-0">
-                                                                    <MudCard Class="mx-0">
-                                                                        <MudCardContent Style="background-color:rgba(240,240,240);">
-                                                                        @* SHOW COMPONENT *@
-                                                                        <CompDataset dataset="_ds" OnClose="CloseComponent" />
-                                                                        </MudCardContent>
-                                                                    </MudCard>
-                                                                </MudContainer>
-                                                            }
+                                                    <h6 style="text-align:center;color:indianred">no data</h6>
+                                                    }
+                                                else
+                                                    {
+                                                    <h6 style="text-align:center;color:royalblue">in datasets: <span style="font-size:x-small;color:indianred"> ( Count @lstDatasets.Count() )</span></h6>
+                                                    <hr style="color:indianred" />
+                                                    @foreach (Dataset _ds in lstDatasets)
+                                                        {
+                                                            <div class="d-flex align-items-center mb-1">
+                                                            <input class="form-check-input"
+                                                                   style="margin-left:1px;margin-right:1px;"
+                                                                   type="checkbox"
+                                                                   @bind="_ds.IsSelected" />
+                                                                <button type="button"
+                                                                    class="btn btn-link"
+                                                                    style="margin-left:1px"
+                                                                    @onclick='() => BtnShowDatasetInfo(_ds)'
+                                                                    Title="Dataset Info">
+                                                                <img src="/img/icoFolderSearch.png" width="22" />
+                                                                </button>
+                                                            <span style="font-size:smaller">@_ds.DatasetName </span>
+                                                            <span style="font-size:smaller;color:forestgreen">&nbsp; ( @_ds.DatasetAbbr - @_ds.ProvinceName)</span>
+                                                            </div>
+                                                            @if ((_cmd2 == "cmdEditDataset") && (_ds.DatasetId == _datasetId))
+                                                                {
+                                                                @* Edit Dataset *@
+                                                                <br />
+                                                                    <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-1 mb-4 px-0">
+                                                                        <MudCard Class="mx-0">
+                                                                            <MudCardContent Style="background-color:rgba(240,240,240);">
+                                                                            @* SHOW COMPONENT *@
+                                                                            <CompDataset dataset="_ds" OnClose="CloseComponent" />
+                                                                            </MudCardContent>
+                                                                        </MudCard>
+                                                                    </MudContainer>
+                                                                }
+                                                        }                                                    
                                                     }
                                                     <hr />
                                                     <div class="gap-4" style="display: flex;  justify-content: center; align-items: center;">
@@ -424,7 +431,7 @@ else
         }
     public string PersianDate (DateTimeOffset? dt)
         {
-        if ((Convert.ToInt32(appState.UserTags) & 256) == 256)
+        if ((Convert.ToInt32(appState.UserTags) & 2) == 2)
             {
             return feService.ToPersianDate(dt.ToString());
             }

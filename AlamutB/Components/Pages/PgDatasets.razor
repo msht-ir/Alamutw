@@ -280,7 +280,7 @@ else
         user.UserId = Convert.ToInt32(appState.UserId);
         user.UserTags = Convert.ToInt32(appState.UserTags);
         user.Username = appState.Username ?? "";
-        lstDatasets = await feService.Read_Datasets (((user.UserTags & 4) == 4) ? 0 : user.UserId, 1); //UserTags=4:GoldAcc, userId=0 : to get datasets of all users (see: stored procedure)
+        lstDatasets = await feService.Read_Datasets ((user.UserTags >= 128) ? 0 : user.UserId, 1); //UserTags=128:GoldAcc, userId=0 : to get datasets of all users (see: stored procedure)
         await ReadCoutries();
         _hasFetched = true;
         }
@@ -295,7 +295,7 @@ else
     //convert date
     public string PersianDate (DateTimeOffset? dt)
         {
-        if ((Convert.ToInt32(appState.UserTags) & 256) == 256)
+        if ((Convert.ToInt32(appState.UserTags) & 2) == 2)
             {
             return feService.ToPersianDate(dt.ToString());
             }
@@ -347,7 +347,7 @@ else
     public async Task BtnShowAllDatasets ()
         {
         lstDatasets.Clear();
-        lstDatasets = await feService.Read_Datasets (((user.UserTags & 4) == 4) ? 0 : user.UserId, 1); //UserTags=4:GoldAcc, userId=0 : to get datasets of all users (see: stored procedure)
+        lstDatasets = await feService.Read_Datasets ((user.UserTags >= 128) ? 0 : user.UserId, 1); //UserTags=128:GoldAcc, userId=0 : to get datasets of all users (see: stored procedure)
         StateHasChanged();
         }
     public async Task BtnReportDatasets (int Id)
@@ -497,9 +497,10 @@ else
         }
     private async Task OnCountryChanged (int newValue)
         {
-        if((user.UserTags & 4) != 4)
+        if((user.UserTags & 384) == 0)
             {
-            Snackbar.Add("Account limited", Severity.Warning);
+            //384:256+128(admin+gold)
+            Snackbar.Add("not available in silver / demo account", Severity.Info);
             }
         else
             {
