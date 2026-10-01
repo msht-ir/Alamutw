@@ -492,6 +492,32 @@ namespace AlamutB.Service
                 return new List<Dataset> ();
                 }
             }
+        public async Task<List<Dataset>> Read_DatasetsByProvinceId (int provinceId)
+            {
+            var response = await _http.PostAsJsonAsync ($"api/Read_DatasetsByProvinceId", provinceId);
+            if (response.IsSuccessStatusCode)
+                {
+                List<Dataset> lstDatasets = await response.Content.ReadFromJsonAsync<List<Dataset>> ();
+                return lstDatasets;
+                }
+            else
+                {
+                return new List<Dataset> ();
+                }
+            }
+        public async Task<List<Dataset>> Read_DatasetsBySpeciesId (string speciesId)
+            {
+            var response = await _http.PostAsJsonAsync ($"api/Read_DatasetsBySpeciesId", speciesId);
+            if (response.IsSuccessStatusCode)
+                {
+                List<Dataset> lstDatasets = await response.Content.ReadFromJsonAsync<List<Dataset>> ();
+                return lstDatasets;
+                }
+            else
+                {
+                return new List<Dataset> ();
+                }
+            }
         public async Task<bool> Update_Dataset (Dataset dataset)
             {
             var response = await _http.PostAsJsonAsync ("api/Update_Dataset", dataset);
@@ -950,6 +976,5 @@ namespace AlamutB.Service
                        $"{pc.GetHour (datetime):00}:{pc.GetMinute (datetime):00}";
             }
         #endregion
-
         }
     }

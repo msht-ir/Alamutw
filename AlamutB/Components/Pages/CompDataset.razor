@@ -25,12 +25,12 @@ else
         else
             {
                 <h6 style="font-size:smaller;color:indianred">
-                @* <button class="btn btn-link" style="margin-left:5px;" Title="cancel" @onclick="OnClose">
-                    <img src="/img/icoCancel.png" width="18" />
-                    </button> *@
+                @if((Convert.ToInt32(appState.UserTags) & 2) == 2 || (user.UserId == dataset.UserId))
+                    {
                     <button class="btn btn-link" @onclick="BtnSaveDataset">
                     <img src="/img/icoSave2.png" width="18" title="save / update" />
-                    </button>
+                    </button>                    
+                    }
                 Edit: <span style="font-size:smaller;color:darkslategray">@dataset.DatasetName</span> (id:@dataset.DatasetId)
                 </h6>
             }
@@ -259,9 +259,13 @@ else
         </EditForm>
     @* FOOTER *@
         <div style="text-align: center; margin:10px;">
+        @if((Convert.ToInt32(appState.UserTags) & 2) == 2 || (user.UserId == dataset.UserId))
+            {
             <button class="btn btn-link" @onclick="BtnSaveDataset">
             <img src="/img/icoSave2.png" width="22" title="save / update" />
-            </button>
+            </button>            
+            }
+
             <button class="btn btn-link" style="margin-left:20px;" Title="cancel" @onclick="OnClose">
             <img src="/img/icoCancel.png" width="20" />
             </button>

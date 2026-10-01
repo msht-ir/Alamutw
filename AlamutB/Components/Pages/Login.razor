@@ -49,7 +49,8 @@
                                   @onkeydown="HandleKey_Passwordbox"
                                   Style="font-family:Tahoma"
                                   InputType="_passwordInput" />
-                        <div style="margin-top:40px;margin-bottom:25px;">
+                    </MudCardContent>
+                        <div style="margin:30px">
                             <MudButton OnClick="@(() => BtnLogin())"
                                    Variant="Variant.Filled"
                                    EndIcon="@Icons.Material.Filled.AccountBox"
@@ -65,7 +66,6 @@
                             Sign Up
                             </MudButton>
                         </div>
-                    </MudCardContent>
                 </MudCard>
             </MudContainer>
         </EditForm>
@@ -90,9 +90,29 @@
                 <div id="collapseZero" class="accordion-collapse collapse" data-bs-parent="#accordionIndex">
                     <div class="accordion-body" style="text-align:center;margin-bottom:15px;">
                     <br />
+                        @* alamut *@
                         <a href="https://www.msht.ir/" target="_blank" style="text-decoration: none;">
-                        <h6 style="color:dimgray;text-decoration:none">Majid SharifiTehrani, August 2026</h6>
+                        <h6 style="color:dimgray;text-decoration:none">Alamut floristic database</h6>
                         </a>
+                        <p style="color:dimgray;text-decoration:none">for local flora in the MiddleEast</p>
+                        <hr />
+                        <span style="color:rgb(73, 143, 140);"> 600+ datasets </span><br />
+                        <span style="color:rgb(73, 143, 140);"> from published plant species inventories</span><br />
+                        <span style="color:rgb(73, 143, 140);"> since last 3 decades</span><br />
+                        <span style="color:rgb(73, 143, 140);"> in Iran and neighbouring countries</span><br />
+                        <br />
+                        <span style="color:rgb(123, 107, 125);"> Database: SQLServer, Code: .Net core 10 Blazor</span><br />
+                    <hr>
+                        @* author *@
+                        <a href="https://www.msht.ir/" target="_blank" style="text-decoration: none;">
+                        <p style="color:dimgray;text-decoration:none">Full-Stack developer:</p>
+                        <h6 style="color:dimgray;text-decoration:none">Majid SharifiTehrani, 2026</h6>
+                        </a>
+                    @* image *@
+                        <div style="text-align:center">
+                        <img src="/img/_mshtHat.png" width="100" style="margin:20px;border-radius:10px" />
+                        </div>
+                        @* links *@
                         <a href="https://www.linkedin.com/in/majid-sharifi-tehrani/" target="_blank" style="text-decoration: none;">
                         <span style="color:indianred;text-decoration:none">linkedin</span>
                         </a>
@@ -104,10 +124,6 @@
                         <a href="mailto://msht.ir@gmail.com" target="_blank" style="text-decoration: none;">
                         <span style="color:forestgreen;text-decoration:none">email</span>
                         </a>
-                        <div style="text-align:center">
-                        <hr />
-                        <img src="/img/_mshtHat.png" width="100" style="margin:20px;border-radius:10px" />
-                        </div>
                     </div>
                 </div>
             </div>

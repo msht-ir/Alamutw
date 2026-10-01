@@ -35,11 +35,6 @@ else if (appState.Cmd == "cmdCreateNote")
 else
     {
         <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-2 px-0">
-            @* <MudIconButton OnClick="BtnBack"
-                           Icon="@Icons.Material.Filled.Menu"
-                           Color="Color.Primary"
-                           Size="Size.Large"
-                           Title="Switchboard" /> *@
                 <button class="btn btn-link pulse-hover" @onclick="BtnAddNewDataset">
                 <img src="/img/icoAdd1.png" width="22" />
                 </button>
@@ -187,7 +182,6 @@ else
                                     </MudCard>
                                 </MudContainer>
                             }
-
                         else if ((_cmd1 == "cmdListDatasetData") && (dataset.DatasetId == _datasetId))
                             {
                             @* LIST Dataset Data *@

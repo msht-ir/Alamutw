@@ -305,6 +305,18 @@ namespace AlamutB.Backend
             var result = await _BeService.Read_DatasetsByCountryIdAsync (countryId);
             return Ok (result);
             }
+        [HttpPost ("Read_DatasetsByProvinceId")]
+        public async Task<ActionResult<List<Dataset>>> Read_DatasetsByProvinceId ([FromBody] int provinceId)
+            {
+            var result = await _BeService.Read_DatasetsByProvinceIdAsync (provinceId);
+            return Ok (result);
+            }
+        [HttpPost ("Read_DatasetsBySpeciesId")]
+        public async Task<ActionResult<List<Dataset>>> Read_DatasetsBySpeciesId ([FromBody] string speciesId)
+            {
+            var result = await _BeService.Read_DatasetsBySpeciesIdAsync (speciesId);
+            return Ok (result);
+            }
         [HttpPost ("Update_Dataset")]
         public async Task<ActionResult<bool>> Update_Dataset ([FromBody] Dataset dataset)
             {

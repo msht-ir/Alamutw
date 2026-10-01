@@ -1600,6 +1600,108 @@ namespace AlamutB.Services2Backend
                 return new List<Dataset> ();
                 }
             }
+        public async Task<List<Dataset>> Read_DatasetsByProvinceIdAsync (int provinceId)
+            {
+            string? connString = _config.GetConnectionString ("cnni");
+            string sql = "DT.Read_DatasetsByProvinceId";
+            using SqlConnection cnn = new (connString);
+            try
+                {
+                await cnn.OpenAsync ();
+                SqlCommand cmd = new (sql, cnn);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue ("@ProvinceId", provinceId);
+                SqlDataReader reader = await cmd.ExecuteReaderAsync ();
+                List<Dataset> lstDatasets = new List<Dataset> ();
+                while (await reader.ReadAsync ())
+                    {
+                    lstDatasets.Add (new Dataset
+                        {
+                        DatasetId = reader.GetInt32 (0),
+                        UserId = reader.GetInt32 (1),
+                        DatasetType = reader.GetInt32 (2),
+                        DatasetAbbr = reader.GetString (3),
+                        DatasetName = reader.GetString (4),
+                        DatasetRef = reader.GetString (5),
+                        RefYear = reader.GetInt32 (6),
+                        RefLang = reader.GetString (7),
+                        DatasetManager = reader.GetString (8),
+                        AreaHa = reader.GetInt32 (9),
+                        ProvinceId = reader.GetInt32 (10),
+                        Coords = reader.GetString (11),
+                        AltMax = reader.GetInt32 (12),
+                        AltMin = reader.GetInt32 (13),
+                        AltAver = reader.GetInt32 (14),
+                        TempMax = reader.GetDecimal (15),
+                        TempMin = reader.GetDecimal (16),
+                        TempAver = reader.GetDecimal (17),
+                        Precipitation = reader.GetDecimal (18),
+                        DatasetTags = reader.GetInt32 (19),
+                        CountryId = reader.GetByte (20),
+                        ProvinceName = reader.GetString (21)
+                        });
+                    }
+                await cnn.CloseAsync ();
+                return lstDatasets;
+                }
+            catch (Exception ex)
+                {
+                Console.WriteLine ("error: " + ex.Message);
+                cnn.Close ();
+                return new List<Dataset> ();
+                }
+            }
+        public async Task<List<Dataset>> Read_DatasetsBySpeciesIdAsync (string speciesId)
+            {
+            string? connString = _config.GetConnectionString ("cnni");
+            string sql = "DT.Read_DatasetsBySpeciesId";
+            using SqlConnection cnn = new (connString);
+            try
+                {
+                await cnn.OpenAsync ();
+                SqlCommand cmd = new (sql, cnn);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue ("@SpeciesId", speciesId);
+                SqlDataReader reader = await cmd.ExecuteReaderAsync ();
+                List<Dataset> lstDatasets = new List<Dataset> ();
+                while (await reader.ReadAsync ())
+                    {
+                    lstDatasets.Add (new Dataset
+                        {
+                        DatasetId = reader.GetInt32 (0),
+                        UserId = reader.GetInt32 (1),
+                        DatasetType = reader.GetInt32 (2),
+                        DatasetAbbr = reader.GetString (3),
+                        DatasetName = reader.GetString (4),
+                        DatasetRef = reader.GetString (5),
+                        RefYear = reader.GetInt32 (6),
+                        RefLang = reader.GetString (7),
+                        DatasetManager = reader.GetString (8),
+                        AreaHa = reader.GetInt32 (9),
+                        ProvinceId = reader.GetInt32 (10),
+                        Coords = reader.GetString (11),
+                        AltMax = reader.GetInt32 (12),
+                        AltMin = reader.GetInt32 (13),
+                        AltAver = reader.GetInt32 (14),
+                        TempMax = reader.GetDecimal (15),
+                        TempMin = reader.GetDecimal (16),
+                        TempAver = reader.GetDecimal (17),
+                        Precipitation = reader.GetDecimal (18),
+                        DatasetTags = reader.GetInt32 (19),
+                        CountryId = reader.GetByte (20),
+                        ProvinceName = reader.GetString (21)
+                        });
+                    }
+                await cnn.CloseAsync ();
+                return lstDatasets;
+                }
+            catch (Exception ex)
+                {
+                Console.WriteLine ("error: " + ex.Message);
+                cnn.Close ();
+                return new List<Dataset> ();
+                }
+            }
         public async Task<bool> Update_DatasetAsync (Dataset dataset)
             {
             string sql = "DT.Update_Dataset";
