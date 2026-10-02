@@ -22,11 +22,6 @@ else
     {
         <hr />
         <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-2 px-0">
-        @* <MudIconButton OnClick="BtnBack"
-                       Icon="@Icons.Material.Filled.Menu"
-                       Color="Color.Primary"
-                       Size="Size.Large"
-                       Title="Switchboard" /> *@
             <button class="btn btn-link pulse-hover" @onclick="BtnAddNewSet">
             <img src="/img/icoAdd1.png" width="24" />
             </button>
@@ -441,6 +436,7 @@ else
             }
         appState.SetCmd("");
         user.UserId = Convert.ToInt32(appState.UserId);
+        user.UserTags = Convert.ToInt32(appState.UserTags);
         user.Username = appState.Username ?? "";
         await ReadSets();
         await ReadCoutries();
@@ -607,7 +603,7 @@ else
     //List Datasets
     public async Task BtnShowAllDatasets ()
         {
-        lstDatasets = await feService.Read_Datasets(user.UserId, 1);
+        lstDatasets = await feService.Read_Datasets(user.UserId, 1); //notice: userId>0: get users owned datasets | userId=0:get all datasets
         StateHasChanged();
         }
     public async Task BtnSelectAllDatasets ()
@@ -753,6 +749,7 @@ else
         }
     private async Task OnCountryChanged (int newValue)
         {
+
         if((user.UserTags & 384) == 0)
             {
             //384:256+128(admin+gold)

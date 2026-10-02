@@ -130,6 +130,12 @@ else
                                      Size="Size.Small"
                                      Style="margin-top:15px;margin-left:15px;"
                                      Dense="true">
+                                    <MudMenuItem @onclick='() => ListAllDatasets()'>
+                                        <button class="btn btn-link" Title="list all datasets">
+                                        <img src="/img/icoList1.png" width="22" />
+                                        </button>
+                                    List All Datasets
+                                    </MudMenuItem>
                                     <MudMenuItem @onclick="BtnAddNewDataset">
                                         <button class="btn btn-link" Title="add new Dataset">
                                         <img src="/img/icoAdd0.png" width="20" />
@@ -142,20 +148,13 @@ else
                                         </button>
                                     Edit Dataset
                                     </MudMenuItem>
-                                    <MudMenuItem @onclick='() => ListAllDatasets()'>
-                                        <button class="btn btn-link" Title="list all datasets">
-                                        <img src="/img/icoList1.png" width="22" />
+                                    <MudMenuItem @onclick='() => BtnDeleteDataset (_datasetId)'>
+                                        <button class="btn btn-link" Title="add new Dataset">
+                                        <img src="/img/icoDelete1.png" width="20" />
                                         </button>
-                                    List All Datasets
+                                    <span style="color:indianred">Delete Dataset</span>
                                     </MudMenuItem>
-                                <hr>
-                                    <MudMenuItem @onclick="@(() => BtnAddSelectedSpeciesToDataset(_datasetId))">
-                                        <button class="btn btn-link" Title="add selected species to dataset">
-                                        <img src="/img/icoAdd0.png" width="20" />
-                                        </button>
-                                    Add Species to Dataset
-                                    </MudMenuItem>
-                                <hr>
+                                <MudDivider/>
                                     <MudMenuItem @onclick='() => BtnCreateStickyNote(8, _datasetId)'>
                                         <button class="btn btn-link" Title="add note for dataset">
                                         <img src="/img/icoNoteStickyAdd.png" width="22" />
@@ -352,12 +351,12 @@ else
                                         </button>
                                     Show Notes
                                     </MudMenuItem>
-                                    <MudDivider/>
+                                <MudDivider />
                                     <MudMenuItem @onclick='() => BtnClearGeneraSearch()'>
                                         <button class="btn btn-link" Title="clear">
                                         <img src="/img/icoEraser.png" width="22" />
                                         </button>
-                                    Show Notes
+                                    Clear
                                     </MudMenuItem>
                                 </MudMenu>
                             }
@@ -408,7 +407,7 @@ else
                 <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-2 px-0">
                     <MudCard Class="mx-0">
                         <MudCardContent Style="background-color:rgba(249,249,249);">
-                            @if (_SpeciesListType.StartsWith("Dataset"))
+                        @if (_SpeciesListType.StartsWith("Dataset"))
                             {
                             <h6 style="text-align:center;color:royalblue">@_SpeciesListType<span style="font-size:x-small;color:indianred"> ( Count @lstDatasetData.Count() )</span></h6>
                             }
@@ -539,6 +538,10 @@ else
         </div>
     @* ---------------------------------------------------------------------------------- FOOTER *@
     <br />
+    <MudCheckBox @bind-Value="_confirmOnDelete"
+                Label="confirm on remove species"
+                Color="Color.Success">
+    </MudCheckBox>
     <hr />
     <br />
         <div class="gap-4" style="display: flex;  justify-content: center; align-items: center;">
@@ -620,6 +623,7 @@ else
     public string _SpeciesListType = "-";
     public bool _hasFetched = false;
     public bool requestFeedback { get; set; } = false;
+    private bool _confirmOnDelete = true;
 
     //LifeCycleEvents
     protected override async Task OnInitializedAsync ()
@@ -636,7 +640,6 @@ else
             user.UserId = Convert.ToInt32(appState.UserId);
             lstDatasets = await feService.Read_Datasets(user.UserId, 3); //3:LM
             await ListAllDatasets();
-            //_cmd = "cmdSearchGenera";
             _hasFetched = true;
             }
         }
@@ -650,54 +653,6 @@ else
     public void Dispose ()
         {
         appState.OnChange -= TriggerRender;
-        }
-    //ApgGroup
-    private async Task OnApgGroupChanged (int newValue)
-        {
-        var oldValue = _apgGroupId;
-        _apgGroupId = newValue;
-        if (_apgGroupId != 0)
-            {
-            _cmd = "";
-            lstOrders = await feService.Read_Orders(_apgGroupId);
-            }
-        StateHasChanged();
-        }
-    //Order
-    private async Task OnOrderChanged (int newValue)
-        {
-        var oldValue = _orderId;
-        _orderId = newValue;
-        if (_orderId != 0)
-            {
-            lstFamilies = await feService.Read_Families(_orderId);
-            }
-        StateHasChanged();
-        }
-    private async Task BtnSearchOrders ()
-        {
-        _cmd = "cmdSearchOrders";
-        StateHasChanged();
-        }
-
-    private async Task SearchOrders (string orderKeyword)
-        {
-        if (string.IsNullOrWhiteSpace(orderKeyword))
-            {
-            _cmd = "";
-            StateHasChanged();
-            }
-        else
-            {
-            _orderId = 0;
-            _orderSearchText = orderKeyword; //keep the search text
-            lstFamilies = new();
-            lstGenera = new();
-            lstSpecies = new();
-            lstOrders = await feService.Read_OrdersBySearch(orderKeyword);
-            _cmd = "";
-            StateHasChanged();
-            }
         }
     //Fam
     private async Task OnFamilyChanged (int newValue)
@@ -786,59 +741,50 @@ else
         _genusId = 0;
         _genusSearchText = genusKeyword.Trim(); //keep the search text
         //lstSpecies = new();
-        lstGenera = await feService.Read_GeneraBySearch(genusKeyword);
-        _cmd = "";
-        StateHasChanged();
-        }
-    private void BtnAddNewGenus ()
-        {
-
-        }
-    private void CreateGenus ()
-        {
-
-        }
-    private void BtnEditGenus (int Id)
-        {
-        //
-        }
-    private void UpdateGenus (int Id)
-        {
-        //
+        if(_genusSearchText.Trim().Length > 3)
+            {
+            lstGenera = await feService.Read_GeneraBySearch(_genusSearchText);
+            _cmd = "";
+            StateHasChanged();            
+            }
+        else
+            {
+            Snackbar.Add("enter at least 4 chars", Severity.Info);
+            }
         }
     private void BtnClearGeneraSearch ()
         {
         _genusId = 0;
-        StateHasChanged ();
+        StateHasChanged();
         }
     //Species
     private async Task SearchSpecies (string speciesKeywords)
-    {
+        {
         _genusId = 0;
         _speciesSearchText = speciesKeywords; //keep the search text
         var words = speciesKeywords.Split(' ', StringSplitOptions.RemoveEmptyEntries);
         if (words.Length < 2)
-        {
+            {
             return;
-        }
+            }
         else
-        {
+            {
             _cmd = "";
             _SpeciesListType = "Species search";
             lstSpecies = new();
             lstSpecies = await feService.Read_SpeciesBySearch(words [0], words [1]);
             StateHasChanged();
+            }
         }
-    }
     //Dataset
     private void BtnAddNewDataset ()
-    {
+        {
         _datasetName = "";
         _cmd = "cmdAddNewDataset";
         StateHasChanged();
-    }
+        }
     private async Task CreateDataset (string datasetName)
-    {
+        {
         // dataTypes: 1FL 2CN 3LM 4ST
         Dataset dataset = (new Dataset
             {
@@ -850,65 +796,87 @@ else
             });
         bool result = await feService.Create_Dataset(dataset);
         if (result)
-        {
+            {
             Snackbar.Add("dataset created", Severity.Success);
             lstDatasets = await feService.Read_Datasets(user.UserId, 3); //3:LM
             _cmd = "";
             StateHasChanged();
+            }
         }
-    }
     private void BtnEditDataset (int _datasetId)
-    {
-        if (_datasetId != 0)
         {
+        if (_datasetId != 0)
+            {
             dataset = new Dataset();
             dataset = lstDatasets.FirstOrDefault(d => d.DatasetId == _datasetId);
             if (dataset != null)
-            {
+                {
                 _datasetName = dataset.DatasetName;
                 _cmd = "cmdEditDataset";
                 StateHasChanged();
-            }
+                }
             else
-            {
+                {
                 Snackbar.Add("Dataset not found", Severity.Warning);
+                }
+            }
+        else
+            {
+            Snackbar.Add("Select a Dataset first", Severity.Warning);
             }
         }
-        else
+    private async Task BtnDeleteDataset (int _datasetId)
         {
-            Snackbar.Add("Select a Dataset first", Severity.Warning);
+        if (_datasetId != 0)
+            {
+            var message = new MarkupString($"<hr><span style='color:indianred'>Delete</span> this dataset and ALL its DATA?<br><br> <div style='text-align:center'><img src='/img/icodelete1.png' width='40'/></div><br><hr>");
+            bool? confirmResult = await DialogService.ShowMessageBoxAsync(title: "Confirm", markupMessage: message, yesText: "Yes", cancelText: "No");
+            if (confirmResult == true)
+                {
+                bool result = await feService.Delete_Dataset (_datasetId);
+                if (result)
+                    {
+                    Snackbar.Add($"dataset deleted!", Severity.Success);
+                    await ListAllDatasets();
+                    StateHasChanged();
+                    }
+                }                
+            }
+        else
+            {
+            Snackbar.Add("Select a Dataset first", Severity.Info);
+            }
         }
-    }
     private async Task CloseComponent ()
-    {
+        {
         //rollBack for Component 'Dataset'
         await ListAllDatasets();
         _cmd = "";
-    }
+        }
     private async Task ListAllDatasets ()
-    {
+        {
         _datasetId = 0;
         lstSpecies = new();
         lstDatasets = await feService.Read_Datasets(user.UserId, 3); //3:LM
         _cmd = "";
         StateHasChanged();
-    }
+        }
     private async Task BtnSearchDatasets ()
-    {
+        {
         _cmd = "cmdSearchDatasets";
         StateHasChanged();
-    }
+        }
     private async Task SearchDatasets (string datasetKeyword)
-    {
+        {
         _datasetId = 0;
         _datasetSearchText = datasetKeyword; //keep the search text
         lstSpecies = new();
         lstDatasets = await feService.Read_DatasetsBySearch(user.UserId, 3, datasetKeyword); //3:LM
         _cmd = "";
         StateHasChanged();
-    }
+        }
     private async Task OnDatasetChanged (int newValue)
-    {
+        {
         var oldValue = _datasetId;
         _datasetId = newValue;
         /*
@@ -932,84 +900,84 @@ else
         */
         }
     private async Task BtnListSpeciesOfDataset (int datasetId)
-    {
-        if (datasetId != 0)
         {
+        if (datasetId != 0)
+            {
             lstDatasetData = await feService.Read_DatasetData(datasetId);
             _SpeciesListType = "Dataset: " + appState.DatasetName;
             StateHasChanged();
-        }
+            }
         else
-        {
+            {
             Snackbar.Add("Select a Dataset", Severity.Warning);
+            }
         }
-    }
     //List Species
     public async Task BtnSelectAllSpecies ()
-    {
-        if (_SpeciesListType.StartsWith("Dataset"))
         {
-            foreach (DatasetData datasetData in lstDatasetData)
+        if (_SpeciesListType.StartsWith("Dataset"))
             {
+            foreach (DatasetData datasetData in lstDatasetData)
+                {
                 datasetData.IsSelected = true;
+                }
             }
-        }
         else
-        {
-            foreach (Species species in lstSpecies)
             {
+            foreach (Species species in lstSpecies)
+                {
                 species.IsSelected = true;
+                }
             }
-        }
         StateHasChanged();
-    }
+        }
     public async Task BtnInvertSelection ()
-    {
+        {
         if (_SpeciesListType.StartsWith("Dataset"))
-        {
+            {
             foreach (DatasetData datasetData in lstDatasetData)
-            {
+                {
                 datasetData.IsSelected = (datasetData.IsSelected) ? false : true;
+                }
             }
-        }
         else
-        {
-            foreach (Species species in lstSpecies)
             {
+            foreach (Species species in lstSpecies)
+                {
                 species.IsSelected = (species.IsSelected) ? false : true;
+                }
             }
-        }
         StateHasChanged();
-    }
+        }
     public async Task BtnFilterSpeciesList ()
-    {
+        {
         _cmd = _cmd == "cmdFilterSpeciesList" ? "" : "cmdFilterSpeciesList";
         StateHasChanged();
-    }
+        }
     public async Task FilterSpeciesList (string _speciesListFilter)
-    {
-        if (_SpeciesListType.StartsWith("Dataset"))
         {
+        if (_SpeciesListType.StartsWith("Dataset"))
+            {
             lstDatasetData = lstDatasetData.Where(s => s.SciName?.Contains(_speciesListFilter, StringComparison.OrdinalIgnoreCase) == true).ToList();
             _SpeciesListType = "Dataset Filtered"; //keep word 'Dataset' at start position, so List type can be recognized in the page-code above
-        }
+            }
         else
-        {
+            {
             lstSpecies = lstSpecies.Where(s => s.SciName?.Contains(_speciesListFilter, StringComparison.OrdinalIgnoreCase) == true).ToList();
             _SpeciesListType = "List Filtered";
-        }
+            }
         StateHasChanged();
-    }
+        }
     //Add-Remove Species to Dataset
     private async Task BtnAddSelectedSpeciesToDataset (int datasetId)
-    {
+        {
         int counter = 0;
         if (datasetId != 0)
-        {
-            foreach (Species spc in lstSpecies)
             {
-                if (spc.IsSelected)
+            foreach (Species spc in lstSpecies)
                 {
+                if (spc.IsSelected)
+                    {
                     DatasetData datasetData = new DatasetData()
                         {
                         DatasetDataId = 0,
@@ -1022,39 +990,48 @@ else
                         };
                     bool results = await feService.Create_DatasetData(datasetData);
                     counter++;
+                    }
                 }
-            }
             Snackbar.Add($"{@counter} items added to the dataset", Severity.Success);
             StateHasChanged();
-        }
+            }
         else
-        {
+            {
             Snackbar.Add("Select a Dataset", Severity.Warning);
+            }
         }
-    }
     private async Task BtnRemoveSelectedSpeciesFromDataset (int datasetId)
-    {
+        {
         int counter = 0;
         if (datasetId != 0)
-        {
-            foreach (DatasetData dsd in lstDatasetData)
             {
-                if (dsd.IsSelected)
+            if (_confirmOnDelete)
                 {
+                var message = new MarkupString($"<hr><span style='color:indianred'>Remove</span> selected species?<br><br> <div style='text-align:center'><img src='/img/icodelete1.png' width='40'/></div><br><hr>");
+                bool? confirmResult = await DialogService.ShowMessageBoxAsync(title: "Confirm", markupMessage: message, yesText: "Yes", cancelText: "No");
+                if (confirmResult != true)
+                    {
+                    return;
+                    }                
+                }
+            foreach (DatasetData dsd in lstDatasetData)
+                {
+                if (dsd.IsSelected)
+                    {
                     bool results = await feService.Delete_DatasetData(dsd.DatasetDataId);
                     counter++;
+                    }
                 }
-            }
             Snackbar.Add($"{@counter} items removed from the dataset", Severity.Warning);
             lstDatasetData = await feService.Read_DatasetData(datasetId);
             _SpeciesListType = "Dataset";
             StateHasChanged();
-        }
+            }
         else
-        {
+            {
             Snackbar.Add("Select a Dataset", Severity.Warning);
+            }
         }
-    }
     private async Task BtnAddSpeciesToDataset (string speciesId)
         {
         int counter = 0;
@@ -1084,6 +1061,15 @@ else
         {
         if (_datasetId != 0)
             {
+            if (_confirmOnDelete)
+                {
+                var message = new MarkupString($"<hr><span style='color:indianred'>Remove</span> this species?<br><br> <div style='text-align:center'><img src='/img/icoDelete1.png' width='40'/></div><br><hr>");
+                bool? confirmResult = await DialogService.ShowMessageBoxAsync(title: "Confirm", markupMessage: message, yesText: "Yes", cancelText: "No");
+                if (confirmResult != true)
+                    {
+                    return;
+                    }                
+                }
             bool results = await feService.Delete_DatasetData(datasetDataId);
             Snackbar.Add($"item removed from the dataset", Severity.Warning);
             lstDatasetData = await feService.Read_DatasetData(_datasetId);
@@ -1110,20 +1096,6 @@ else
             }
         }
     //handle Keys
-    private async Task HandleKey_SearchboxOrders (KeyboardEventArgs e)
-        {
-        if (e.Key == "Enter")
-            {
-            await SearchOrders(_orderSearchText);
-            return;
-            }
-        if (e.Key == "Escape")
-            {
-            strSearch = "";
-            await InvokeAsync(StateHasChanged);
-            await refSearchOrder.FocusAsync();
-            }
-        }
     private async Task HandleKey_SearchboxFamilies (KeyboardEventArgs e)
         {
         if (e.Key == "Enter")
@@ -1168,7 +1140,7 @@ else
         }
     private async Task HandleKey_SearchboxDataset (KeyboardEventArgs e)
         {
-        if (e.Key == "Enter")
+        if ((e.Key == "Enter") & (_datasetSearchText.Trim().Length > 0))
             {
             await SearchDatasets(_datasetSearchText);
             return;
@@ -1177,7 +1149,6 @@ else
             {
             strSearch = "";
             await InvokeAsync(StateHasChanged);
-            await refSearchGenus.FocusAsync();
             }
         }
     //Note
