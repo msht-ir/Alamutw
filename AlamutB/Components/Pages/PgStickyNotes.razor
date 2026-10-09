@@ -12,8 +12,22 @@
 
 <div class="d-flex" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
     <h2 style="color:royalblue; font-style:italic">Sticky Notes</h2>
-    <span style="font-size:smaller;text-align:center;color:indianred">@appState.UserNickname</span>
-    </div>
+            @if(_accountType.Trim() == "admin account")
+                {
+                <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:darkgoldenrod"> @_accountType</span></p>
+                }
+            else if(_accountType.Trim() == "gold account")
+                {
+                <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:darkgoldenrod"> @_accountType</span></p>
+                }
+            else if(_accountType.Trim() == "silver account")
+                {
+                <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:gray"> @_accountType</span></p>
+                }
+            else if(_accountType.Trim() == "demo account")
+                {
+                <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:green"> @_accountType</span></p>
+                }    </div>
 <hr style="color:red" />
 @if (!_hasFetched)
     {
@@ -195,6 +209,7 @@ else
     List<Section> lstSections = new List<Section>();
     string _ShowNotebooksMode = "active";
     public bool _hasFetched = false;
+    string _accountType = "";
 
     //LifeCycleEvents
     protected override async Task OnInitializedAsync ()
@@ -209,6 +224,22 @@ else
         user.Username = appState.Username;
         lstNotes = await feService.Read_Notes(13, user.UserId);
         await GetListOfNotebooks(user.UserId, _ShowNotebooksMode);
+        if(Convert.ToInt32(appState.UserTags) >256)
+            {
+            _accountType = " admin account";
+            }
+        else if(Convert.ToInt32(appState.UserTags) > 128)
+            {
+            _accountType = " gold account";            
+            }
+        else if(Convert.ToInt32(appState.UserTags) > 64)
+            {
+            _accountType = " silver account";            
+            }
+        else
+            {
+            _accountType = " demo account";
+            }
         _hasFetched = true;
         }
     private void TriggerRender ()

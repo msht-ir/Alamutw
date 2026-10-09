@@ -12,8 +12,22 @@
 
 <div class="d-flex" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
     <h2 style="color:royalblue; font-style:italic">Sets</h2>
-    <span style="font-size:smaller;text-align:center;color:indianred">@appState.UserNickname</span>
-    </div>
+            @if(_accountType.Trim() == "admin account")
+                {
+                <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:darkgoldenrod"> @_accountType</span></p>
+                }
+            else if(_accountType.Trim() == "gold account")
+                {
+                <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:darkgoldenrod"> @_accountType</span></p>
+                }
+            else if(_accountType.Trim() == "silver account")
+                {
+                <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:gray"> @_accountType</span></p>
+                }
+            else if(_accountType.Trim() == "demo account")
+                {
+                <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:green"> @_accountType</span></p>
+                }    </div>
 @if (!_hasFetched)
     {
     <_ScanSheets />
@@ -165,10 +179,6 @@ else
                                             </MudCardContent>
                                         </MudCard>
                                     </MudContainer>
-                                }
-                            else if (_cmd == "cmdViewSet")
-                                {
-                                @* VIEW SET *@
                                 }
                             else if ((_cmd == "cmdListSetData") && (set.SetId == _setId))
                                 {
@@ -425,6 +435,7 @@ else
     string _cmd2 = "";
     public bool _hasFetched = false;
     private int _datasetId = 0;
+    string _accountType = "";
 
     //LifeCycleEvents
     protected override async Task OnInitializedAsync ()
@@ -440,6 +451,22 @@ else
         user.Username = appState.Username ?? "";
         await ReadSets();
         await ReadCoutries();
+        if(Convert.ToInt32(appState.UserTags) >256)
+            {
+            _accountType = " admin account";
+            }
+        else if(Convert.ToInt32(appState.UserTags) > 128)
+            {
+            _accountType = " gold account";            
+            }
+        else if(Convert.ToInt32(appState.UserTags) > 64)
+            {
+            _accountType = " silver account";            
+            }
+        else
+            {
+            _accountType = " demo account";
+            }
         _hasFetched = true;
         }
     private void TriggerRender ()
@@ -603,7 +630,17 @@ else
     //List Datasets
     public async Task BtnShowAllDatasets ()
         {
-        lstDatasets = await feService.Read_Datasets(user.UserId, 1); //notice: userId>0: get users owned datasets | userId=0:get all datasets
+        if ((user.UserTags & 384) == 0)
+            {
+            //384:256+128(admin+gold)
+            Snackbar.Add ("full search not available for silver/demo accounts", Severity.Info);
+            lstDatasets = new ();
+            lstDatasets = await feService.Read_Datasets (user.UserId, 1);
+            }
+        else
+            {
+            lstDatasets = await feService.Read_Datasets(0, 1); //notice: userId>0: get users owned datasets | userId=0:get all datasets        
+            }
         StateHasChanged();
         }
     public async Task BtnSelectAllDatasets ()
@@ -665,10 +702,22 @@ else
         }
     public async Task FilterDatasets (string _datasetFilter)
         {
-        lstDatasets = new();
-        lstDatasets = await feService.Read_Datasets(user.UserId, 1);
-        lstDatasets = lstDatasets.Where(d => d.DatasetName?.Contains(_datasetFilter, StringComparison.OrdinalIgnoreCase) == true).ToList();
-        StateHasChanged();
+        if ((user.UserTags & 384) == 0)
+            {
+            //384:256+128(admin+gold)
+            Snackbar.Add ("full search not available for silver/demo accounts", Severity.Info);
+            lstDatasets = new();
+            lstDatasets = await feService.Read_Datasets(user.UserId, 1);
+            lstDatasets = lstDatasets.Where(d => d.DatasetName?.Contains(_datasetFilter, StringComparison.OrdinalIgnoreCase) == true).ToList();
+            StateHasChanged();
+            }
+        else
+            {
+            lstDatasets = new();
+            lstDatasets = await feService.Read_Datasets(0, 1);
+            lstDatasets = lstDatasets.Where(d => d.DatasetName?.Contains(_datasetFilter, StringComparison.OrdinalIgnoreCase) == true).ToList();
+            StateHasChanged();
+            }
         }
     public async Task BtnAddDatasetsToSet (int setId)
         {
@@ -749,7 +798,6 @@ else
         }
     private async Task OnCountryChanged (int newValue)
         {
-
         if((user.UserTags & 384) == 0)
             {
             //384:256+128(admin+gold)

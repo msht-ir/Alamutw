@@ -17,8 +17,22 @@
 
     <div class="d-flex" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
     <h2 style="color:royalblue; font-style:italic">CheckName </h2>
-    <span style="font-size:smaller;text-align:center;color:indianred">@appState.UserNickname</span>
-    </div>
+    @if(_accountType.Trim() == "admin account")
+        {
+        <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:darkgoldenrod"> @_accountType</span></p>
+        }
+    else if(_accountType.Trim() == "gold account")
+        {
+        <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:darkgoldenrod"> @_accountType</span></p>
+        }
+    else if(_accountType.Trim() == "silver account")
+        {
+        <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:gray"> @_accountType</span></p>
+        }
+    else if(_accountType.Trim() == "demo account")
+        {
+        <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:green"> @_accountType</span></p>
+        }    </div>
 <hr style="color:red" />
 @if (!_hasFetched)
     {
@@ -583,6 +597,8 @@ else
     string _cmd1 = "";
     string _cmd2 = "";
     public bool _hasFetched = false;
+    string _accountType = "";
+    bool _showUnparsedDatasetData = false; //to keep mode of datasetData List, after a datasetData-line updated by user
 
     //LifeCycleEvents
     protected override async Task OnInitializedAsync ()
@@ -596,6 +612,22 @@ else
         user.UserId = Convert.ToInt32(appState.UserId);
         user.Username = appState.Username ?? "username?";
         await BtnShowAllDatasets();
+        if(Convert.ToInt32(appState.UserTags) >256)
+            {
+            _accountType = " admin account";
+            }
+        else if(Convert.ToInt32(appState.UserTags) > 128)
+            {
+            _accountType = " gold account";            
+            }
+        else if(Convert.ToInt32(appState.UserTags) > 64)
+            {
+            _accountType = " silver account";            
+            }
+        else
+            {
+            _accountType = " demo account";
+            }
         _hasFetched = true;
         }
     private void TriggerRender ()
@@ -707,7 +739,6 @@ else
             }
         _hasFetched = true;
         }
-
     //Dataset
     public async Task BtnShowAllDatasets ()
         {
@@ -787,7 +818,6 @@ else
         lstSpecies = new();
         //await JS.InvokeVoidAsync("scrollToTop");
         }
-
     //List Species
     public async Task BtnSelectAllSpecies ()
         {
@@ -825,7 +855,11 @@ else
         }
     private async Task BtnListDatasetDataOfDataset (int datasetId, bool toggle)
         {
-        if (datasetId != 0)
+        if (datasetId == 0)
+            {
+            Snackbar.Add("Select a Dataset", Severity.Warning, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+            }
+        else
             {
             if (!toggle)
                 {
@@ -838,7 +872,7 @@ else
                 if (datasetId != 0)
                     {
                     lstDatasets.FirstOrDefault(ds => ds.DatasetId == datasetId)?.IsSelected = true;
-                    lstDatasetData = await feService.Read_DatasetData(datasetId);
+                    lstDatasetData = await feService.Read_DatasetData(datasetId);                    
                     StateHasChanged();
                     }
                 else
@@ -851,10 +885,6 @@ else
                 CloseSpeciesList();
                 }
             StateHasChanged();
-            }
-        else
-            {
-            Snackbar.Add("Select a Dataset", Severity.Warning, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
             }
         }
     private async Task BtnRemoveSpeciesFromDataset (int datasetDataId)
@@ -885,6 +915,10 @@ else
             {
             Snackbar.Add("data updated", Severity.Success, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
             _cmd2 = "";
+            if (_showUnparsedDatasetData)
+                {
+                await BtnListUnparsedDatasetData ();
+                }
             StateHasChanged();
             }
 
@@ -892,6 +926,7 @@ else
         }
     private async Task BtnListUnparsedDatasetData ()
         {
+        _showUnparsedDatasetData = true;
         lstDatasetData = lstDatasetData.Where(dsd => string.IsNullOrWhiteSpace(dsd.SpeciesId)).ToList();
         Snackbar.Add("list unparsed lines", Severity.Info, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
         StateHasChanged();
@@ -925,6 +960,8 @@ else
         {
         _datasetDataId = _datasetData.DatasetDataId;
         lstDatasetData.FirstOrDefault(dsd => dsd.DatasetDataId == _datasetData.DatasetDataId)?.IsSelected = true;
+        var words = _datasetData.LineString.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        _speciesSearchText = words [0] + ' ' + words [1];
         _cmd2 = "CheckNameThisDatasetData";
         StateHasChanged();
         }
@@ -1315,14 +1352,7 @@ else
         _cmd2 = "";
         StateHasChanged();
         }
-
     //Species
-    private async Task BtnLetSearchSpecies (DatasetData _dsd)
-        {
-        _datasetDataId = _dsd.DatasetDataId;
-        _cmd2 = "CheckNameLetSearchLineString";
-        StateHasChanged();
-        }
     private async Task HandleKey_SearchboxSpecies (KeyboardEventArgs e)
         {
         if (e.Key == "Enter")
@@ -1336,6 +1366,12 @@ else
             await InvokeAsync(StateHasChanged);
             await refSearchSpecies.FocusAsync();
             }
+        }
+    private async Task BtnLetSearchSpecies (DatasetData _dsd)
+        {
+        _datasetDataId = _dsd.DatasetDataId;
+        _cmd2 = "CheckNameLetSearchLineString";
+        StateHasChanged();
         }
     private async Task SearchSpecies (string speciesKeywords)
         {
@@ -1373,8 +1409,6 @@ else
         _hasFetched = true;
         StateHasChanged();
         }
-
-    //btns
     private async Task ScrollToTop ()
         {
         await JS.InvokeVoidAsync("scrollToTop");

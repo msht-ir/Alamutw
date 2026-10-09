@@ -117,28 +117,31 @@ else
                     </div>
                 <br />
                 <hr />
-                <!-- Section Complete List -->
+                @* Section Complete List *@
+                @if(user.UserTags >= 256)
+                    {
                     <div style="margin-left:10px;margin-right:10px;">
-                    <h6 style="text-align:center;color:royalblue">Species List <span style="font-size:x-small;color:indianred"> ( @lstSpeciesFlorAn.Count() )</span></h6>
-                        <MudExpansionPanels>
-                            <MudExpansionPanel Text="list" MaxHeight="150" Expanded="false">
-                                <table class="table table-borderless">
-                                    <tr>
-                                    <th>Family</th>
-                                    <th>Species</th>
-                                    </tr>
-                                @foreach (Species s in lstSpeciesFlorAn)
-                                    {
+                        <h6 style="text-align:center;color:royalblue">Species List <span style="font-size:x-small;color:indianred"> ( @lstSpeciesFlorAn.Count() )</span></h6>
+                            <MudExpansionPanels>
+                                <MudExpansionPanel Text="list" MaxHeight="150" Expanded="false">
+                                    <table class="table table-borderless">
                                         <tr>
-                                        <td><span style="color:indianred;font-size:smaller;"> @s.FamilyName </span></td>
-                                        <td><span style="color:darkblue;font-size:smaller;font-style:italic;">@s.GenusName @s.Epithet <span style="color:gray;font-style:normal;">@s.Author</span></span></td>
+                                        <th>Family</th>
+                                        <th>Species</th>
                                         </tr>
-                                    }
-                                </table>
-                            </MudExpansionPanel>
-                        </MudExpansionPanels>
-                    </div>
-                <br />
+                                    @foreach (Species s in lstSpeciesFlorAn)
+                                        {
+                                            <tr>
+                                            <td><span style="color:indianred;font-size:smaller;"> @s.FamilyName </span></td>
+                                            <td><span style="color:darkblue;font-size:smaller;font-style:italic;">@s.GenusName @s.Epithet <span style="color:gray;font-style:normal;">@s.Author</span></span></td>
+                                            </tr>
+                                        }
+                                    </table>
+                                </MudExpansionPanel>
+                            </MudExpansionPanels>
+                        </div>                    
+                    <br />
+                    }
                 @* Table STATS *@
                 <h6 class="section-title" style="text-align:center;color:blueviolet">Stats</h6>
                 <hr />
@@ -413,6 +416,7 @@ else
         appState.OnChange += TriggerRender;
         appState.SetCmd("");
         user.UserId = Convert.ToInt32(appState.UserId);
+        user.UserTags = Convert.ToInt32(appState.UserTags);
         user.Username = appState.Username ?? "";
         await CalcFlorAnStats();
         _hasFetched = true;

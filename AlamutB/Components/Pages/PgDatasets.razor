@@ -12,8 +12,22 @@
 
 <div class="d-flex" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
     <h2 style="color:royalblue; font-style:italic">Datasets</h2>
-    <span style="font-size:smaller;text-align:center;color:indianred">@appState.UserNickname</span>
-    </div>
+            @if(_accountType.Trim() == "admin account")
+                {
+                <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:darkgoldenrod"> @_accountType</span></p>
+                }
+            else if(_accountType.Trim() == "gold account")
+                {
+                <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:darkgoldenrod"> @_accountType</span></p>
+                }
+            else if(_accountType.Trim() == "silver account")
+                {
+                <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:gray"> @_accountType</span></p>
+                }
+            else if(_accountType.Trim() == "demo account")
+                {
+                <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:green"> @_accountType</span></p>
+                }    </div>
 <hr style="color:red" />
 @if (!_hasFetched)
     {
@@ -84,7 +98,7 @@ else
                                            Margin="Margin.Dense"
                                            Adornment="Adornment.Start"
                                            AdornmentIcon="@Icons.Material.Filled.Sort"
-                                          OnAdornmentClick="@(() => SortDatasets (sortMode))"
+                                           OnAdornmentClick="@(() => SortDatasets (sortMode))"
                                            Style="color:royalblue;width:140px;font-size:small;margin-left:15px;margin-right:20px;">
                                     <MudSelectItem Value="0">Name</MudSelectItem>
                                     <MudSelectItem Value="1">Abbr</MudSelectItem>
@@ -93,9 +107,9 @@ else
                                     </MudSelect>
                                 </div>
                             @* SHOW ALL *@
-                            <button class="btn btn-link" style="margin-top:10px;margin-left:20px;" Title="list all datasets" @onclick="BtnShowAllDatasets">
-                            <img src="/img/icoList1.png" width="20" />
-                            </button>
+                                <button class="btn btn-link" style="margin-top:10px;margin-left:20px;" Title="list all datasets" @onclick="BtnShowAllDatasets">
+                                <img src="/img/icoList1.png" width="20" />
+                                </button>
                             </div>
                         <br />
                         <br />
@@ -123,14 +137,21 @@ else
                                         Title=@($"edit dataset id: {dataset.DatasetId}")>
                                     <img src="/img/icoRename.png" width="24" />
                                     </button>
-                                @* List taxa *@
+                                @* List Species *@
                                     <button type="button"
                                         class="btn btn-link"
                                         style="margin-left:1px"
-                                        @onclick='() => BtnListSpeciesOfDatasetsFL(dataset.DatasetId, true)'
+                                        @onclick='() => BtnListSpeciesOfDatasets(dataset, true)'
                                         Title=@($"show species in dataset id: {dataset.DatasetId}")>
-                                    <img src="/img/icoList1.png" width="22" />
-                                    </button>
+                                    @if ((user.UserTags >= 256) || (dataset.UserId == user.UserId))
+                                        {
+                                        <img src="/img/icoList1.png" width="22" />
+                                        }
+                                    else
+                                        {
+                                        <img src="/img/icoKeys.png" width="18" />
+                                        }
+                                </button>
                                 <span style="font-size:small"> <span style="font-size:x-small; color:darkgray">@dataset.RefYear</span> @dataset.DatasetName </span>
                                 &nbsp;
                                 <span style="color:indianred;font-size:x-small;font-weight:normal;"> &nbsp; (<span style="color:royalblue;font-size:x-small;font-weight:normal;"> @dataset.DatasetId </span>) </span>
@@ -173,7 +194,7 @@ else
                                                 <button type="button"
                                                     class="btn btn-link"
                                                     style="margin-left:1px"
-                                                    @onclick='() => BtnListSpeciesOfDatasetsFL(dataset.DatasetId, false)'
+                                                    @onclick='() => BtnListSpeciesOfDatasets(dataset, false)'
                                                     Title="Show sub-Species">
                                                 <img src="/img/icoList1.png" width="22" />
                                                 </button>
@@ -264,9 +285,9 @@ else
     //SortMode
     public MudSelect<int> refSortMode;
     public int sortMode = 0;
-
     string _cmd = "";
     public bool _hasFetched = false;
+    string _accountType = "";
 
     //LifeCycleEvents
     protected override async Task OnInitializedAsync ()
@@ -280,8 +301,24 @@ else
         user.UserId = Convert.ToInt32(appState.UserId);
         user.UserTags = Convert.ToInt32(appState.UserTags);
         user.Username = appState.Username ?? "";
-        lstDatasets = await feService.Read_Datasets ((user.UserTags >= 128) ? 0 : user.UserId, 1); //UserTags=128:GoldAcc, userId=0 : to get datasets of all users (see: stored procedure)
+        lstDatasets = await feService.Read_Datasets((user.UserTags >= 128) ? 0 : user.UserId, 1); //UserTags=128:GoldAcc, userId=0 : to get datasets of all users (see: stored procedure)
         await ReadCoutries();
+        if(Convert.ToInt32(appState.UserTags) >256)
+            {
+            _accountType = " admin account";
+            }
+        else if(Convert.ToInt32(appState.UserTags) > 128)
+            {
+            _accountType = " gold account";            
+            }
+        else if(Convert.ToInt32(appState.UserTags) > 64)
+            {
+            _accountType = " silver account";            
+            }
+        else
+            {
+            _accountType = " demo account";
+            }
         _hasFetched = true;
         }
     private void TriggerRender ()
@@ -342,12 +379,12 @@ else
                     break;
                     }
             }
-        StateHasChanged ();
+        StateHasChanged();
         }
     public async Task BtnShowAllDatasets ()
         {
         lstDatasets.Clear();
-        lstDatasets = await feService.Read_Datasets ((user.UserTags >= 128) ? 0 : user.UserId, 1); //UserTags=128:GoldAcc, userId=0 : to get datasets of all users (see: stored procedure)
+        lstDatasets = await feService.Read_Datasets((user.UserTags >= 128) ? 0 : user.UserId, 1); //UserTags=128:GoldAcc, userId=0 : to get datasets of all users (see: stored procedure)
         StateHasChanged();
         }
     public async Task BtnReportDatasets (int Id)
@@ -439,9 +476,9 @@ else
         {
 
         }
-    private async Task BtnListSpeciesOfDatasetsFL (int datasetFLId, bool toggle)
+    private async Task BtnListSpeciesOfDatasets (Dataset datasetFL, bool toggle)
         {
-        if (datasetFLId != 0)
+        if (datasetFL.DatasetId != 0)
             {
             if (!toggle)
                 {
@@ -449,11 +486,19 @@ else
                 }
             //toggle
             _cmd = (_cmd == "cmdListDatasetData") ? "" : "cmdListDatasetData";
-            _datasetId = datasetFLId;
+            _datasetId = datasetFL.DatasetId;
             if (_cmd == "cmdListDatasetData")
                 {
-                lstDatasets.FirstOrDefault(ds => ds.DatasetId == datasetFLId)?.IsSelected = true;
-                lstSpecies = await feService.Read_SpeciesByDatasetId(datasetFLId);
+                if ((user.UserTags >= 256) || (datasetFL.UserId == user.UserId))
+                    {
+                    lstDatasets.FirstOrDefault(ds => ds.DatasetId == datasetFL.DatasetId)?.IsSelected = true;
+                    lstSpecies = await feService.Read_SpeciesByDatasetId(datasetFL.DatasetId);
+                    }
+                else
+                    {
+                    Snackbar.Add("You are not the owner of this dataset", Severity.Info, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+                    _cmd = "";
+                    }
                 }
             else
                 {
@@ -463,7 +508,7 @@ else
             }
         else
             {
-            Snackbar.Add("Select a Dataset", Severity.Warning);
+            Snackbar.Add("Select a Dataset", Severity.Warning, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
             }
         }
     private async Task BtnCreateNoteForSpecies (string refId)
@@ -497,7 +542,7 @@ else
         }
     private async Task OnCountryChanged (int newValue)
         {
-        if((user.UserTags & 384) == 0)
+        if ((user.UserTags & 384) == 0)
             {
             //384:256+128(admin+gold)
             Snackbar.Add("not available in silver / demo account", Severity.Info);
@@ -509,9 +554,9 @@ else
             if (_countryId != 0)
                 {
                 _cmd = "";
-                lstDatasets = await feService.Read_DatasetsByCountryId (_countryId);
+                lstDatasets = await feService.Read_DatasetsByCountryId(_countryId);
                 }
-            StateHasChanged();            
+            StateHasChanged();
             }
         }
     private async Task ReadCoutries ()

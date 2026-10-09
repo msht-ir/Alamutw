@@ -10,7 +10,25 @@
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 
-<h5 style="text-align:center;padding-left:15px;">Search - <span style="font-size:smaller;text-align:center;color:indianred">@appState.UserNickname</span></h5>
+<h5 style="text-align:center;padding-left:15px;">Search</h5>
+    <div class="d-flex" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+        @if(_accountType.Trim() == "admin account")
+            {
+            <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:darkgoldenrod"> @_accountType</span></p>
+            }
+        else if(_accountType.Trim() == "gold account")
+            {
+            <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:darkgoldenrod"> @_accountType</span></p>
+            }
+        else if(_accountType.Trim() == "silver account")
+            {
+            <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:gray"> @_accountType</span></p>
+            }
+        else if(_accountType.Trim() == "demo account")
+            {
+            <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:green"> @_accountType</span></p>
+            }
+    </div>
 <hr style="color:red" />
     @if (!_hasFetched)
     {
@@ -264,7 +282,7 @@ else
     public string _SpeciesListType = "-";
     public bool _hasFetched = false;
     public bool requestFeedback { get; set; } = false;
-
+    string _accountType = "";
 
     //LifeCycleEvents
     protected override async Task OnInitializedAsync ()
@@ -277,7 +295,22 @@ else
         appState.SetCmd("");
         user.UserId = Convert.ToInt32(appState.UserId);
         user.Username = appState.Username;
-        _hasFetched = true;
+        if(Convert.ToInt32(appState.UserTags) >256)
+            {
+            _accountType = " admin account";
+            }
+        else if(Convert.ToInt32(appState.UserTags) > 128)
+            {
+            _accountType = " gold account";            
+            }
+        else if(Convert.ToInt32(appState.UserTags) > 64)
+            {
+            _accountType = " silver account";            
+            }
+        else
+            {
+            _accountType = " demo account";
+            }        _hasFetched = true;
         }
     private void TriggerRender ()
         {

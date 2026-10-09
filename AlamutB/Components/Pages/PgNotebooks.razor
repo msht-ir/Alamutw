@@ -31,7 +31,23 @@ else if (appState.Cmd == "cmdUpdateNote")
     }
 else
     {
-    <div style="font-size:larger; text-align:center;color:black">@appState.UserNickname</div>
+    <div style="font-size:larger; text-align:center;color:black">
+            @if(_accountType.Trim() == "admin account")
+                {
+                <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:darkgoldenrod"> @_accountType</span></p>
+                }
+            else if(_accountType.Trim() == "gold account")
+                {
+                <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:darkgoldenrod"> @_accountType</span></p>
+                }
+            else if(_accountType.Trim() == "silver account")
+                {
+                <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:gray"> @_accountType</span></p>
+                }
+            else if(_accountType.Trim() == "demo account")
+                {
+                <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:green"> @_accountType</span></p>
+                }    </div>
         <div style="text-align:left; max-width:500px; margin: 0 auto;">
         <hr />
         @* <MudIconButton OnClick="BtnBack"
@@ -616,6 +632,7 @@ else
     private TimeSpan? _time = DateTime.Now.TimeOfDay;
     public string _clpsNtbk = "";  //collapse Accardion Notebooks
     public string _clpsSect = "";  //collapse Accardion Sections
+    string _accountType = "";
 
     //LifeCycleEvents
     protected override async Task OnInitializedAsync ()
@@ -633,12 +650,28 @@ else
             };
         if (user.UserId > 0)
             {
-            //on second rener, user.UserId will get its value
+            //on second render, user.UserId will get its value
             appState.SetNotebookId(0);
             appState.SetNoteRefId(0);
             await GetListOfNotebooks(user.UserId, _ShowNotebooksMode);
             await BtnReadNotesDue();
             _hasFetched = true;
+            }
+        if(Convert.ToInt32(appState.UserTags) >256)
+            {
+            _accountType = " admin account";
+            }
+        else if(Convert.ToInt32(appState.UserTags) > 128)
+            {
+            _accountType = " gold account";            
+            }
+        else if(Convert.ToInt32(appState.UserTags) > 64)
+            {
+            _accountType = " silver account";            
+            }
+        else
+            {
+            _accountType = " demo account";
             }
         }
     protected override async Task OnAfterRenderAsync (bool firstRender)
