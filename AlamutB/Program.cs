@@ -4,6 +4,7 @@ using AlamutB.Services2Backend;
 using AlamutS.Models;
 using MudBlazor.Services;
 using PSC.Blazor.Components.BrowserDetect;
+
 var builder = WebApplication.CreateBuilder (args);
 // Add services to the container.
 builder.Services.AddRazorComponents ().AddInteractiveServerComponents ();

@@ -2,6 +2,7 @@
 @inject ProtectedSessionStorage sessionStorage
 @inject NavigationManager Navman
 @inject AppState appState
+@inject IJSRuntime JS
 @implements IDisposable
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
@@ -9,6 +10,12 @@
 @using Microsoft.AspNetCore.Hosting
 @inject IWebHostEnvironment WebHostEnvironment
 
+<style>
+    .map {
+        height: 400px;
+        width: 100%;
+    }
+    </style>
 
 @if (appState.Cmd == "CreateNote")
     {
@@ -17,19 +24,19 @@
     <div class="container" style="max-width:600px; margin: 0 auto;">
         <div style="text-align: center;">
             <div style="text-align: center;margin-top:50px;margin-bottom:20px;">
-            @if(_accountType.Trim() == "admin account")
+            @if (_accountType.Trim() == "admin account")
                 {
                 <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:darkgoldenrod"> @_accountType</span></p>
                 }
-            else if(_accountType.Trim() == "gold account")
+            else if (_accountType.Trim() == "gold account")
                 {
                 <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:darkgoldenrod"> @_accountType</span></p>
                 }
-            else if(_accountType.Trim() == "silver account")
+            else if (_accountType.Trim() == "silver account")
                 {
                 <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:gray"> @_accountType</span></p>
                 }
-            else if(_accountType.Trim() == "demo account")
+            else if (_accountType.Trim() == "demo account")
                 {
                 <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:green"> @_accountType</span></p>
                 }
@@ -111,18 +118,27 @@
                        Style="color:indianred;padding-left:60px;padding-right:60px">
                 Logout
                 </MudButton>
+
             </div>
         </div>
     </div>
-
-
+@* MAP CONTAINER *@
+    <div>
+    @if (_isDataReady)
+        {
+        <div id="mapup-container" style="height: 800px; width: 100%; margin-top: 20px; border: 1px solid grey;"></div>
+        }
+    </div>
 @code
 {
     private bool _firstRender = true;
+    private bool _isDataReady = false;
+    private bool _isMapInitialized = false; // NEW: Tracks if JS has run
     User user = new User();
     public int Spacing { get; set; } = 3;
     string _cmd = "";
     string _accountType = "";
+
     //LifeCycleEvents
     protected override async Task OnInitializedAsync ()
         {
@@ -131,44 +147,44 @@
             {
             Navman.NavigateTo("/Login");
             }
-        if(Convert.ToInt32(appState.UserTags) >256)
-            {
+        if (Convert.ToInt32(appState.UserTags) > 256)
             _accountType = " admin account";
-            }
-        else if(Convert.ToInt32(appState.UserTags) > 128)
-            {
-            _accountType = " gold account";            
-            }
-        else if(Convert.ToInt32(appState.UserTags) > 64)
-            {
-            _accountType = " silver account";            
-            }
+        else if (Convert.ToInt32(appState.UserTags) > 128)
+            _accountType = " gold account";
+        else if (Convert.ToInt32(appState.UserTags) > 64)
+            _accountType = " silver account";
         else
-            {
             _accountType = " demo account";
-            }
         }
-    protected async Task OnAfterRenderAsync ()
+    protected override async Task OnAfterRenderAsync (bool firstRender)
         {
-        var result1 = await sessionStorage.GetAsync<string>("UserName");
-        if (result1.Success)
+        // 1. Handle Session Storage on the very first load
+        if (firstRender && !_isDataReady)
             {
-            appState.SetUsername(result1.Value);
-            user.Username = appState.Username;
-            StateHasChanged();
-            }
-        if (_firstRender)
-            {
-            _firstRender = false;
-            var result = await sessionStorage.GetAsync<int>("UserLoginStatus");
-            if (result.Success && result.Value == 1)
+            try
                 {
-                appState.SetUserLoginStatus(1);
-                appState.SetUserLoginStatus(result.Value);
+                    user.Username = appState.Username;
+                    _isDataReady = true;
+                    StateHasChanged(); // This will cause OnAfterRenderAsync to run again
                 }
-            else
+            catch (InvalidOperationException)
                 {
-                Navman.NavigateTo("/Login");
+                return;
+                }
+            }
+        // 2. Initialize the Map -- We check if _isDataReady is true, but _isMapInitialized is false. This guarantees the div has been rendered to the DOM.
+        if (_isDataReady && !_isMapInitialized)
+            {
+            _isMapInitialized = true; // Set to true immediately to prevent duplicate calls
+            try
+                {
+                await JS.InvokeVoidAsync("leafletMap.init", "mapup-container", 32.621738, 51.626070, 6);
+                }
+            catch (JSDisconnectedException) { }
+            catch (Exception ex)
+                {
+                Console.WriteLine($"Map Init Error: {ex.Message}");
+                _isMapInitialized = false; // Allow retry if it failed
                 }
             }
         }
@@ -189,16 +205,16 @@
         {
         string page = _pageId switch
             {
-                "TX"=> "/PgListMaker",
-                "CN"=> "/PgCheckName",
-                "DS"=> "/PgDatasets",
-                "SET"=> "/PgSets",
-                "ANL"=> "/PgAnalysis",
-                "STT"=> "/PgSettings",
-                "ADM"=> "/PgAdmin",
-                "NBK"=> "/PgNotebooks",
-                "STN"=> "/PgStickyNotes",
-                "RGN"=> "/PgReportGenerator",
+                "TX" => "/PgListMaker",
+                "CN" => "/PgCheckName",
+                "DS" => "/PgDatasets",
+                "SET" => "/PgSets",
+                "ANL" => "/PgAnalysis",
+                "STT" => "/PgSettings",
+                "ADM" => "/PgAdmin",
+                "NBK" => "/PgNotebooks",
+                "STN" => "/PgStickyNotes",
+                "RGN" => "/PgReportGenerator",
                 "APL" => "/PgAPL",
                 "PRN" => "/PgPrints",
                 "SRC" => "/PgSearch",
@@ -250,8 +266,6 @@
         {
         StateHasChanged();
         }
-
-
     //temp codes to parse afgh and uzb text files (see temp btn at end of page html code)
     private void TempMethod_RemoveExtraLines ()
         {
@@ -282,7 +296,7 @@
                 result.Append(line);
                 }
             await File.WriteAllTextAsync(outputPath, result.ToString());
-            Snackbar.Add ($"Finished ", Severity.Success);
+            Snackbar.Add($"Finished ", Severity.Success);
             }
         catch (Exception ex)
             {
@@ -308,4 +322,8 @@
             Console.WriteLine($"Error: {ex.Message}");
             }
         }
+
+
+
+
     }
