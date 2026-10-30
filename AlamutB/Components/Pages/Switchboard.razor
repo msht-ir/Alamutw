@@ -10,13 +10,6 @@
 @using Microsoft.AspNetCore.Hosting
 @inject IWebHostEnvironment WebHostEnvironment
 
-<style>
-    .map {
-        height: 400px;
-        width: 100%;
-    }
-    </style>
-
 @if (appState.Cmd == "CreateNote")
     {
     <Modal_CreateNote OnClose="HandleModalClose" />
@@ -122,13 +115,6 @@
             </div>
         </div>
     </div>
-@* MAP CONTAINER *@
-    <div>
-    @if (_isDataReady)
-        {
-        <div id="mapup-container" style="height: 800px; width: 100%; margin-top: 20px; border: 1px solid grey;"></div>
-        }
-    </div>
 @code
 {
     private bool _firstRender = true;
@@ -158,33 +144,17 @@
         }
     protected override async Task OnAfterRenderAsync (bool firstRender)
         {
-        // 1. Handle Session Storage on the very first load
         if (firstRender && !_isDataReady)
             {
             try
                 {
-                    user.Username = appState.Username;
-                    _isDataReady = true;
-                    StateHasChanged(); // This will cause OnAfterRenderAsync to run again
+                user.Username = appState.Username ?? "";
+                _isDataReady = true;
+                StateHasChanged(); // This will cause OnAfterRenderAsync to run again
                 }
             catch (InvalidOperationException)
                 {
                 return;
-                }
-            }
-        // 2. Initialize the Map -- We check if _isDataReady is true, but _isMapInitialized is false. This guarantees the div has been rendered to the DOM.
-        if (_isDataReady && !_isMapInitialized)
-            {
-            _isMapInitialized = true; // Set to true immediately to prevent duplicate calls
-            try
-                {
-                await JS.InvokeVoidAsync("leafletMap.init", "mapup-container", 32.621738, 51.626070, 6);
-                }
-            catch (JSDisconnectedException) { }
-            catch (Exception ex)
-                {
-                Console.WriteLine($"Map Init Error: {ex.Message}");
-                _isMapInitialized = false; // Allow retry if it failed
                 }
             }
         }

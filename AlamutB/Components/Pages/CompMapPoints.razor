@@ -1,0 +1,257 @@
+﻿@using System.Globalization
+@using AlamutB.Service
+@using System.Threading.Tasks
+@inject FeService feService
+@inject NavigationManager Navman
+@inject AppState appState
+@inject IJSRuntime JS
+@implements IDisposable
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<style>
+    .map-container {
+        height: 600px;
+        width: 100%;
+        margin-top: 20px;
+        border: 1px solid grey;
+    }
+    </style>
+
+    <EditForm Model="user">
+        <MudStack Row
+              Justify="Justify.SpaceBetween"
+              AlignItems="AlignItems.Start"
+              Style="width:980px;"
+              Breakpoint="Breakpoint.SmAndDown">
+        @* Pannel Left - MENU*@
+            <MudStack>
+            <MudText Style="color:indianred;">Maps</MudText>
+                <MudToggleGroup T="String"
+                            SelectionMode="SelectionMode.SingleSelection"
+                            @bind-Value="_mapType"
+                            @bind-Value:after="() => BtnMapTypeSelected(_mapType)"
+                            Color="Color.Primary"
+                            CheckMark FixedContent Vertical>
+                <MudToggleItem Value=@("maponeset")
+                               SelectedIcon="@Icons.Material.Outlined.Functions"
+                               Text="datasets in a Set" />
+                <MudToggleItem Value=@("mapmultiplesets")
+                               SelectedIcon="@Icons.Material.Outlined.Dashboard"
+                               Text="multiple Sets" />
+                <MudToggleItem Value=@("help")
+                               SelectedIcon="@Icons.Material.Filled.Search"
+                               Text="Guide" />
+                <MudToggleItem Value=@("back")
+                               Text="Back to Menu"
+                               Style="color:indianred" />
+                </MudToggleGroup>
+            </MudStack>
+        @* Pannel Right *@
+            <MudStack Style="width:740px;margin-top:30px">
+            @if ((_cmd == "") && (_isDataReady))
+                {
+                @* <div id="mapup-container" class="map-container"></div> *@
+                }
+            else if (_cmd == "help")
+                {
+                <CompInfoTech />
+                }
+            else if (_cmd == "maponeset")
+                {
+                <CompAnalysisSets AnalysisType="@_cmd" OnSelectedSetsReceived="GetSelectedSetsFromComponent" />
+                }
+            else if (_cmd == "mapmultiplesets")
+                {
+                <CompAnalysisSets AnalysisType="@_cmd" OnSelectedSetsReceived="GetSelectedSetsFromComponent" />
+                }
+            </MudStack>
+        </MudStack>
+    @* SHOW MAP *@
+    @if (_cmd == "showmap")
+        {
+        <div id="mapup-container" class="map-container"></div>
+        }
+    </EditForm>
+@* FOOTER *@
+@* <div style="text-align: center; margin:10px;">
+        <button class="btn btn-link" style="margin-left:20px;" Title="cancel" @onclick="OnClose">
+        <img src="/img/icoCancel.png" width="20" />
+        </button>
+    </div> *@
+
+<script>window.scrollToTop = () => { window.scrollTo({ top: 0, behavior: 'smooth' }); };</script>
+
+
+
+@code {
+    [Parameter]
+    public List<Dataset>? lstSelectedDatasets
+        {
+        get; set;
+        }
+    [Parameter]
+    public List<MapPoint> lstMapPoints
+        {
+        get; set;
+        }
+    [Parameter]
+    public EventCallback<bool> OnAnalysisDiversityResultsClosed
+        {
+        get; set;
+        }
+    public EventCallback OnClose
+        {
+        get; set;
+        }
+    User user = new User();
+    Set set = new Set();
+    Dataset dataset = new Dataset();
+
+    string _cmd = "";
+    string _accountType = "";
+    private string _mapType = "";
+    private bool _isDataReady = false;
+    private bool _isMapInitialized = false;
+    public bool _hasFetched = false;
+
+    protected override async Task OnAfterRenderAsync (bool firstRender)
+        {
+        //1. Prepare default Data if not ready
+        if (!_isDataReady)
+            {
+            user.Username = appState.Username;
+            _isDataReady = true;
+            StateHasChanged();
+            return;
+            }
+        //2. Initialize the Map ONLY when _cmd is "showmap" and it hasn't been initialized yet
+        if (_cmd == "showmap" && !_isMapInitialized)
+            {
+            _isMapInitialized = true; //Lock it to prevent double calls
+            try
+                {
+                // Now the <div> 100% exists in the browser
+                await JS.InvokeVoidAsync("leafletMap.init", "mapup-container", 35.6892, 51.3890, 6);
+                await JS.InvokeVoidAsync("leafletMap.addMarkers", lstMapPoints);
+                await JS.InvokeVoidAsync("leafletMap.drawPolygon");
+                await JS.InvokeVoidAsync("leafletMap.zoomToFit");
+                await JS.InvokeVoidAsync("leafletMap.addClickEvent");
+                }
+            catch (Exception ex)
+                {
+                Console.WriteLine($"Map Init Error: {ex.Message}");
+                _isMapInitialized = false; //Reset on error to allow retry
+                }
+            }
+        }
+    private void TriggerRender ()
+        {
+        InvokeAsync(StateHasChanged);
+        }
+    public void Dispose ()
+        {
+        appState.OnChange -= TriggerRender;
+        }
+    private async Task OnCloseClick ()
+        {
+        await OnClose.InvokeAsync();
+        }
+    public async Task GetSelectedSetsFromComponent (List<Set> lstSelectedSets)
+        {
+        switch (_cmd)
+            {
+            case "maponeset":
+                    {
+                    _hasFetched = false;
+                    lstSelectedDatasets = await feService.Read_DatasetsBySubsetIndex(lstSelectedSets [0].SetId, lstSelectedSets [0].SelectedSubset);
+                    appState.SetSetName(lstSelectedSets [0].SetName);
+                    _hasFetched = true;
+                    //Rebuild the points list
+                    lstMapPoints = new();
+                    foreach (Dataset dataset in lstSelectedDatasets)
+                        {
+                        if (!String.IsNullOrWhiteSpace(dataset.Coords))
+                            {
+                            string [] parts = dataset.Coords.Split(',', StringSplitOptions.TrimEntries);
+                            double _lat = double.Parse(parts [0], CultureInfo.InvariantCulture);
+                            double _lng = double.Parse(parts [1], CultureInfo.InvariantCulture);
+                            lstMapPoints.Add(new MapPoint { Lat = _lat, Lng = _lng, Name = dataset.DatasetName });
+                            }
+                        }
+                    //Reset the map state so it can be initialized again
+                    _isMapInitialized = false;
+                    //Change the command to show the map div
+                    _cmd = "showmap";
+                    //Force Blazor to re-render. This will render the <div> and then trigger OnAfterRenderAsync to initialize the map.
+                    StateHasChanged();
+                    break;
+                    }
+            case "mapmultiplesets":
+                    {
+                    _hasFetched = false;
+                    lstSelectedDatasets = await feService.Read_DatasetsBySubsetIndex(lstSelectedSets [0].SetId, lstSelectedSets [0].SelectedSubset);
+                    appState.SetSetName(lstSelectedSets [0].SetName);
+                    _hasFetched = true;
+                    //Rebuild the points list
+                    lstMapPoints = new();
+                    foreach (Dataset dataset in lstSelectedDatasets)
+                        {
+                        if (!String.IsNullOrWhiteSpace(dataset.Coords))
+                            {
+                            string [] parts = dataset.Coords.Split(',', StringSplitOptions.TrimEntries);
+                            double _lat = double.Parse(parts [0], CultureInfo.InvariantCulture);
+                            double _lng = double.Parse(parts [1], CultureInfo.InvariantCulture);
+                            lstMapPoints.Add(new MapPoint { Lat = _lat, Lng = _lng, Name = dataset.DatasetName });
+                            }
+                        }
+                    //Reset the map state so it can be initialized again
+                    _isMapInitialized = false;
+                    //Change the command to show the map div
+                    _cmd = "showmap";
+                    //Force Blazor to re-render. This will render the <div> and then trigger OnAfterRenderAsync to initialize the map.
+                    StateHasChanged();
+                    break;
+                    }
+            default:
+                    {
+                    Snackbar.Add($"selected Sets received for ??!", Severity.Info, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+                    break;
+                    }
+            }
+        }
+    public void BtnMapTypeSelected (string _mapTypeName)
+        {
+        if (_mapTypeName == "back")
+            {
+            BtnBack();
+            }
+        else
+            {
+            _cmd = _mapTypeName;
+            StateHasChanged();
+            }
+        }
+
+    //methods
+    public string PersianDate (DateTimeOffset? dt)
+        {
+        if ((Convert.ToInt32(appState.UserTags) & 2) == 2)
+            {
+            return feService.ToPersianDate(dt.ToString());
+            }
+        else
+            {
+            return dt?.ToString("yyyy-MM-dd HH:mm");
+            }
+        }
+    private void BtnCancel ()
+        {
+        _cmd = "";
+        StateHasChanged();
+        }
+    public void BtnBack ()
+        {
+        Navman.NavigateTo("/Switchboard");
+        }
+    }

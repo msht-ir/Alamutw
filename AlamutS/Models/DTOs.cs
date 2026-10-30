@@ -483,4 +483,12 @@ namespace AlamutS.Models
         public string AcceptedId { get; set; }
         public string SciName { get; set; }
         }
+    //MapPoint
+    public class MapPoint
+        {
+        public double Lat { get; set; }
+        public double Lng { get; set; }
+        public string Name { get; set; }
+        }
+
     }

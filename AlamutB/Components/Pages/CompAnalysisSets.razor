@@ -41,7 +41,7 @@ else
                         {
                             <div class="d-flex align-items-center mb-1">
                             @* Select *@
-                            @if ((AnalysisType == "comparesets"))
+                            @if ((AnalysisType == "comparesets") || (AnalysisType == "mapmultiplesets"))
                                 {
                                 <input class="form-check-input"
                                        style="margin-left:1px;margin-right:1px;"
@@ -69,7 +69,7 @@ else
                                     </MudSelect>
                                 </div>
                             @* RUN *@
-                            @if ((AnalysisType == "diversity") || (AnalysisType == "fvalue") || (AnalysisType == "floran") || (AnalysisType == "multivarfloran"))
+                            @if ((AnalysisType == "diversity") || (AnalysisType == "fvalue") || (AnalysisType == "floran") || (AnalysisType == "multivarfloran")|| (AnalysisType == "maponeset"))
                                 {
                                     <button class="btn btn-link pulse-hover"
                                         @onclick="() => SelectThisSetForAnalysisAndRollback(set.SetId)">
@@ -294,7 +294,7 @@ else
                             }
                         }
                     <br />
-                    @if ((AnalysisType == "comparesets"))
+                    @if ((AnalysisType == "comparesets") || (AnalysisType == "mapmultiplesets"))
                         {
                         <hr />
                             <div class="d-flex justify-content-center">
