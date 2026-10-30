@@ -1443,7 +1443,7 @@ namespace AlamutB.Services2Backend
                 }
             catch (Exception ex)
                 {
-                Console.WriteLine ("error: " + ex.Message);
+                Console.WriteLine ("error in be..Read_DatasetsBySubsetIndexAsync: " + ex.Message);
                 cnn.Close ();
                 return new List<Dataset> ();
                 }

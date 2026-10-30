@@ -65,7 +65,17 @@
 
     // 4. Fit map to show all markers
     zoomToFit: function () {
-        if (this.mapInstance && this.markerGroup.getLayers().length > 0) {
+        if (!this.mapInstance || !this.markerGroup) return;
+
+        var layers = this.markerGroup.getLayers();
+
+        if (layers.length === 1) {
+            // If there is exactly 1 point, just center on it at zoom level 10
+            var singlePoint = layers[0].getLatLng();
+            this.mapInstance.setView(singlePoint, 10);
+        }
+        else if (layers.length > 1) {
+            // If there are 2 or more points, fit bounds normally
             this.mapInstance.fitBounds(this.markerGroup.getBounds().pad(0.2));
         }
     },

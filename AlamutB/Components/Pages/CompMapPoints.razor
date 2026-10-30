@@ -42,6 +42,9 @@
                 <MudToggleItem Value=@("help")
                                SelectedIcon="@Icons.Material.Filled.Search"
                                Text="Guide" />
+                <MudToggleItem Value=@("clearmap")
+                               Text="Clear"
+                               Style="color:grey" />
                 <MudToggleItem Value=@("back")
                                Text="Back to Menu"
                                Style="color:indianred" />
@@ -57,6 +60,10 @@
                 {
                 <CompInfoTech />
                 }
+            else if (_cmd == "clearmap")
+                {
+                BtnCancel ();
+                }
             else if (_cmd == "maponeset")
                 {
                 <CompAnalysisSets AnalysisType="@_cmd" OnSelectedSetsReceived="GetSelectedSetsFromComponent" />
@@ -71,18 +78,19 @@
     @if (_cmd == "showmap")
         {
         <div id="mapup-container" class="map-container"></div>
+        <hr style="color:red;margin-top:30px;" />
+            <div style="text-align: center;margin-top:50px;">
+                <MudButton Variant="Variant.Filled"
+                       EndIcon="@Icons.Material.Filled.Clear"
+                       Size="Size.Small"
+                       OnClick="@(() => BtnCancel())"
+                       Style="color:indianred;padding-left:60px;padding-right:60px">
+                Clear
+                </MudButton>
+            </div>
         }
     </EditForm>
-@* FOOTER *@
-@* <div style="text-align: center; margin:10px;">
-        <button class="btn btn-link" style="margin-left:20px;" Title="cancel" @onclick="OnClose">
-        <img src="/img/icoCancel.png" width="20" />
-        </button>
-    </div> *@
-
 <script>window.scrollToTop = () => { window.scrollTo({ top: 0, behavior: 'smooth' }); };</script>
-
-
 
 @code {
     [Parameter]
@@ -174,9 +182,12 @@
                         if (!String.IsNullOrWhiteSpace(dataset.Coords))
                             {
                             string [] parts = dataset.Coords.Split(',', StringSplitOptions.TrimEntries);
-                            double _lat = double.Parse(parts [0], CultureInfo.InvariantCulture);
-                            double _lng = double.Parse(parts [1], CultureInfo.InvariantCulture);
-                            lstMapPoints.Add(new MapPoint { Lat = _lat, Lng = _lng, Name = dataset.DatasetName });
+                            if (parts.Length >= 2 &&
+                                double.TryParse(parts [0], CultureInfo.InvariantCulture, out double _lat) &&
+                                double.TryParse(parts [1], CultureInfo.InvariantCulture, out double _lng))
+                                {
+                                lstMapPoints.Add(new MapPoint { Lat = _lat, Lng = _lng, Name = dataset.DatasetName });
+                                }
                             }
                         }
                     //Reset the map state so it can be initialized again
@@ -192,19 +203,26 @@
                     _hasFetched = false;
                     lstSelectedDatasets = await feService.Read_DatasetsBySubsetIndex(lstSelectedSets [0].SetId, lstSelectedSets [0].SelectedSubset);
                     appState.SetSetName(lstSelectedSets [0].SetName);
+                    Console.WriteLine($"-------------- lstSelectedSets.COUNT = {lstSelectedSets.Count}");
+                    Console.WriteLine($"-------------- lstSelectedDatasets.COUNT = {lstSelectedDatasets.Count}");
                     _hasFetched = true;
                     //Rebuild the points list
                     lstMapPoints = new();
                     foreach (Dataset dataset in lstSelectedDatasets)
                         {
+                        Console.WriteLine($"-------------- dataset = {dataset.DatasetName} - coords: {dataset.Coords}");
                         if (!String.IsNullOrWhiteSpace(dataset.Coords))
                             {
                             string [] parts = dataset.Coords.Split(',', StringSplitOptions.TrimEntries);
-                            double _lat = double.Parse(parts [0], CultureInfo.InvariantCulture);
-                            double _lng = double.Parse(parts [1], CultureInfo.InvariantCulture);
-                            lstMapPoints.Add(new MapPoint { Lat = _lat, Lng = _lng, Name = dataset.DatasetName });
+                            if (parts.Length >= 2 &&
+                                double.TryParse(parts [0], CultureInfo.InvariantCulture, out double _lat) &&
+                                double.TryParse(parts [1], CultureInfo.InvariantCulture, out double _lng))
+                                {
+                                lstMapPoints.Add(new MapPoint { Lat = _lat, Lng = _lng, Name = dataset.DatasetName });
+                                }
                             }
                         }
+                    Console.WriteLine($"lstMapPoints.COUNT = {lstMapPoints.Count}");
                     //Reset the map state so it can be initialized again
                     _isMapInitialized = false;
                     //Change the command to show the map div
@@ -247,6 +265,7 @@
         }
     private void BtnCancel ()
         {
+        _mapType = "";
         _cmd = "";
         StateHasChanged();
         }
