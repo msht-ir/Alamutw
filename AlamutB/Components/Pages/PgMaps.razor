@@ -101,7 +101,7 @@ else
         {
         Navman.NavigateTo("/Switchboard");
         }
-    //convert date
+    //methods
     public string PersianDate (DateTimeOffset? dt)
         {
         if ((Convert.ToInt32(appState.UserTags) & 2) == 2)
@@ -113,7 +113,6 @@ else
             return dt?.ToString("yyyy-MM-dd HH:mm");
             }
         }
-    //methods
     private async Task HandleModalClose ()
         {
         _hasFetched = false;

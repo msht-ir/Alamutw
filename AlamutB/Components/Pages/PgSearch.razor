@@ -11,26 +11,26 @@
 @inject IDialogService DialogService
 
 <h5 style="text-align:center;padding-left:15px;">Search</h5>
-    <div class="d-flex" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
-        @if(_accountType.Trim() == "admin account")
-            {
-            <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:darkgoldenrod"> @_accountType</span></p>
-            }
-        else if(_accountType.Trim() == "gold account")
-            {
-            <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:darkgoldenrod"> @_accountType</span></p>
-            }
-        else if(_accountType.Trim() == "silver account")
-            {
-            <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:gray"> @_accountType</span></p>
-            }
-        else if(_accountType.Trim() == "demo account")
-            {
-            <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:green"> @_accountType</span></p>
-            }
+<div class="d-flex" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+    @if (_accountType.Trim() == "admin account")
+        {
+        <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:darkgoldenrod"> @_accountType</span></p>
+        }
+    else if (_accountType.Trim() == "gold account")
+        {
+        <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:darkgoldenrod"> @_accountType</span></p>
+        }
+    else if (_accountType.Trim() == "silver account")
+        {
+        <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:gray"> @_accountType</span></p>
+        }
+    else if (_accountType.Trim() == "demo account")
+        {
+        <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:green"> @_accountType</span></p>
+        }
     </div>
 <hr style="color:red" />
-    @if (!_hasFetched)
+@if (!_hasFetched)
     {
     <_ScanSheets />
     }
@@ -140,7 +140,7 @@ else
                                         <button type="button"
                                             class="btn btn-link"
                                             style="margin-left:1px"
-                                            @onclick='() => BtnShowSubspecies(species)'
+                                            @onclick='() => BtnShowDistributionMap()'
                                             Title="map distributions">
                                         <img src="/img/icoMap.png" width="24" />
                                         </button>
@@ -153,7 +153,7 @@ else
                                         <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-4 mb-4 px-0">
                                             <MudCard Class="mx-0">
                                                 <MudCardContent Style="background-color:rgb(254,254,254);">
-                                                @if(lstDatasets.Count() == 0)
+                                                @if (lstDatasets.Count() == 0)
                                                     {
                                                     <h6 style="text-align:center;color:indianred">no data</h6>
                                                     }
@@ -178,22 +178,22 @@ else
                                                             <span style="font-size:smaller">@_ds.DatasetName </span>
                                                             <span style="font-size:smaller;color:forestgreen">&nbsp; ( @_ds.DatasetAbbr - @_ds.ProvinceName)</span>
                                                             </div>
-                                                            @if ((_cmd2 == "cmdEditDataset") && (_ds.DatasetId == _datasetId))
-                                                                {
-                                                                @* Edit Dataset *@
-                                                                <br />
-                                                                    <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-1 mb-4 px-0">
-                                                                        <MudCard Class="mx-0">
-                                                                            <MudCardContent Style="background-color:rgba(240,240,240);">
-                                                                            @* SHOW COMPONENT *@
-                                                                            <CompDataset dataset="_ds" OnClose="CloseComponent" />
-                                                                            </MudCardContent>
-                                                                        </MudCard>
-                                                                    </MudContainer>
-                                                                }
-                                                        }                                                    
+                                                        @if ((_cmd2 == "cmdEditDataset") && (_ds.DatasetId == _datasetId))
+                                                            {
+                                                            @* Edit Dataset *@
+                                                            <br />
+                                                                <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-1 mb-4 px-0">
+                                                                    <MudCard Class="mx-0">
+                                                                        <MudCardContent Style="background-color:rgba(240,240,240);">
+                                                                        @* SHOW COMPONENT *@
+                                                                        <CompDataset dataset="_ds" OnClose="CloseComponent" />
+                                                                        </MudCardContent>
+                                                                    </MudCard>
+                                                                </MudContainer>
+                                                            }
+                                                        }
                                                     }
-                                                    <hr />
+                                                <hr />
                                                     <div class="gap-4" style="display: flex;  justify-content: center; align-items: center;">
                                                         <button class="btn btn-link pulse-hover" @onclick="BtnCancel">
                                                         <img src="/img/icoCancel.png" width="22" />
@@ -204,6 +204,21 @@ else
                                         </MudContainer>
                                     }
                                 }
+                                                        @* SHOW MAP *@
+                                                        @if (_cmd2 == "showmap")
+                                                            {
+                                                            <div id="mapup-container" class="map-container"></div>
+                                                            <hr style="color:red;margin-top:30px;" />
+                                                                <div style="text-align: center;margin-top:50px;">
+                                                                    <MudButton Variant="Variant.Filled"
+                                                                           EndIcon="@Icons.Material.Filled.Clear"
+                                                                           Size="Size.Small"
+                                                                           OnClick="@(() => BtnCancel())"
+                                                                           Style="color:indianred;padding-left:60px;padding-right:60px">
+                                                                    Clear
+                                                                    </MudButton>
+                                                                </div>
+                                                            }
                             </MudCardContent>
                         </MudCard>
                     </MudContainer>
@@ -270,7 +285,7 @@ else
     Species species = new Species();
     List<DatasetData> lstDatasetData = new();
     DatasetData datasetdata = new DatasetData();
-
+    List<MapPoint> lstMapPoints = new();
     private string _speciesId = "";
     private string _speciesName = "";
     private string _speciesListFilter = "";
@@ -283,6 +298,7 @@ else
     public bool _hasFetched = false;
     public bool requestFeedback { get; set; } = false;
     string _accountType = "";
+    private bool _isMapInitialized = false;
 
     //LifeCycleEvents
     protected override async Task OnInitializedAsync ()
@@ -295,22 +311,45 @@ else
         appState.SetCmd("");
         user.UserId = Convert.ToInt32(appState.UserId);
         user.Username = appState.Username;
-        if(Convert.ToInt32(appState.UserTags) >256)
+        if (Convert.ToInt32(appState.UserTags) > 256)
             {
             _accountType = " admin account";
             }
-        else if(Convert.ToInt32(appState.UserTags) > 128)
+        else if (Convert.ToInt32(appState.UserTags) > 128)
             {
-            _accountType = " gold account";            
+            _accountType = " gold account";
             }
-        else if(Convert.ToInt32(appState.UserTags) > 64)
+        else if (Convert.ToInt32(appState.UserTags) > 64)
             {
-            _accountType = " silver account";            
+            _accountType = " silver account";
             }
         else
             {
             _accountType = " demo account";
-            }        _hasFetched = true;
+            }
+        _hasFetched = true;
+        }
+    protected override async Task OnAfterRenderAsync (bool firstRender)
+        {
+        //Initialize the Map ONLY when _cmd is "showmap" and it hasn't been initialized yet
+        if (_cmd2 == "showmap" && !_isMapInitialized)
+            {
+            _isMapInitialized = true; //Lock it to prevent double calls
+            try
+                {
+                // Now the <div> 100% exists in the browser
+                await JS.InvokeVoidAsync("leafletMap.init", "mapup-container", 35.6892, 51.3890, 6);
+                await JS.InvokeVoidAsync("leafletMap.addMarkers", lstMapPoints);
+                await JS.InvokeVoidAsync("leafletMap.drawPolygon");
+                await JS.InvokeVoidAsync("leafletMap.zoomToFit");
+                await JS.InvokeVoidAsync("leafletMap.addClickEvent");
+                }
+            catch (Exception ex)
+                {
+                Console.WriteLine($"Map Init Error: {ex.Message}");
+                _isMapInitialized = false; //Reset on error to allow retry
+                }
+            }
         }
     private void TriggerRender ()
         {
@@ -430,15 +469,15 @@ else
         _cmd1 = (_cmd1 == "ShowListOfDatasets") ? "" : "ShowListOfDatasets";
         if (_cmd1 == "ShowListOfDatasets")
             {
-            lstSpecies.FirstOrDefault (s => s.SpeciesId == species.SpeciesId).IsSelected = true;
+            lstSpecies.FirstOrDefault(s => s.SpeciesId == species.SpeciesId).IsSelected = true;
             _speciesId = species.SpeciesId;
             lstDatasets = await feService.Read_DatasetsBySpeciesId(species.SpeciesId);
-            _cmd1 = "ShowListOfDatasets";            
+            _cmd1 = "ShowListOfDatasets";
             }
         StateHasChanged();
         }
     //dataset
-    private async Task BtnShowDatasetInfo(Dataset dataset)
+    private async Task BtnShowDatasetInfo (Dataset dataset)
         {
         if (dataset != null)
             {
@@ -451,6 +490,27 @@ else
             {
             Snackbar.Add("Select a Dataset first", Severity.Warning, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
             }
+        }
+    private async Task BtnShowDistributionMap ()
+        {
+        lstMapPoints = new();
+        foreach (Dataset dataset in lstDatasets)
+            {
+            if (!String.IsNullOrWhiteSpace(dataset.Coords))
+                {
+                string [] parts = dataset.Coords.Split(',', StringSplitOptions.TrimEntries);
+                if (parts.Length >= 2 &&
+                    double.TryParse(parts [0], CultureInfo.InvariantCulture, out double _lat) &&
+                    double.TryParse(parts [1], CultureInfo.InvariantCulture, out double _lng))
+                    {
+                    lstMapPoints.Add(new MapPoint { Lat = _lat, Lng = _lng, Name = dataset.DatasetName });
+                    }
+                }
+            }
+        _isMapInitialized = false;
+        _cmd2 = "showmap";
+        StateHasChanged();
+
         }
     //methods
     private async Task CloseComponent ()

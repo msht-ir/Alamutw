@@ -17,7 +17,7 @@
     <div class="container" style="max-width:600px; margin: 0 auto;">
         <div style="text-align: center;">
             <div style="text-align: center;margin-top:50px;margin-bottom:20px;">
-            @if (_accountType.Trim() == "admin account")
+            @if (_accountType.Trim() == "superuser account")
                 {
                 <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:darkgoldenrod"> @_accountType</span></p>
                 }
@@ -68,7 +68,7 @@
                 <button class="btn btn-link pulse-hover" @onclick='() => GotoPage("APL")'>
                 <img src="/img/icoPrompt1.png" width="38" title="APL" />
                 </button>
-            @if (Convert.ToInt32(appState.UserTags & 32) == 32)
+            @if (Convert.ToInt32(appState.UserTags & 2) == 2)
                 {
                     <button class="btn btn-link pulse-hover" @onclick='() => GotoPage("ADM")'>
                     <img src="/img/icoAdmin.png" width="46" title="Settings" />
@@ -133,7 +133,7 @@
             Navman.NavigateTo("/Login");
             }
         if (Convert.ToInt32(appState.UserTags) > 256)
-            _accountType = " admin account";
+            _accountType = " superuser account";
         else if (Convert.ToInt32(appState.UserTags) > 128)
             _accountType = " gold account";
         else if (Convert.ToInt32(appState.UserTags) > 64)

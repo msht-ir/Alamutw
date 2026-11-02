@@ -111,7 +111,7 @@ namespace AlamutB.Services2Backend
                     Username = reader.GetString (2),
                     Password = reader.GetString (3),
                     UserEmail = reader.GetString (4),
-                    ExpDateTime = reader.GetDateTime (5),
+                    ExpDateTime = reader.GetDateTimeOffset (5),
                     UserTags = reader.GetInt32 (6)
                     });
                 }
@@ -135,7 +135,7 @@ namespace AlamutB.Services2Backend
                     Username = reader.GetString (2),
                     Password = reader.GetString (3),
                     UserEmail = reader.GetString (4),
-                    ExpDateTime = reader.GetDateTime (5),
+                    ExpDateTime = reader.GetDateTimeOffset (5),
                     UserTags = reader.GetInt32 (6)
                     });
                 }

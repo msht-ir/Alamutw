@@ -9,61 +9,406 @@
 @implements IDisposable
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
-
-<h5 style="text-align:center;padding-left:15px;">Administrator - <span style="font-size:smaller;text-align:center;color:indianred">@appState.UserNickname</span></h5>
+<div style="text-align:center; margin-top:25px;">
+    <img src="/img/icoAdmin.png" width="50" title="admin page صفحه ادمين" onclick='@(() => { _cmd = "listusers"; StateHasChanged(); })' />
+    <h6 style="color:royalblue; font-style:italic">superuser</h6>
+    </div>
+<h5 style="text-align:center;padding-left:15px;"><span style="font-size:smaller;text-align:center;color:indianred">@appState.UserNickname</span></h5>
 <hr style="color:red" />
-    @if (!_hasFetched)
+@if (!_hasFetched)
     {
     <_ScanSheets />
     }
 else
     {
-        <div style="text-align: center; margin:15px;">
-            <button class="btn btn-link" @onclick="BtnBack">
-            <img src="/img/icoBack3.png" width="40" title="back" />
-            </button>
-        </div>
-        <EditForm Model="lstNotes">
-        @if (appState.Cmd == "ShowNoteInDialog")
+        <EditForm Model="lstUsers" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+        @switch (_cmd)
             {
-            <Modal_ShowNote OnClose="HandleModalClose" />
-            }
-        else
-            {
+            case "listusers":
+                    {
+                        <MudContainer MaxWidth="MaxWidth.Small" Class="mt-2 px-0">
+                            <MudCard Class="mx-0">
+                                <MudCardContent Style="background-color:rgba(249,249,249);">
+                                <h3 style="text-align:center;color:royalblue;font-style:italic;">accounts</h3>
+                                    <div style="text-align: left;">
+                                        <button type="button"
+                                            class="btn btn-link pulse-hover"
+                                            @onclick='() => BtnAddNewUser()'>
+                                        <img src="/img/icoAdd1.png" width="18" />
+                                        </button>
+                                        <button type="button"
+                                            class="btn btn-link pulse-hover"
+                                            @onclick='() => BtnListNewUsers()'>
+                                        <img src="/img/icoFilter.png" width="20" />
+                                        </button>
+                                    </div>
+                                <hr style="color:indianred" />
+                                    <table class="table table-borderless table-hover align-middle mb-0">
+                                        <thead>
+                                            <tr class="text-uppercase text-muted" style="font-size: 0.72rem; letter-spacing: .04em;">
+                                            <th style="width: 60px;" class="text-center">Active</th>
+                                            <th style="width: 60px;" class="text-center">Edit</th>
+                                            <th>Username</th>
+                                            <th>Display Name</th>
+                                            <th>Role</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody style="font-size: 0.875rem;">
+                                        @foreach (User user in lstUsers)
+                                            {
+                                                <tr>
+                                                    <td class="text-center">
+                                                        <button type="button"
+                                                            class="btn btn-link p-0 border-0"
+                                                            title="Toggle active / اکانت فعال؟"
+                                                            @onclick="() => BtnToggleUserActiveTag(user)">
+                                                        <img src="@((user.UserTags & 1) == 1 ? "/img/icoOn.png" : "/img/icoOff.png")"
+                                                             width="22"
+                                                             alt="@((user.UserTags & 1) == 1 ? "active" : "inactive")" />
+                                                        </button>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <button type="button"
+                                                            class="btn btn-link p-0 border-0"
+                                                            title="Edit account / ویرایش اکانت"
+                                                            @onclick="() => BtnEditUser(user)">
+                                                        <img src="/img/icoKeys.png" width="20" alt="edit" />
+                                                        </button>
+                                                    </td>
+                                                <td class="fw-medium">@user.Username</td>
+                                                <td class="text-muted">@user.UserNickname</td>
+                                                    <td>
+                                                    @if (user.AdminAcc)
+                                                        {
+                                                        <span class="badge rounded-pill" style="background:#f8d7da;color:#b02a37;">SUPERUSER</span>
+                                                        }
+                                                    else if (user.GoldAcc)
+                                                        {
+                                                        <span class="badge rounded-pill" style="background:#fff3cd;color:#997404;">gold</span>
+                                                        }
+                                                    else if (user.SilverAcc)
+                                                        {
+                                                        <span class="badge rounded-pill" style="background:#e9ecef;color:#495057;">silver</span>
+                                                        }
+                                                    else
+                                                        {
+                                                        <span class="badge rounded-pill bg-light text-muted">user</span>
+                                                        }
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                    <div class="d-flex align-items-center mb-1">
+                                    </div>
+                                </MudCardContent>
+                            </MudCard>
+                        </MudContainer>
+                    break;
+                    }
+            case "listnewusers":
+                    {
+                        <MudContainer MaxWidth="MaxWidth.Small" Class="mt-2 px-0">
+                            <MudCard Class="mx-0">
+                                <MudCardContent Style="background-color:rgba(249,249,249);">
+                                <h3 style="text-align:center;color:royalblue;font-style:italic;">visiting accounts</h3>
+                                    <div style="text-align: left;">
+                                        <button type="button"
+                                            class="btn btn-link pulse-hover"
+                                            @onclick='() => BtnAddNewUser()'>
+                                        <img src="/img/icoAdd1.png" width="18" />
+                                        </button>
+                                        <button type="button"
+                                            class="btn btn-link pulse-hover"
+                                            @onclick='() => BtnListUsers()'>
+                                        <img src="/img/icoList.png" width="20" />
+                                        </button>
+                                    </div>
+                                <hr style="color:indianred" />
+                                @if (lstNewUsers.Count() > 0)
+                                    {
 
+                                        <table class="table table-borderless table-hover align-middle mb-0">
+                                            <thead>
+                                                <tr class="text-uppercase text-muted" style="font-size: 0.72rem; letter-spacing: .04em;">
+                                                <th style="width: 60px;" class="text-center">Active</th>
+                                                <th style="width: 60px;" class="text-center">Edit</th>
+                                                <th>Username</th>
+                                                <th>Display Name</th>
+                                                <th style="width: 60px;" class="text-center">Del</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody style="font-size: 0.875rem;">
+                                            @foreach (User user in lstNewUsers)
+                                                {
+                                                    <tr>
+                                                        <td class="text-center">
+                                                            <button type="button"
+                                                                class="btn btn-link p-0 border-0"
+                                                                title="Toggle active / اکانت فعال؟"
+                                                                @onclick="() => BtnToggleUserActiveTag(user)">
+                                                            <img src="@((user.UserTags & 1) == 1 ? "/img/icoOn.png" : "/img/icoOff.png")"
+                                                                 width="22"
+                                                                 alt="@((user.UserTags & 1) == 1 ? "active" : "inactive")" />
+                                                            </button>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <button type="button"
+                                                                class="btn btn-link p-0 border-0"
+                                                                title="Edit account / ویرایش اکانت"
+                                                                @onclick="() => BtnEditUser(user)">
+                                                            <img src="/img/icoKeys.png" width="20" alt="edit" />
+                                                            </button>
+                                                        </td>
+                                                    <td class="fw-medium">@user.Username</td>
+                                                    <td class="text-muted">@user.UserNickname</td>
+                                                        <td class="text-center">
+                                                            <button type="button"
+                                                                class="btn btn-link"
+                                                                style="margin-left:1px"
+                                                                Title="delete user حذف اکانت"
+                                                                @onclick='() => BtnDeleteUser(user)'>
+                                                            <img src="/img/icoDelete2.png" width="24" />
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    }
+                                else
+                                    {
+                                    <h6 style="text-align:center;color:gray;font-style:italic;">Empty</h6>
+                                    }
+                                </MudCardContent>
+                            </MudCard>
+                        </MudContainer>
+                    break;
+                    }
+            case "addnewuser":
+                    {
+                        <div class="d-flex" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                        <h6 style="color:indianred;">add new user</h6>
+                        </div>
+                        <MudContainer MaxWidth="MaxWidth.Small" Class="mt-2 mb-4 px-0">
+                            <MudCard Class="mx-auto">
+                                <MudCardContent Style="background-color:rgba(249,249,249);">
+                                    <div class="d-flex">
+                                    <MudTextField @ref="refUsername"
+                                                  @bind-Value="_user.Username"
+                                                  Label="username"
+                                                  Variant="Variant.Text"
+                                                  Margin="Margin.Dense"
+                                                  Autocomplete="off"
+                                                  Adornment="Adornment.End"
+                                                  AdornmentIcon="@Icons.Material.Filled.Save"
+                                                  OnAdornmentClick="() => BtnCreateNewUser()"
+                                                  Class="my-textfield" />
+                                    </div>
+                                    <div class="d-flex">
+                                    <MudTextField @ref="refUserPassword"
+                                                  @bind-Value="_user.Password"
+                                                  Label="password"
+                                                  Variant="Variant.Text"
+                                                  Margin="Margin.Dense"
+                                                  Autocomplete="off"
+                                                  Class="my-textfield" />
+                                    </div>
+                                    <div class="d-flex">
+                                    <MudTextField @ref="refUserNickname"
+                                                  @bind-Value="_user.UserNickname"
+                                                  Label="nickname"
+                                                  Variant="Variant.Text"
+                                                  Margin="Margin.Dense"
+                                                  Autocomplete="off"
+                                                  Style="font-family:tahoma"
+                                                  Class="my-textfield" />
+                                    </div>
+                                    <div class="d-flex">
+                                    <MudTextField @ref="refUserEmail"
+                                                  @bind-Value="_user.UserEmail"
+                                                  Label="email"
+                                                  Variant="Variant.Text"
+                                                  Margin="Margin.Dense"
+                                                  Autocomplete="off"
+                                                  Class="my-textfield" />
+                                    </div>
+                                    <div class="d-flex" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                                        <button class="btn btn-link pulse-hover" style="margin-top:30px;" Title="cancel" @onclick="BtnCancel">
+                                        <img src="/img/icoCancel.png" width="20" />
+                                        </button>
+                                    </div>
+                                </MudCardContent>
+                            </MudCard>
+                        </MudContainer>
+
+                    break;
+                    }
+            case "edituser":
+                    {
+                        <MudContainer MaxWidth="MaxWidth.Small" Class="mt-2 mb-4 px-0">
+                            <MudCard Class="mx-auto">
+                                <MudCardContent Style="background-color:rgba(249,249,249);">
+                                    <div class="d-flex">
+                                    <MudTextField @ref="refUsername"
+                                                  @bind-Value="_user.Username"
+                                                  Label="username"
+                                                  Variant="Variant.Text"
+                                                  Margin="Margin.Dense"
+                                                  Autocomplete="off"
+                                                  Style="margin-right:40px;"
+                                                  Adornment="Adornment.End"
+                                                  AdornmentIcon="@Icons.Material.Filled.Save"
+                                                  OnAdornmentClick="() => BtnUpdateUser()"
+                                                  Class="my-textfield" />
+                                    </div>
+                                    <div class="d-flex">
+                                    <MudTextField @ref="refUserPassword"
+                                                  @bind-Value="_user.Password"
+                                                  Label="password"
+                                                  Variant="Variant.Text"
+                                                  Style="margin-right:40px;"
+                                                  Margin="Margin.Dense"
+                                                  Autocomplete="off"
+                                                  Class="my-textfield" />
+                                    </div>
+                                    <div class="d-flex">
+                                    <MudTextField @ref="refUserNickname"
+                                                  @bind-Value="_user.UserNickname"
+                                                  Label="nickname"
+                                                  Variant="Variant.Text"
+                                                  Margin="Margin.Dense"
+                                                  Autocomplete="off"
+                                                  Style="font-family:tahoma;margin-right:40px;"
+                                                  Class="my-textfield" />
+                                    </div>
+                                    <div class="d-flex">
+                                    <MudTextField @ref="refUserEmail"
+                                                  @bind-Value="_user.UserEmail"
+                                                  Label="email"
+                                                  Variant="Variant.Text"
+                                                  Margin="Margin.Dense"
+                                                  Style="margin-right:40px;"
+                                                  Autocomplete="off"
+                                                  Class="my-textfield" />
+                                    </div>
+                                    <div>
+                                    @* Is Active? *@
+                                        <MudSwitch @bind-Value="_user.IsActive"
+                                               Label="account is active"
+                                               Color="Color.Primary"
+                                               Dense="true"
+                                               Style="margin-top:20px;font-family:Tahoma;"
+                                               title="اکانت کاربر (استاد) فعال / غير فعال است">
+                                        </MudSwitch>
+                                    @* Use Persian Calendar? *@
+                                        <MudSwitch @bind-Value="_user.UseFaCalendar"
+                                               Label="Persian calendar"
+                                               Color="Color.Warning"
+                                               Dense="true"
+                                               Style="margin-top:5px;font-family:Tahoma;"
+                                               title="Use Persian Calendar از تقويم شمسي استفاده مي کنم">
+                                        </MudSwitch>
+                                    @* Show Reminders *@
+                                        <MudSwitch @bind-Value="_user.ShowReminder"
+                                               Label="reminders"
+                                               Color="Color.Success"
+                                               Dense="true"
+                                               Style="margin-top:5px;font-family:Tahoma;"
+                                               title="نمايش يادآوري يادداشت هاي سررسيد شده">
+                                        </MudSwitch>
+                                    @* Extend Reminder +/-14 Days *@
+                                        <MudSwitch @bind-Value="_user.ReminderDays"
+                                               Label="remind ±14 days (daf=7)"
+                                               Color="Color.Success"
+                                               Dense="true"
+                                               Style="margin-top:5px;font-family:Tahoma;"
+                                               title="remind ±14 days (default=7) يادداشت هاي 14 روز گذشته و آينده">
+                                        </MudSwitch>
+                                    @* Can Change Nickname? *@
+                                        <MudSwitch @bind-Value="_user.CanChangeNickname"
+                                               Label="can change password"
+                                               Color="Color.Primary"
+                                               Dense="true"
+                                               Style="margin-top:5px;font-family:Tahoma;"
+                                               title="کاربر مي تواند نام خود را تغيير دهد">
+                                        </MudSwitch>
+                                    @* On Expire Inactivate? *@
+                                        <MudSwitch @bind-Value="_user.OnExpireInactive"
+                                               Label="on expire inactivate"
+                                               Color="Color.Error"
+                                               Dense="true"
+                                               Style="margin-top:5px;font-family:Tahoma;"
+                                               title="">
+                                        </MudSwitch>
+                                    @*Slver Account? *@
+                                        <MudSwitch @bind-Value="_user.SilverAcc"
+                                               Label="silver account"
+                                               Color="Color.Dark"
+                                               Dense="true"
+                                               Style="margin-top:5px;font-family:Tahoma;"
+                                               title="">
+                                        </MudSwitch>
+                                    @*Gold Account? *@
+                                        <MudSwitch @bind-Value="_user.GoldAcc"
+                                               Label="gold account"
+                                               Color="Color.Warning"
+                                               Dense="true"
+                                               Style="margin-top:5px;font-family:Tahoma;"
+                                               title="">
+                                        </MudSwitch>
+                                    </div>
+                                    <div class="d-flex" style="display: flex; flex-direction: row; justify-content: center; align-items: center;">
+                                        <button class="btn btn-link pulse-hover" style="margin-top:30px;" Title="cancel" @onclick="BtnUpdateUser">
+                                        <img src="/img/icoSave2.png" width="20" />
+                                        </button>
+                                        <button class="btn btn-link pulse-hover" style="margin-top:30px;" Title="cancel" @onclick="BtnCancel">
+                                        <img src="/img/icoCancel.png" width="20" />
+                                        </button>
+                                    </div>
+                                </MudCardContent>
+                            </MudCard>
+                        </MudContainer>
+
+                    break;
+                    }
             }
+        @* FOOTER *@
+            <div style="text-align: center;margin-top:40px;">
+                <button type="button"
+                    class="btn btn-link pulse-hover"
+                    @onclick='() => BtnGotoPage("M")'>
+                <img src="/img/icoList.png" width="32" />
+                </button>
+            </div>
         </EditForm>
     }
 <br />
 <br />
 
-    <script>
-    window.scrollToTop = () => { window.scrollTo({ top: 0, behavior: 'smooth' }); };
-    </script>
+<script>window.scrollToTop = () => { window.scrollTo({ top: 0, behavior: 'smooth' }); };</script>
 
 @code {
-    [Parameter]
-    public int mode
-        {
-        get; set;
-        }
     [Parameter]
     public int Id
         {
         get; set;
         }
-    private MudSelect<int> refNotebooks;
-    private MudSelect<int> refSections;
-    int NotebookId = 0;
-    int SectionId = 0;
-    string _cmd = "";
-
     User user = new User();
-    List<Note> lstNotes = new List<Note>();
-    List<Notebook> lstNotebooks = new List<Notebook>();
-    List<Section> lstSections = new List<Section>();
-    string _ShowNotebooksMode = "active";
+    User _user = new User();
+    List<User> lstUsers = new List<User>();
+    List<User> lstNewUsers = new List<User>();
+    List<Dataset> lstDatasets = new List<Dataset>();
+    private MudTextField<string> refUsername;
+    private MudTextField<string> refUserPassword;
+    private MudTextField<string> refUserNickname;
+    private MudTextField<string> refUserEmail;
+    private MudSelect<int> refUsers;
+    int i = 0;
+    int UserId = 0;
+    string _cmd = "";
     public bool _hasFetched = false;
+    public bool requestFeedback { get; set; } = false;
 
     //LifeCycleEvents
     protected override async Task OnInitializedAsync ()
@@ -76,6 +421,8 @@ else
         appState.SetCmd("");
         user.UserId = Convert.ToInt32(appState.UserId);
         user.Username = appState.Username;
+        BtnListUsers();
+        _cmd = "listusers";
         _hasFetched = true;
         }
     private void TriggerRender ()
@@ -86,17 +433,145 @@ else
         {
         appState.OnChange -= TriggerRender;
         }
-    //btns
-    private void BtnCancel ()
+    //users
+    private async Task OnUserChanged (int newValue)
+        {
+        //update CourseId from the event
+        UserId = newValue;
+        appState.SetUserId(UserId);
+        UserId = 0;
+        StateHasChanged();
+        }
+    private async Task BtnListUsers ()
+        {
+        // _hasFetched = false;
+        lstUsers = await feService.Read_Users();
+        _cmd = "listusers";
+        // _hasFetched = true;
+        StateHasChanged();
+        }
+    private async Task BtnListNewUsers ()
+        {
+        lstNewUsers = await feService.Read_NewUsers();
+        _cmd = "listnewusers";
+        StateHasChanged();
+        }
+    private void BtnAddNewUser ()
+        {
+        _user = new User();
+        _cmd = "addnewuser";
+        StateHasChanged();
+        }
+    private async Task BtnCreateNewUser ()
+        {
+        if ((_user.Username.Trim() == "") || (_user.Password.Trim() == "") || (_user.UserNickname.Trim() == "") || (_user.UserEmail.Trim() == ""))
+            {
+            Snackbar.Add($"fill in blanks", Severity.Warning, opt => { opt.VisibleStateDuration = 1500; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+            return;
+            }
+        else
+            {
+            _user.UserTags = 1;
+            bool result = await feService.Create_User(_user);
+            if (result)
+                {
+                lstUsers = await feService.Read_Users();
+                Snackbar.Add($"user {_user.Username} - {_user.UserNickname} created", Severity.Success, opt => { opt.VisibleStateDuration = 1500; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+                _cmd = "listnewusers";
+                StateHasChanged();
+                }
+            else
+                {
+                Snackbar.Add($"failed to create {_user.Username}", Severity.Error, opt => { opt.VisibleStateDuration = 1500; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+                }
+            }
+        }
+    private async Task BtnEditUser (User _userx)
+        {
+        _user = _userx;
+        _cmd = "edituser";
+        StateHasChanged();
+        }
+    private async Task BtnUpdateUser ()
+        {
+        if ((_user.Username.Trim() == "") || (_user.Password.Trim() == "") || (_user.UserNickname.Trim() == "") || (_user.UserEmail.Trim() == ""))
+            {
+            Snackbar.Add($"fill in blanks", Severity.Warning, opt => { opt.VisibleStateDuration = 1500; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+            return;
+            }
+        else
+            {
+            bool result = await feService.Update_User(_user);
+            if (result)
+                {
+                lstUsers = await feService.Read_Users();
+                Snackbar.Add($"user {_user.Username} - {_user.UserNickname} updated", Severity.Success, opt => { opt.VisibleStateDuration = 1500; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+                _cmd = "listusers";
+                StateHasChanged();
+                }
+            else
+                {
+                Snackbar.Add($"failed to update {_user.Username}", Severity.Error, opt => { opt.VisibleStateDuration = 1500; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+                }
+            }
+        }
+    private async Task BtnDeleteUser (User _userx)
+        {
+        var message = new MarkupString($"<hr>WARNING: Delete<span style='color:indianred'> account </span> of the user? <br /><span style='color:indianred'> Datasets and Notes will also be Deleted...! <br><br> Are you sure</span>?<br><br> <div style='text-align:center'><img src='/img/icoDelete2.png' width='50'/></div><br><hr>");
+        bool? confirmResult = await DialogService.ShowMessageBoxAsync(title: "Confirm", markupMessage: message, yesText: "Yes", cancelText: "No");
+        if (confirmResult == true)
+            {
+            bool result = await feService.Delete_User(_userx.UserId);
+            Snackbar.Add($"user deleted", Severity.Info, opt => { opt.VisibleStateDuration = 1500; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+            lstNewUsers = await feService.Read_NewUsers();
+            _cmd = "listnewusers";
+            StateHasChanged();
+            }
+        }
+    private async Task BtnToggleUserActiveTag (User _userx)
+        {
+        if ((_userx.UserTags & 1) == 1)
+            {
+            _userx.UserTags &= ~1;
+            }
+        else
+            {
+            _userx.UserTags |= 1;
+            }
+        bool result = await feService.Update_User(_userx);
+        if (result)
+            {
+            lstUsers = await feService.Read_Users();
+            Snackbar.Add($"user {_userx.Username} account updated", Severity.Success, opt => { opt.VisibleStateDuration = 1500; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+            //_cmd = "listusers";
+            StateHasChanged();
+            }
+        else
+            {
+            Snackbar.Add($"failed to update {_user.Username}", Severity.Error, opt => { opt.VisibleStateDuration = 1500; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+            }
+        }
+    public void BtnHelpSignupNewUser ()
+        {
+        _cmd = _cmd == "guide" ? "" : "guide";
+        StateHasChanged();
+        }
+    public void BtnCancelGuide ()
         {
         _cmd = "";
         StateHasChanged();
         }
-    public void BtnBack ()
+    private void BtnGotoPage (string page)
         {
-        Navman.NavigateTo("/Switchboard");
+        string pg = page switch
+            {
+                "M" => "/SwitchBoard",
+                "N" => "/E_NoteBooks"
+                };
+        appState.SetReturnPage("/T_Students");
+        Navman.NavigateTo(pg);
         }
-    //convert date
+    //methods
     public string PersianDate (DateTimeOffset? dt)
         {
         if ((Convert.ToInt32(appState.UserTags) & 2) == 2)
@@ -108,13 +583,20 @@ else
             return dt?.ToString("yyyy-MM-dd HH:mm");
             }
         }
-    //methods
     private async Task HandleModalClose ()
         {
         _hasFetched = false;
-        lstNotes.Clear();
-        lstNotes = await feService.Read_Notes(12, Id);
         _hasFetched = true;
         StateHasChanged();
         }
+    private void BtnCancel ()
+        {
+        _cmd = "listusers";
+        StateHasChanged();
+        }
+    public void BtnBack ()
+        {
+        Navman.NavigateTo("/Switchboard");
+        }
+
     }

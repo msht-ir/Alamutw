@@ -36,7 +36,7 @@ namespace AlamutS.Models
                     UserTags &= ~2;
                 }
             }
-        public bool RemindDueNotes
+        public bool ShowReminder
             {
             get => (UserTags & 4) == 4;
             set
@@ -47,7 +47,7 @@ namespace AlamutS.Models
                     UserTags &= ~4;
                 }
             }
-        public bool DueNotesDays
+        public bool ReminderDays
             {
             get => (UserTags & 8) == 8;
             set
