@@ -10,8 +10,16 @@
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 
+<style>
+    .map-container {
+        height: 700px; /* Leaflet needs a fixed height! */
+        width: 100%;
+        z-index: 0; /* Leaflet panes have high z-index; keep them below MudBlazor overlays */
+    }
+    </style>
+
 <h5 style="text-align:center;padding-left:15px;">Search</h5>
-<div class="d-flex" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+    <div class="d-flex" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
     @if (_accountType.Trim() == "admin account")
         {
         <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:darkgoldenrod"> @_accountType</span></p>
@@ -140,7 +148,7 @@ else
                                         <button type="button"
                                             class="btn btn-link"
                                             style="margin-left:1px"
-                                            @onclick='() => BtnShowDistributionMap()'
+                                            @onclick='() => BtnShowDistributionMap(species)'
                                             Title="map distributions">
                                         <img src="/img/icoMap.png" width="24" />
                                         </button>
@@ -204,21 +212,21 @@ else
                                         </MudContainer>
                                     }
                                 }
-                                                        @* SHOW MAP *@
-                                                        @if (_cmd2 == "showmap")
-                                                            {
-                                                            <div id="mapup-container" class="map-container"></div>
-                                                            <hr style="color:red;margin-top:30px;" />
-                                                                <div style="text-align: center;margin-top:50px;">
-                                                                    <MudButton Variant="Variant.Filled"
-                                                                           EndIcon="@Icons.Material.Filled.Clear"
-                                                                           Size="Size.Small"
-                                                                           OnClick="@(() => BtnCancel())"
-                                                                           Style="color:indianred;padding-left:60px;padding-right:60px">
-                                                                    Clear
-                                                                    </MudButton>
-                                                                </div>
-                                                            }
+                            @* SHOW MAP *@
+                            @if (_cmd1 == "showmap")
+                                {
+                                <div id="mapup-container" class="map-container"></div>
+                                <hr style="color:red;margin-top:30px;" />
+                                    <div style="text-align: center;margin-top:50px;">
+                                        <MudButton Variant="Variant.Filled"
+                                               EndIcon="@Icons.Material.Filled.Clear"
+                                               Size="Size.Small"
+                                               OnClick="@(() => BtnCancel())"
+                                               Style="color:indianred;padding-left:60px;padding-right:60px">
+                                        Clear
+                                        </MudButton>
+                                    </div>
+                                }
                             </MudCardContent>
                         </MudCard>
                     </MudContainer>
@@ -332,12 +340,13 @@ else
     protected override async Task OnAfterRenderAsync (bool firstRender)
         {
         //Initialize the Map ONLY when _cmd is "showmap" and it hasn't been initialized yet
-        if (_cmd2 == "showmap" && !_isMapInitialized)
+        if (_cmd1 == "showmap" && !_isMapInitialized)
             {
-            _isMapInitialized = true; //Lock it to prevent double calls
+            _isMapInitialized = true;
             try
                 {
-                // Now the <div> 100% exists in the browser
+                // wait a tick so the div is fully in the DOM
+                await Task.Yield();
                 await JS.InvokeVoidAsync("leafletMap.init", "mapup-container", 35.6892, 51.3890, 6);
                 await JS.InvokeVoidAsync("leafletMap.addMarkers", lstMapPoints);
                 await JS.InvokeVoidAsync("leafletMap.drawPolygon");
@@ -347,7 +356,7 @@ else
             catch (Exception ex)
                 {
                 Console.WriteLine($"Map Init Error: {ex.Message}");
-                _isMapInitialized = false; //Reset on error to allow retry
+                _isMapInitialized = false;
                 }
             }
         }
@@ -491,26 +500,36 @@ else
             Snackbar.Add("Select a Dataset first", Severity.Warning, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
             }
         }
-    private async Task BtnShowDistributionMap ()
+    private async Task BtnShowDistributionMap (Species species)
         {
         lstMapPoints = new();
-        foreach (Dataset dataset in lstDatasets)
+
+        // Always load datasets for THIS species, don't rely on prior state
+        var datasets = await feService.Read_DatasetsBySpeciesId(species.SpeciesId);
+
+        foreach (var ds in datasets)
             {
-            if (!String.IsNullOrWhiteSpace(dataset.Coords))
+            if ((!string.IsNullOrWhiteSpace(ds.Coords)) && (ds.Coords!="0, 0"))
                 {
-                string [] parts = dataset.Coords.Split(',', StringSplitOptions.TrimEntries);
+                var parts = ds.Coords.Split(',', StringSplitOptions.TrimEntries);
                 if (parts.Length >= 2 &&
-                    double.TryParse(parts [0], CultureInfo.InvariantCulture, out double _lat) &&
-                    double.TryParse(parts [1], CultureInfo.InvariantCulture, out double _lng))
+                    double.TryParse(parts [0], CultureInfo.InvariantCulture, out double lat) &&
+                    double.TryParse(parts [1], CultureInfo.InvariantCulture, out double lng))
                     {
-                    lstMapPoints.Add(new MapPoint { Lat = _lat, Lng = _lng, Name = dataset.DatasetName });
+                    lstMapPoints.Add(new MapPoint { Lat = lat, Lng = lng, Name = ds.DatasetName });
                     }
                 }
             }
-        _isMapInitialized = false;
-        _cmd2 = "showmap";
-        StateHasChanged();
 
+        if (lstMapPoints.Count == 0)
+            {
+            Snackbar.Add("No coordinates available for this species", Severity.Warning);
+            return;
+            }
+
+        _isMapInitialized = false;
+        _cmd1 = "showmap";
+        StateHasChanged();
         }
     //methods
     private async Task CloseComponent ()
