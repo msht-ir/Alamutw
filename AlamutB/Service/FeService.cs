@@ -1,5 +1,10 @@
 ﻿using AlamutS.Models;
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
+using QuestPDF.Infrastructure;
+using System.ComponentModel;
 using System.Globalization;
+using IContainer = QuestPDF.Infrastructure.IContainer;
 namespace AlamutB.Service
     {
     public class FeService
@@ -976,5 +981,231 @@ namespace AlamutB.Service
                        $"{pc.GetHour (datetime):00}:{pc.GetMinute (datetime):00}";
             }
         #endregion
+        #region Export PDF
+        public byte [] GenerateReportOfDatasetDataPdf (List<Dataset> _lstDatasets, List<DatasetData> _lstDatasetData, string reportType)
+            {
+            /* NOTES for developers (1405.07.21):
+            New QuestPDF upgrade doesn't automatically use Farsi-fonts. Use standard web-font 'Vazirmatn-Regular.ttf'.
+            1- copy font file into a project folder eg. D:\VS\Examiner\ExaminerB\Resources\Fonts
+            2- register the font in program.cs (see there)
+            3- use the font as below:
+            page.DefaultTextStyle (x => x 
+                        .FontFamily ("Lato", "Vazirmatn")
+                        .FontSize (10)); */
+            QuestPDF.Settings.License = LicenseType.Community;
+            var report = Document.Create (container =>
+            {
+                container.Page (page =>
+                {
+                    page.Size (PageSizes.A4);
+                    page.Margin (1, Unit.Centimetre);
+                    page.PageColor (Colors.White);
+                    page.DefaultTextStyle (x => x
+                        .FontFamily ("Lato", "Vazirmatn")
+                        .FontSize (10));
+                    switch (reportType)
+                        {
+                        case "ReportSpecies":
+                                {
+                                //menuM31
+                                page.Header ().Element (compose => ComposeHeader (compose, "Report Species"));
+                                page.Content ().Element (compose => ComposeContentSpecies (compose, _lstDatasets, _lstDatasetData));
+                                page.Footer ().Element (ComposeFooter);
+                                break;
+                                }
+                        case "ReportDatasets":
+                                {
+                                //menuM32
+                                page.Header ().Element (compose => ComposeHeader (compose, "Report Datasets"));
+                                page.Content ().Element (compose => ComposeContentDatasets (compose, _lstDatasets, _lstDatasetData));
+                                page.Footer ().Element (ComposeFooter);
+                                break;
+                                }
+                        default:
+                                {
+                                return;
+                                }
+                        }
+                });
+            });
+            return report.GeneratePdf ();
+            }
+        private void ComposeHeader (IContainer container, string title)
+            {
+            var imagePath = Path.Combine (Directory.GetCurrentDirectory (), "wwwroot", "img", "_logoAlamut.png");
+            container.Row (row =>
+            {
+                row.RelativeItem ().Column (column =>
+                {
+                    column.Item ()
+                        .AlignCenter ()
+                        .Width (80)
+                        .Image (imagePath);
+                    column.Item ()
+                        .AlignCenter ()
+                        .Text (title)
+                        .FontSize (10)
+                        .Bold ()
+                        .FontColor (Colors.Grey.Darken2)
+                        .DirectionFromRightToLeft ();
+                    column.Item ()
+                        .AlignCenter ()
+                        .Text ($"{ToPersianDate (DateTime.Now.ToString ())}") //if DateTime.UtcNow is used, 2:30 or 3:30 must be added for Iran (depending on SummerTime)
+                        .FontSize (9)
+                        .FontColor (Colors.Red.Darken1);
+                });
+            });
+            }
+        private void ComposeFooter (IContainer container)
+            {
+            container.AlignCenter ().Text (x =>
+            {
+                x.Span ("صفحه ");
+                x.CurrentPageNumber ();
+                x.Span (" از ");
+                x.TotalPages ();
+            });
+            }
+        private void ComposeContentSpecies (IContainer container, List<Dataset> parent, List<DatasetData> data)
+            {
+            container.PaddingVertical (10).Column (column =>
+            {
+                column.Spacing (10);
+                //Header card
+                column.Item ().Element (cardContainer =>
+                {
+                    cardContainer
+                        .Border (1)
+                        .BorderColor (Colors.Grey.Lighten4)
+                        .Background (Colors.Yellow.Lighten5)
+                        .Padding (12)
+                        .ShowEntire ()
+                        .Column (cardColumn =>
+                        {
+                            cardColumn.Spacing (8);
+                            cardColumn.Item ().AlignLeft ().Text (text =>
+                            {
+                                text.Span ($"dataset: {parent [0].DatasetId.ToString ()} \r\n ")
+                                    .FontSize (9)
+                                    .FontColor (Colors.Blue.Darken3)
+                                    .DirectionFromRightToLeft ();
+                                text.Span ($"{parent [0].DatasetName}   (lang: {parent [0].RefLang}) \r\n")
+                                    .FontSize (9)
+                                    .FontColor (Colors.Red.Darken3)
+                                    .DirectionFromRightToLeft ();
+                                text.Span ($"abbr: {parent [0].DatasetAbbr} \r\n ")
+                                    .FontSize (9)
+                                    .FontColor (Colors.Blue.Darken3)
+                                    .DirectionFromRightToLeft ();
+                                text.Span ($"prov: {parent [0].ProvinceName} \r\n ")
+                                    .FontSize (9)
+                                    .FontColor (Colors.Blue.Darken3)
+                                    .DirectionFromRightToLeft ();
+                                text.Span ($"coords: {parent [0].Coords} \r\n ")
+                                    .FontSize (9)
+                                    .FontColor (Colors.Blue.Darken3)
+                                    .DirectionFromRightToLeft ();
+                                text.Span ($"ref: {parent [0].DatasetRef} \r\n")
+                                    .FontSize (9)
+                                    .FontColor (Colors.Black)
+                                    .DirectionFromRightToLeft ();
+                            });
+                        });
+                });
+                //Table of Species
+                column.Item ().Table (table =>
+                {
+                    //1 Define columns
+                    table.ColumnsDefinition (columns =>
+                    {
+                        columns.ConstantColumn (35);  //row # fix width in points (1 point = 1/72 inch)
+                        columns.RelativeColumn (2);   //Sciname --relative width (using sum of all relatives) 
+                    });
+                    //2 Header
+                    table.Header (header =>
+                    {
+                        header.Cell ().Background (Colors.Grey.Lighten3).Padding (4)
+                            .Text ("#").FontSize (9).Bold ();
+                        header.Cell ().Background (Colors.Grey.Lighten3).Padding (4)
+                            .Text ("Sciname").FontSize (9).Bold ();
+                    });
+                    //3 Body rows
+                    int index = 0;
+                    foreach (var item in data)
+                        {
+                        index++;
+                        var bg = index % 2 == 0 ? Colors.Grey.Lighten5 : Colors.White;
+                        table.Cell ().Background (bg).BorderBottom (0.5f).BorderColor (Colors.Grey.Lighten3)
+                            .Padding (4).Text (index.ToString ()).FontSize (9);
+                        table.Cell ().Background (bg).BorderBottom (0.5f).BorderColor (Colors.Grey.Lighten3)
+                            .Padding (4).Text (item.SciName).FontSize (12);
+                        }
+                });
+            });
+            }
+        private void ComposeContentDatasets (IContainer container, List<Dataset> data, List<DatasetData> parent)
+            {
+            container.PaddingVertical (10).Column (column =>
+            {
+                column.Spacing (10);
+                //Header card
+                column.Item ().Element (cardContainer =>
+                {
+                    cardContainer
+                        .Border (1)
+                        .BorderColor (Colors.Grey.Lighten4)
+                        .Background (Colors.Yellow.Lighten5)
+                        .Padding (12)
+                        .ShowEntire ()
+                        .Column (cardColumn =>
+                        {
+                            cardColumn.Spacing (8);
+                            cardColumn.Item ().AlignLeft ().Text (text =>
+                            {
+                                text.Span ($"{parent [0].SciName})")
+                                    .FontSize (9)
+                                    .FontColor (Colors.Red.Darken3)
+                                    .DirectionFromRightToLeft ();
+                            });
+                        });
+                });
+                //Table of Species
+                column.Item ().Table (table =>
+                {
+                    //1 Define columns
+                    table.ColumnsDefinition (columns =>
+                    {
+                        columns.ConstantColumn (35);  //row # fix width in points (1 point = 1/72 inch)
+                        columns.RelativeColumn (2);   //province --relative width (using sum of all relatives) 
+                        columns.RelativeColumn (5);   //Dataset  --relative width (using sum of all relatives) 
+                    });
+                    //2 Header
+                    table.Header (header =>
+                    {
+                        header.Cell ().Background (Colors.Grey.Lighten3).Padding (4)
+                            .Text ("#").FontSize (9).Bold ();
+                        header.Cell ().Background (Colors.Grey.Lighten3).Padding (4)
+                            .Text ("Prvince").FontSize (9).Bold ();
+                        header.Cell ().Background (Colors.Grey.Lighten3).Padding (4)
+                            .Text ("Dataset").FontSize (9).Bold ();
+                    });
+                    //3 Body rows
+                    int index = 0;
+                    foreach (var item in data)
+                        {
+                        index++;
+                        var bg = index % 2 == 0 ? Colors.Grey.Lighten5 : Colors.White;
+                        table.Cell ().Background (bg).BorderBottom (0.5f).BorderColor (Colors.Grey.Lighten3)
+                            .Padding (4).Text (index.ToString ()).FontSize (8);
+                        table.Cell ().Background (bg).BorderBottom (0.5f).BorderColor (Colors.Grey.Lighten3)
+                            .Padding (4).Text (item.ProvinceName).FontSize (8);
+                        table.Cell ().Background (bg).BorderBottom (0.5f).BorderColor (Colors.Grey.Lighten3)
+                            .Padding (4).Text (item.DatasetName).FontSize (9);
+                        }
+                });
+            });
+            }
+        #endregion
+
         }
     }

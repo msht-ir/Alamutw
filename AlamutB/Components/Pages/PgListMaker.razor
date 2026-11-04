@@ -25,19 +25,19 @@ else
         <div style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
             <div class="d-flex" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
             <h2 style="color:royalblue; font-style:italic">ListMaker </h2>
-            @if(_accountType.Trim() == "admin account")
+            @if (_accountType.Trim() == "admin account")
                 {
                 <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:darkgoldenrod"> @_accountType</span></p>
                 }
-            else if(_accountType.Trim() == "gold account")
+            else if (_accountType.Trim() == "gold account")
                 {
                 <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:darkgoldenrod"> @_accountType</span></p>
                 }
-            else if(_accountType.Trim() == "silver account")
+            else if (_accountType.Trim() == "silver account")
                 {
                 <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:gray"> @_accountType</span></p>
                 }
-            else if(_accountType.Trim() == "demo account")
+            else if (_accountType.Trim() == "demo account")
                 {
                 <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:green"> @_accountType</span></p>
                 }
@@ -163,13 +163,13 @@ else
                                         </button>
                                     Edit Dataset
                                     </MudMenuItem>
-                                    <MudMenuItem @onclick='() => BtnDeleteDataset (_datasetId)'>
+                                    <MudMenuItem @onclick='() => BtnDeleteDataset(_datasetId)'>
                                         <button class="btn btn-link" Title="add new Dataset">
                                         <img src="/img/icoDelete1.png" width="20" />
                                         </button>
                                     <span style="color:indianred">Delete Dataset</span>
                                     </MudMenuItem>
-                                <MudDivider/>
+                                <MudDivider />
                                     <MudMenuItem @onclick='() => BtnCreateStickyNote(8, _datasetId)'>
                                         <button class="btn btn-link" Title="add note for dataset">
                                         <img src="/img/icoNoteStickyAdd.png" width="22" />
@@ -450,6 +450,11 @@ else
                                            Title="Invert Selection" />
                             @if (_SpeciesListType.StartsWith("Dataset"))
                                 {
+                                <MudIconButton Icon="@Icons.Material.Filled.DownloadForOffline"
+                                               Color="Color.Primary"
+                                               Size="Size.Medium"
+                                               OnClick='@(() => BtnReportSelectedSpeciesAsPdf())'
+                                               Title="remove selected species from dataset" />
                                 <MudIconButton Icon="@Icons.Material.Filled.Delete"
                                                Color="Color.Dark"
                                                Size="Size.Medium"
@@ -553,10 +558,10 @@ else
         </div>
     @* ---------------------------------------------------------------------------------- FOOTER *@
     <br />
-    <MudCheckBox @bind-Value="_confirmOnDelete"
-                Label="confirm on remove species"
-                Color="Color.Success">
-    </MudCheckBox>
+        <MudCheckBox @bind-Value="_confirmOnDelete"
+                 Label="confirm on remove species"
+                 Color="Color.Success">
+        </MudCheckBox>
     <hr />
     <br />
         <div class="gap-4" style="display: flex;  justify-content: center; align-items: center;">
@@ -656,22 +661,22 @@ else
             user.UserId = Convert.ToInt32(appState.UserId);
             lstDatasets = await feService.Read_Datasets(user.UserId, 3); //3:LM
             await ListAllDatasets();
-        if(Convert.ToInt32(appState.UserTags) >256)
-            {
-            _accountType = " admin account";
-            }
-        else if(Convert.ToInt32(appState.UserTags) > 128)
-            {
-            _accountType = " gold account";            
-            }
-        else if(Convert.ToInt32(appState.UserTags) > 64)
-            {
-            _accountType = " silver account";            
-            }
-        else
-            {
-            _accountType = " demo account";
-            }
+            if (Convert.ToInt32(appState.UserTags) > 256)
+                {
+                _accountType = " admin account";
+                }
+            else if (Convert.ToInt32(appState.UserTags) > 128)
+                {
+                _accountType = " gold account";
+                }
+            else if (Convert.ToInt32(appState.UserTags) > 64)
+                {
+                _accountType = " silver account";
+                }
+            else
+                {
+                _accountType = " demo account";
+                }
             _hasFetched = true;
             }
         }
@@ -773,11 +778,11 @@ else
         _genusId = 0;
         _genusSearchText = genusKeyword.Trim(); //keep the search text
         //lstSpecies = new();
-        if(_genusSearchText.Trim().Length > 3)
+        if (_genusSearchText.Trim().Length > 3)
             {
             lstGenera = await feService.Read_GeneraBySearch(_genusSearchText);
             _cmd = "";
-            StateHasChanged();            
+            StateHasChanged();
             }
         else
             {
@@ -865,14 +870,14 @@ else
             bool? confirmResult = await DialogService.ShowMessageBoxAsync(title: "Confirm", markupMessage: message, yesText: "Yes", cancelText: "No");
             if (confirmResult == true)
                 {
-                bool result = await feService.Delete_Dataset (_datasetId);
+                bool result = await feService.Delete_Dataset(_datasetId);
                 if (result)
                     {
                     Snackbar.Add($"dataset deleted!", Severity.Success);
                     await ListAllDatasets();
                     StateHasChanged();
                     }
-                }                
+                }
             }
         else
             {
@@ -1044,7 +1049,7 @@ else
                 if (confirmResult != true)
                     {
                     return;
-                    }                
+                    }
                 }
             foreach (DatasetData dsd in lstDatasetData)
                 {
@@ -1100,7 +1105,7 @@ else
                 if (confirmResult != true)
                     {
                     return;
-                    }                
+                    }
                 }
             bool results = await feService.Delete_DatasetData(datasetDataId);
             Snackbar.Add($"item removed from the dataset", Severity.Warning);
@@ -1214,6 +1219,18 @@ else
     private async Task BtnShowNotes (int refType, int refId)
         {
         //
+        }
+    private async Task BtnReportSelectedSpeciesAsPdf ()
+        {
+        //prepare 2 lists: selected species & the parent dataset
+        List<DatasetData> _lstDatasetData = lstDatasetData.Where(s => s.IsSelected).ToList();
+        List<Dataset> _lstDatasets = lstDatasets.Where(x => x.DatasetId == _datasetId).Select(x => x).ToList();
+        //Generate
+        var pdfBytes = feService.GenerateReportOfDatasetDataPdf(_lstDatasets, _lstDatasetData, "ReportSpecies");
+        //Download
+        using var stream = new MemoryStream(pdfBytes);
+        using var streamRef = new DotNetStreamReference(stream);
+        await JS.InvokeVoidAsync("downloadFileFromStream", "ReportSpecies.pdf", streamRef);
         }
     //Cancel
     public void BtnCancelGuide ()

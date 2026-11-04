@@ -4,6 +4,11 @@ using AlamutB.Services2Backend;
 using AlamutS.Models;
 using MudBlazor.Services;
 using PSC.Blazor.Components.BrowserDetect;
+using QuestPDF.Drawing;
+
+// Register Persian font here at startup (needed by QuestPDF to generate pdfs with Fa fonts)
+var fontResourceName = "AlamutB.Resources.Fonts.Vazirmatn-Regular.ttf";
+FontManager.RegisterFontFromEmbeddedResource (fontResourceName);
 
 var builder = WebApplication.CreateBuilder (args);
 // Add services to the container.

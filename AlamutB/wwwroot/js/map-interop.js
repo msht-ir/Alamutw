@@ -25,10 +25,15 @@
     // 2. Add Markers (can be called multiple times)
     addMarkers: function (points) {
         if (!this.mapInstance || !points) return;
-
+        var customIcon = L.icon({
+            iconUrl: '/img/pin_Alamut.png', //path
+            iconSize: [18, 18],             //width and height
+            iconAnchor: [9, 18],            //touch the map (bottom-center)
+            popupAnchor: [0, -20]           //popup relative to the icon
+        });
         var self = this;
         points.forEach(function (point) {
-            L.marker([point.lat, point.lng])
+            L.marker([point.lat, point.lng], { icon: customIcon })
                 .bindPopup(point.name)
                 .addTo(self.markerGroup); // Add to our group
         });

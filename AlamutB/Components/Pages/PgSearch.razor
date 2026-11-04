@@ -148,6 +148,13 @@ else
                                         <button type="button"
                                             class="btn btn-link"
                                             style="margin-left:1px"
+                                            @onclick='() => BtnReportDatasetsAsPdf(species)'
+                                            Title="distribution (datasets)">
+                                        <img src="/img/icoFilePDF.png" width="30" />
+                                        </button>
+                                        <button type="button"
+                                            class="btn btn-link"
+                                            style="margin-left:1px"
                                             @onclick='() => BtnShowDistributionMap(species)'
                                             Title="map distributions">
                                         <img src="/img/icoMap.png" width="24" />
@@ -485,6 +492,31 @@ else
             }
         StateHasChanged();
         }
+    private async Task BtnReportDatasetsAsPdf (Species species)
+        {
+        //prepare 2 lists: the parent species & list of datasets 
+        List<DatasetData> _lstDatasetData = new();
+        _lstDatasetData.Add(new DatasetData
+            {
+            DatasetDataId = 1,
+            DatasetId = 1,
+            SpeciesId = species.SpeciesId,
+            Infraspecific = "",
+            LineString = "",
+            ParsedGenus = "",
+            ParsedEpithet = "",
+            SciName = species.SciName
+            });
+        Console.WriteLine($"_lstDatasetData: {_lstDatasetData.Count}");
+        lstDatasets = await feService.Read_DatasetsBySpeciesId(species.SpeciesId);
+        Console.WriteLine($"lstDatasets: {lstDatasets.Count}");
+        //Generate
+        var pdfBytes = feService.GenerateReportOfDatasetDataPdf(lstDatasets, _lstDatasetData, "ReportDatasets");
+        //Download
+        using var stream = new MemoryStream(pdfBytes);
+        using var streamRef = new DotNetStreamReference(stream);
+        await JS.InvokeVoidAsync("downloadFileFromStream", "ReportDatasets.pdf", streamRef);
+        }
     //dataset
     private async Task BtnShowDatasetInfo (Dataset dataset)
         {
@@ -509,7 +541,7 @@ else
 
         foreach (var ds in datasets)
             {
-            if ((!string.IsNullOrWhiteSpace(ds.Coords)) && (ds.Coords!="0, 0"))
+            if ((!string.IsNullOrWhiteSpace(ds.Coords)) && (ds.Coords != "0, 0"))
                 {
                 var parts = ds.Coords.Split(',', StringSplitOptions.TrimEntries);
                 if (parts.Length >= 2 &&
