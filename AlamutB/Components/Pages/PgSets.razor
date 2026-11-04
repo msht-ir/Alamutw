@@ -449,24 +449,26 @@ else
         user.UserId = Convert.ToInt32(appState.UserId);
         user.UserTags = Convert.ToInt32(appState.UserTags);
         user.Username = appState.Username ?? "";
-        await ReadSets();
-        await ReadCoutries();
-        if(Convert.ToInt32(appState.UserTags) >256)
+        user.UserTags = Convert.ToInt32(appState.UserTags);
+        if (user.UserTags > 256)
             {
             _accountType = " admin account";
             }
-        else if(Convert.ToInt32(appState.UserTags) > 128)
+        else if (user.UserTags > 128)
             {
-            _accountType = " gold account";            
+            _accountType = " gold account";
             }
-        else if(Convert.ToInt32(appState.UserTags) > 64)
+        else if (user.UserTags > 64)
             {
-            _accountType = " silver account";            
+            _accountType = " silver account";
             }
         else
             {
             _accountType = " demo account";
+            Navman.NavigateTo("/Switchboard");
             }
+        await ReadSets();
+        await ReadCoutries();
         _hasFetched = true;
         }
     private void TriggerRender ()

@@ -36,7 +36,7 @@
             </div>
         <hr style="color:red;margin-bottom:50px;" />
             <div class="d-flex gap-5 justify-content-center">
-                <button class="btn btn-link pulse-animation" @onclick='() => GotoPage("TX")'>
+                <button class="btn btn-link pulse-animation" @onclick='() => GotoPage("LM")'>
                 <img src="/img/icoTaxonomy.png" width="38" title="ListMaker" />
                 </button>
                 <button class="btn btn-link pulse-hover" @onclick='() => GotoPage("CN")'>
@@ -67,7 +67,7 @@
                 <button class="btn btn-link pulse-hover" @onclick='() => GotoPage("APL")'>
                 <img src="/img/icoPrompt1.png" width="38" title="APL" />
                 </button>
-            @if (Convert.ToInt32(appState.UserTags & 2) == 2)
+            @if (Convert.ToInt32(appState.UserTags & 256) == 256)
                 {
                     <button class="btn btn-link pulse-hover" @onclick='() => GotoPage("ADM")'>
                     <img src="/img/icoAdmin.png" width="46" title="Settings" />
@@ -173,7 +173,7 @@
         {
         string page = _pageId switch
             {
-                "TX" => "/PgListMaker",
+                "LM" => "/PgListMaker",
                 "CN" => "/PgCheckName",
                 "DS" => "/PgDatasets",
                 "SET" => "/PgSets",
@@ -218,7 +218,7 @@
         appState.SetReturnPage("/Switchboard");
         Navman.NavigateTo($"/T_ReportNotes/11/{user.UserId}");
         }
-    private void BtnChangeTeacherPassword ()
+    private void BtnChangeUserPassword ()
         {
         if ((Convert.ToInt32(appState.UserTags) & 256) == 256)
             {

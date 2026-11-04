@@ -1,9 +1,10 @@
 ﻿@page "/PgListMaker"
+@using System.Globalization
+@using System.Threading.Tasks
+@using AlamutB.Service
+@using ClosedXML
 @using ClosedXML.Excel
 @using Microsoft.Extensions.Hosting
-@using ClosedXML
-@using AlamutB.Service
-@using System.Threading.Tasks
 @inject NavigationManager Navman
 @inject AppState appState
 @inject FeService feService
@@ -12,6 +13,13 @@
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 
+<style>
+    .map-container {
+        height: 400px; /* Leaflet needs a fixed height! */
+        width: 100%;
+        z-index: 0; /* Leaflet panes have high z-index; keep them below MudBlazor overlays */
+    }
+    </style>
 @if (!_hasFetched)
     {
     <_Loading />
@@ -497,13 +505,13 @@ else
                                            style="margin-left:1px;margin-right:1px;"
                                            type="checkbox"
                                            @bind="datasetData.IsSelected" />
-                                        <button type="button"
+                                        @* <button type="button"
                                             class="btn btn-link"
                                             style="margin-left:1px"
                                             @onclick='() => BtnCreateNoteForSpecies(datasetData.SpeciesId)'
                                             Title="Note for Species">
-                                        <img src="/img/icoNoteStickyAdd.png" width="22" />
-                                        </button>
+                                        <img src="/img/icoNoteStickyAdd.png" width="20" />
+                                        </button> *@
                                         <button type="button"
                                             class="btn btn-link"
                                             style="margin-left:1px"
@@ -529,14 +537,35 @@ else
                                             style="margin-left:1px"
                                             @onclick='() => BtnShowSubspecies(species)'
                                             Title="Show sub-Species">
-                                        <img src="/img/icoList1.png" width="24" />
+                                        <img src="/img/icoListS.png" width="32" />
                                         </button>
-                                        <button type="button"
+                                        @* <button type="button"
                                             class="btn btn-link"
                                             style="margin-left:1px"
                                             @onclick='() => BtnCreateNoteForSpecies(species.SpeciesId)'
                                             Title="Note for Species">
                                         <img src="/img/icoNoteStickyAdd.png" width="22" />
+                                        </button> *@
+                                        <button type="button"
+                                            class="btn btn-link"
+                                            style="margin-left:1px"
+                                            @onclick='() => BtnReadDatasetsBySpeciesId(species)'
+                                            Title="distribution (datasets)">
+                                        <img src="/img/icoListD.png" width="32" />
+                                        </button>
+                                        <button type="button"
+                                            class="btn btn-link"
+                                            style="margin-left:1px"
+                                            @onclick='() => BtnReportDatasetsAsPdf(species)'
+                                            Title="distribution (datasets)">
+                                        <img src="/img/icoFilePDF1.png" width="22" />
+                                        </button>
+                                        <button type="button"
+                                            class="btn btn-link"
+                                            style="margin-left:1px"
+                                            @onclick='() => BtnShowDistributionMap(species)'
+                                            Title="map distributions">
+                                        <img src="/img/icoMap.png" width="24" />
                                         </button>
                                         <button type="button"
                                             class="btn btn-link"
@@ -549,6 +578,52 @@ else
                                     <span style="font-size:smaller;color:forestgreen">&nbsp; @((species.NomStatus == 1) ? " valid " : "") </span>
                                     <span style="font-size:smaller;color:darkgoldenrod">&nbsp; @((species.TaxStatus == 1) ? " accepted " : "") </span>
                                     </div>
+                                @if ((_cmd == "ShowListOfDatasets") && (species.SpeciesId == _speciesId))
+                                    {
+                                        <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-4 mb-4 px-0">
+                                            <MudCard Class="mx-0">
+                                                <MudCardContent Style="background-color:rgb(254,254,254);">
+                                                @if (lstDatasets.Count() == 0)
+                                                    {
+                                                    <h6 style="text-align:center;color:indianred">no data</h6>
+                                                    }
+                                                else
+                                                    {
+                                                    <h6 style="text-align:center;color:royalblue">in datasets: <span style="font-size:x-small;color:indianred"> ( Count @lstDatasets.Count() )</span></h6>
+                                                    <hr style="color:indianred" />
+                                                    @foreach (Dataset _ds in lstDatasets4SearchResults)
+                                                        {
+                                                            <div class="d-flex align-items-center mb-1">
+                                                            <span style="font-size:smaller">@_ds.DatasetName </span>
+                                                            <span style="font-size:x-small;color:forestgreen">&nbsp; (@_ds.ProvinceName)</span>
+                                                            </div>
+                                                        }
+                                                    }
+                                                <hr />
+                                                    <div class="gap-4" style="display: flex;  justify-content: center; align-items: center;">
+                                                        <button class="btn btn-link pulse-hover" @onclick="BtnCancel">
+                                                        <img src="/img/icoCancel.png" width="22" />
+                                                        </button>
+                                                    </div>
+                                                </MudCardContent>
+                                            </MudCard>
+                                        </MudContainer>
+                                    }
+                                @* SHOW MAP *@
+                                @if ((_cmd == "showmap") && (species.SpeciesId == _speciesId))
+                                    {
+                                    <hr style="color:red;margin:30px;" />
+                                    <div id="mapup-container" class="map-container"></div>
+                                        <div style="text-align: center;margin-top:20px;">
+                                        @* <MudButton Variant="Variant.Filled"
+                                                   EndIcon="@Icons.Material.Filled.Clear"
+                                                   Size="Size.Small"
+                                                   OnClick="@(() => BtnCancel())"
+                                                   Style="color:indianred;">
+                                            </MudButton> *@
+                                        <hr style="color:red;margin:30px;" />
+                                        </div>
+                                    }
                                 }
                             }
                         </MudCardContent>
@@ -623,10 +698,12 @@ else
     public MudTextField<string> refNewDataset;
     public MudTextField<string> refSearchDataset;
     List<Dataset>? lstDatasets = new();
+    List<Dataset>? lstDatasets4SearchResults = new();
     public Dataset dataset = new Dataset();
     public int _datasetId = 0;
     public string _datasetName = "";
     public string _datasetSearchText = "";
+    List<MapPoint> lstMapPoints = new();
     //species
     public MudTextField<string> refFilterSpeciesList;
     List<Species> lstSpecies = new();
@@ -645,6 +722,7 @@ else
     public bool requestFeedback { get; set; } = false;
     private bool _confirmOnDelete = true;
     string _accountType = "";
+    private bool _isMapInitialized = false;
 
     //LifeCycleEvents
     protected override async Task OnInitializedAsync ()
@@ -682,6 +760,26 @@ else
         }
     protected override async Task OnAfterRenderAsync (bool firstRender)
         {
+        //Initialize the Map ONLY when _cmd is "showmap" and it hasn't been initialized yet
+        if (_cmd == "showmap" && !_isMapInitialized)
+            {
+            _isMapInitialized = true;
+            try
+                {
+                //wait a tick so the div is fully in the DOM
+                await Task.Yield();
+                await JS.InvokeVoidAsync("leafletMap.init", "mapup-container", 35.6892, 51.3890, 6);
+                await JS.InvokeVoidAsync("leafletMap.addMarkers", lstMapPoints);
+                await JS.InvokeVoidAsync("leafletMap.drawPolygon");
+                await JS.InvokeVoidAsync("leafletMap.zoomToFit");
+                await JS.InvokeVoidAsync("leafletMap.addClickEvent");
+                }
+            catch (Exception ex)
+                {
+                Console.WriteLine($"Map Init Error: {ex.Message}");
+                _isMapInitialized = false;
+                }
+            }
         }
     private void TriggerRender ()
         {
@@ -948,6 +1046,72 @@ else
             {
             Snackbar.Add("Select a Dataset", Severity.Warning);
             }
+        }
+    public async Task BtnReadDatasetsBySpeciesId (Species species)
+        {
+        _cmd = (_cmd == "ShowListOfDatasets") ? "" : "ShowListOfDatasets";
+        if (_cmd == "ShowListOfDatasets")
+            {
+            _speciesId = species.SpeciesId;
+            lstDatasets4SearchResults.Clear();
+            lstDatasets4SearchResults = await feService.Read_DatasetsBySpeciesId(_speciesId);
+            _cmd = "ShowListOfDatasets";
+            }
+        StateHasChanged();
+        }
+    private async Task BtnReportDatasetsAsPdf (Species species)
+        {
+        //prepare 2 lists: the parent species & list of datasets
+        List<DatasetData> _lstDatasetData = new();
+        _lstDatasetData.Add(new DatasetData
+            {
+            DatasetDataId = 1,
+            DatasetId = 1,
+            SpeciesId = species.SpeciesId,
+            Infraspecific = "",
+            LineString = "",
+            ParsedGenus = "",
+            ParsedEpithet = "",
+            SciName = species.SciName
+            });
+        lstDatasets = await feService.Read_DatasetsBySpeciesId(species.SpeciesId);
+        //Generate
+        var pdfBytes = feService.GenerateReportOfDatasetDataPdf(lstDatasets, _lstDatasetData, "ReportDatasets");
+        //Download
+        using var stream = new MemoryStream(pdfBytes);
+        using var streamRef = new DotNetStreamReference(stream);
+        await JS.InvokeVoidAsync("downloadFileFromStream", "ReportDatasets.pdf", streamRef);
+        }
+    private async Task BtnShowDistributionMap (Species species)
+        {
+        _cmd = (_cmd == "showmap") ? "" : "showmap";
+        if (_cmd == "showmap")
+            {
+            _speciesId = species.SpeciesId;
+            lstMapPoints = new();
+            //Always load datasets for THIS species, don't rely on prior state
+            var datasets = await feService.Read_DatasetsBySpeciesId(_speciesId);
+            foreach (var ds in datasets)
+                {
+                if ((!string.IsNullOrWhiteSpace(ds.Coords)) && (ds.Coords != "0, 0"))
+                    {
+                    var parts = ds.Coords.Split(',', StringSplitOptions.TrimEntries);
+                    if (parts.Length >= 2 &&
+                        double.TryParse(parts [0], CultureInfo.InvariantCulture, out double lat) &&
+                        double.TryParse(parts [1], CultureInfo.InvariantCulture, out double lng))
+                        {
+                        lstMapPoints.Add(new MapPoint { Lat = lat, Lng = lng, Name = ds.DatasetName });
+                        }
+                    }
+                }
+            if (lstMapPoints.Count == 0)
+                {
+                Snackbar.Add("No coordinates available for this species", Severity.Warning);
+                return;
+                }
+            _isMapInitialized = false;
+            }
+        StateHasChanged();
         }
     //List Species
     public async Task BtnSelectAllSpecies ()

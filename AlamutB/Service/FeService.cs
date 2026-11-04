@@ -1162,7 +1162,7 @@ namespace AlamutB.Service
                             cardColumn.Spacing (8);
                             cardColumn.Item ().AlignLeft ().Text (text =>
                             {
-                                text.Span ($"{parent [0].SciName})")
+                                text.Span ($"{parent [0].SciName}")
                                     .FontSize (9)
                                     .FontColor (Colors.Red.Darken3)
                                     .DirectionFromRightToLeft ();

@@ -192,21 +192,24 @@ else
         appState.SetCmd("");
         user.UserId = Convert.ToInt32(appState.UserId);
         user.Username = appState.Username;
-        if(Convert.ToInt32(appState.UserTags) >256)
+        user.UserTags = Convert.ToInt32(appState.UserTags);
+        if(user.UserTags >256)
             {
             _accountType = " admin account";
             }
-        else if(Convert.ToInt32(appState.UserTags) > 128)
+        else if(user.UserTags > 128)
             {
             _accountType = " gold account";            
             }
-        else if(Convert.ToInt32(appState.UserTags) > 64)
+        else if(user.UserTags > 64)
             {
             _accountType = " silver account";            
+            Navman.NavigateTo("/Switchboard");
             }
         else
             {
             _accountType = " demo account";
+            Navman.NavigateTo("/Switchboard");
             }
         _hasFetched = true;
         }
