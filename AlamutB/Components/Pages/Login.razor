@@ -1,11 +1,12 @@
 ﻿@page "/"
 @page "/Login"
 
-@using AlamutB.Service
-@using PSC.Blazor.Components.BrowserDetect
 @using System
+@using System.Data
 @using System.Text
+@using AlamutB.Service
 @using Microsoft.AspNetCore.Components.Web
+@using PSC.Blazor.Components.BrowserDetect
 @inject NavigationManager Navman
 @inject AppState appState
 @inject HttpClient http
@@ -14,10 +15,11 @@
 @implements IDisposable
 @inject ISnackbar Snackbar
 @inject BrowserDetect browserDetector
+@using ClosedXML.Excel;
 
 <PageTitle>Alamut Home</PageTitle>
 @* LOGIN *@
-<div style="display: flex; flex-direction: column; justify-content: center; align-items: center;margin-top:20px;">
+    <div style="display: flex; flex-direction: column; justify-content: center; align-items: center;margin-top:20px;">
         <EditForm Model="user" style="display: flex; flex-direction: column; justify-content: center; align-items: center;margin:40px;">
         @* <DataAnnotationsValidator></DataAnnotationsValidator> *@
             <div style="display: flex; justify-content: flex-end;margin-bottom:20px;">
@@ -125,7 +127,7 @@
                         <span style="color:forestgreen;text-decoration:none">email</span>
                         </a>
                     </div>
-                    <hr />
+                <hr />
                     <div style="text-align:left;padding-left:10px;">
                     <p style="margin-top:20px;font-size:small;font-weight:bold;color:indianred">citation:</p>
                     <p style="font-size:small;color:royalblue">SharifiTehrani Majid, 2026. Alamut floristic database of Iran. <span style="font-style:normal;font-size:smaller;color:darkgoldenrod"> https://www.msht.ir</span></p>
@@ -133,6 +135,14 @@
                 </div>
             </div>
         </div>
+        <MudButton Variant="Variant.Filled"
+               EndIcon="@Icons.Material.Filled.RunCircle"
+               Size="Size.Large"
+               OnClick="@(() => BtnSaveExcelIDsToDB())"
+               Style="width:400px;margin-top:30px;">
+        BtnSaveExcelIDsToDB
+        </MudButton>
+
     </center>
 
 @code {
@@ -275,5 +285,102 @@
                     }
             }
         StateHasChanged();
+        }
+
+
+
+
+    //TEMP METHODS FOR PROCESSING KEWUPS
+    class ID
+        {
+        public string Sciname
+            {
+            get; set;
+            }
+        public string wfoId
+            {
+            get; set;
+            }
+        }
+    private async Task BtnFetchExcelWFOIDs ()
+        {
+        List<ID> lstIDs = new();
+        string fileIn = "d:/UPS_excel6_wIDs.xlsx";
+        string fileOut = "d:/UPS_excel7_fetched.xlsx";
+        string sciNamex = "";
+        string wfoIDx = "";
+        try
+            {
+            //1: READ ID data
+            using var WB = new XLWorkbook(fileIn);
+            var WS1 = WB.Worksheet("IDs");
+            foreach (var row in WS1.Rows())
+                {
+                string s = row.Cell(1).GetString();
+                string i = row.Cell(2).GetString();
+                lstIDs.Add(new ID { Sciname = s, wfoId = i });
+                }
+            //FIND and fetch
+            var WS2 = WB.Worksheet("Data");
+            foreach (var row in WS2.Rows())
+                {
+                sciNamex = row.Cell(1).GetString();
+                wfoIDx = lstIDs.FirstOrDefault(x => x.Sciname == sciNamex)?.wfoId;
+                row.Cell(6).Value = wfoIDx ?? "notFound";
+                }
+            WB.SaveAs(fileOut);
+            Console.WriteLine($"************************* {fileOut} -- SAVED! *********************************************** \r\n");
+
+
+            }
+        catch (Exception ex)
+            {
+            Console.WriteLine($"error is: {ex.Message}");
+            }
+        }
+    private async Task BtnSaveExcelIDsToDB ()
+        {
+        Console.WriteLine($"STEP 0");
+        string fileIn = "d:/UPS_excel7_fetched.xlsx";
+        //1: READ ID data
+        using var WB = new XLWorkbook(fileIn);
+        var WS = WB.Worksheet("Data");
+        int cnt = 0;
+        Console.WriteLine($"STEP 00");
+        foreach (var row in WS.Rows())
+            {
+            string ds = row.Cell(5).GetString();
+            int d = Convert.ToInt32(ds);
+            string i = row.Cell(6).GetString();
+            Console.WriteLine($"{d}   ---   {i}");
+            if (i != "notFound")
+                {
+                string sql = "TX.Update_KEWUPS";
+                Console.WriteLine($"STEP 1");
+                string? connstring = "Data Source=31.25.90.164\\sqlserver2022;Initial Catalog=msht_Alamut; User ID=msht_AlamutDefaultUser; Password=AlamutPwd_siliconpower#2733@1975;TrustServerCertificate=True;";
+                using SqlConnection cnn = new SqlConnection(connstring);
+                try
+                    {
+                    using SqlCommand cmd = new SqlCommand(sql, cnn);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    Console.WriteLine($"STEP 1");
+                    cmd.Parameters.AddWithValue("@upsdata", d);
+                    cmd.Parameters.AddWithValue("@wfoid", i);
+                    Console.WriteLine($"STEP 2");
+                    await cnn.OpenAsync();
+                    await cmd.ExecuteScalarAsync();
+                    await cnn.CloseAsync();
+                    Console.WriteLine($"STEP 3");
+                    cnt++;
+                    Console.WriteLine($"{cnt}  ----------   updated: {i}     <- {d}");
+                    }
+                catch (Exception ex)
+                    {
+                    await cnn.CloseAsync();
+                    Console.WriteLine($"error is: {ex.ToString()}");
+                    }
+                }
+            }
+        Console.WriteLine($"************************* {fileIn} -- PROCESSED! *********************************************** \r\n");
         }
     }

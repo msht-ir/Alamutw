@@ -1007,7 +1007,6 @@ namespace AlamutB.Service
                         {
                         case "ReportSpecies":
                                 {
-                                //menuM31
                                 page.Header ().Element (compose => ComposeHeader (compose, "Report Species"));
                                 page.Content ().Element (compose => ComposeContentSpecies (compose, _lstDatasets, _lstDatasetData));
                                 page.Footer ().Element (ComposeFooter);
@@ -1015,9 +1014,15 @@ namespace AlamutB.Service
                                 }
                         case "ReportDatasets":
                                 {
-                                //menuM32
                                 page.Header ().Element (compose => ComposeHeader (compose, "Report Datasets"));
                                 page.Content ().Element (compose => ComposeContentDatasets (compose, _lstDatasets, _lstDatasetData));
+                                page.Footer ().Element (ComposeFooter);
+                                break;
+                                }
+                        case "ReportDatasetTitles":
+                                {
+                                page.Header ().Element (compose => ComposeHeader (compose, "Report Titles of selected Datasets"));
+                                page.Content ().Element (compose => ComposeContentDatasetTitles (compose, _lstDatasets));
                                 page.Footer ().Element (ComposeFooter);
                                 break;
                                 }
@@ -1205,7 +1210,68 @@ namespace AlamutB.Service
                 });
             });
             }
+        private void ComposeContentDatasetTitles (IContainer container, List<Dataset> data)
+            {
+            container.PaddingVertical (10).Column (column =>
+            {
+                column.Spacing (10);
+                //Header card
+                column.Item ().Element (cardContainer =>
+                {
+                    cardContainer
+                        .Border (1)
+                        .BorderColor (Colors.Grey.Lighten4)
+                        .Background (Colors.Yellow.Lighten5)
+                        .Padding (12)
+                        .ShowEntire ()
+                        .Column (cardColumn =>
+                        {
+                            cardColumn.Spacing (8);
+                            cardColumn.Item ().AlignLeft ().Text (text =>
+                            {
+                                text.Span ($"List of selectes datasets")
+                                    .FontSize (9)
+                                    .FontColor (Colors.Red.Darken3)
+                                    .DirectionFromRightToLeft ();
+                            });
+                        });
+                });
+                //Table of Species
+                column.Item ().Table (table =>
+                {
+                    //1 Define columns
+                    table.ColumnsDefinition (columns =>
+                    {
+                        columns.ConstantColumn (35);  //row # fix width in points (1 point = 1/72 inch)
+                        columns.RelativeColumn (2);   //province --relative width (using sum of all relatives) 
+                        columns.RelativeColumn (5);   //Dataset  --relative width (using sum of all relatives) 
+                    });
+                    //2 Header
+                    table.Header (header =>
+                    {
+                        header.Cell ().Background (Colors.Grey.Lighten3).Padding (4)
+                            .Text ("#").FontSize (9).Bold ();
+                        header.Cell ().Background (Colors.Grey.Lighten3).Padding (4)
+                            .Text ("Prvince").FontSize (9).Bold ();
+                        header.Cell ().Background (Colors.Grey.Lighten3).Padding (4)
+                            .Text ("Dataset").FontSize (9).Bold ();
+                    });
+                    //3 Body rows
+                    int index = 0;
+                    foreach (var item in data)
+                        {
+                        index++;
+                        var bg = index % 2 == 0 ? Colors.Grey.Lighten5 : Colors.White;
+                        table.Cell ().Background (bg).BorderBottom (0.5f).BorderColor (Colors.Grey.Lighten3)
+                            .Padding (4).Text (index.ToString ()).FontSize (8);
+                        table.Cell ().Background (bg).BorderBottom (0.5f).BorderColor (Colors.Grey.Lighten3)
+                            .Padding (4).Text (item.ProvinceName).FontSize (8);
+                        table.Cell ().Background (bg).BorderBottom (0.5f).BorderColor (Colors.Grey.Lighten3)
+                            .Padding (4).Text (item.DatasetName).FontSize (9);
+                        }
+                });
+            });
+            }
         #endregion
-
         }
     }

@@ -187,6 +187,7 @@ namespace AlamutS.Models
         public int TaxStatus { get; set; } = 0;
         public int ConsStatus { get; set; } = 0;
         public int Characters { get; set; } = 0;
+        public int KEWUPS { get; set; } = 0;
         public string Chorotype { get; set; } = "";
         public string Lifeform { get; set; } = "";
         public bool IsHybrid { get; set; } = false;

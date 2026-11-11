@@ -462,7 +462,7 @@ else
                                                Color="Color.Primary"
                                                Size="Size.Medium"
                                                OnClick='@(() => BtnReportSelectedSpeciesAsPdf())'
-                                               Title="remove selected species from dataset" />
+                                               Title="report selected datasets" />
                                 <MudIconButton Icon="@Icons.Material.Filled.Delete"
                                                Color="Color.Dark"
                                                Size="Size.Medium"
@@ -589,7 +589,7 @@ else
                                                     }
                                                 else
                                                     {
-                                                    <h6 style="text-align:center;color:royalblue">in datasets: <span style="font-size:x-small;color:indianred"> ( Count @lstDatasets.Count() )</span></h6>
+                                                    <h6 style="text-align:center;color:royalblue">in datasets: <span style="font-size:x-small;color:indianred"> ( Count @lstDatasets4SearchResults.Count() )</span></h6>
                                                     <hr style="color:indianred" />
                                                     @foreach (Dataset _ds in lstDatasets4SearchResults)
                                                         {
@@ -615,12 +615,6 @@ else
                                     <hr style="color:red;margin:30px;" />
                                     <div id="mapup-container" class="map-container"></div>
                                         <div style="text-align: center;margin-top:20px;">
-                                        @* <MudButton Variant="Variant.Filled"
-                                                   EndIcon="@Icons.Material.Filled.Clear"
-                                                   Size="Size.Small"
-                                                   OnClick="@(() => BtnCancel())"
-                                                   Style="color:indianred;">
-                                            </MudButton> *@
                                         <hr style="color:red;margin:30px;" />
                                         </div>
                                     }
@@ -1388,6 +1382,11 @@ else
         {
         //prepare 2 lists: selected species & the parent dataset
         List<DatasetData> _lstDatasetData = lstDatasetData.Where(s => s.IsSelected).ToList();
+        if (_lstDatasetData.Count == 0)
+            {
+            Snackbar.Add("select some species from list", Severity.Info, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+            return;
+            }
         List<Dataset> _lstDatasets = lstDatasets.Where(x => x.DatasetId == _datasetId).Select(x => x).ToList();
         //Generate
         var pdfBytes = feService.GenerateReportOfDatasetDataPdf(_lstDatasets, _lstDatasetData, "ReportSpecies");
