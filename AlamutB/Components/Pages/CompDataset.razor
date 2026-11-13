@@ -27,9 +27,9 @@ else
                 <h6 style="font-size:smaller;color:indianred">
                 @if ((Convert.ToInt32(appState.UserTags) & 256) == 256 || (user.UserId == dataset.UserId))
                     {
-                    <button class="btn btn-link" @onclick="BtnSaveDataset">
-                    <img src="/img/icoSave2.png" width="18" title="save / update" />
-                    </button>                    
+                        <button class="btn btn-link" @onclick="BtnSaveDataset">
+                        <img src="/img/icoSave2.png" width="18" title="save / update" />
+                        </button>
                     }
                 Edit: <span style="font-size:smaller;color:darkslategray">@dataset.DatasetName</span> (id:@dataset.DatasetId)
                 </h6>
@@ -261,9 +261,9 @@ else
         <div style="text-align: center; margin:10px;">
         @if ((Convert.ToInt32(appState.UserTags) & 256) == 256 || (user.UserId == dataset.UserId) || (dataset.DatasetId == 0))
             {
-            <button class="btn btn-link" @onclick="BtnSaveDataset">
-            <img src="/img/icoSave2.png" width="22" title="save / update" />
-            </button>            
+                <button class="btn btn-link" @onclick="BtnSaveDataset">
+                <img src="/img/icoSave2.png" width="22" title="save / update" />
+                </button>
             }
 
             <button class="btn btn-link" style="margin-left:20px;" Title="cancel" @onclick="OnClose">
@@ -271,13 +271,10 @@ else
             </button>
         </div>
     }
-    <script>
-    window.scrollToTop = () => { window.scrollTo({ top: 0, behavior: 'smooth' }); };
-    </script>
 
 @code {
     [Parameter]
-    public Dataset dataset
+    public Dataset? dataset
         {
         get; set;
         }
@@ -358,7 +355,7 @@ else
         }
     private async Task BtnSaveDataset ()
         {
-        if(dataset.DatasetName.Trim().Length < 6)
+        if (dataset.DatasetName.Trim().Length < 6)
             {
             Snackbar.Add("Enter a (+5 char long) name", Severity.Info, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
             return;
@@ -391,7 +388,7 @@ else
                 _cmd = "";
                 StateHasChanged();
                 await OnCloseClick();
-                }            
+                }
             }
         }
 

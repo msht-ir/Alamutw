@@ -380,9 +380,24 @@ namespace AlamutB.Service
                 return new List<Species> ();
                 }
             }
-        public async Task<List<Species>> Read_SpeciesBySearch (string genusKeyword, string speciesKeyword)
+        public async Task<List<Species>> Read_SpeciesBySearch (string genusKeyword, string speciesKeyword, string searchMode, int id)
             {
-            var response = await _http.PostAsJsonAsync ($"api/Read_SpeciesBySearch?speciesKeyword={speciesKeyword}", genusKeyword);
+            //searchModes: global(id:na)|countryId|setId
+            var response = await _http.PostAsJsonAsync ($"api/Read_SpeciesBySearch?speciesKeyword={speciesKeyword}&searchMode={searchMode}&id={id}", genusKeyword);
+            if (response.IsSuccessStatusCode)
+                {
+                List<Species> lstSpecies = await response.Content.ReadFromJsonAsync<List<Species>> ();
+                return lstSpecies ?? new List<Species> ();
+                }
+            else
+                {
+                return new List<Species> ();
+                }
+            }
+        public async Task<List<Species>> Read_SpeciesByUPS (int ups, string searchMode, int id)
+            {
+            //searchModes: global(id:na)|countryId|setId
+            var response = await _http.PostAsJsonAsync ($"api/Read_SpeciesByUPS?ups={ups}&searchMode={searchMode}", id);
             if (response.IsSuccessStatusCode)
                 {
                 List<Species> lstSpecies = await response.Content.ReadFromJsonAsync<List<Species>> ();

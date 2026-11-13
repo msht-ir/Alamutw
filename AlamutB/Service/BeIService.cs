@@ -58,7 +58,8 @@ namespace AlamutB.Services2Backend
         Task<List<Species>> Read_SubspeciesAsync (string genusName, string epithet);
         Task<List<Species>> Read_SpeciesByDatasetIdAsync (int datasetId);
         Task<Species> Read_SpeciesByIdAsync (int speciesId);
-        Task<List<Species>> Read_SpeciesBySearchAsync (string genusKeyword, string speciesKeyword);
+        Task<List<Species>> Read_SpeciesBySearchAsync (string genusKeyword, string speciesKeyword, string searchMode, int id);
+        Task<List<Species>> Read_SpeciesByUPSAsync (int ups, string searchMode, int id);
         Task<bool> Update_SpeciesAsync (Species species);
         Task<bool> Delete_SpeciesAsync (int speciesId);
         #endregion

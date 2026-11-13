@@ -12,22 +12,23 @@
 
 <div class="d-flex" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
     <h2 style="color:royalblue; font-style:italic">Analyses</h2>
-            @if(_accountType.Trim() == "admin account")
-                {
-                <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:darkgoldenrod"> @_accountType</span></p>
-                }
-            else if(_accountType.Trim() == "gold account")
-                {
-                <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:darkgoldenrod"> @_accountType</span></p>
-                }
-            else if(_accountType.Trim() == "silver account")
-                {
-                <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:gray"> @_accountType</span></p>
-                }
-            else if(_accountType.Trim() == "demo account")
-                {
-                <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:green"> @_accountType</span></p>
-                }    </div>
+    @if (_accountType.Trim() == "admin account")
+        {
+        <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:darkgoldenrod"> @_accountType</span></p>
+        }
+    else if (_accountType.Trim() == "gold account")
+        {
+        <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:darkgoldenrod"> @_accountType</span></p>
+        }
+    else if (_accountType.Trim() == "silver account")
+        {
+        <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:gray"> @_accountType</span></p>
+        }
+    else if (_accountType.Trim() == "demo account")
+        {
+        <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:green"> @_accountType</span></p>
+        }
+    </div>
 <hr style="color:red" />
 @if (!_hasFetched)
     {
@@ -39,14 +40,6 @@ else if (appState.Cmd == "cmdCreateNote")
     }
 else
     {
-    @*     <div style="text-align: left; margin:10px;">
-        <MudIconButton OnClick="BtnBack"
-                       Icon="@Icons.Material.Filled.Menu"
-                       Color="Color.Primary"
-                       Size="Size.Large"
-                       Title="Switchboard" />
-        </div>
-    <hr /> *@
         <EditForm Model="user">
             <MudStack Row
                   Justify="Justify.SpaceBetween"
@@ -106,7 +99,7 @@ else
                     {
                     <CompInfoTech />
                     }
-                else if ((_cmd == "diversity") || (_cmd == "fvalue") || (_cmd == "floran") || (_cmd == "multivarfloran") || (_cmd == "comparesets"))
+                else if ((_cmd == "fvalue") || (_cmd == "diversity") || (_cmd == "floran") || (_cmd == "multivarfloran") || (_cmd == "comparesets"))
                     {
                     <CompAnalysisSets AnalysisType="@_cmd" OnSelectedSetsReceived="GetSelectedSetsFromComponent" />
                     }
@@ -136,7 +129,7 @@ else
                     }
                 else if (_cmd == "ShowCompareSetsResults")
                     {
-                    @* component for CompareSets Results *@
+                    @* component for CompareSets RESULTS *@
                     }
                 </MudStack>
             </MudStack>
@@ -193,17 +186,17 @@ else
         user.UserId = Convert.ToInt32(appState.UserId);
         user.Username = appState.Username;
         user.UserTags = Convert.ToInt32(appState.UserTags);
-        if(user.UserTags >256)
+        if (user.UserTags > 256)
             {
             _accountType = " admin account";
             }
-        else if(user.UserTags > 128)
+        else if (user.UserTags > 128)
             {
-            _accountType = " gold account";            
+            _accountType = " gold account";
             }
-        else if(user.UserTags > 64)
+        else if (user.UserTags > 64)
             {
-            _accountType = " silver account";            
+            _accountType = " silver account";
             Navman.NavigateTo("/Switchboard");
             }
         else

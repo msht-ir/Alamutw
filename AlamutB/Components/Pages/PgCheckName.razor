@@ -982,7 +982,8 @@ else
                         Current_Genus = Current_Genus.Substring(0, partialNameChars);
                         Current_Species = Current_Species.Substring(0, partialNameChars);
                         }
-                    lstSpecies = await feService.Read_SpeciesBySearch(Current_Genus.Trim(), Current_Species.Trim());
+                    //searchModes: global|countryId|setId
+                    lstSpecies = await feService.Read_SpeciesBySearch (Current_Genus.Trim (), Current_Species.Trim (), "global", 0);
                     if (partOfBatchProcess)
                         {
                         if (lstSpecies.Any())
@@ -1385,7 +1386,8 @@ else
             {
             _cmd2 = "ShowCheckNameThisDatasetData";
             lstSpecies = new();
-            lstSpecies = await feService.Read_SpeciesBySearch(words [0], words [1]);
+            //searchModes: global|countryId|setId
+            lstSpecies = await feService.Read_SpeciesBySearch(words [0], words [1], "global", 0);
             StateHasChanged();
             }
         }

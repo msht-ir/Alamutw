@@ -901,7 +901,8 @@ else
             _cmd = "";
             _SpeciesListType = "Species search";
             lstSpecies = new();
-            lstSpecies = await feService.Read_SpeciesBySearch(words [0], words [1]);
+            //searchModes: global|countryId|setId
+            lstSpecies = await feService.Read_SpeciesBySearch (words [0], words [1], "global", 0);
             StateHasChanged();
             }
         }

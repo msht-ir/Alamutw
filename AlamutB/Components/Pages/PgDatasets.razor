@@ -173,7 +173,7 @@ else
                                         Title=@($"edit dataset id: {dataset.DatasetId}")>
                                     <img src="/img/icoRename.png" width="24" />
                                     </button>
-                                @* List Species *@
+                                @* ListSpecies *@
                                     <button type="button"
                                         class="btn btn-link"
                                         style="margin-left:1px"
@@ -198,15 +198,11 @@ else
                                     <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-1 mb-4 px-0">
                                         <MudCard Class="mx-0">
                                             <MudCardContent Style="background-color:rgba(240,240,240);">
-                                            @* SHOW COMPONENT *@
+                                            @* SHOW COMPONENT: CompDataset *@
                                             <CompDataset dataset="dataset" OnClose="CloseComponent" />
                                             </MudCardContent>
                                         </MudCard>
                                     </MudContainer>
-                                }
-                            else if (_cmd == "cmdViewDataset")
-                                {
-
                                 }
                             else if ((_cmd == "cmdListDatasetData") && (dataset.DatasetId == _datasetId))
                                 {

@@ -69,7 +69,7 @@ else
                                     </MudSelect>
                                 </div>
                             @* RUN *@
-                            @if ((AnalysisType == "diversity") || (AnalysisType == "fvalue") || (AnalysisType == "floran") || (AnalysisType == "multivarfloran")|| (AnalysisType == "maponeset"))
+                            @if ((AnalysisType == "diversity") || (AnalysisType == "fvalue") || (AnalysisType == "floran") || (AnalysisType == "multivarfloran") || (AnalysisType == "maponeset") || (AnalysisType == "searchSpecies"))
                                 {
                                     <button class="btn btn-link pulse-hover"
                                         @onclick="() => SelectThisSetForAnalysisAndRollback(set.SetId)">

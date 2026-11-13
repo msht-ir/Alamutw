@@ -17,7 +17,7 @@
         z-index: 0; /* Leaflet panes have high z-index; keep them below MudBlazor overlays */
     }
     </style>
-
+@* HEADER *@
 <h5 style="text-align:center;padding-left:15px;">Search</h5>
     <div class="d-flex" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
     @if (_accountType.Trim() == "admin account")
@@ -40,7 +40,7 @@
 <hr style="color:red" />
 @if (!_hasFetched)
     {
-    <_ScanSheets />
+    <_Loading />
     }
 else
     {
@@ -51,29 +51,188 @@ else
             }
         else
             {
-            @* ---------------------------------------------------------------------------------- SEARCH Species *@
-                <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-2 px-0">
-                    <MudCard Class="mx-auto">
-                        <MudCardContent Style="background-color:rgba(249,249,249);">
-                            <div class="d-flex align-content-center align-items-center">
-                            <MudTextField T="string"
-                                          @ref="refSearchSpecies"
-                                          @bind-Value="_speciesSearchText"
-                                          OnKeyDown="HandleKey_SearchboxSpecies"
-                                          Label="search species"
-                                          Variant="Variant.Text"
-                                          Margin="Margin.Dense"
-                                          Immediate="true"
-                                          Adornment="Adornment.Start"
-                                          AdornmentIcon="@Icons.Material.Filled.Search"
-                                          OnAdornmentClick='()=>SearchSpecies(_speciesSearchText)'
-                                          Style="font-family:Tahoma;"
-                                          Class="my-textfield" />
-                            </div>
-                        </MudCardContent>
-                    </MudCard>
-                </MudContainer>
-            @* ---------------------------------------------------------------------------------- LIST Species *@
+            if (_cmd1 == "showCompAnalysisSetsToSelectOneSet")
+                {
+                @* SHOW COMPONENT TO SELECT A SETS *@
+                <CompAnalysisSets AnalysisType="searchSpecies" OnSelectedSetsReceived="GetSelectedSetsFromComponent" />
+                    <div class="d-flex gap-4 justify-content-center align-items-center" style="margin-top:5px;margin-bottom:15px;">
+                    <MudIconButton Icon="@Icons.Material.Filled.Cancel"
+                                   Color="Color.Dark"
+                                   Size="Size.Medium"
+                                   Style="margin-right:40px;"
+                                   OnClick="BtnSearchInDatabase"
+                                   Title="search species in all locations in database" />
+                    </div>
+                }
+            else if (_cmd1 == "showCountriesListToSelectOneSet")
+                {
+                @* SHOW COUNTRIES TO SELECT ONE *@
+                    <div class="d-flex gap-3">
+                        <MudAutocomplete T="int"
+                                     Label="country"
+                                     SearchFunc="@SearchCountries"
+                                     ToStringFunc="GetCountryName"
+                                     ValueChanged="OnCountryChanged"
+                                     Variant="Variant.Text"
+                                     Margin="Margin.Dense"
+                                     style="font-family:tahoma;font-size:small;color:royalblue;"
+                                     Adornment="Adornment.Start"
+                                     AdornmentIcon="@Icons.Material.Filled.List">
+                            <ItemTemplate Context="countryId">
+                                <span style="font-family:tahoma; font-size:small; display:block;">
+                                @GetCountryName(countryId)
+                                </span>
+                            </ItemTemplate>
+                        </MudAutocomplete>
+                    <MudIconButton Icon="@Icons.Material.Filled.Cancel"
+                                   Color="Color.Dark"
+                                   Size="Size.Medium"
+                                   Style="margin-right:40px;"
+                                   OnClick="BtnSearchInDatabase"
+                                   Title="search species in all locations in database" />
+
+                    </div>
+                }
+            else
+                {
+                @* FILTER Btns*@
+                    <div class="d-flex gap-4 justify-content-center align-items-center" style="margin-top:5px;margin-bottom:15px;">
+                    <MudIconButton Icon="@Icons.Material.Filled.Rule"
+                                   Color="Color.Primary"
+                                   Size="Size.Medium"
+                                   Style="margin-top:15px;"
+                                   OnClick="BtnSelectOneSet"
+                                   Title="select a set to search species in it" />
+                    <MudIconButton Icon="@Icons.Material.Filled.PinDrop"
+                                   Color="Color.Primary"
+                                   Size="Size.Medium"
+                                   Style="margin-top:15px;"
+                                   OnClick="BtnSelectOneCountry"
+                                   Title="select a country to search species in it" />
+                    </div>
+                <hr style="color:lightslategray" />
+                <h6 style="color:indianred;text-align:center">@searchMode</h6>
+                @* Species SEARCH BOX *@
+                    <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-4 px-0">
+                        <MudCard Class="mx-auto">
+                            <MudCardContent Style="background-color:rgba(249,249,249);">
+                                <div class="d-flex align-content-center align-items-center">
+                                <MudTextField T="string"
+                                              @ref="refSearchSpecies"
+                                              @bind-Value="_speciesSearchText"
+                                              OnKeyDown="HandleKey_SearchboxSpecies"
+                                              Label="search species"
+                                              Variant="Variant.Text"
+                                              Margin="Margin.Dense"
+                                              Immediate="true"
+                                              Adornment="Adornment.Start"
+                                              AdornmentIcon="@Icons.Material.Filled.Search"
+                                              OnAdornmentClick='()=>SearchSpecies(_speciesSearchText)'
+                                              Style="font-family:Tahoma;"
+                                              Class="my-textfield" />
+                                @if (searchMode != "global search")
+                                    {
+                                    <MudIconButton Icon="@Icons.Material.Filled.Cancel"
+                                                   Color="Color.Dark"
+                                                   Size="Size.Medium"
+                                                   Style="margin-top:15px;margin-right:30px;"
+                                                   OnClick="BtnSearchInDatabase"
+                                                   Title="Select all" />
+
+                                    }
+                                </div>
+                            </MudCardContent>
+                        </MudCard>
+                    </MudContainer>
+                @* Characters SEARCH BOX *@
+                    <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-4 px-0">
+                        <MudCard Class="mx-auto">
+                            <MudCardContent Style="background-color:rgba(249,249,249);">
+                                <div>
+                                @* Remind Due Notes *@
+                                    <MudSwitch @bind-Value="_UPS10"
+                                           Label="ME (medicinal)"
+                                           Color="Color.Dark"
+                                           Dense="true"
+                                           Style="font-family:Tahoma;"
+                                           title="گياهان دارويي">
+                                    </MudSwitch>
+                                    <MudSwitch @bind-Value="_UPS09"
+                                           Label="GS (gene source)"
+                                           Color="Color.Dark"
+                                           Dense="true"
+                                           Style="font-family:Tahoma;"
+                                           title="خويشاوندان وحشي غلات زراعي">
+                                    </MudSwitch>
+                                    <MudSwitch @bind-Value="_UPS08"
+                                           Label="PO (poisons)"
+                                           Color="Color.Dark"
+                                           Dense="true"
+                                           Style="font-family:Tahoma;"
+                                           title="گياهان سمي">
+                                    </MudSwitch>
+                                    <MudSwitch @bind-Value="_UPS07"
+                                           Label="EU (environmental use)"
+                                           Color="Color.Dark"
+                                           Dense="true"
+                                           Style="font-family:Tahoma;"
+                                           title="کاربرد محيطي">
+                                    </MudSwitch>
+                                    <MudSwitch @bind-Value="_UPS06"
+                                           Label="MA (material)"
+                                           Color="Color.Dark"
+                                           Dense="true"
+                                           Style="font-family:Tahoma;"
+                                           title="مواد طبيعي">
+                                    </MudSwitch>
+                                    <MudSwitch @bind-Value="_UPS05"
+                                           Label="HF (human food)"
+                                           Color="Color.Dark"
+                                           Dense="true"
+                                           Style="font-family:Tahoma;"
+                                           title="غذاي انسان">
+                                    </MudSwitch>
+                                    <MudSwitch @bind-Value="_UPS04"
+                                           Label="AF (animal food)"
+                                           Color="Color.Dark"
+                                           Dense="true"
+                                           Style="font-family:Tahoma;"
+                                           title="غذاي دام">
+                                    </MudSwitch>
+                                    <MudSwitch @bind-Value="_UPS03"
+                                           Label="IF (invertebrate food)"
+                                           Color="Color.Dark"
+                                           Dense="true"
+                                           Style="font-family:Tahoma;"
+                                           title="غذاي بي مهرگان">
+                                    </MudSwitch>
+                                    <MudSwitch @bind-Value="_UPS02"
+                                           Label="FU (fuel)"
+                                           Color="Color.Dark"
+                                           Dense="true"
+                                           Style="font-family:Tahoma;"
+                                           title="سوخت">
+                                    </MudSwitch>
+                                    <MudSwitch @bind-Value="_UPS01"
+                                           Label="SU (social use)"
+                                           Color="Color.Dark"
+                                           Dense="true"
+                                           Style="font-family:Tahoma;"
+                                           title="کاربرد اجتماعي">
+                                    </MudSwitch>
+                                </div>
+                                <MudButton Variant="Variant.Filled"
+                                       EndIcon="@Icons.Material.Filled.Search"
+                                       Size="Size.Small"
+                                       Style="margin:10px;width:200px;"
+                                       OnClick="@(() => SarchSpeciesByUPS())">
+                                Search
+                                </MudButton>
+                            <br />
+                            </MudCardContent>
+                        </MudCard>
+                    </MudContainer>
+                }
             @if ((lstSpecies.Count > 0) || (lstDatasetData.Count > 0))
                 {
                     <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-2 px-0">
@@ -200,7 +359,7 @@ else
                                                                 <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-1 mb-4 px-0">
                                                                     <MudCard Class="mx-0">
                                                                         <MudCardContent Style="background-color:rgba(240,240,240);">
-                                                                        @* SHOW COMPONENT *@
+                                                                        @* SHOW COMPONENT: CompDataset *@
                                                                         <CompDataset dataset="_ds" OnClose="CloseComponent" />
                                                                         </MudCardContent>
                                                                     </MudCard>
@@ -238,6 +397,8 @@ else
                         </MudCard>
                     </MudContainer>
                 }
+
+            @* LIST Species *@
             }
         </EditForm>
     }
@@ -249,9 +410,9 @@ else
         </button>
     </div>
 <br />
-    <script>
+@* <script>
     window.scrollToTop = () => { window.scrollTo({ top: 0, behavior: 'smooth' }); };
-    </script>
+    </script> *@
 
 @code {
     [Parameter]
@@ -269,6 +430,13 @@ else
     int NotebookId = 0;
     int SectionId = 0;
 
+    public MudSelect<int> refCountries;
+    private List<Country> lstCountries = new List<Country>();
+    Country country = new Country();
+    public int _countryId = 0;
+    private string _countryName = "";
+    private string _selectedCountryName = "";
+
     private User user = new User();
     public MudTextField<string> reftxtSearch;
     public string strSearch = "";
@@ -283,11 +451,11 @@ else
     public MudSelect<int> refDatasets;
     public MudTextField<string> refNewDataset;
     public MudTextField<string> refSearchDataset;
-    List<Dataset>? lstDatasets = new();
+    public List<Dataset>? lstDatasets = new();
     public Dataset dataset = new Dataset();
     public int _datasetId = 0;
     public string _datasetName = "";
-    public string _datasetSearchText = "";
+    public int _setId = 0;
 
     //species
     public MudTextField<string> refNewSpecies;
@@ -304,16 +472,27 @@ else
     private string _speciesId = "";
     private string _speciesName = "";
     private string _speciesListFilter = "";
-
+    //UPS
+    bool _UPS10; //ME
+    bool _UPS09;  //GS
+    bool _UPS08;  //PO
+    bool _UPS07;  //EU
+    bool _UPS06;  //MA
+    bool _UPS05;  //HF
+    bool _UPS04;  //AF
+    bool _UPS03;  //IF
+    bool _UPS02;  //FU
+    bool _UPS01;  //SU
     //misc vars
     public int i = 0;
-    public string _cmd1 = "";
-    public string _cmd2 = "";
+    public string _cmd1 = ""; //for
+    public string _cmd2 = ""; //for
     public string _SpeciesListType = "-";
     public bool _hasFetched = false;
     public bool requestFeedback { get; set; } = false;
     string _accountType = "";
     private bool _isMapInitialized = false;
+    private string searchMode = "global search";
 
     //LifeCycleEvents
     protected override async Task OnInitializedAsync ()
@@ -326,6 +505,7 @@ else
         appState.SetCmd("");
         user.UserId = Convert.ToInt32(appState.UserId);
         user.Username = appState.Username;
+        await ReadCoutries();
         if (Convert.ToInt32(appState.UserTags) > 256)
             {
             _accountType = " admin account";
@@ -374,6 +554,80 @@ else
     public void Dispose ()
         {
         appState.OnChange -= TriggerRender;
+        }
+    //filters
+    public void BtnSelectOneCountry ()
+        {
+        lstSpecies.Clear();
+        lstDatasetData.Clear();
+        _cmd1 = "showCountriesListToSelectOneSet";
+        StateHasChanged();
+        }
+    public void BtnSelectOneSet ()
+        {
+        lstSpecies.Clear();
+        lstDatasetData.Clear();
+        _cmd1 = "showCompAnalysisSetsToSelectOneSet";
+        StateHasChanged();
+        }
+    public void BtnSearchInDatabase ()
+        {
+        lstSpecies.Clear();
+        lstDatasetData.Clear();
+        _cmd1 = "";
+        searchMode = "global search";
+        StateHasChanged();
+        }
+    //rollbacks
+    public async Task GetSelectedSetsFromComponent (List<Set> lstSelectedSets)
+        {
+        _hasFetched = false;
+        lstDatasets = await feService.Read_DatasetsBySubsetIndex(lstSelectedSets [0].SetId, lstSelectedSets [0].SelectedSubset);
+        _setId = lstSelectedSets [0].SetId; //keep set id so method SearchSpecies can  use it
+        appState.SetSetName(lstSelectedSets [0].SetName);
+        _hasFetched = true;
+        _cmd1 = "";
+        searchMode = "search in datasets";
+        }
+    //search by country
+    private string GetCountryName (int id)
+        {
+        if (id == 0)
+            return "";
+        var country = lstCountries.FirstOrDefault(a => a.CountryId == id);
+        return country != null ? $"{country.CountryName}" : "";
+        }
+    private async Task<IEnumerable<int>> SearchCountries (string value, CancellationToken ct)
+        {
+        //if nothing is typed, return all authors or a subset
+        if (string.IsNullOrEmpty(value))
+            return lstCountries.Select(x => x.CountryId);
+        //filter the list
+        return lstCountries
+            .Where(x => x.CountryName.Contains(value, StringComparison.InvariantCultureIgnoreCase))
+            .Select(x => x.CountryId);
+        }
+    private async Task OnCountryChanged (int newValue)
+        {
+        var oldValue = _countryId;
+        _countryId = newValue;
+        if (_countryId != 0)
+            {
+            lstDatasets = await feService.Read_DatasetsByCountryId(_countryId);
+            searchMode = "search in country";
+            _cmd1 = "";
+            }
+        StateHasChanged();
+        }
+    private async Task ReadCoutries ()
+        {
+        lstCountries = await feService.Read_Countries();
+        StateHasChanged();
+        }
+    private async Task SearchDatasetsByCountryId (int countryId)
+        {
+        lstCountries = await feService.Read_Countries();
+        StateHasChanged();
         }
     //Species
     public async Task BtnSelectAllSpecies ()
@@ -447,24 +701,117 @@ else
     private async Task SearchSpecies (string speciesKeywords)
         {
         _speciesSearchText = speciesKeywords; //keep the search text
-        var words = speciesKeywords.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        if (words.Length < 2)
+        var keywords = speciesKeywords.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (keywords.Length < 2)
             {
             return;
             }
-        else if ((words [0].Length < 2) || (words [1].Length < 2))
+        else if ((keywords [0].Length < 2) || (keywords [1].Length < 2))
             {
             Snackbar.Add($"short keywords!", Severity.Warning);
             return;
             }
         else
             {
+            _hasFetched = false;
+            StateHasChanged();
+            //searchModes: global|countryId|setId
+            string _searchMode = "";
+            _searchMode = searchMode switch
+                {
+                    "search in datasets" => "setId",
+                    "search in country" => "countryId",
+                    "global search" => "global",
+                    _ => ""
+                    };
+            if (_searchMode == "")
+                {
+                return;
+                }
             _cmd1 = "";
+            _cmd2 = "";
             _SpeciesListType = "Species search";
             lstSpecies = new();
-            lstSpecies = await feService.Read_SpeciesBySearch(words [0], words [1]);
+            switch (_searchMode)
+                {
+                case "setId":
+                        {
+                        lstSpecies = await feService.Read_SpeciesBySearch(keywords [0], keywords [1], _searchMode, _setId);
+                        break;
+                        }
+                case "countryId":
+                        {
+                        lstSpecies = await feService.Read_SpeciesBySearch(keywords [0], keywords [1], _searchMode, _countryId);
+                        break;
+                        }
+                case "global":
+                        {
+                        lstSpecies = await feService.Read_SpeciesBySearch(keywords [0], keywords [1], _searchMode, 0);
+                        break;
+                        }
+
+                }
+            _hasFetched = true;
             StateHasChanged();
             }
+        }
+    private async Task SarchSpeciesByUPS ()
+        {
+        int _ups = 0;
+        _ups += _UPS01 ? 1 : 0;
+        _ups += _UPS02 ? 2 : 0;
+        _ups += _UPS03 ? 4 : 0;
+        _ups += _UPS04 ? 8 : 0;
+        _ups += _UPS05 ? 16 : 0;
+        _ups += _UPS06 ? 32 : 0;
+        _ups += _UPS07 ? 64 : 0;
+        _ups += _UPS08 ? 128 : 0;
+        _ups += _UPS09 ? 256 : 0;
+        _ups += _UPS10 ? 512 : 0;
+        if(_ups == 0)
+            {
+            Snackbar.Add("select some items", Severity.Info, opt => { opt.VisibleStateDuration = 2000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+            return;
+            }
+        _hasFetched = false;
+        StateHasChanged();
+        //searchModes: global|countryId|setId
+        string _searchMode = "";
+        _searchMode = searchMode switch
+            {
+                "search in datasets" => "setId",
+                "search in country" => "countryId",
+                "global search" => "global",
+                _ => ""
+                };
+        if (_searchMode == "")
+            {
+            return;
+            }
+        _cmd1 = "";
+        _cmd2 = "";
+        _SpeciesListType = "Species search";
+        lstSpecies = new();
+        switch (_searchMode)
+            {
+            case "setId":
+                    {
+                    lstSpecies = await feService.Read_SpeciesByUPS(_ups, _searchMode, _setId);
+                    break;
+                    }
+            case "countryId":
+                    {
+                    lstSpecies = await feService.Read_SpeciesByUPS(_ups, _searchMode, _countryId);
+                    break;
+                    }
+            case "global":
+                    {
+                    lstSpecies = await feService.Read_SpeciesByUPS(_ups, _searchMode, 0);
+                    break;
+                    }
+            }
+        _hasFetched = true;
+        StateHasChanged();
         }
     public async Task BtnShowSubspecies (Species species)
         {
@@ -494,7 +841,7 @@ else
         }
     private async Task BtnReportDatasetsAsPdf (Species species)
         {
-        //prepare 2 lists: the parent species & list of datasets 
+        //prepare 2 lists: the parent species & list of datasets
         List<DatasetData> _lstDatasetData = new();
         _lstDatasetData.Add(new DatasetData
             {
