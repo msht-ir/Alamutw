@@ -144,88 +144,38 @@ else
                             </MudCardContent>
                         </MudCard>
                     </MudContainer>
-                @* Characters SEARCH BOX *@
-                    <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-4 px-0">
-                        <MudCard Class="mx-auto">
-                            <MudCardContent Style="background-color:rgba(249,249,249);">
-                                <div>
-                                @* Remind Due Notes *@
-                                    <MudSwitch @bind-Value="_UPS10"
-                                           Label="ME (medicinal)"
-                                           Color="Color.Dark"
-                                           Dense="true"
-                                           Style="font-family:Tahoma;"
-                                           title="گياهان دارويي">
-                                    </MudSwitch>
-                                    <MudSwitch @bind-Value="_UPS09"
-                                           Label="GS (gene source)"
-                                           Color="Color.Dark"
-                                           Dense="true"
-                                           Style="font-family:Tahoma;"
-                                           title="خويشاوندان وحشي غلات زراعي">
-                                    </MudSwitch>
-                                    <MudSwitch @bind-Value="_UPS08"
-                                           Label="PO (poisons)"
-                                           Color="Color.Dark"
-                                           Dense="true"
-                                           Style="font-family:Tahoma;"
-                                           title="گياهان سمي">
-                                    </MudSwitch>
-                                    <MudSwitch @bind-Value="_UPS07"
-                                           Label="EU (environmental use)"
-                                           Color="Color.Dark"
-                                           Dense="true"
-                                           Style="font-family:Tahoma;"
-                                           title="کاربرد محيطي">
-                                    </MudSwitch>
-                                    <MudSwitch @bind-Value="_UPS06"
-                                           Label="MA (material)"
-                                           Color="Color.Dark"
-                                           Dense="true"
-                                           Style="font-family:Tahoma;"
-                                           title="مواد طبيعي">
-                                    </MudSwitch>
-                                    <MudSwitch @bind-Value="_UPS05"
-                                           Label="HF (human food)"
-                                           Color="Color.Dark"
-                                           Dense="true"
-                                           Style="font-family:Tahoma;"
-                                           title="غذاي انسان">
-                                    </MudSwitch>
-                                    <MudSwitch @bind-Value="_UPS04"
-                                           Label="AF (animal food)"
-                                           Color="Color.Dark"
-                                           Dense="true"
-                                           Style="font-family:Tahoma;"
-                                           title="غذاي دام">
-                                    </MudSwitch>
-                                    <MudSwitch @bind-Value="_UPS03"
-                                           Label="IF (invertebrate food)"
-                                           Color="Color.Dark"
-                                           Dense="true"
-                                           Style="font-family:Tahoma;"
-                                           title="غذاي بي مهرگان">
-                                    </MudSwitch>
-                                    <MudSwitch @bind-Value="_UPS02"
-                                           Label="FU (fuel)"
-                                           Color="Color.Dark"
-                                           Dense="true"
-                                           Style="font-family:Tahoma;"
-                                           title="سوخت">
-                                    </MudSwitch>
-                                    <MudSwitch @bind-Value="_UPS01"
-                                           Label="SU (social use)"
-                                           Color="Color.Dark"
-                                           Dense="true"
-                                           Style="font-family:Tahoma;"
-                                           title="کاربرد اجتماعي">
-                                    </MudSwitch>
-                                </div>
-                                <MudButton Variant="Variant.Filled"
-                                       EndIcon="@Icons.Material.Filled.Search"
-                                       Size="Size.Small"
-                                       Style="margin:10px;width:200px;"
-                                       OnClick="@(() => SarchSpeciesByUPS())">
+                @if (((user.UserTags & 128) == 128) || ((user.UserTags & 256) == 256)) //384=128+256(gold+su)
+                    {
+                    @* Characters SEARCH BOX *@
+                        <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-4 px-0">
+                            <MudCard Class="mx-auto">
+                                <MudCardContent Style="background-color:rgba(249,249,249);">
+                                    <div style="display:grid; grid-template-columns:1fr 1fr; column-gap:8px; row-gap:0;">
+                                    <MudSwitch @bind-Value="_UPS10" Label="ME (medicinal)" Color="Color.Dark" Dense="true"
+                                               Style="font-family:Tahoma;" title="گياهان دارويي" />
+                                    <MudSwitch @bind-Value="_UPS09" Label="GS (gene source)" Color="Color.Dark" Dense="true"
+                                               Style="font-family:Tahoma;" title="خويشاوندان وحشي گياهان زراعي" />
+                                    <MudSwitch @bind-Value="_UPS08" Label="PO (poisons)" Color="Color.Dark" Dense="true"
+                                               Style="font-family:Tahoma;" title="گياهان سمي" />
+                                    <MudSwitch @bind-Value="_UPS07" Label="EU (environmental use)" Color="Color.Dark" Dense="true"
+                                               Style="font-family:Tahoma;" title="کاربرد محيطي" />
+                                    <MudSwitch @bind-Value="_UPS06" Label="MA (material)" Color="Color.Dark" Dense="true"
+                                               Style="font-family:Tahoma;" title="مواد طبيعي" />
+                                    <MudSwitch @bind-Value="_UPS05" Label="HF (human food)" Color="Color.Dark" Dense="true"
+                                               Style="font-family:Tahoma;" title="غذاي انسان" />
+                                    <MudSwitch @bind-Value="_UPS04" Label="AF (animal food)" Color="Color.Dark" Dense="true"
+                                               Style="font-family:Tahoma;" title="غذاي دام" />
+                                    <MudSwitch @bind-Value="_UPS03" Label="IF (invertebrate food)" Color="Color.Dark" Dense="true"
+                                               Style="font-family:Tahoma;" title="غذاي بي مهرگان" />
+                                    <MudSwitch @bind-Value="_UPS02" Label="FU (fuel)" Color="Color.Dark" Dense="true"
+                                               Style="font-family:Tahoma;" title="سوخت" />
+                                    <MudSwitch @bind-Value="_UPS01" Label="SU (social use)" Color="Color.Dark" Dense="true"
+                                               Style="font-family:Tahoma;" title="کاربرد اجتماعي" />
+                                    </div>                                    <MudButton Variant="Variant.Filled"
+                                                                                 EndIcon="@Icons.Material.Filled.Search"
+                                                                                 Size="Size.Small"
+                                                                                 Style="margin:10px;width:200px;"
+                                                                                 OnClick="@(() => SarchSpeciesByUPS())">
                                 Search
                                 </MudButton>
                             <br />
@@ -233,6 +183,25 @@ else
                         </MudCard>
                     </MudContainer>
                 }
+            }
+        @* SHOW MAP *@
+        @if (_cmd1 == "showmap")
+            {
+            <br />
+            <div id="mapup-container" class="map-container"></div>
+            <hr style="color:red;margin-top:10px;" />
+                <div style="text-align: center;margin-top:10px;">
+                    <MudButton Variant="Variant.Filled"
+                           EndIcon="@Icons.Material.Filled.Clear"
+                           Size="Size.Small"
+                           OnClick="@(() => BtnCancel())"
+                           Style="color:indianred;padding-left:60px;padding-right:60px">
+                    Close Map
+                    </MudButton>
+                </div>
+            }
+        else
+            {
             @if ((lstSpecies.Count > 0) || (lstDatasetData.Count > 0))
                 {
                     <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-2 px-0">
@@ -378,33 +347,19 @@ else
                                         </MudContainer>
                                     }
                                 }
-                            @* SHOW MAP *@
-                            @if (_cmd1 == "showmap")
-                                {
-                                <div id="mapup-container" class="map-container"></div>
-                                <hr style="color:red;margin-top:30px;" />
-                                    <div style="text-align: center;margin-top:50px;">
-                                        <MudButton Variant="Variant.Filled"
-                                               EndIcon="@Icons.Material.Filled.Clear"
-                                               Size="Size.Small"
-                                               OnClick="@(() => BtnCancel())"
-                                               Style="color:indianred;padding-left:60px;padding-right:60px">
-                                        Clear
-                                        </MudButton>
-                                    </div>
-                                }
                             </MudCardContent>
                         </MudCard>
                     </MudContainer>
                 }
-
-            @* LIST Species *@
             }
-        </EditForm>
+
+        @* LIST Species *@
+        }
+    </EditForm>
     }
 <hr />
 <br />
-    <div class="gap-4" style="display: flex;  justify-content: center; align-items: center;">
+<div class="gap-4" style="display: flex;  justify-content: center; align-items: center;">
         <button class="btn btn-link pulse-hover" @onclick="ScrollToTop">
         <img src="/img/icoGotoTop2.png" width="32" />
         </button>
@@ -504,6 +459,7 @@ else
             }
         appState.SetCmd("");
         user.UserId = Convert.ToInt32(appState.UserId);
+        user.UserTags = Convert.ToInt32(appState.UserTags);
         user.Username = appState.Username;
         await ReadCoutries();
         if (Convert.ToInt32(appState.UserTags) > 256)
@@ -768,7 +724,7 @@ else
         _ups += _UPS08 ? 128 : 0;
         _ups += _UPS09 ? 256 : 0;
         _ups += _UPS10 ? 512 : 0;
-        if(_ups == 0)
+        if (_ups == 0)
             {
             Snackbar.Add("select some items", Severity.Info, opt => { opt.VisibleStateDuration = 2000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
             return;
@@ -854,9 +810,7 @@ else
             ParsedEpithet = "",
             SciName = species.SciName
             });
-        Console.WriteLine($"_lstDatasetData: {_lstDatasetData.Count}");
         lstDatasets = await feService.Read_DatasetsBySpeciesId(species.SpeciesId);
-        Console.WriteLine($"lstDatasets: {lstDatasets.Count}");
         //Generate
         var pdfBytes = feService.GenerateReportOfDatasetDataPdf(lstDatasets, _lstDatasetData, "ReportDatasets");
         //Download
@@ -882,10 +836,9 @@ else
     private async Task BtnShowDistributionMap (Species species)
         {
         lstMapPoints = new();
-
+        lstSpecies.FirstOrDefault(s => s.SpeciesId == species.SpeciesId).IsSelected = true;
         // Always load datasets for THIS species, don't rely on prior state
         var datasets = await feService.Read_DatasetsBySpeciesId(species.SpeciesId);
-
         foreach (var ds in datasets)
             {
             if ((!string.IsNullOrWhiteSpace(ds.Coords)) && (ds.Coords != "0, 0"))
