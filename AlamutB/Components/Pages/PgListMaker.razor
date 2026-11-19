@@ -536,7 +536,7 @@ else
                                             class="btn btn-link"
                                             style="margin-left:1px"
                                             @onclick='() => BtnShowSubspecies(species)'
-                                            Title="Show sub-Species">
+                                            Title="Show related taxa نمايش تاکسون هاي مرتبط">
                                         <img src="/img/icoListS.png" width="32" />
                                         </button>
                                         @* <button type="button"
@@ -550,28 +550,28 @@ else
                                             class="btn btn-link"
                                             style="margin-left:1px"
                                             @onclick='() => BtnReadDatasetsBySpeciesId(species)'
-                                            Title="distribution (datasets)">
+                                            Title="distribution (datasets) پراکنش">
                                         <img src="/img/icoListD.png" width="32" />
                                         </button>
                                         <button type="button"
                                             class="btn btn-link"
                                             style="margin-left:1px"
                                             @onclick='() => BtnReportDatasetsAsPdf(species)'
-                                            Title="distribution (datasets)">
+                                            Title="distribution (datasets) پي دي اف">
                                         <img src="/img/icoFilePDF1.png" width="22" />
                                         </button>
                                         <button type="button"
                                             class="btn btn-link"
                                             style="margin-left:1px"
                                             @onclick='() => BtnShowDistributionMap(species)'
-                                            Title="map distributions">
+                                            Title="map distributions نقشه">
                                         <img src="/img/icoMap.png" width="24" />
                                         </button>
                                         <button type="button"
                                             class="btn btn-link"
                                             style="margin-left:1px"
                                             @onclick='@(() => BtnAddSpeciesToDataset(species.SpeciesId))'
-                                            Title="add species to dataset">
+                                            Title="add species to dataset افزودن به ليست - ديتاست">
                                         <img src="/img/icoAdd1.png" width="16" />
                                         </button>
                                     <span style="font-size:smaller">@species.SciName </span>
@@ -583,7 +583,7 @@ else
                                         <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-4 mb-4 px-0">
                                             <MudCard Class="mx-0">
                                                 <MudCardContent Style="background-color:rgb(254,254,254);">
-                                                @if (lstDatasets.Count() == 0)
+                                                @if (lstDatasets4SearchResults.Count() == 0)
                                                     {
                                                     <h6 style="text-align:center;color:indianred">no data</h6>
                                                     }
@@ -1048,9 +1048,9 @@ else
         if (_cmd == "ShowListOfDatasets")
             {
             _speciesId = species.SpeciesId;
+            lstSpecies.FirstOrDefault (s => s.SpeciesId == species.SpeciesId)?.IsSelected = true;
             lstDatasets4SearchResults.Clear();
             lstDatasets4SearchResults = await feService.Read_DatasetsBySpeciesId(_speciesId);
-            _cmd = "ShowListOfDatasets";
             }
         StateHasChanged();
         }
@@ -1084,6 +1084,7 @@ else
             {
             _speciesId = species.SpeciesId;
             lstMapPoints = new();
+            lstSpecies.FirstOrDefault(s => s.SpeciesId == species.SpeciesId)?.IsSelected = true;
             //Always load datasets for THIS species, don't rely on prior state
             var datasets = await feService.Read_DatasetsBySpeciesId(_speciesId);
             foreach (var ds in datasets)

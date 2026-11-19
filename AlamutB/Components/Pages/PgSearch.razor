@@ -150,7 +150,7 @@ else
                         <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-4 px-0">
                             <MudCard Class="mx-auto">
                                 <MudCardContent Style="background-color:rgba(249,249,249);">
-                                    <div style="display:grid; grid-template-columns:1fr 1fr; column-gap:8px; row-gap:0;">
+                                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; column-gap:8px; row-gap:0;">
                                     <MudSwitch @bind-Value="_UPS10" Label="ME (medicinal)" Color="Color.Dark" Dense="true"
                                                Style="font-family:Tahoma;" title="گياهان دارويي" />
                                     <MudSwitch @bind-Value="_UPS09" Label="GS (gene source)" Color="Color.Dark" Dense="true"
@@ -171,195 +171,225 @@ else
                                                Style="font-family:Tahoma;" title="سوخت" />
                                     <MudSwitch @bind-Value="_UPS01" Label="SU (social use)" Color="Color.Dark" Dense="true"
                                                Style="font-family:Tahoma;" title="کاربرد اجتماعي" />
-                                    </div>                                    <MudButton Variant="Variant.Filled"
-                                                                                 EndIcon="@Icons.Material.Filled.Search"
-                                                                                 Size="Size.Small"
-                                                                                 Style="margin:10px;width:200px;"
-                                                                                 OnClick="@(() => SarchSpeciesByUPS())">
-                                Search
-                                </MudButton>
-                            <br />
-                            </MudCardContent>
-                        </MudCard>
-                    </MudContainer>
+                                    <MudButton Variant="Variant.Filled"
+                                           EndIcon="@Icons.Material.Filled.Search"
+                                           Size="Size.Small"
+                                           Style="margin:10px;width:180px;"                                           
+                                           Color="Color.Success"
+                                           OnClick="@(() => SarchSpeciesByUPS())">
+                                    Search
+                                    </MudButton>
+                                    </div>
+                                </MudCardContent>
+                            </MudCard>
+                        </MudContainer>
+                    }
                 }
-            }
-        @* SHOW MAP *@
-        @if (_cmd1 == "showmap")
-            {
-            <br />
-            <div id="mapup-container" class="map-container"></div>
-            <hr style="color:red;margin-top:10px;" />
-                <div style="text-align: center;margin-top:10px;">
-                    <MudButton Variant="Variant.Filled"
-                           EndIcon="@Icons.Material.Filled.Clear"
-                           Size="Size.Small"
-                           OnClick="@(() => BtnCancel())"
-                           Style="color:indianred;padding-left:60px;padding-right:60px">
-                    Close Map
-                    </MudButton>
-                </div>
-            }
-        else
-            {
-            @if ((lstSpecies.Count > 0) || (lstDatasetData.Count > 0))
+            @* SHOW MAP *@
+            @if (_cmd1 == "showmap")
                 {
-                    <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-2 px-0">
-                        <MudCard Class="mx-0">
-                            <MudCardContent Style="background-color:rgb(245,245,245);">
-                            @if (_SpeciesListType.StartsWith("Dataset"))
-                                {
-                                <h6 style="text-align:center;color:royalblue">@_SpeciesListType<span style="font-size:x-small;color:indianred"> ( Count @lstDatasetData.Count() )</span></h6>
-                                }
-                            else
-                                {
-                                <h6 style="text-align:center;color:royalblue">@_SpeciesListType<span style="font-size:x-small;color:indianred"> ( Count @lstSpecies.Count() )</span></h6>
-                                }
-                            <hr style="color:indianred" />
-                            @* 4CMDs: Search, All, Invert, delete/add *@
-                                <div class="d-flex gap-3 justify-content-center align-items-center" style="margin-top:15px;margin-bottom:15px;">
-                                <MudIconButton Icon="@Icons.Material.Filled.Search"
-                                               Color="Color.Secondary"
-                                               Size="Size.Medium"
-                                               OnClick="BtnFilterSpeciesList"
-                                               Title="Filter Species List" />
-                                <MudIconButton Icon="@Icons.Material.Filled.DoneAll"
-                                               Color="Color.Primary"
-                                               Size="Size.Medium"
-                                               OnClick="BtnSelectAllSpecies"
-                                               Title="Select all" />
-                                <MudIconButton Icon="@Icons.Material.Filled.Rule"
-                                               Color="Color.Primary"
-                                               Size="Size.Medium"
-                                               OnClick="BtnInvertSelection"
-                                               Title="Invert Selection" />
-                                </div>
-                            @* FILTER TextBox for Species List *@
-                            @if (_cmd1 == "cmdFilterSpeciesList")
-                                {
-                                    <div class="d-flex">
-                                    <MudTextField @ref="refFilterSpeciesList"
-                                                  @bind-Value="_speciesListFilter"
-                                                  Label="search results"
-                                                  Variant="Variant.Text"
-                                                  Margin="Margin.Dense"
-                                                  Immediate="true"
-                                                  Adornment="Adornment.End"
-                                                  AdornmentIcon="@Icons.Material.Filled.Search"
-                                                  OnAdornmentClick='@(() => FilterSpeciesList(_speciesListFilter))'
-                                                  Class="my-textfield" />
-                                    </div>
-                                <br />
-                                <br />
-                                }
-                            @foreach (Species species in lstSpecies)
-                                {
-                                    <div class="d-flex align-items-center mb-1">
-                                    <input class="form-check-input"
-                                           style="margin-left:1px;margin-right:1px;"
-                                           type="checkbox"
-                                           @bind="species.IsSelected" />
-                                        <button type="button"
-                                            class="btn btn-link"
-                                            style="margin-left:1px"
-                                            @onclick='() => BtnShowSubspecies(species)'
-                                            Title="Show sub-Species">
-                                        <img src="/img/icoListS.png" width="34" />
-                                        </button>
-                                        <button type="button"
-                                            class="btn btn-link"
-                                            style="margin-left:1px"
-                                            @onclick='() => BtnReadDatasetsBySpeciesId(species)'
-                                            Title="distribution (datasets)">
-                                        <img src="/img/icoListD.png" width="34" />
-                                        </button>
-                                        <button type="button"
-                                            class="btn btn-link"
-                                            style="margin-left:1px"
-                                            @onclick='() => BtnReportDatasetsAsPdf(species)'
-                                            Title="distribution (datasets)">
-                                        <img src="/img/icoFilePDF1.png" width="26" />
-                                        </button>
-                                        <button type="button"
-                                            class="btn btn-link"
-                                            style="margin-left:1px"
-                                            @onclick='() => BtnShowDistributionMap(species)'
-                                            Title="map distributions">
-                                        <img src="/img/icoMap.png" width="26" />
-                                        </button>
-                                    <span style="font-size:smaller">@species.SciName </span>
-                                    <span style="font-size:smaller;color:forestgreen">&nbsp; @((species.NomStatus == 1) ? " valid " : "") </span>
-                                    <span style="font-size:smaller;color:darkgoldenrod">&nbsp; @((species.TaxStatus == 1) ? " accepted " : "") </span>
-                                    </div>
-                                @if ((_cmd1 == "ShowListOfDatasets") && (species.SpeciesId == _speciesId))
+                <br />
+                <div id="mapup-container" class="map-container"></div>
+                <hr style="color:red;margin-top:10px;" />
+                    <div style="text-align: center;margin-top:10px;">
+                        <MudButton Variant="Variant.Filled"
+                               EndIcon="@Icons.Material.Filled.Clear"
+                               Size="Size.Small"
+                               OnClick="@(() => BtnCancel())"
+                               Style="color:indianred;padding-left:60px;padding-right:60px">
+                        Close Map
+                        </MudButton>
+                    </div>
+                }
+            else
+                {
+                @if ((lstSpecies.Count > 0) || (lstDatasetData.Count > 0))
+                    {
+                        <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-2 px-0">
+                            <MudCard Class="mx-0">
+                                <MudCardContent Style="background-color:rgb(245,245,245);">
+                                @if (_SpeciesListType.StartsWith("Dataset"))
                                     {
-                                        <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-4 mb-4 px-0">
-                                            <MudCard Class="mx-0">
-                                                <MudCardContent Style="background-color:rgb(254,254,254);">
-                                                @if (lstDatasets.Count() == 0)
-                                                    {
-                                                    <h6 style="text-align:center;color:indianred">no data</h6>
-                                                    }
-                                                else
-                                                    {
-                                                    <h6 style="text-align:center;color:royalblue">in datasets: <span style="font-size:x-small;color:indianred"> ( Count @lstDatasets.Count() )</span></h6>
-                                                    <hr style="color:indianred" />
-                                                    @foreach (Dataset _ds in lstDatasets)
+                                    <h6 style="text-align:center;color:royalblue">@_SpeciesListType<span style="font-size:x-small;color:indianred"> ( Count @lstDatasetData.Count() )</span></h6>
+                                    }
+                                else
+                                    {
+                                    <h6 style="text-align:center;color:royalblue">@_SpeciesListType<span style="font-size:x-small;color:indianred"> ( Count @lstSpecies.Count() )</span></h6>
+                                    }
+                                <hr style="color:indianred" />
+                                @* 4CMDs: Search, All, Invert, delete/add *@
+                                    <div class="d-flex gap-4 justify-content-left align-items-left" style="margin-top:5px;margin-bottom:15px;">
+                                        <MudFabMenu StartIcon="@Icons.Material.Outlined.Menu" Size="Size.Medium" Color="Color.Dark" Variant="Variant.Text" Direction="Direction.Right">
+                                        <MudFabMenuItem StartIcon="@Icons.Material.Filled.Search" Color="Color.Warning" OnClick="BtnFilterSpeciesList" Title="list all datasets" />
+                                        <MudFabMenuItem StartIcon="@Icons.Material.Filled.DoneAll" Color="Color.Primary" OnClick="BtnSelectAllSpecies" Title="Select all" />
+                                        <MudFabMenuItem StartIcon="@Icons.Material.Filled.Rule" Color="Color.Primary" OnClick="BtnInvertSelection" Title="Invert selection" />
+                                        </MudFabMenu>
+                                    </div>
+                                @* FILTER TextBox for Species List *@
+                                @if (_cmd1 == "cmdFilterSpeciesList")
+                                    {
+                                        <div class="d-flex">
+                                        <MudTextField @ref="refFilterSpeciesList"
+                                                      @bind-Value="_speciesListFilter"
+                                                      Label="search results"
+                                                      Variant="Variant.Text"
+                                                      Margin="Margin.Dense"
+                                                      Immediate="true"
+                                                      Adornment="Adornment.End"
+                                                      AdornmentIcon="@Icons.Material.Filled.Search"
+                                                      OnAdornmentClick='@(() => FilterSpeciesList(_speciesListFilter))'
+                                                      Class="my-textfield" />
+                                        </div>
+                                    <br />
+                                    }
+                                @foreach (Species species in lstSpecies)
+                                    {
+                                        <div class="d-flex align-items-center mb-1">
+                                        <input class="form-check-input"
+                                               style="margin-left:1px;margin-right:1px;"
+                                               type="checkbox"
+                                               @bind="species.IsSelected" />
+                                            <button type="button"
+                                                class="btn btn-link"
+                                                style="margin-left:1px"
+                                                @onclick='() => BtnShowSubspecies(species)'
+                                                Title="Show sub-Species">
+                                            <img src="/img/icoListS.png" width="34" />
+                                            </button>
+                                            <button type="button"
+                                                class="btn btn-link"
+                                                style="margin-left:1px"
+                                                @onclick='() => BtnReadDatasetsBySpeciesId(species)'
+                                                Title="distribution (datasets)">
+                                            <img src="/img/icoListD.png" width="34" />
+                                            </button>
+                                            <button type="button"
+                                                class="btn btn-link"
+                                                style="margin-left:1px"
+                                                @onclick='() => BtnReportDatasetsAsPdf(species)'
+                                                Title="distribution (datasets)">
+                                            <img src="/img/icoFilePDF1.png" width="26" />
+                                            </button>
+                                            <button type="button"
+                                                class="btn btn-link"
+                                                style="margin-left:1px"
+                                                @onclick='() => BtnShowDistributionMap(species)'
+                                                Title="map distributions">
+                                            <img src="/img/icoMap.png" width="26" />
+                                            </button>
+                                        <span style="font-size:smaller">@species.SciName </span>
+                                        <span style="font-size:smaller;color:forestgreen">&nbsp; @((species.NomStatus == 1) ? " valid " : "") </span>
+                                        <span style="font-size:smaller;color:darkgoldenrod">&nbsp; @((species.TaxStatus == 1) ? " accepted " : "") </span>
+                                        @if ((species.KEWUPS & 512) == 512)
+                                            {
+                                            <span style="font-weight:bold;font-size:x-small;color:black">&nbsp; @((species.TaxStatus == 1) ? " MD " : "") </span>
+                                            }
+                                        @if ((species.KEWUPS & 256) == 256)
+                                            {
+                                            <span style="font-weight:bold;font-size:x-small;color:black">&nbsp; @((species.TaxStatus == 1) ? " GS " : "") </span>
+                                            }
+                                        @if ((species.KEWUPS & 128) == 128)
+                                            {
+                                            <span style="font-weight:bold;font-size:x-small;color:black">&nbsp; @((species.TaxStatus == 1) ? " PO " : "") </span>
+                                            }
+                                        @if ((species.KEWUPS & 64) == 64)
+                                            {
+                                            <span style="font-weight:bold;font-size:x-small;color:black">&nbsp; @((species.TaxStatus == 1) ? " EU " : "") </span>
+                                            }
+                                        @if ((species.KEWUPS & 32) == 32)
+                                            {
+                                            <span style="font-weight:bold;font-size:x-small;color:black">&nbsp; @((species.TaxStatus == 1) ? " MA " : "") </span>
+                                            }
+                                        @if ((species.KEWUPS & 16) == 16)
+                                            {
+                                            <span style="font-weight:bold;font-size:x-small;color:black">&nbsp; @((species.TaxStatus == 1) ? " HF " : "") </span>
+                                            }
+                                        @if ((species.KEWUPS & 8) == 8)
+                                            {
+                                            <span style="font-weight:bold;font-size:x-small;color:black">&nbsp; @((species.TaxStatus == 1) ? " AF " : "") </span>
+                                            }
+                                        @if ((species.KEWUPS & 4) == 4)
+                                            {
+                                            <span style="font-weight:bold;font-size:x-small;color:black">&nbsp; @((species.TaxStatus == 1) ? " IF " : "") </span>
+                                            }
+                                        @if ((species.KEWUPS & 2) == 2)
+                                            {
+                                            <span style="font-weight:bold;font-size:x-small;color:black">&nbsp; @((species.TaxStatus == 1) ? " FU " : "") </span>
+                                            }
+                                        @if ((species.KEWUPS & 1) == 1)
+                                            {
+                                            <span style="font-weight:bold;font-size:x-small;color:black">&nbsp; @((species.TaxStatus == 1) ? " SU " : "") </span>
+                                            }
+                                        </div>
+                                    @if ((_cmd1 == "ShowListOfDatasets") && (species.SpeciesId == _speciesId))
+                                        {
+                                            <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-4 mb-4 px-0">
+                                                <MudCard Class="mx-0">
+                                                    <MudCardContent Style="background-color:rgb(254,254,254);">
+                                                    @if (lstDatasets.Count == 0)
                                                         {
-                                                            <div class="d-flex align-items-center mb-1">
-                                                            <input class="form-check-input"
-                                                                   style="margin-left:1px;margin-right:1px;"
-                                                                   type="checkbox"
-                                                                   @bind="_ds.IsSelected" />
-                                                                <button type="button"
-                                                                    class="btn btn-link"
-                                                                    style="margin-left:1px"
-                                                                    @onclick='() => BtnShowDatasetInfo(_ds)'
-                                                                    Title="Dataset Info">
-                                                                <img src="/img/icoFolderSearch.png" width="22" />
-                                                                </button>
-                                                            <span style="font-size:smaller">@_ds.DatasetName </span>
-                                                            <span style="font-size:smaller;color:forestgreen">&nbsp; ( @_ds.DatasetAbbr - @_ds.ProvinceName)</span>
-                                                            </div>
-                                                        @if ((_cmd2 == "cmdEditDataset") && (_ds.DatasetId == _datasetId))
+                                                        <h6 style="text-align:center;color:indianred">no data</h6>
+                                                        }
+                                                    else
+                                                        {
+                                                        <h6 style="text-align:center;color:royalblue">in datasets: <span style="font-size:x-small;color:indianred"> ( Count @lstDatasets.Count() )</span></h6>
+                                                        <hr style="color:indianred" />
+                                                        @foreach (Dataset _ds in lstDatasets)
                                                             {
-                                                            @* Edit Dataset *@
-                                                            <br />
-                                                                <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-1 mb-4 px-0">
-                                                                    <MudCard Class="mx-0">
-                                                                        <MudCardContent Style="background-color:rgba(240,240,240);">
-                                                                        @* SHOW COMPONENT: CompDataset *@
-                                                                        <CompDataset dataset="_ds" OnClose="CloseComponent" />
-                                                                        </MudCardContent>
-                                                                    </MudCard>
-                                                                </MudContainer>
+                                                                <div class="d-flex align-items-center mb-1">
+                                                                <input class="form-check-input"
+                                                                       style="margin-left:1px;margin-right:1px;"
+                                                                       type="checkbox"
+                                                                       @bind="_ds.IsSelected" />
+                                                                    <button type="button"
+                                                                        class="btn btn-link"
+                                                                        style="margin-left:1px"
+                                                                        @onclick='() => BtnShowDatasetInfo(_ds)'
+                                                                        Title="Dataset Info">
+                                                                    <img src="/img/icoFolderSearch.png" width="22" />
+                                                                    </button>
+                                                                <span style="font-size:smaller">@_ds.DatasetName </span>
+                                                                <span style="font-size:smaller;color:forestgreen">&nbsp; ( @_ds.DatasetAbbr - @_ds.ProvinceName)</span>
+                                                                </div>
+                                                            @if ((_cmd2 == "cmdEditDataset") && (_ds.DatasetId == _datasetId))
+                                                                {
+                                                                @* Edit Dataset *@
+                                                                <br />
+                                                                    <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-1 mb-4 px-0">
+                                                                        <MudCard Class="mx-0">
+                                                                            <MudCardContent Style="background-color:rgba(240,240,240);">
+                                                                            @* SHOW COMPONENT: CompDataset *@
+                                                                            <CompDataset dataset="_ds" OnClose="CloseComponent" />
+                                                                            </MudCardContent>
+                                                                        </MudCard>
+                                                                    </MudContainer>
+                                                                }
                                                             }
                                                         }
-                                                    }
-                                                <hr />
-                                                    <div class="gap-4" style="display: flex;  justify-content: center; align-items: center;">
-                                                        <button class="btn btn-link pulse-hover" @onclick="BtnCancel">
-                                                        <img src="/img/icoCancel.png" width="22" />
-                                                        </button>
-                                                    </div>
-                                                </MudCardContent>
-                                            </MudCard>
-                                        </MudContainer>
+                                                    <hr />
+                                                        <div class="gap-4" style="display: flex;  justify-content: center; align-items: center;">
+                                                            <button class="btn btn-link pulse-hover" @onclick="BtnCancel">
+                                                            <img src="/img/icoCancel.png" width="22" />
+                                                            </button>
+                                                        </div>
+                                                    </MudCardContent>
+                                                </MudCard>
+                                            </MudContainer>
+                                        }
                                     }
-                                }
-                            </MudCardContent>
-                        </MudCard>
-                    </MudContainer>
+                                </MudCardContent>
+                            </MudCard>
+                        </MudContainer>
+                    }
                 }
-            }
 
-        @* LIST Species *@
-        }
-    </EditForm>
+            @* LIST Species *@
+            }
+        </EditForm>
     }
 <hr />
 <br />
-<div class="gap-4" style="display: flex;  justify-content: center; align-items: center;">
+    <div class="gap-4" style="display: flex;  justify-content: center; align-items: center;">
         <button class="btn btn-link pulse-hover" @onclick="ScrollToTop">
         <img src="/img/icoGotoTop2.png" width="32" />
         </button>
@@ -790,8 +820,7 @@ else
             {
             lstSpecies.FirstOrDefault(s => s.SpeciesId == species.SpeciesId).IsSelected = true;
             _speciesId = species.SpeciesId;
-            lstDatasets = await feService.Read_DatasetsBySpeciesId(species.SpeciesId);
-            _cmd1 = "ShowListOfDatasets";
+            lstDatasets = await feService.Read_DatasetsBySpeciesId(_speciesId);
             }
         StateHasChanged();
         }

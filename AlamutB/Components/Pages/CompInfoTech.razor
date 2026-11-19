@@ -259,11 +259,13 @@
         <div style="display: flex; justify-content: center;margin-bottom:20px;">
         <img src="/img/_logoAlamut.png" width="200" style="margin-right:10px" />
         </div>
-    <div class="subhead">Botanical database · floristic, climatic & taxonomic management</div>
+    <div class="subhead">A floristic database of local flora studied in Iran and neighbouring countries in the Middle East</div>
 
-    <p><strong>Alamut</strong> is a comprehensive botanical database management system designed for floristic research, climatic data analysis, and taxonomic organization. Named after the historic mountain fortress, this application provides a robust platform for managing complex botanical datasets with an emphasis on scientific accuracy and data relationships.</p>
+    <p><strong>Alamut</strong> is a comprehensive floristic database management system designed for floristic research, climatic data analysis, and taxonomic organization.
+        Named after the historic mountain fortress, this application provides a robust platform for managing complex botanical datasets 
+        with an emphasis on scientific accuracy and data relationships.</p>
 
-    <h2>About Alamut</h2>
+    <h3 style="font-style:italic">About</h3>
         <div class="grid-2">
             <div class="card-soft">
             <h4 style="margin-top:0;">Citation</h4>
@@ -318,14 +320,14 @@
             <thead><tr><th>Tag</th><th>Description</th></tr></thead>
                 <tbody>
                 <tr><td><span class="tag-pill">1</span> Active</td><td>Standard active user</td></tr>
-                <tr><td><span class="tag-pill">2</span> AdminAccount</td><td>Full administrative privileges</td></tr>
-                <tr><td><span class="tag-pill">4</span> GoldAccount</td><td>Premium features access</td></tr>
-                <tr><td><span class="tag-pill">8</span> SilverAccount</td><td>Extended feature set</td></tr>
-                <tr><td><span class="tag-pill">16</span> RemindDueNotes</td><td>Automatic reminders for pending todos</td></tr>
-                <tr><td><span class="tag-pill">32</span> DueNotesDays</td><td>Configure reminder timing (default: 7 days)</td></tr>
-                <tr><td><span class="tag-pill">64</span> CanChangeNickname</td><td>Ability to modify display name</td></tr>
-                <tr><td><span class="tag-pill">128</span> OnExpire</td><td>Account behavior when subscription ends</td></tr>
-                <tr><td><span class="tag-pill">256</span> UseFaCalendar</td><td>Persian calendar support</td></tr>
+                <tr><td><span class="tag-pill">2</span> UseFaCalendar</td><td>Persian calendar support</td></tr>
+                <tr><td><span class="tag-pill">4</span> RemindToDoNotes</td><td>Automatic reminders for pending todos</td></tr>
+                <tr><td><span class="tag-pill">8</span> ReminderDays</td><td>Configure reminder timing (default: 7 days)</td></tr>
+                <tr><td><span class="tag-pill">16</span> CanChangeNickname</td><td>Ability to modify display name</td></tr>
+                <tr><td><span class="tag-pill">32</span> OnExpire</td><td>Account behavior when subscription ends</td></tr>
+                <tr><td><span class="tag-pill">64</span> SilverAccount</td><td>Extended feature set</td></tr>
+                <tr><td><span class="tag-pill">128</span> GoldAccount</td><td>Premium features access</td></tr>
+                <tr><td><span class="tag-pill">256</span> AdminAccount</td><td>Full administrative privileges</td></tr>
                 </tbody>
             </table>
         </div>
@@ -445,7 +447,7 @@
         </ul>
 
     <h2>📋 Quick Reference</h2>
-    <h4>Entity Types (RefTypes)</h4>
+    <h4>Note Reference Types value reference</h4>
         <div class="ref-grid">
         <span class="ref-item"><strong>1</strong> ApgGroups</span>
         <span class="ref-item"><strong>2</strong> Orders</span>
@@ -462,7 +464,7 @@
         <span class="ref-item"><strong>13</strong> Users</span>
         </div>
 
-    <h4>Note Tags</h4>
+    <h4>Note Tags bit reference</h4>
         <div class="ref-grid">
         <span class="ref-item"><strong>1</strong> IsRtl</span>
         <span class="ref-item"><strong>2</strong> IsShared</span>
@@ -472,7 +474,7 @@
         <span class="ref-item"><strong>32</strong> IsDone</span>
         </div>
 
-    <h4>User Tags</h4>
+    <h4>User Tags bit reference</h4>
         <div class="ref-grid">
         <span class="ref-item"><strong>1</strong> Active</span>
         <span class="ref-item"><strong>2</strong> UseFaCalendar</span>
@@ -485,14 +487,308 @@
         <span class="ref-item"><strong>256</strong> SuperUserAccount</span>
         </div>
 
-    <hr>
 
+    <h4>Taxa Ranks value reference</h4>
+        <div class="ref-grid">
+        <span class="ref-item"><strong>1</strong> Species</span>
+        <span class="ref-item"><strong>2</strong> subSpecies</span>
+        <span class="ref-item"><strong>3</strong> varieties</span>
+        <span class="ref-item"><strong>4</strong> subvarieties</span>
+        <span class="ref-item"><strong>5</strong> form</span>
+        <span class="ref-item"><strong>6</strong> subform</span>
+        <span class="ref-item"><strong>7</strong> lusus (from wfo)</span>
+        <span class="ref-item"><strong>8</strong> prole (from wfo)</span>
+        <span class="ref-item"><strong>9</strong> unranked</span>
+        </div>
+
+    <h4>Name Status value reference</h4>
+        <div class="ref-grid">
+        <span class="ref-item"><strong>1</strong> valid</span>
+        <span class="ref-item"><strong>2</strong> conserved</span>
+        <span class="ref-item"><strong>3</strong> invalid</span>
+        <span class="ref-item"><strong>4</strong> rejected</span>
+        <span class="ref-item"><strong>5</strong> illegitimate</span>
+        <span class="ref-item"><strong>6</strong> superfoluous</span>
+        </div>
+
+    <h4>Species Status value reference</h4>
+        <div class="ref-grid">
+        <span class="ref-item"><strong>1</strong> accepted</span>
+        <span class="ref-item"><strong>2</strong> synonym</span>
+        <span class="ref-item"><strong>3</strong> unchecked</span>
+        </div>
+
+    <h4>Species Conservation Stata bit value reference</h4>
+        <div class="ref-grid">
+        <span class="ref-item"><strong>64</strong> CR</span>
+        <span class="ref-item"><strong>32</strong> EN</span>
+        <span class="ref-item"><strong>16</strong> VU</span>
+        <span class="ref-item"><strong>08</strong> NT</span>
+        <span class="ref-item"><strong>04</strong> LC</span>
+        <span class="ref-item"><strong>02</strong> LR</span>
+        <span class="ref-item"><strong>01</strong> DD</span>
+        <span class="ref-item"><strong>00</strong> NE</span>
+        </div>
+
+    <h4>Species KEW-UPS tags bit value reference</h4>
+        <div class="ref-grid">
+        <span class="ref-item"><strong>512</strong> MD medicinal</span>
+        <span class="ref-item"><strong>256</strong> GS gene source</span>
+        <span class="ref-item"><strong>128</strong> PO poison</span>
+        <span class="ref-item"><strong>064</strong> EU environmental use</span>
+        <span class="ref-item"><strong>032</strong> MA material</span>
+        <span class="ref-item"><strong>016</strong> HF human food</span>
+        <span class="ref-item"><strong>008</strong> AF animal food</span>
+        <span class="ref-item"><strong>004</strong> IF inverteberate food</span>
+        <span class="ref-item"><strong>002</strong> FU fuel</span>
+        <span class="ref-item"><strong>001</strong> SU social use</span>
+        </div>
+
+    <h4>Species Characteristics bit position reference</h4>
+        <div class="ref-grid">
+        <span class="ref-item"><strong>00</strong> endemic</span>
+        <span class="ref-item"><strong>01</strong> rare</span>
+        <span class="ref-item"><strong>02</strong> tariditional medicine</span>
+        <span class="ref-item"><strong>03</strong> range</span>
+        <span class="ref-item"><strong>04</strong> weed</span>
+        <span class="ref-item"><strong>05</strong> aquatic</span>
+        <span class="ref-item"><strong>06</strong> submerged</span>
+        <span class="ref-item"><strong>07</strong> parasite</span>
+        <span class="ref-item"><strong>08</strong> herb</span>
+        <span class="ref-item"><strong>09</strong> annual</span>
+        <span class="ref-item"><strong>10</strong> biennial</span>
+        <span class="ref-item"><strong>11</strong> perennial</span>
+        <span class="ref-item"><strong>12</strong> monocarpic</span>
+        <span class="ref-item"><strong>13</strong> rhizomatous</span>
+        <span class="ref-item"><strong>14</strong> tuberous</span>
+        <span class="ref-item"><strong>15</strong> bulbouse</span>
+        <span class="ref-item"><strong>16</strong> corm</span>
+        <span class="ref-item"><strong>17</strong> caespitose</span>
+        <span class="ref-item"><strong>18</strong> woody</span>
+        <span class="ref-item"><strong>19</strong> prostrate</span>
+        <span class="ref-item"><strong>20</strong> bush</span>
+        <span class="ref-item"><strong>21</strong> pulvinate</span>
+        <span class="ref-item"><strong>22</strong> shrub</span>
+        <span class="ref-item"><strong>23</strong> subshrub</span>
+        <span class="ref-item"><strong>24</strong> tree</span>
+        <span class="ref-item"><strong>25</strong> evergreen</span>
+        </div>
+
+    <h4>APG Groups display sequence value reference</h4>
+        <div class="ref-grid">
+        <span class="ref-item"><strong>1000</strong> Algae</span>
+        <span class="ref-item"><strong>2000</strong> Bryophytes</span>
+        <span class="ref-item"><strong>3000</strong> Lycophytes</span>
+        <span class="ref-item"><strong>4000</strong> Moniliophytes</span>
+        <span class="ref-item"><strong>5000</strong> Coniferophytes</span>
+        <span class="ref-item"><strong>6000</strong> Angiosperms</span>
+        <span class="ref-item"><strong>6001</strong> unclassified Angiosperms</span>
+        <span class="ref-item"><strong>6100</strong> Basal angiosperms</span>
+        <span class="ref-item"><strong>6200</strong> Magnoliids</span>
+        <span class="ref-item"><strong>6300</strong> Monocots</span>
+        <span class="ref-item"><strong>6399</strong> Sister of Eudicots</span>
+        <span class="ref-item"><strong>6400</strong> Eudicots</span>
+        <span class="ref-item"><strong>6500</strong> Basal Eudicots</span>
+        <span class="ref-item"><strong>6600</strong> Core Eudicots</span>
+        <span class="ref-item"><strong>6610</strong> Super Rosids</span>
+        <span class="ref-item"><strong>6620</strong> Rosids</span>
+        <span class="ref-item"><strong>6650</strong> Super Asterids</span>
+        <span class="ref-item"><strong>6660</strong> Asterids</span>
+        <span class="ref-item"><strong>10000</strong> reserved</span>
+        </div>
+    <hr style="color:indianred">
+
+    <h2>📋 Alamut Database tables & columns </h2>
+    <h4>tbl ApgGroups columns reference</h4>
+        <div class="ref-grid">
+        <span class="ref-item"><strong> 1</strong> ApgGroupId</span>
+        <span class="ref-item"><strong> 2</strong> Sequence</span>
+        <span class="ref-item"><strong> 3</strong> ApgGroupName</span>
+        </div>
+
+    <h4>tbl Orders columns reference</h4>
+        <div class="ref-grid">
+        <span class="ref-item"><strong> 1</strong> OrderId</span>
+        <span class="ref-item"><strong> 2</strong> ApgGroupId</span>
+        <span class="ref-item"><strong> 3</strong> OrderName</span>
+        <span class="ref-item"><strong> 4</strong> OrderSeq</span>
+        <span class="ref-item"><strong> 5</strong> OrderNote</span>
+        </div>
+
+    <h4>tbl Families columns reference</h4>
+        <div class="ref-grid">
+        <span class="ref-item"><strong> 1</strong> FamilyId</span>
+        <span class="ref-item"><strong> 2</strong> OrderId</span>
+        <span class="ref-item"><strong> 3</strong> FamilyName</span>
+        <span class="ref-item"><strong> 4</strong> FamilyAut</span>
+        <span class="ref-item"><strong> 5</strong> Protolog</span>
+        <span class="ref-item"><strong> 6</strong> DeltaNote</span>
+        <span class="ref-item"><strong> 7</strong> FlowerFormula</span>
+        <span class="ref-item"><strong> 8</strong> FamilyTags</span>
+        </div>
+
+    <h4>tbl Genera columns reference</h4>
+        <div class="ref-grid">
+        <span class="ref-item"><strong> 1</strong> GenusId</span>
+        <span class="ref-item"><strong> 2</strong> FamilyId</span>
+        <span class="ref-item"><strong> 3</strong> GenusName</span>
+        <span class="ref-item"><strong> 4</strong> GenusAut</span>
+        </div>
+
+    <h4>tbl Species columns reference</h4>
+        <div class="ref-grid">
+        <span class="ref-item"><strong> 01</strong> SpeciesId from wfo</span>
+        <span class="ref-item"><strong> 02</strong> AcceptedId from wfo</span>
+        <span class="ref-item"><strong> 03</strong> GenusId</span>
+        <span class="ref-item"><strong> 04</strong> Epithet</span>
+        <span class="ref-item"><strong> 05</strong> Rank</span>
+        <span class="ref-item"><strong> 06</strong> InfraEpithet</span>
+        <span class="ref-item"><strong> 07</strong> Author</span>
+        <span class="ref-item"><strong> 08</strong> NomStatus</span>
+        <span class="ref-item"><strong> 09</strong> TaxStatus</span>
+        <span class="ref-item"><strong> 10</strong> ConsStatus</span>
+        <span class="ref-item"><strong> 11</strong> Characters</span>
+        <span class="ref-item"><strong> 12</strong> KEWUPS</span>
+        <span class="ref-item"><strong> 13</strong> Chorotype</span>
+        <span class="ref-item"><strong> 14</strong> Lifeform</span>
+        <span class="ref-item"><strong> 15</strong> IsHybid</span>
+        </div>
+
+    <h4>tbl Datasets columns reference</h4>
+        <div class="ref-grid">
+        <span class="ref-item"><strong> 01</strong> DatasetId</span>
+        <span class="ref-item"><strong> 02</strong> DatasetType {1:FL 2:CN 3:LM 4:ST}</span>
+        <span class="ref-item"><strong> 03</strong> DatasetAbbr</span>
+        <span class="ref-item"><strong> 04</strong> DatasetName</span>
+        <span class="ref-item"><strong> 05</strong> DatasetRef</span>
+        <span class="ref-item"><strong> 06</strong> RefYear</span>
+        <span class="ref-item"><strong> 07</strong> RefLang</span>
+        <span class="ref-item"><strong> 08</strong> DatasetManager</span>
+        <span class="ref-item"><strong> 09</strong> AreaHa</span>
+        <span class="ref-item"><strong> 10</strong> ProvinceId</span>
+        <span class="ref-item"><strong> 11</strong> Coords</span>
+        <span class="ref-item"><strong> 12</strong> AltMax</span>
+        <span class="ref-item"><strong> 13</strong> AltMin</span>
+        <span class="ref-item"><strong> 14</strong> AltAver</span>
+        <span class="ref-item"><strong> 15</strong> TempMax</span>
+        <span class="ref-item"><strong> 16</strong> TempMin</span>
+        <span class="ref-item"><strong> 17</strong> TempAver</span>
+        <span class="ref-item"><strong> 18</strong> Precipitation</span>
+        <span class="ref-item"><strong> 19</strong> DatasetTags</span>
+        </div>
+
+    <h4>tbl DatasetData columns reference</h4>
+        <div class="ref-grid">
+        <span class="ref-item"><strong> 1</strong> DatasetDataId</span>
+        <span class="ref-item"><strong> 2</strong> DatasetId</span>
+        <span class="ref-item"><strong> 3</strong> SpeciesId</span>
+        <span class="ref-item"><strong> 4</strong> Infraspecific</span>
+        <span class="ref-item"><strong> 5</strong> LineString</span>
+        <span class="ref-item"><strong> 6</strong> ParsedGenus</span>
+        <span class="ref-item"><strong> 7</strong> ParsedEpithet</span>
+        </div>
+
+    <h4>tbl Sets columns reference</h4>
+        <div class="ref-grid">
+        <span class="ref-item"><strong> 1</strong> SetId</span>
+        <span class="ref-item"><strong> 2</strong> UserId</span>
+        <span class="ref-item"><strong> 3</strong> SetType {1:Floristic, 2:Climatic}</span>
+        <span class="ref-item"><strong> 4</strong> SetName</span>
+        <span class="ref-item"><strong> 5</strong> SetTags</span>
+        </div>
+
+    <h4>tbl SetData columns reference</h4>
+        <div class="ref-grid">
+        <span class="ref-item"><strong> 1</strong> SetDataId</span>
+        <span class="ref-item"><strong> 2</strong> SetId</span>
+        <span class="ref-item"><strong> 3</strong> DatasetId</span>
+        <span class="ref-item"><strong> 4</strong> Subsets</span>
+        </div>
+
+    <h4>tbl Stations columns reference</h4>
+        <div class="ref-grid">
+        <span class="ref-item"><strong> 1</strong> StationId</span>
+        <span class="ref-item"><strong> 2</strong> StationCode</span>
+        <span class="ref-item"><strong> 3</strong> StationName</span>
+        <span class="ref-item"><strong> 4</strong> StationAlt</span>
+        <span class="ref-item"><strong> 5</strong> StationCoords</span>
+        </div>
+
+    <h4>tbl StationData columns reference</h4>
+        <div class="ref-grid">
+        <span class="ref-item"><strong> 1</strong> StationDataId</span>
+        <span class="ref-item"><strong> 2</strong> StationId</span>
+        <span class="ref-item"><strong> 3</strong> Yr</span>
+        <span class="ref-item"><strong> 4</strong> DataType</span>
+        <span class="ref-item"><strong> 5</strong> M01 to M12</span>
+        </div>
+
+
+    <h4>tbl Countries columns reference</h4>
+        <div class="ref-grid">
+        <span class="ref-item"><strong> 1</strong> CountryId</span>
+        <span class="ref-item"><strong> 2</strong> CountryName</span>
+        </div>
+
+    <h4>tbl Provinces columns reference</h4>
+        <div class="ref-grid">
+        <span class="ref-item"><strong> 1</strong> ProvinceId</span>
+        <span class="ref-item"><strong> 2</strong> CountryId</span>
+        <span class="ref-item"><strong> 3</strong> ProvinceName</span>
+        </div>
+
+    <h4>tbl Notes columns reference</h4>
+        <div class="ref-grid">
+        <span class="ref-item"><strong> 1</strong> NoteId</span>
+        <span class="ref-item"><strong> 2</strong> UserId</span>
+        <span class="ref-item"><strong> 3</strong> RefType</span>
+        <span class="ref-item"><strong> 4</strong> RefId</span>
+        <span class="ref-item"><strong> 5</strong> NoteDateTime</span>
+        <span class="ref-item"><strong> 6</strong> NoteDateTimeDue</span>
+        <span class="ref-item"><strong> 7</strong> NoteText</span>
+        <span class="ref-item"><strong> 8</strong> NoteTags</span>
+        </div>
+
+    <h4>tbl NoteBooks columns reference</h4>
+        <div class="ref-grid">
+        <span class="ref-item"><strong> 1</strong> NotebookId</span>
+        <span class="ref-item"><strong> 2</strong> UserId</span>
+        <span class="ref-item"><strong> 3</strong> NotebookName</span>
+        <span class="ref-item"><strong> 4</strong> NotebookTags</span>
+        <span class="ref-item"><strong> 5</strong> IsActive</span>
+        </div>
+
+    <h4>tbl Sections columns reference</h4>
+        <div class="ref-grid">
+        <span class="ref-item"><strong> 1</strong> SectionId</span>
+        <span class="ref-item"><strong> 2</strong> NotebookId</span>
+        <span class="ref-item"><strong> 3</strong> SectionName</span>
+        <span class="ref-item"><strong> 4</strong> SectionTags</span>
+        </div>
+
+    <h4>tbl Users columns reference</h4>
+        <div class="ref-grid">
+        <span class="ref-item"><strong> 1</strong> UserId</span>
+        <span class="ref-item"><strong> 2</strong> UserNickname</span>
+        <span class="ref-item"><strong> 3</strong> Username</span>
+        <span class="ref-item"><strong> 4</strong> Password</span>
+        <span class="ref-item"><strong> 5</strong> UserEmail</span>
+        <span class="ref-item"><strong> 6</strong> ExpDateTime</span>
+        <span class="ref-item"><strong> 7</strong> UserTags</span>
+        </div>
+
+    <h4>tbl Settings columns reference</h4>
+        <div class="ref-grid">
+        <span class="ref-item"><strong> 1</strong> settingKey</span>
+        <span class="ref-item"><strong> 2</strong> settingValue</span>
+        </div>
+    <hr>
         <p style="font-style: italic; color: #2b5f5f; margin-top: 0.5rem;">
-        Alamut – Where Botanical Data Finds Its Fortress <br />
-        by: Majid SharifiTehrani PhD <br />
-        diversity data analyst & .net programmer <br />
-        mshtir@gmail.com <br />
-        +989133112733
+        Alamut – Where Floristic Data Finds Its Fortress <br />
+        fullstack developer: Dr Majid SharifiTehrani <br />
+        diversity data analyst, DotNetCore programmer, web-app designer, SQLServer database designer/programmer <br />
+        mshtir@gmail.com / +989133112733 <br />
+        https://www.msht.ir
         </p>
         <div class="footer-note">
         Comprehensive botanical database · floristic, climatic & taxonomic management
@@ -501,9 +797,9 @@
     </div>
 <br />
 
-    <script>
+@* <script>
     window.scrollToTop = () => { window.scrollTo({ top: 0, behavior: 'smooth' }); };
-    </script>
+    </script> *@
 
 
 @code {

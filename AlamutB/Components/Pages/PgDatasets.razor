@@ -107,37 +107,16 @@ else
                                     <MudSelectItem Value="3">Province</MudSelectItem>
                                     </MudSelect>
                                 </div>
-                            @* SHOW ALL *@
-                                <button class="btn btn-link" style="margin-top:10px;margin-left:5px;" Title="list all datasets" @onclick="BtnShowAllDatasets">
-                                <img src="/img/icoListAll.png" width="32" />
-                                </button>
                             </div>
-                        <br />
                         @* CMDs: Select All / Invert *@
-                            <div class="d-flex gap-4 justify-content-center align-items-center" style="margin-top:5px;margin-bottom:15px;">
-                            <MudIconButton Icon="@Icons.Material.Filled.DoneAll"
-                                           Color="Color.Primary"
-                                           Size="Size.Medium"
-                                           OnClick="BtnSelectAllDatasets"
-                                           Title="Select all" />
-                            <MudIconButton Icon="@Icons.Material.Filled.Rule"
-                                           Color="Color.Primary"
-                                           Size="Size.Medium"
-                                           OnClick="BtnInvertDatasetSelection"
-                                           Title="Invert selection" />
-                            <MudIconButton Icon="@Icons.Material.Filled.DownloadForOffline"
-                                           Color="Color.Primary"
-                                           Size="Size.Medium"
-                                           OnClick='@(() => BtnReportSelectedDatasetsAsPdf())'
-                                           Title="report selected datasets" />
-                            @* MAP *@
-                                <button type="button"
-                                    class="btn btn-link"
-                                    style="margin-left:1px"
-                                    @onclick='() => BtnMapSelectedDatasets()'
-                                    Title="map selected datasets رسم ديتاست هاي انتخاب شده روي نقشه">
-                                <img src="/img/icoMap.png" width="24" />
-                                </button>
+                            <div class="d-flex gap-4 justify-content-left align-items-left" style="margin-top:5px;margin-bottom:15px;">
+                                <MudFabMenu StartIcon="@Icons.Material.Outlined.Menu" Size="Size.Medium" Color="Color.Dark" Variant="Variant.Text" Direction="Direction.Right">
+                                <MudFabMenuItem StartIcon="@Icons.Material.Filled.List" Color="Color.Primary" OnClick="BtnShowAllDatasets" Title="list all datasets" />
+                                <MudFabMenuItem StartIcon="@Icons.Material.Filled.DoneAll" Color="Color.Primary" OnClick="BtnSelectAllDatasets" Title="Select all" />
+                                <MudFabMenuItem StartIcon="@Icons.Material.Filled.Rule" Color="Color.Primary" OnClick="BtnInvertDatasetSelection" Title="Invert selection" />
+                                <MudFabMenuItem StartIcon="@Icons.Material.Filled.DownloadForOffline" Color="Color.Warning" OnClick="@(() => BtnReportSelectedDatasetsAsPdf())" Title="report selected datasets" />
+                                <MudFabMenuItem StartIcon="@Icons.Material.Filled.Map" Color="Color.Dark" OnClick="() => BtnMapSelectedDatasets()" Title="map selected datasets" />
+                                </MudFabMenu>
                             </div>
                         @* DRAW MAP *@
                         @if ((_cmd == "showmap") && (species.SpeciesId == _speciesId))
@@ -227,7 +206,7 @@ else
                                                     class="btn btn-link"
                                                     style="margin-left:1px"
                                                     @onclick='() => BtnListSpeciesOfDatasets(dataset, false)'
-                                                    Title="Show sub-Species">
+                                                    Title="Show dataset data : refresh">
                                                 <img src="/img/icoList1.png" width="22" />
                                                 </button>
                                             </div>
@@ -257,6 +236,46 @@ else
                                                 <span style="font-size:smaller">@species.SciName </span>
                                                 <span style="font-size:smaller;color:forestgreen">&nbsp; @((species.NomStatus == 1) ? " valid " : "") </span>
                                                 <span style="font-size:smaller;color:darkgoldenrod">&nbsp; @((species.TaxStatus == 1) ? " accepted " : "") </span>
+                                                @if ((species.KEWUPS & 512) == 512)
+                                                    {
+                                                    <span style="font-weight:bold;font-size:x-small;color:black">&nbsp; @((species.TaxStatus == 1) ? " MD " : "") </span>
+                                                    }
+                                                @if ((species.KEWUPS & 256) == 256)
+                                                    {
+                                                    <span style="font-weight:bold;font-size:x-small;color:black">&nbsp; @((species.TaxStatus == 1) ? " GS " : "") </span>
+                                                    }
+                                                @if ((species.KEWUPS & 128) == 128)
+                                                    {
+                                                    <span style="font-weight:bold;font-size:x-small;color:black">&nbsp; @((species.TaxStatus == 1) ? " PO " : "") </span>
+                                                    }
+                                                @if ((species.KEWUPS & 64) == 64)
+                                                    {
+                                                    <span style="font-weight:bold;font-size:x-small;color:black">&nbsp; @((species.TaxStatus == 1) ? " EU " : "") </span>
+                                                    }
+                                                @if ((species.KEWUPS & 32) == 32)
+                                                    {
+                                                    <span style="font-weight:bold;font-size:x-small;color:black">&nbsp; @((species.TaxStatus == 1) ? " MA " : "") </span>
+                                                    }
+                                                @if ((species.KEWUPS & 16) == 16)
+                                                    {
+                                                    <span style="font-weight:bold;font-size:x-small;color:black">&nbsp; @((species.TaxStatus == 1) ? " HF " : "") </span>
+                                                    }
+                                                @if ((species.KEWUPS & 8) == 8)
+                                                    {
+                                                    <span style="font-weight:bold;font-size:x-small;color:black">&nbsp; @((species.TaxStatus == 1) ? " AF " : "") </span>
+                                                    }
+                                                @if ((species.KEWUPS & 4) == 4)
+                                                    {
+                                                    <span style="font-weight:bold;font-size:x-small;color:black">&nbsp; @((species.TaxStatus == 1) ? " IF " : "") </span>
+                                                    }
+                                                @if ((species.KEWUPS & 2) == 2)
+                                                    {
+                                                    <span style="font-weight:bold;font-size:x-small;color:black">&nbsp; @((species.TaxStatus == 1) ? " FU " : "") </span>
+                                                    }
+                                                @if ((species.KEWUPS & 1) == 1)
+                                                    {
+                                                    <span style="font-weight:bold;font-size:x-small;color:black">&nbsp; @((species.TaxStatus == 1) ? " SU " : "") </span>
+                                                    }
                                                 </div>
                                             }
                                         @* Close the List *@
@@ -287,7 +306,7 @@ else
     }
 <br />
 <br />
-<script>window.scrollToTop = () => { window.scrollTo({ top: 0, behavior: 'smooth' }); };</script>
+@* <script>window.scrollToTop = () => { window.scrollTo({ top: 0, behavior: 'smooth' }); };</script> *@
 
 @code {
     User user = new User();
