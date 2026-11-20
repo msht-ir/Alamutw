@@ -611,6 +611,12 @@ namespace AlamutB.Backend
             var result = await _BeService.Get_MultivarFlorAnDataAsync (setId, subsetIndex);
             return Ok (result);
             }
+        [HttpPost ("Get_SetxNetSpeciesList")]
+        public async Task<ActionResult<List<wfoSpeciesId>>> Get_SetxNetSpeciesList ([FromBody] int setId, [FromQuery] int subsetIndex)
+            {
+            var result = await _BeService.Get_SetxNetSpeciesListAsync (setId, subsetIndex);
+            return Ok (result);
+            }
         #endregion
         #region REPORT
         #endregion

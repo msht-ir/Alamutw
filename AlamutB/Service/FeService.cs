@@ -967,6 +967,19 @@ namespace AlamutB.Service
                 return new List<Occurrence> ();
                 }
             }
+        public async Task<List<wfoSpeciesId>> Get_SetxNetSpeciesList (int setId, int subsetIndex)
+            {
+            var response = await _http.PostAsJsonAsync ($"api/Get_SetxNetSpeciesList?subsetIndex={subsetIndex}", setId);
+            if (response.IsSuccessStatusCode)
+                {
+                List<wfoSpeciesId> lstNetSpeciesList = await response.Content.ReadFromJsonAsync<List<wfoSpeciesId>> ();
+                return lstNetSpeciesList;
+                }
+            else
+                {
+                return new List<wfoSpeciesId> ();
+                }
+            }
         #endregion
         #region REPORT
         #endregion

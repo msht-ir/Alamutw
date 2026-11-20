@@ -484,6 +484,11 @@ namespace AlamutS.Models
         public string AcceptedId { get; set; }
         public string SciName { get; set; }
         }
+    public class wfoSpeciesId
+        {
+        public string SpeciesId { get; set; }
+        public string AcceptedId { get; set; }
+        }
     //MapPoint
     public class MapPoint
         {

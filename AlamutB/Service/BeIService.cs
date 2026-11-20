@@ -137,6 +137,7 @@ namespace AlamutB.Services2Backend
         Task<FV> Get_FloristicValueStatsAsync (int setId, int subsetIndex);
         Task<List<Species>> Get_FlorAnDataAsync (int setId, int subsetIndex);
         Task<List<Occurrence>> Get_MultivarFlorAnDataAsync (int setId, int subsetIndex);
+        Task<List<wfoSpeciesId>> Get_SetxNetSpeciesListAsync (int setId, int subsetIndex);
         #endregion
         #region REPORT
         #endregion

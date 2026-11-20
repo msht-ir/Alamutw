@@ -129,7 +129,7 @@ else
                     }
                 else if (_cmd == "ShowCompareSetsResults")
                     {
-                    @* component for CompareSets RESULTS *@
+                    <CompAnalysisCompareSetsResults lstNetSpeciesListA="lstNetSpeciesListA" lstNetSpeciesListB="lstNetSpeciesListB" lstNetSpeciesListC="lstNetSpeciesListC" OnAnalysisCompareSetsResultsClosed="BtnCloseAnalysisCompareSetsResults" />
                     }
                 </MudStack>
             </MudStack>
@@ -164,12 +164,15 @@ else
     public FV FVStats = new FV();
     public List<Species> lstSpeciesFlorAn = new List<Species>();
     public List<Occurrence> lstOccurrenceData = new List<Occurrence>();
+    //comparesets
+    public List<wfoSpeciesId> lstNetSpeciesListA = new List<wfoSpeciesId> ();
+    public List<wfoSpeciesId> lstNetSpeciesListB = new List<wfoSpeciesId> ();
+    public List<wfoSpeciesId> lstNetSpeciesListC = new List<wfoSpeciesId> ();
 
     Set set = new Set();
     Dataset dataset = new Dataset();
     Species species = new Species();
     Diversity diversity = new Diversity();
-
     string _cmd = "";
     public bool _hasFetched = false;
     string _accountType = "";
@@ -320,7 +323,22 @@ else
                     }
             case "comparesets":
                     {
-                    Snackbar.Add($"selcted Sets received for comparesets!", Severity.Info, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+                    //guard against: not 3 sets being selected
+                    if (lstSelectedSets.Count() < 3)
+                        {
+                        Snackbar.Add($"three (3) sets must be selcted", Severity.Warning, opt => { opt.VisibleStateDuration = 1000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+                        }
+                    else
+                        {
+                        _hasFetched = false;
+                        lstNetSpeciesListA = await feService.Get_SetxNetSpeciesList(lstSelectedSets [0].SetId, lstSelectedSets [0].SelectedSubset);
+                        lstNetSpeciesListB = await feService.Get_SetxNetSpeciesList(lstSelectedSets [1].SetId, lstSelectedSets [1].SelectedSubset);
+                        lstNetSpeciesListC = await feService.Get_SetxNetSpeciesList(lstSelectedSets [2].SetId, lstSelectedSets [2].SelectedSubset);
+                        //keep sets names
+                        appState.SetSetName(lstSelectedSets [0].SetName + " | " + lstSelectedSets [1].SetName + " | " + lstSelectedSets [2].SetName);
+                        _hasFetched = true;
+                        _cmd = "ShowCompareSetsResults";                        
+                        }
                     break;
                     }
             case "multivarfloran":
@@ -373,6 +391,11 @@ else
     private void BtnCloseAnalysisMultivarFlorAnResults ()
         {
         _cmd = "multivarfloran";
+        StateHasChanged();
+        }
+    private void BtnCloseAnalysisCompareSetsResults ()
+        {
+        _cmd = "comparesets";
         StateHasChanged();
         }
 

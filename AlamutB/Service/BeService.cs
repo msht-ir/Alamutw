@@ -3094,10 +3094,9 @@ namespace AlamutB.Services2Backend
              */
             return lstOccurrenceData;
             }
-
-        /*
         public static void CreateMatrices4MultiVarFlorAn (int intSetID, string strSetTitle, int intSubset)
             {
+        /*
             --
                RunSQL "SELECT ID, Abbr INTO [tbl_C] FROM Collections WHERE Sx=True ORDER BY Abbr;"
                RunSQL "SELECT DISTINCT Binomials.ID, Binomials.SciName INTO [tbl_R] FROM (Genera INNER JOIN ((Specimens INNER JOIN Collections ON Specimens.CollectionID = Collections.ID) INNER JOIN Binomials ON Specimens.Binomial = Binomials.ID) ON Genera.ID = Binomials.Genus_ID) INNER JOIN Families ON Genera.Family = Families.ID WHERE Collections.Sx=True AND Families.Sel4NTSYSpc=True AND Right(Binomials.SciName, 3) <> 'sp.' ORDER BY Binomials.SciName;"
@@ -3134,8 +3133,35 @@ namespace AlamutB.Services2Backend
                 MessageBox.Show ("R=" + r.ToString () + " C=" + c.ToString ());
                 int [,] MatrixD = new int [r, c];
                 }
-            }
          */
+            }
+        public async Task<List<wfoSpeciesId>> Get_SetxNetSpeciesListAsync (int setId, int subsetIndex)
+            {
+            string? connString = _config.GetConnectionString ("cnni");
+            string sql = "Analyses.Calc_SetxGetNetSpeciesList";
+
+            using SqlConnection cnn = new (connString);
+            using SqlCommand cmd = new (sql, cnn)
+                {
+                CommandType = CommandType.StoredProcedure
+                };
+
+            cmd.Parameters.AddWithValue ("@SetId", setId);
+            cmd.Parameters.AddWithValue ("@SubsetIndex", subsetIndex);
+            await cnn.OpenAsync ();
+            using SqlDataReader reader = await cmd.ExecuteReaderAsync ();
+            List<wfoSpeciesId> lstNetSpeciesList = new List<wfoSpeciesId> ();
+            while (await reader.ReadAsync ())
+                {
+                lstNetSpeciesList.Add (new wfoSpeciesId
+                    {
+                    SpeciesId = reader.GetString (0),
+                    AcceptedId = reader.GetString (1)
+                    });
+                }
+            await cnn.CloseAsync ();
+            return lstNetSpeciesList;
+            }
         #endregion
         #region REPORT
         #endregion
