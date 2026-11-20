@@ -27,14 +27,17 @@ else
                             <tr>
                             <td> <span style="color:dimgray;font-weight:normal;"> set A </span></td>
                             <td> <span style="color:darkslategrey;font-weight:bold;"> @lstNetSpeciesListA.Count() </span></td>
+                            <td> <img class="btn btn-link pulse-hover" src="/img/icoVenn_A.png" width="42" @onclick='() => ReportVannDiagram("A")' /></td>
                             </tr>
                             <tr>
                             <td> <span style="color:dimgray;font-weight:normal;"> set B </span></td>
                             <td> <span style="color:darkslategrey;font-weight:bold;"> @lstNetSpeciesListB.Count() </span></td>
+                            <td> <img class="btn btn-link pulse-hover" src="/img/icoVenn_B.png" width="42" @onclick='() => ReportVannDiagram("B")' /></td>
                             </tr>
                             <tr>
                             <td> <span style="color:dimgray;font-weight:normal;"> set C </span></td>
                             <td> <span style="color:darkslategrey;font-weight:bold;"> @lstNetSpeciesListC.Count() </span></td>
+                            <td> <img class="btn btn-link pulse-hover" src="/img/icoVenn_C.png" width="42" @onclick='() => ReportVannDiagram("C")' /></td>
                             </tr>
                         </table>
                     </div>
@@ -42,20 +45,24 @@ else
                     <div class="d-flex justify-content-center align-items-center" style="margin-left:20px; width:300px;">
                         <table class="table table-borderless">
                             <tr>
-                            <td> <span style="color:dimgray;font-weight:normal;"> AuBuC </span></td>
-                            <td> <span style="color:darkslategrey;font-weight:bold;"> @AuBuC </span></td>
-                            </tr>
-                            <tr>
                             <td> <span style="color:dimgray;font-weight:normal;"> AuB </span></td>
                             <td> <span style="color:darkslategrey;font-weight:bold;"> @AuB </span></td>
+                            <td> <img class="btn btn-link pulse-hover" src="/img/icoVenn_AuB.png" width="42" @onclick='() => ReportVannDiagram("AuB")' /></td>
                             </tr>
                             <tr>
                             <td> <span style="color:dimgray;font-weight:normal;"> AuC </span></td>
                             <td> <span style="color:darkslategrey;font-weight:bold;"> @AuC </span></td>
+                            <td> <img class="btn btn-link pulse-hover" src="/img/icoVenn_AuC.png" width="42" @onclick='() => ReportVannDiagram("AuC")' /></td>
                             </tr>
                             <tr>
                             <td> <span style="color:dimgray;font-weight:normal;"> BuC </span></td>
                             <td> <span style="color:darkslategrey;font-weight:bold;"> @BuC </span></td>
+                            <td> <img class="btn btn-link pulse-hover" src="/img/icoVenn_BuC.png" width="42" @onclick='() => ReportVannDiagram("BuC")' /></td>
+                            </tr>
+                            <tr>
+                            <td> <span style="color:dimgray;font-weight:normal;"> AuBuC </span></td>
+                            <td> <span style="color:darkslategrey;font-weight:bold;"> @AuBuC </span></td>
+                            <td> <img class="btn btn-link pulse-hover" src="/img/icoVenn_AuBuC.png" width="42" @onclick='() => ReportVannDiagram("AuBuC")' /></td>
                             </tr>
                         </table>
                     </div>
@@ -63,24 +70,98 @@ else
                     <div class="d-flex justify-content-center align-items-center" style="margin-left:20px; width:300px;">
                         <table class="table table-borderless">
                             <tr>
-                            <td> <span style="color:dimgray;font-weight:normal;"> AnBnC </span></td>
-                            <td> <span style="color:darkslategrey;font-weight:bold;"> @AnBnC </span></td>
-                            </tr>
-                            <tr>
                             <td> <span style="color:dimgray;font-weight:normal;"> AnB </span></td>
                             <td> <span style="color:darkslategrey;font-weight:bold;"> @AnB </span></td>
+                            <td> <img class="btn btn-link pulse-hover" src="/img/icoVenn_AnB.png" width="42" @onclick='() => ReportVannDiagram("AnB")' /></td>
                             </tr>
                             <tr>
                             <td> <span style="color:dimgray;font-weight:normal;"> AnC </span></td>
                             <td> <span style="color:darkslategrey;font-weight:bold;"> @AnC </span></td>
+                            <td> <img class="btn btn-link pulse-hover" src="/img/icoVenn_AnC.png" width="42" @onclick='() => ReportVannDiagram("AnC")' /></td>
                             </tr>
                             <tr>
                             <td> <span style="color:dimgray;font-weight:normal;"> BnC </span></td>
                             <td> <span style="color:darkslategrey;font-weight:bold;"> @BnC </span></td>
+                            <td> <img class="btn btn-link pulse-hover" src="/img/icoVenn_BnC.png" width="42" @onclick='() => ReportVannDiagram("BnC")' /></td>
+                            </tr>
+                            <tr>
+                            <td> <span style="color:dimgray;font-weight:normal;"> AnBnC </span></td>
+                            <td> <span style="color:darkslategrey;font-weight:bold;"> @AnBnC </span></td>
+                            <td> <img class="btn btn-link pulse-hover" src="/img/icoVenn_AnBnC.png" width="42" @onclick='() => ReportVannDiagram("AnBnC")' /></td>
                             </tr>
                         </table>
                     </div>
-
+                @if (_cmd == "showvanndiagramspecieslist")
+                    {
+                        <MudCard Class="mx-0">
+                            <MudCardContent Style="background-color:rgba(240,240,240);">
+                            <h6 style="text-align:center;color:royalblue">@_mode <span style="font-size:x-small;color:indianred"> ( count @lstSpecies.Count() )</span></h6>
+                            <hr style="color:indianred" />
+                                @{
+                                _cnt = 0;
+                                }
+                            @foreach (Species species in lstSpecies)
+                                {
+                                _cnt++;
+                                    <div class="d-flex align-items-center mb-1" style=" margin-left:40px;">
+                                    <input class="form-check-input"
+                                           style="margin-left:1px;margin-right:4px;"
+                                           type="checkbox"
+                                           @bind="species.IsSelected" />
+                                    <span style="font-size:x-small"> @_cnt - </span>
+                                    <span style="font-size:smaller"> @species.SciName </span>
+                                    <span style="font-size:smaller;color:forestgreen">&nbsp; @((species.NomStatus == 1) ? " valid " : "") </span>
+                                    <span style="font-size:smaller;color:darkgoldenrod">&nbsp; @((species.TaxStatus == 1) ? " accepted " : "") </span>
+                                    @if ((species.KEWUPS & 512) == 512)
+                                        {
+                                        <span style="font-weight:bold;font-size:x-small;color:black">&nbsp;ME</span>
+                                        }
+                                    @if ((species.KEWUPS & 256) == 256)
+                                        {
+                                        <span style="font-weight:bold;font-size:x-small;color:black">&nbsp;GS</span>
+                                        }
+                                    @if ((species.KEWUPS & 128) == 128)
+                                        {
+                                        <span style="font-weight:bold;font-size:x-small;color:black">&nbsp;PO</span>
+                                        }
+                                    @if ((species.KEWUPS & 64) == 64)
+                                        {
+                                        <span style="font-weight:bold;font-size:x-small;color:black">&nbsp;EU</span>
+                                        }
+                                    @if ((species.KEWUPS & 32) == 32)
+                                        {
+                                        <span style="font-weight:bold;font-size:x-small;color:black">&nbsp;MA</span>
+                                        }
+                                    @if ((species.KEWUPS & 16) == 16)
+                                        {
+                                        <span style="font-weight:bold;font-size:x-small;color:black">&nbsp;HF</span>
+                                        }
+                                    @if ((species.KEWUPS & 8) == 8)
+                                        {
+                                        <span style="font-weight:bold;font-size:x-small;color:black">&nbsp;AF</span>
+                                        }
+                                    @if ((species.KEWUPS & 4) == 4)
+                                        {
+                                        <span style="font-weight:bold;font-size:x-small;color:black">&nbsp;IF</span>
+                                        }
+                                    @if ((species.KEWUPS & 2) == 2)
+                                        {
+                                        <span style="font-weight:bold;font-size:x-small;color:black">&nbsp;FU</span>
+                                        }
+                                    @if ((species.KEWUPS & 1) == 1)
+                                        {
+                                        <span style="font-weight:bold;font-size:x-small;color:black">&nbsp;SU</span>
+                                        }
+                                    </div>
+                                }
+                            @* Close the List *@
+                            @* <button class="btn btn-link pulse-hover" @onclick="CloseSpeciesList">
+                                <img src="/img/icoGotoTop2.png" width="32" />
+                                </button> *@
+                            </MudCardContent>
+                        </MudCard>
+                    
+                    }
                 @* FOOTER *@
                 <hr style="color:royalblue;margin-top:40px" />
                 @* ScrollToTop *@
@@ -120,7 +201,9 @@ else
         }
     User user = new User();
     public bool _hasFetched = false;
+    int _cnt = 0;
     string _cmd = "";
+    string _mode = "";
     public int AuBuC = 0;  //count all species in A+B+C
     public int AnBnC = 0;  //count sharaed species by A,B,C
     public int AuB = 0;    //count all species in A+B
@@ -129,6 +212,7 @@ else
     public int AnB = 0;    //count shared species by A,B
     public int AnC = 0;    //count shared species by A,C
     public int BnC = 0;    //count shared species by B,C
+    public List<Species> lstSpecies = new List<Species>();
 
     //LifeCycleEvents
     protected override async Task OnInitializedAsync ()
@@ -137,7 +221,7 @@ else
         appState.SetCmd("");
         user.UserId = Convert.ToInt32(appState.UserId);
         user.Username = appState.Username ?? "";
-        await CalcSets ();
+        await CalcSets();
         _hasFetched = true;
         }
     private void TriggerRender ()
@@ -156,20 +240,108 @@ else
         var B = lstNetSpeciesListB ?? new List<wfoSpeciesId>();
         var C = lstNetSpeciesListC ?? new List<wfoSpeciesId>();
 
-        AuBuC = A.Concat(B).Concat(C).Select(x => x.AcceptedId).Distinct().Count();
         AuB = A.Concat(B).Select(x => x.AcceptedId).Distinct().Count();
         AuC = A.Concat(C).Select(x => x.AcceptedId).Distinct().Count();
         BuC = B.Concat(C).Select(x => x.AcceptedId).Distinct().Count();
+        AuBuC = A.Concat(B).Concat(C).Select(x => x.AcceptedId).Distinct().Count();
 
-        AnBnC = A.Select(x => x.AcceptedId).Distinct()
-                 .Intersect(B.Select(x => x.AcceptedId).Distinct())
-                 .Intersect(C.Select(x => x.AcceptedId).Distinct()).Count();
         AnB = A.Select(x => x.AcceptedId).Distinct()
                  .Intersect(B.Select(x => x.AcceptedId).Distinct()).Count();
         AnC = A.Select(x => x.AcceptedId).Distinct()
                  .Intersect(C.Select(x => x.AcceptedId).Distinct()).Count();
         BnC = B.Select(x => x.AcceptedId).Distinct()
                  .Intersect(C.Select(x => x.AcceptedId).Distinct()).Count();
+        AnBnC = A.Select(x => x.AcceptedId).Distinct()
+                 .Intersect(B.Select(x => x.AcceptedId).Distinct())
+                 .Intersect(C.Select(x => x.AcceptedId).Distinct()).Count();
+        }
+    public async Task ReportVannDiagram (string mode)
+        {
+        lstSpecies.Clear();
+        List<string>? lstSpeciesIds = new();
+        _mode = mode;
+        _hasFetched = false;
+        // Null-safe locals
+        var A = lstNetSpeciesListA ?? new List<wfoSpeciesId>();
+        var B = lstNetSpeciesListB ?? new List<wfoSpeciesId>();
+        var C = lstNetSpeciesListC ?? new List<wfoSpeciesId>();
+        switch (mode)
+            {
+            case "A":
+                    {
+                    lstSpeciesIds = A.Select(x => x.AcceptedId).Distinct().ToList();
+                    lstSpecies = await feService.Read_SpeciesByListOfIds(lstSpeciesIds);
+                    break;
+                    }
+            case "B":
+                    {
+                    lstSpeciesIds = B.Select(x => x.AcceptedId).Distinct().ToList();
+                    lstSpecies = await feService.Read_SpeciesByListOfIds(lstSpeciesIds);
+                    break;
+                    }
+            case "C":
+                    {
+                    lstSpeciesIds = C.Select(x => x.AcceptedId).Distinct().ToList();
+                    lstSpecies = await feService.Read_SpeciesByListOfIds(lstSpeciesIds);
+                    break;
+                    }
+            case "AuB":
+                    {
+                    lstSpeciesIds = A.Concat(B).Select(x => x.AcceptedId).Distinct().ToList();
+                    lstSpecies = await feService.Read_SpeciesByListOfIds(lstSpeciesIds);
+                    break;
+                    }
+            case "AuC":
+                    {
+                    lstSpeciesIds = A.Concat(C).Select(x => x.AcceptedId).Distinct().ToList();
+                    lstSpecies = await feService.Read_SpeciesByListOfIds(lstSpeciesIds);
+                    break;
+                    }
+            case "BuC":
+                    {
+                    lstSpeciesIds = B.Concat(C).Select(x => x.AcceptedId).Distinct().ToList();
+                    lstSpecies = await feService.Read_SpeciesByListOfIds(lstSpeciesIds);
+                    break;
+                    }
+            case "AuBuC":
+                    {
+                    lstSpeciesIds = A.Concat(B).Concat(C).Select(x => x.AcceptedId).Distinct().ToList();
+                    lstSpecies = await feService.Read_SpeciesByListOfIds(lstSpeciesIds);
+                    break;
+                    }
+            case "AnB":
+                    {
+                    lstSpeciesIds = A.Select(x => x.AcceptedId).Distinct()
+                             .Intersect(B.Select(x => x.AcceptedId).Distinct()).ToList();
+                    lstSpecies = await feService.Read_SpeciesByListOfIds(lstSpeciesIds);
+                    break;
+                    }
+            case "AnC":
+                    {
+                    lstSpeciesIds = A.Select(x => x.AcceptedId).Distinct()
+                             .Intersect(C.Select(x => x.AcceptedId).Distinct()).ToList();
+                    lstSpecies = await feService.Read_SpeciesByListOfIds(lstSpeciesIds);
+                    break;
+                    }
+            case "BnC":
+                    {
+                    lstSpeciesIds = B.Select(x => x.AcceptedId).Distinct()
+                             .Intersect(C.Select(x => x.AcceptedId).Distinct()).ToList();
+                    lstSpecies = await feService.Read_SpeciesByListOfIds(lstSpeciesIds);
+                    break;
+                    }
+            case "AnBnC":
+                    {
+                    lstSpeciesIds = A.Select(x => x.AcceptedId).Distinct()
+                             .Intersect(B.Select(x => x.AcceptedId).Distinct())
+                             .Intersect(C.Select(x => x.AcceptedId).Distinct()).ToList();
+                    lstSpecies = await feService.Read_SpeciesByListOfIds(lstSpeciesIds);
+                    break;
+                    }
+            }
+        lstSpecies = lstSpecies.OrderBy (x => x.SciName).ToList();
+        _hasFetched = true;
+        _cmd = "showvanndiagramspecieslist";
         }
     //methods
     public string PersianDate (DateTimeOffset? dt)

@@ -2,8 +2,10 @@
 using ClosedXML.Excel;
 using DocumentFormat.OpenXml.Bibliography;
 using DocumentFormat.OpenXml.Drawing.Charts;
+using DocumentFormat.OpenXml.ExtendedProperties;
 using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Data.SqlClient;
 using Microsoft.VisualBasic;
 using System.Data;
@@ -1230,14 +1232,15 @@ namespace AlamutB.Services2Backend
                     species.Rank = reader.GetInt32 (4);
                     species.InfraEpithet = reader.GetString (5);
                     species.Author = reader.GetString (6);
-                    species.NomStatus = reader.GetByte (7);
-                    species.TaxStatus = reader.GetByte (8);
-                    species.ConsStatus = reader.GetByte (9);
+                    species.NomStatus = reader.GetInt32 (7);
+                    species.TaxStatus = reader.GetInt32 (8);
+                    species.ConsStatus = reader.GetInt32 (9);
                     species.Characters = reader.GetInt32 (10);
-                    species.Chorotype = reader.GetString (11);
-                    species.Lifeform = reader.GetString (12);
-                    species.IsHybrid = reader.GetBoolean (13);
-                    species.SciName = reader.GetString (14);
+                    species.KEWUPS = reader.GetInt32 (11);
+                    species.Chorotype = reader.GetString (12);
+                    species.Lifeform = reader.GetString (13);
+                    species.IsHybrid = reader.GetBoolean (14);
+                    species.SciName = reader.GetString (15);
                     }
                 await cnn.CloseAsync ();
                 return species;
@@ -1247,6 +1250,54 @@ namespace AlamutB.Services2Backend
                 Console.WriteLine ("error: " + ex.Message);
                 cnn.Close ();
                 return new Species ();
+                }
+            }
+        public async Task<List<Species>> Read_SpeciesByListOfIdsAsync (List<string> lstSpeciesIds)
+            {
+            string? connString = _config.GetConnectionString ("cnni");
+            string sql = "TX.Read_SpeciesById";
+            using SqlConnection cnn = new (connString);
+            List<Species> lstSpecies = new List<Species> ();
+            try
+                {
+                foreach (string spid in lstSpeciesIds)
+                    {
+                    await cnn.OpenAsync ();
+                    SqlCommand cmd = new (sql, cnn);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue ("@SpeciesId", spid);
+                    SqlDataReader reader = await cmd.ExecuteReaderAsync ();
+                    while (await reader.ReadAsync ())
+                        {
+                        lstSpecies.Add (new Species
+                            {
+                            SpeciesId = reader.GetString (0),
+                            AcceptedId = reader.GetString (1),
+                            GenusId = reader.GetInt32 (2),
+                            Epithet = reader.GetString (3),
+                            Rank = reader.GetInt32 (4),
+                            InfraEpithet = reader.GetString (5),
+                            Author = reader.GetString (6),
+                            NomStatus = reader.GetInt32 (7),
+                            TaxStatus = reader.GetInt32 (8),
+                            ConsStatus = reader.GetInt32 (9),
+                            Characters = reader.GetInt32 (10),
+                            KEWUPS = reader.GetInt32 (11),
+                            Chorotype = reader.GetString (12),
+                            Lifeform = reader.GetString (13),
+                            IsHybrid = reader.GetBoolean (14),
+                            SciName = reader.GetString (15)
+                            });
+                        }
+                    await cnn.CloseAsync ();
+                    }
+                return lstSpecies;
+                }
+            catch (Exception ex)
+                {
+                Console.WriteLine ("error: " + ex.Message);
+                cnn.Close ();
+                return new List<Species> ();
                 }
             }
         public async Task<bool> Update_SpeciesAsync (Species species)
@@ -3096,44 +3147,44 @@ namespace AlamutB.Services2Backend
             }
         public static void CreateMatrices4MultiVarFlorAn (int intSetID, string strSetTitle, int intSubset)
             {
-        /*
-            --
-               RunSQL "SELECT ID, Abbr INTO [tbl_C] FROM Collections WHERE Sx=True ORDER BY Abbr;"
-               RunSQL "SELECT DISTINCT Binomials.ID, Binomials.SciName INTO [tbl_R] FROM (Genera INNER JOIN ((Specimens INNER JOIN Collections ON Specimens.CollectionID = Collections.ID) INNER JOIN Binomials ON Specimens.Binomial = Binomials.ID) ON Genera.ID = Binomials.Genus_ID) INNER JOIN Families ON Genera.Family = Families.ID WHERE Collections.Sx=True AND Families.Sel4NTSYSpc=True AND Right(Binomials.SciName, 3) <> 'sp.' ORDER BY Binomials.SciName;"
-               RunSQL "SELECT Specimens.CollectionID, Specimens.Binomial INTO [tbl_D] FROM (Specimens INNER JOIN Collections ON Specimens.CollectionID = Collections.ID) INNER JOIN (Genera INNER JOIN Families ON Genera.Family = Families.ID) ON Specimens.Genus = Genera.ID WHERE Collections.Sx=True AND Families.Sel4NTSYSpc=True;"
-             --
-            //get cols : Datasets
-            DB.DS.Tables ["tblMatrixC"].Clear ();
-            string strSQLR = "SELECT DISTINCT Datasets.ID, Datasets.dsAbbr FROM Datasets INNER JOIN SetData_DS ON Datasets.ID = SetData_DS.datasetID WHERE SetData_DS.SetID = " + intSetID.ToString () + fltr;
-            using (var CnnSS = new System.Data.SqlClient.SqlConnection (DB.CnnString))
-                {
-                CnnSS.Open ();
-                DB.DASS = new System.Data.SqlClient.SqlDataAdapter (strSQLR, CnnSS);
-                DB.DASS.Fill (DB.DS, "tblMatrixC");
-                CnnSS.Close ();
-                }
-            //get rows : Species
-            DB.DS.Tables ["tblMatrixR"].Clear ();
-            string strSQLC = "SELECT DISTINCT Species.ID, Species.genusName + ' ' + Species.epithet";
-            strSQLC = strSQLC + " FROM Species INNER JOIN DsData ON Species.ID = DsData.SpeciesID INNER JOIN SetData_DS ON DsData.DatasetID = SetData_DS.DatasetID";
-            strSQLC = strSQLC + " WHERE SetID = " + intSetID.ToString () + " AND rank = 'species' " + fltr;
-            using (var CnnSS = new System.Data.SqlClient.SqlConnection (DB.CnnString))
-                {
-                CnnSS.Open ();
-                DB.DASS = new System.Data.SqlClient.SqlDataAdapter (strSQLC, CnnSS);
-                DB.DASS.Fill (DB.DS, "tblMatrixR");
-                CnnSS.Close ();
-                }
-            int c = (from x in DB.DS.Tables ["tblMatrixC"].AsEnumerable () select x.Field<int> ("ID")).Distinct ().Count ();
-            int r = (from z in DB.DS.Tables ["tblMatrixR"].AsEnumerable () select z.Field<int> ("ID")).Distinct ().Count ();
-            if (c == 0 || r == 0)
-                return;
-            else
-                {
-                MessageBox.Show ("R=" + r.ToString () + " C=" + c.ToString ());
-                int [,] MatrixD = new int [r, c];
-                }
-         */
+            /*
+                --
+                   RunSQL "SELECT ID, Abbr INTO [tbl_C] FROM Collections WHERE Sx=True ORDER BY Abbr;"
+                   RunSQL "SELECT DISTINCT Binomials.ID, Binomials.SciName INTO [tbl_R] FROM (Genera INNER JOIN ((Specimens INNER JOIN Collections ON Specimens.CollectionID = Collections.ID) INNER JOIN Binomials ON Specimens.Binomial = Binomials.ID) ON Genera.ID = Binomials.Genus_ID) INNER JOIN Families ON Genera.Family = Families.ID WHERE Collections.Sx=True AND Families.Sel4NTSYSpc=True AND Right(Binomials.SciName, 3) <> 'sp.' ORDER BY Binomials.SciName;"
+                   RunSQL "SELECT Specimens.CollectionID, Specimens.Binomial INTO [tbl_D] FROM (Specimens INNER JOIN Collections ON Specimens.CollectionID = Collections.ID) INNER JOIN (Genera INNER JOIN Families ON Genera.Family = Families.ID) ON Specimens.Genus = Genera.ID WHERE Collections.Sx=True AND Families.Sel4NTSYSpc=True;"
+                 --
+                //get cols : Datasets
+                DB.DS.Tables ["tblMatrixC"].Clear ();
+                string strSQLR = "SELECT DISTINCT Datasets.ID, Datasets.dsAbbr FROM Datasets INNER JOIN SetData_DS ON Datasets.ID = SetData_DS.datasetID WHERE SetData_DS.SetID = " + intSetID.ToString () + fltr;
+                using (var CnnSS = new System.Data.SqlClient.SqlConnection (DB.CnnString))
+                    {
+                    CnnSS.Open ();
+                    DB.DASS = new System.Data.SqlClient.SqlDataAdapter (strSQLR, CnnSS);
+                    DB.DASS.Fill (DB.DS, "tblMatrixC");
+                    CnnSS.Close ();
+                    }
+                //get rows : Species
+                DB.DS.Tables ["tblMatrixR"].Clear ();
+                string strSQLC = "SELECT DISTINCT Species.ID, Species.genusName + ' ' + Species.epithet";
+                strSQLC = strSQLC + " FROM Species INNER JOIN DsData ON Species.ID = DsData.SpeciesID INNER JOIN SetData_DS ON DsData.DatasetID = SetData_DS.DatasetID";
+                strSQLC = strSQLC + " WHERE SetID = " + intSetID.ToString () + " AND rank = 'species' " + fltr;
+                using (var CnnSS = new System.Data.SqlClient.SqlConnection (DB.CnnString))
+                    {
+                    CnnSS.Open ();
+                    DB.DASS = new System.Data.SqlClient.SqlDataAdapter (strSQLC, CnnSS);
+                    DB.DASS.Fill (DB.DS, "tblMatrixR");
+                    CnnSS.Close ();
+                    }
+                int c = (from x in DB.DS.Tables ["tblMatrixC"].AsEnumerable () select x.Field<int> ("ID")).Distinct ().Count ();
+                int r = (from z in DB.DS.Tables ["tblMatrixR"].AsEnumerable () select z.Field<int> ("ID")).Distinct ().Count ();
+                if (c == 0 || r == 0)
+                    return;
+                else
+                    {
+                    MessageBox.Show ("R=" + r.ToString () + " C=" + c.ToString ());
+                    int [,] MatrixD = new int [r, c];
+                    }
+             */
             }
         public async Task<List<wfoSpeciesId>> Get_SetxNetSpeciesListAsync (int setId, int subsetIndex)
             {
