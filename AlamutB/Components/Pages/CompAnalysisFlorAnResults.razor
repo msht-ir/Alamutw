@@ -133,7 +133,49 @@ else
                                         {
                                             <tr>
                                             <td><span style="color:indianred;font-size:smaller;"> @s.FamilyName </span></td>
-                                            <td><span style="color:darkblue;font-size:smaller;font-style:italic;">@s.GenusName @s.Epithet <span style="color:gray;font-style:normal;">@s.Author</span></span></td>
+                                            <td>
+                                                <span style="color:darkblue;font-size:smaller;font-style:italic;">@s.GenusName @s.Epithet <span style="color:gray;font-style:normal;">@s.Author</span></span>
+                                                @if ((s.KEWUPS & 512) == 512)
+                                                    {
+                                                    <span style="font-weight:bold;font-size:x-small;color:black">&nbsp;ME</span>
+                                                    }
+                                                @if ((s.KEWUPS & 256) == 256)
+                                                    {
+                                                    <span style="font-weight:bold;font-size:x-small;color:black">&nbsp;GS</span>
+                                                    }
+                                                @if ((s.KEWUPS & 128) == 128)
+                                                    {
+                                                    <span style="font-weight:bold;font-size:x-small;color:black">&nbsp;PO</span>
+                                                    }
+                                                @if ((s.KEWUPS & 64) == 64)
+                                                    {
+                                                    <span style="font-weight:bold;font-size:x-small;color:black">&nbsp;EU</span>
+                                                    }
+                                                @if ((s.KEWUPS & 32) == 32)
+                                                    {
+                                                    <span style="font-weight:bold;font-size:x-small;color:black">&nbsp;MA</span>
+                                                    }
+                                                @if ((s.KEWUPS & 16) == 16)
+                                                    {
+                                                    <span style="font-weight:bold;font-size:x-small;color:black">&nbsp;HF</span>
+                                                    }
+                                                @if ((s.KEWUPS & 8) == 8)
+                                                    {
+                                                    <span style="font-weight:bold;font-size:x-small;color:black">&nbsp;AF</span>
+                                                    }
+                                                @if ((s.KEWUPS & 4) == 4)
+                                                    {
+                                                    <span style="font-weight:bold;font-size:x-small;color:black">&nbsp;IF</span>
+                                                    }
+                                                @if ((s.KEWUPS & 2) == 2)
+                                                    {
+                                                    <span style="font-weight:bold;font-size:x-small;color:black">&nbsp;FU</span>
+                                                    }
+                                                @if ((s.KEWUPS & 1) == 1)
+                                                    {
+                                                    <span style="font-weight:bold;font-size:x-small;color:black">&nbsp;SU</span>
+                                                    }
+                                                </td>
                                             </tr>
                                         }
                                     </table>
@@ -349,7 +391,7 @@ else
     }
 <br />
 <br />
-<script>window.scrollToTop = () => { window.scrollTo({ top: 0, behavior: 'smooth' }); };</script>
+@* <script>window.scrollToTop = () => { window.scrollTo({ top: 0, behavior: 'smooth' }); };</script> *@
 
 @code {
     [Parameter]

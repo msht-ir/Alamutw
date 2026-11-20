@@ -1191,10 +1191,11 @@ namespace AlamutB.Services2Backend
                         TaxStatus = reader.GetInt32 (8),
                         ConsStatus = reader.GetInt32 (9),
                         Characters = reader.GetInt32 (10),
-                        Chorotype = reader.GetString (11),
-                        Lifeform = reader.GetString (12),
-                        IsHybrid = reader.GetBoolean (13),
-                        SciName = reader.GetString (14)
+                        KEWUPS = reader.GetInt32 (11),
+                        Chorotype = reader.GetString (12),
+                        Lifeform = reader.GetString (13),
+                        IsHybrid = reader.GetBoolean (14),
+                        SciName = reader.GetString (15)
                         });
                     }
                 await cnn.CloseAsync ();
@@ -2998,6 +2999,7 @@ namespace AlamutB.Services2Backend
                     NomStatus = reader.GetInt32 (13),
                     Chorotype = reader.GetString (14),
                     Lifeform = reader.GetString (15),
+                    KEWUPS = reader.GetInt32 (16)
                     });
                 }
             await cnn.CloseAsync ();
