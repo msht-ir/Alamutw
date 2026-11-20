@@ -17,22 +17,23 @@
 
     <div class="d-flex" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
     <h2 style="color:royalblue; font-style:italic">CheckName </h2>
-    @if(_accountType.Trim() == "admin account")
+    @if (_accountType.Trim() == "admin account")
         {
         <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:darkgoldenrod"> @_accountType</span></p>
         }
-    else if(_accountType.Trim() == "gold account")
+    else if (_accountType.Trim() == "gold account")
         {
         <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:darkgoldenrod"> @_accountType</span></p>
         }
-    else if(_accountType.Trim() == "silver account")
+    else if (_accountType.Trim() == "silver account")
         {
         <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:gray"> @_accountType</span></p>
         }
-    else if(_accountType.Trim() == "demo account")
+    else if (_accountType.Trim() == "demo account")
         {
         <p style="font-size:large;font-style:italic;color:royalblue">@appState.UserNickname <span style="font-style:normal;font-size:x-small;color:green"> @_accountType</span></p>
-        }    </div>
+        }
+    </div>
 <hr style="color:red" />
 @if (!_hasFetched)
     {
@@ -49,9 +50,9 @@ else if (appState.Cmd == "cmdCreateNote")
 else
     {
         <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-2 px-0">
-                <button class="btn btn-link pulse-hover" @onclick="BtnAddNewDataset">
-                <img src="/img/icoAdd1.png" width="22" />
-                </button>
+            <button class="btn btn-link pulse-hover" @onclick="BtnAddNewDataset">
+            <img src="/img/icoAdd1.png" width="22" />
+            </button>
         </MudContainer>
         <EditForm Model="lstNotes">
         @* ADD NEW DATASET *@
@@ -506,9 +507,9 @@ else
     <br />
     <br />
 
-        <script>
+        @* <script>
         window.scrollToTop = () => { window.scrollTo({ top: 0, behavior: 'smooth' }); };
-        </script>
+        </script> *@
         <script>
         function showLoading() {
             document.getElementById("loadingOverlay").style.display = "block";
@@ -612,17 +613,17 @@ else
         user.UserId = Convert.ToInt32(appState.UserId);
         user.Username = appState.Username ?? "username?";
         await BtnShowAllDatasets();
-        if(Convert.ToInt32(appState.UserTags) >256)
+        if (Convert.ToInt32(appState.UserTags) > 256)
             {
             _accountType = " admin account";
             }
-        else if(Convert.ToInt32(appState.UserTags) > 128)
+        else if (Convert.ToInt32(appState.UserTags) > 128)
             {
-            _accountType = " gold account";            
+            _accountType = " gold account";
             }
-        else if(Convert.ToInt32(appState.UserTags) > 64)
+        else if (Convert.ToInt32(appState.UserTags) > 64)
             {
-            _accountType = " silver account";            
+            _accountType = " silver account";
             }
         else
             {
@@ -872,7 +873,7 @@ else
                 if (datasetId != 0)
                     {
                     lstDatasets.FirstOrDefault(ds => ds.DatasetId == datasetId)?.IsSelected = true;
-                    lstDatasetData = await feService.Read_DatasetData(datasetId);                    
+                    lstDatasetData = await feService.Read_DatasetData(datasetId);
                     StateHasChanged();
                     }
                 else
@@ -917,7 +918,7 @@ else
             _cmd2 = "";
             if (_showUnparsedDatasetData)
                 {
-                await BtnListUnparsedDatasetData ();
+                await BtnListUnparsedDatasetData();
                 }
             StateHasChanged();
             }
@@ -936,20 +937,25 @@ else
         {
         if (lstDatasetData.Any())
             {
-            i = 0;
-            progressPercent = 0;
-            int _recs = lstDatasetData.Count();
-            _cmd2 = "CheckName is processing row - ";
-            foreach (DatasetData _dsd in lstDatasetData)
+            var message = new MarkupString($"<hr><br>Checkname takes some minutes.<br><br><span style='color:indianred'>Continue?</span><br><br><div style='text-align:center'><img src='/img/gifWait.gif' width='140'/></div><br><hr>");
+            bool? confirmResult = await DialogService.ShowMessageBoxAsync(title: "Confirm", markupMessage: message, yesText: "Yes", cancelText: "No");
+            if (confirmResult == true)
                 {
-                await DoCheckNameThisDatasetData(_dsd, true, 0);
-                i++;
-                progressPercent = (int) (((double) i / _recs) * 100);
-                _cmd2 = $"CheckName is processing row  {i.ToString()}";
+                i = 0;
+                progressPercent = 0;
+                int _recs = lstDatasetData.Count();
+                _cmd2 = "CheckName is processing row - ";
+                foreach (DatasetData _dsd in lstDatasetData)
+                    {
+                    await DoCheckNameThisDatasetData(_dsd, true, 0);
+                    i++;
+                    progressPercent = (int) (((double) i / _recs) * 100);
+                    _cmd2 = $"CheckName is processing row  {i.ToString()}";
+                    StateHasChanged();
+                    }
+                _cmd2 = "";
                 StateHasChanged();
                 }
-            _cmd2 = "";
-            StateHasChanged();
             }
         else
             {
@@ -983,7 +989,7 @@ else
                         Current_Species = Current_Species.Substring(0, partialNameChars);
                         }
                     //searchModes: global|countryId|setId
-                    lstSpecies = await feService.Read_SpeciesBySearch (Current_Genus.Trim (), Current_Species.Trim (), "global", 0);
+                    lstSpecies = await feService.Read_SpeciesBySearch(Current_Genus.Trim(), Current_Species.Trim(), "global", 0);
                     if (partOfBatchProcess)
                         {
                         if (lstSpecies.Any())

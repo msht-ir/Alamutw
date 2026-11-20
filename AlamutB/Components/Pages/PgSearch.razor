@@ -877,7 +877,7 @@ else
                     double.TryParse(parts [0], CultureInfo.InvariantCulture, out double lat) &&
                     double.TryParse(parts [1], CultureInfo.InvariantCulture, out double lng))
                     {
-                    lstMapPoints.Add(new MapPoint { Lat = lat, Lng = lng, Name = ds.DatasetName });
+                    lstMapPoints.Add(new MapPoint { Lat = lat, Lng = lng, Name = ds.DatasetName + "<br><hr>" + ds.DatasetRef + "<br><hr>Country/Province: <span style='color:indianred'>" + ds.ProvinceName + "</span><br><hr>Area: " + (ds.AreaHa == 0 ? "n/a" : ds.AreaHa + " ha") });
                     }
                 }
             }

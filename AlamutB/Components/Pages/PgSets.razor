@@ -125,14 +125,6 @@ else
                                         Title="Note for Set">
                                     <img src="/img/icoNoteStickyAdd.png" width="22" />
                                     </button>
-                                @* MAP *@
-                                    <button type="button"
-                                        class="btn btn-link"
-                                        style="margin-left:1px"
-                                        @onclick='() => BtnListSetData(set.SetId, true)'
-                                        Title="map">
-                                    <img src="/img/icoMap.png" width="22" />
-                                    </button>
                                 @* Edit Set*@
                                     <button type="button"
                                         class="btn btn-link"
@@ -171,7 +163,7 @@ else
                                                               OnAdornmentClick='()=>UpdateSet (set)'
                                                               Style="font-family:Tahoma;"
                                                               Class="my-textfield" />
-                                                    <button class="btn btn-link" style="margin-left:20px;" Title="cancel" @onclick="BtnCancel">
+                                                    <button class="btn btn-link" style="margin-left:20px;margin-top:15px;" Title="cancel" @onclick="BtnCancel">
                                                     <img src="/img/icoGotoTop2.png" width="22" />
                                                     </button>
                                                 </div>
@@ -398,7 +390,7 @@ else
     }
 <br />
 <br />
-<script>window.scrollToTop = () => { window.scrollTo({ top: 0, behavior: 'smooth' }); };</script>
+@* <script>window.scrollToTop = () => { window.scrollTo({ top: 0, behavior: 'smooth' }); };</script> *@
 
 
 @code {

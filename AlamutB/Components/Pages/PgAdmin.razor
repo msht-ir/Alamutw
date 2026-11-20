@@ -30,19 +30,16 @@ else
                             <MudCard Class="mx-0">
                                 <MudCardContent Style="background-color:rgba(249,249,249);">
                                 <h3 style="text-align:center;color:royalblue;font-style:italic;">accounts</h3>
-                                    <div style="text-align: left;">
-                                        <button type="button"
-                                            class="btn btn-link pulse-hover"
-                                            @onclick='() => BtnAddNewUser()'>
-                                        <img src="/img/icoAdd1.png" width="18" />
-                                        </button>
-                                        <button type="button"
-                                            class="btn btn-link pulse-hover"
-                                            @onclick='() => BtnListNewUsers()'>
-                                        <img src="/img/icoFilter.png" width="20" />
-                                        </button>
-                                    </div>
                                 <hr style="color:indianred" />
+                                    <div class="d-flex gap-4 justify-content-left align-items-left" style="margin-top:5px;margin-bottom:15px;">
+                                        <MudFabMenu StartIcon="@Icons.Material.Outlined.Menu" Size="Size.Medium" Color="Color.Dark" Variant="Variant.Text" Direction="Direction.Right">
+                                        <MudFabMenuItem StartIcon="@Icons.Material.Filled.FilterAlt" Color="Color.Warning" OnClick="BtnListNewUsers" Title="list users with demo accoount" />
+                                        <MudFabMenuItem StartIcon="@Icons.Material.Filled.FormatListNumbered" Color="Color.Dark" OnClick="BtnSortListOfUsersById" Title="sort list by id" />
+                                        <MudFabMenuItem StartIcon="@Icons.Material.Filled.PersonOutline" Color="Color.Dark" OnClick="BtnSortListOfUsersByNickname" Title="sort list by display name" />
+                                        <MudFabMenuItem StartIcon="@Icons.Material.Filled.SortByAlpha" Color="Color.Dark" OnClick="BtnSortListOfUsersByUsername" Title="sort list by username" />
+                                        <MudFabMenuItem StartIcon="@Icons.Material.Filled.PersonAdd" Color="Color.Secondary" OnClick="BtnAddNewUser" Title="add new user" />
+                                        </MudFabMenu>
+                                    </div>
                                     <table class="table table-borderless table-hover align-middle mb-0">
                                         <thead>
                                             <tr class="text-uppercase text-muted" style="font-size: 0.72rem; letter-spacing: .04em;">
@@ -112,20 +109,17 @@ else
                             <MudCard Class="mx-0">
                                 <MudCardContent Style="background-color:rgba(249,249,249);">
                                 <h3 style="text-align:center;color:royalblue;font-style:italic;">visiting accounts</h3>
-                                    <div style="text-align: left;">
-                                        <button type="button"
-                                            class="btn btn-link pulse-hover"
-                                            @onclick='() => BtnAddNewUser()'>
-                                        <img src="/img/icoAdd1.png" width="18" />
-                                        </button>
-                                        <button type="button"
-                                            class="btn btn-link pulse-hover"
-                                            @onclick='() => BtnListUsers()'>
-                                        <img src="/img/icoList1.png" width="20" />
-                                        </button>
-                                    </div>
                                 <hr style="color:indianred" />
-                                @if (lstNewUsers.Count() > 0)
+                                    <div class="d-flex gap-4 justify-content-left align-items-left" style="margin-top:5px;margin-bottom:15px;">
+                                        <MudFabMenu StartIcon="@Icons.Material.Outlined.Menu" Size="Size.Medium" Color="Color.Dark" Variant="Variant.Text" Direction="Direction.Right">
+                                        <MudFabMenuItem StartIcon="@Icons.Material.Filled.FilterAltOff" Color="Color.Warning" OnClick="BtnListUsers" Title="list all users" />
+                                        <MudFabMenuItem StartIcon="@Icons.Material.Filled.FormatListNumbered" Color="Color.Dark" OnClick="BtnSortListOfUsersById" Title="sort list by id" />
+                                        <MudFabMenuItem StartIcon="@Icons.Material.Filled.PersonOutline" Color="Color.Dark" OnClick="BtnSortListOfUsersByNickname" Title="sort list by display name" />
+                                        <MudFabMenuItem StartIcon="@Icons.Material.Filled.SortByAlpha" Color="Color.Dark" OnClick="BtnSortListOfUsersByUsername" Title="sort list by username" />
+                                        <MudFabMenuItem StartIcon="@Icons.Material.Filled.PersonAdd" Color="Color.Secondary" OnClick="BtnAddNewUser" Title="add new user" />
+                                        </MudFabMenu>
+                                    </div>
+                                @if (lstUsers.Count() > 0)
                                     {
 
                                         <table class="table table-borderless table-hover align-middle mb-0">
@@ -139,7 +133,7 @@ else
                                                 </tr>
                                             </thead>
                                             <tbody style="font-size: 0.875rem;">
-                                            @foreach (User user in lstNewUsers)
+                                            @foreach (User user in lstUsers)
                                                 {
                                                     <tr>
                                                         <td class="text-center">
@@ -386,7 +380,7 @@ else
 <br />
 <br />
 
-<script>window.scrollToTop = () => { window.scrollTo({ top: 0, behavior: 'smooth' }); };</script>
+@* <script>window.scrollToTop = () => { window.scrollTo({ top: 0, behavior: 'smooth' }); };</script> *@
 
 @code {
     [Parameter]
@@ -397,7 +391,6 @@ else
     User user = new User();
     User _user = new User();
     List<User> lstUsers = new List<User>();
-    List<User> lstNewUsers = new List<User>();
     List<Dataset> lstDatasets = new List<Dataset>();
     private MudTextField<string> refUsername;
     private MudTextField<string> refUserPassword;
@@ -406,7 +399,7 @@ else
     private MudSelect<int> refUsers;
     int i = 0;
     int UserId = 0;
-    string _cmd = "";
+    string _cmd = "listusers";
     public bool _hasFetched = false;
     public bool requestFeedback { get; set; } = false;
 
@@ -421,7 +414,7 @@ else
         appState.SetCmd("");
         user.UserId = Convert.ToInt32(appState.UserId);
         user.Username = appState.Username;
-        BtnListUsers();
+        await BtnListUsers();
         _cmd = "listusers";
         _hasFetched = true;
         }
@@ -444,16 +437,31 @@ else
         }
     private async Task BtnListUsers ()
         {
-        // _hasFetched = false;
+        _hasFetched = false;
         lstUsers = await feService.Read_Users();
         _cmd = "listusers";
-        // _hasFetched = true;
+        _hasFetched = true;
         StateHasChanged();
         }
     private async Task BtnListNewUsers ()
         {
-        lstNewUsers = await feService.Read_NewUsers();
+        lstUsers = lstUsers.Where(x => x.IsActive).ToList();
         _cmd = "listnewusers";
+        StateHasChanged();
+        }
+    private async Task BtnSortListOfUsersById ()
+        {
+        lstUsers = lstUsers.OrderBy(x => x.UserId).ToList();
+        StateHasChanged();
+        }
+    private async Task BtnSortListOfUsersByUsername ()
+        {
+        lstUsers = lstUsers.OrderBy(x => x.Username).ToList();
+        StateHasChanged();
+        }
+    private async Task BtnSortListOfUsersByNickname ()
+        {
+        lstUsers = lstUsers.OrderBy(x => x.UserNickname).ToList();
         StateHasChanged();
         }
     private void BtnAddNewUser ()
@@ -523,7 +531,7 @@ else
             {
             bool result = await feService.Delete_User(_userx.UserId);
             Snackbar.Add($"user deleted", Severity.Info, opt => { opt.VisibleStateDuration = 1500; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
-            lstNewUsers = await feService.Read_NewUsers();
+            lstUsers = await feService.Read_NewUsers();
             _cmd = "listnewusers";
             StateHasChanged();
             }
