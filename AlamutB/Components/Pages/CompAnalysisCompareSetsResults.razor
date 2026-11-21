@@ -22,76 +22,95 @@ else
                 <h6 style="text-align:center;color:royalblue">Compare Sets</h6>
                 <h6 style="text-align:center;"><span style="font-size:x-small;color:indianred">@appState.SetName </span></h6>
                 <hr style="color:lightslategrey" />
-                    <div class="d-flex justify-content-center align-items-center" style="margin-left:20px; width:300px;">
-                        <table class="table table-borderless">
+                    <div class="d-flex justify-content-center align-items-center" style="margin-left:60px; width:80%;">
+                        <table class="table table-borderless w-100">
                             <tr>
-                            <td> <span style="color:dimgray;font-weight:normal;"> set A </span></td>
-                            <td> <span style="color:darkslategrey;font-weight:bold;"> @lstNetSpeciesListA.Count() </span></td>
-                            <td> <img class="btn btn-link pulse-hover" src="/img/icoVenn_A.png" width="42" @onclick='() => ReportVannDiagram("A")' /></td>
+                            <td style="width:33.33%;"> <img class="btn btn-link pulse-hover" src="/img/icoVenn_A.png" width="48" @onclick='() => ReportVannDiagram("A")' /></td>
+                            <td style="width:33.33%;" class="text-center"> <span style="color:darkslategrey;font-weight:bold;"> @lstNetSpeciesListA.Count() </span></td>
+                            <td style="width:33.33%;" class="text-end"> <span style="color:dimgray;font-weight:normal;"> set A </span></td>
                             </tr>
                             <tr>
-                            <td> <span style="color:dimgray;font-weight:normal;"> set B </span></td>
-                            <td> <span style="color:darkslategrey;font-weight:bold;"> @lstNetSpeciesListB.Count() </span></td>
-                            <td> <img class="btn btn-link pulse-hover" src="/img/icoVenn_B.png" width="42" @onclick='() => ReportVannDiagram("B")' /></td>
+                            <td style="width:33.33%;"> <img class="btn btn-link pulse-hover" src="/img/icoVenn_B.png" width="48" @onclick='() => ReportVannDiagram("B")' /></td>
+                            <td style="width:33.33%;" class="text-center"> <span style="color:darkslategrey;font-weight:bold;"> @lstNetSpeciesListB.Count() </span></td>
+                            <td style="width:33.33%;" class="text-end"> <span style="color:dimgray;font-weight:normal;"> set B </span></td>
                             </tr>
                             <tr>
-                            <td> <span style="color:dimgray;font-weight:normal;"> set C </span></td>
-                            <td> <span style="color:darkslategrey;font-weight:bold;"> @lstNetSpeciesListC.Count() </span></td>
-                            <td> <img class="btn btn-link pulse-hover" src="/img/icoVenn_C.png" width="42" @onclick='() => ReportVannDiagram("C")' /></td>
-                            </tr>
-                        </table>
-                    </div>
-                <hr />
-                    <div class="d-flex justify-content-center align-items-center" style="margin-left:20px; width:300px;">
-                        <table class="table table-borderless">
-                            <tr>
-                            <td> <span style="color:dimgray;font-weight:normal;"> AuB </span></td>
-                            <td> <span style="color:darkslategrey;font-weight:bold;"> @AuB </span></td>
-                            <td> <img class="btn btn-link pulse-hover" src="/img/icoVenn_AuB.png" width="42" @onclick='() => ReportVannDiagram("AuB")' /></td>
-                            </tr>
-                            <tr>
-                            <td> <span style="color:dimgray;font-weight:normal;"> AuC </span></td>
-                            <td> <span style="color:darkslategrey;font-weight:bold;"> @AuC </span></td>
-                            <td> <img class="btn btn-link pulse-hover" src="/img/icoVenn_AuC.png" width="42" @onclick='() => ReportVannDiagram("AuC")' /></td>
-                            </tr>
-                            <tr>
-                            <td> <span style="color:dimgray;font-weight:normal;"> BuC </span></td>
-                            <td> <span style="color:darkslategrey;font-weight:bold;"> @BuC </span></td>
-                            <td> <img class="btn btn-link pulse-hover" src="/img/icoVenn_BuC.png" width="42" @onclick='() => ReportVannDiagram("BuC")' /></td>
-                            </tr>
-                            <tr>
-                            <td> <span style="color:dimgray;font-weight:normal;"> AuBuC </span></td>
-                            <td> <span style="color:darkslategrey;font-weight:bold;"> @AuBuC </span></td>
-                            <td> <img class="btn btn-link pulse-hover" src="/img/icoVenn_AuBuC.png" width="42" @onclick='() => ReportVannDiagram("AuBuC")' /></td>
+                            <td style="width:33.33%;"> <img class="btn btn-link pulse-hover" src="/img/icoVenn_C.png" width="48" @onclick='() => ReportVannDiagram("C")' /></td>
+                            <td style="width:33.33%;" class="text-center"> <span style="color:darkslategrey;font-weight:bold;"> @lstNetSpeciesListC.Count() </span></td>
+                            <td style="width:33.33%;" class="text-end"> <span style="color:dimgray;font-weight:normal;"> set C </span></td>
                             </tr>
                         </table>
                     </div>
                 <hr />
-                    <div class="d-flex justify-content-center align-items-center" style="margin-left:20px; width:300px;">
-                        <table class="table table-borderless">
+                    <div class="d-flex justify-content-center align-items-center" style="margin-left:60px; width:80%;">
+                        <table class="table table-borderless w-100">
                             <tr>
-                            <td> <span style="color:dimgray;font-weight:normal;"> AnB </span></td>
-                            <td> <span style="color:darkslategrey;font-weight:bold;"> @AnB </span></td>
-                            <td> <img class="btn btn-link pulse-hover" src="/img/icoVenn_AnB.png" width="42" @onclick='() => ReportVannDiagram("AnB")' /></td>
+                            <td style="width:33.33%;"> <img class="btn btn-link pulse-hover" src="/img/icoVenn_A-BuC.png" width="48" @onclick='() => ReportVannDiagram("A-BuC")' /></td>
+                            <td style="width:33.33%;" class="text-center"> <span style="color:darkslategrey;font-weight:bold;"> @AminBuC </span></td>
+                            <td style="width:33.33%;" class="text-end"> <span style="color:dimgray;font-weight:normal;"> A - (B ∪ C) </span></td>
                             </tr>
                             <tr>
-                            <td> <span style="color:dimgray;font-weight:normal;"> AnC </span></td>
-                            <td> <span style="color:darkslategrey;font-weight:bold;"> @AnC </span></td>
-                            <td> <img class="btn btn-link pulse-hover" src="/img/icoVenn_AnC.png" width="42" @onclick='() => ReportVannDiagram("AnC")' /></td>
+                            <td style="width:33.33%;"> <img class="btn btn-link pulse-hover" src="/img/icoVenn_B-AuC.png" width="48" @onclick='() => ReportVannDiagram("B-AuC")' /></td>
+                            <td style="width:33.33%;" class="text-center"> <span style="color:darkslategrey;font-weight:bold;"> @BminAuC </span></td>
+                            <td style="width:33.33%;" class="text-end"> <span style="color:dimgray;font-weight:normal;"> B - (A ∪ C) </span></td>
                             </tr>
                             <tr>
-                            <td> <span style="color:dimgray;font-weight:normal;"> BnC </span></td>
-                            <td> <span style="color:darkslategrey;font-weight:bold;"> @BnC </span></td>
-                            <td> <img class="btn btn-link pulse-hover" src="/img/icoVenn_BnC.png" width="42" @onclick='() => ReportVannDiagram("BnC")' /></td>
-                            </tr>
-                            <tr>
-                            <td> <span style="color:dimgray;font-weight:normal;"> AnBnC </span></td>
-                            <td> <span style="color:darkslategrey;font-weight:bold;"> @AnBnC </span></td>
-                            <td> <img class="btn btn-link pulse-hover" src="/img/icoVenn_AnBnC.png" width="42" @onclick='() => ReportVannDiagram("AnBnC")' /></td>
+                            <td style="width:33.33%;"> <img class="btn btn-link pulse-hover" src="/img/icoVenn_C-AuB.png" width="48" @onclick='() => ReportVannDiagram("C-AuB")' /></td>
+                            <td style="width:33.33%;" class="text-center"> <span style="color:darkslategrey;font-weight:bold;"> @CminAuB </span></td>
+                            <td style="width:33.33%;" class="text-end"> <span style="color:dimgray;font-weight:normal;"> C - (A ∪ B) </span></td>
                             </tr>
                         </table>
                     </div>
-                @if (_cmd == "showvanndiagramspecieslist")
+                <hr />
+                    <div class="d-flex justify-content-center align-items-center" style="margin-left:60px; width:80%;">
+                        <table class="table table-borderless w-100">
+                            <tr>
+                            <td style="width:33.33%;"> <img class="btn btn-link pulse-hover" src="/img/icoVenn_AuB.png" width="48" @onclick='() => ReportVannDiagram("AuB")' /></td>
+                            <td style="width:33.33%;" class="text-center"> <span style="color:darkslategrey;font-weight:bold;"> @AuB </span></td>
+                            <td style="width:33.33%;" class="text-end"> <span style="color:dimgray;font-weight:normal;"> A ∪ B </span></td>
+                            </tr>
+                            <tr>
+                            <td style="width:33.33%;"> <img class="btn btn-link pulse-hover" src="/img/icoVenn_AuC.png" width="48" @onclick='() => ReportVannDiagram("AuC")' /></td>
+                            <td style="width:33.33%;" class="text-center"> <span style="color:darkslategrey;font-weight:bold;"> @AuC </span></td>
+                            <td style="width:33.33%;" class="text-end"> <span style="color:dimgray;font-weight:normal;"> A ∪ C </span></td>
+                            </tr>
+                            <tr>
+                            <td style="width:33.33%;"> <img class="btn btn-link pulse-hover" src="/img/icoVenn_BuC.png" width="48" @onclick='() => ReportVannDiagram("BuC")' /></td>
+                            <td style="width:33.33%;" class="text-center"> <span style="color:darkslategrey;font-weight:bold;"> @BuC </span></td>
+                            <td style="width:33.33%;" class="text-end"> <span style="color:dimgray;font-weight:normal;"> B ∪ C </span></td>
+                            </tr>
+                            <tr>
+                            <td style="width:33.33%;"> <img class="btn btn-link pulse-hover" src="/img/icoVenn_AuBuC.png" width="48" @onclick='() => ReportVannDiagram("AuBuC")' /></td>
+                            <td style="width:33.33%;" class="text-center"> <span style="color:darkslategrey;font-weight:bold;"> @AuBuC </span></td>
+                            <td style="width:33.33%;" class="text-end"> <span style="color:dimgray;font-weight:normal;"> A ∪ B ∪ C </span></td>
+                            </tr>
+                        </table>
+                    </div>
+                <hr />
+                    <div class="d-flex justify-content-center align-items-center" style="margin-left:60px; width:80%;">
+                        <table class="table table-borderless w-100">
+                            <tr>
+                            <td style="width:33.33%;"> <img class="btn btn-link pulse-hover" src="/img/icoVenn_AnB.png" width="48" @onclick='() => ReportVannDiagram("AnB")' /></td>
+                            <td style="width:33.33%;" class="text-center"> <span style="color:darkslategrey;font-weight:bold;"> @AnB </span></td>
+                            <td style="width:33.33%;" class="text-end"> <span style="color:dimgray;font-weight:normal;"> A ∩ B </span></td>
+                            </tr>
+                            <tr>
+                            <td style="width:33.33%;"> <img class="btn btn-link pulse-hover" src="/img/icoVenn_AnC.png" width="48" @onclick='() => ReportVannDiagram("AnC")' /></td>
+                            <td style="width:33.33%;" class="text-center"> <span style="color:darkslategrey;font-weight:bold;"> @AnC </span></td>
+                            <td style="width:33.33%;" class="text-end"> <span style="color:dimgray;font-weight:normal;"> A ∩ C </span></td>
+                            </tr>
+                            <tr>
+                            <td style="width:33.33%;"> <img class="btn btn-link pulse-hover" src="/img/icoVenn_BnC.png" width="48" @onclick='() => ReportVannDiagram("BnC")' /></td>
+                            <td style="width:33.33%;" class="text-center"> <span style="color:darkslategrey;font-weight:bold;"> @BnC </span></td>
+                            <td style="width:33.33%;" class="text-end"> <span style="color:dimgray;font-weight:normal;"> B ∩ C </span></td>
+                            </tr>
+                            <tr>
+                            <td style="width:33.33%;"> <img class="btn btn-link pulse-hover" src="/img/icoVenn_AnBnC.png" width="48" @onclick='() => ReportVannDiagram("AnBnC")' /></td>
+                            <td style="width:33.33%;" class="text-center"> <span style="color:darkslategrey;font-weight:bold;"> @AnBnC </span></td>
+                            <td style="width:33.33%;" class="text-end"> <span style="color:dimgray;font-weight:normal;"> A ∩ B ∩ C </span></td>
+                            </tr>
+                        </table>
+                    </div>                @if (_cmd == "showvanndiagramspecieslist")
                     {
                         <MudCard Class="mx-0">
                             <MudCardContent Style="background-color:rgba(240,240,240);">
@@ -154,10 +173,6 @@ else
                                         }
                                     </div>
                                 }
-                            @* Close the List *@
-                            @* <button class="btn btn-link pulse-hover" @onclick="CloseSpeciesList">
-                                <img src="/img/icoGotoTop2.png" width="32" />
-                                </button> *@
                             </MudCardContent>
                         </MudCard>
                     
@@ -204,14 +219,18 @@ else
     int _cnt = 0;
     string _cmd = "";
     string _mode = "";
-    public int AuBuC = 0;  //count all species in A+B+C
-    public int AnBnC = 0;  //count sharaed species by A,B,C
-    public int AuB = 0;    //count all species in A+B
-    public int AuC = 0;    //count all species in A+C
-    public int BuC = 0;    //count all species in B+C
-    public int AnB = 0;    //count shared species by A,B
-    public int AnC = 0;    //count shared species by A,C
-    public int BnC = 0;    //count shared species by B,C
+    public int AminBuC = 0;  //count A exclusive species
+    public int BminAuC = 0;  //count B exclusive species
+    public int CminAuB = 0;  //count C exclusive species
+    public int AuBuC = 0;    //count all species in A+B+C
+    public int AnBnC = 0;    //count sharaed species by A,B,C
+    public int AuB = 0;      //count all species in A+B
+    public int AuC = 0;      //count all species in A+C
+    public int BuC = 0;      //count all species in B+C
+    public int AnB = 0;      //count shared species by A,B
+    public int AnC = 0;      //count shared species by A,C
+    public int BnC = 0;      //count shared species by B,C
+
     public List<Species> lstSpecies = new List<Species>();
 
     //LifeCycleEvents
@@ -233,27 +252,28 @@ else
         appState.OnChange -= TriggerRender;
         }
     //calcs
+    private List<string> GetIds (List<wfoSpeciesId> list) =>
+        list?.Select(x => x.AcceptedId).Distinct().ToList() ?? new List<string>();
+
     public async Task CalcSets ()
         {
-        // Null-safe locals
-        var A = lstNetSpeciesListA ?? new List<wfoSpeciesId>();
-        var B = lstNetSpeciesListB ?? new List<wfoSpeciesId>();
-        var C = lstNetSpeciesListC ?? new List<wfoSpeciesId>();
+        var aIds = GetIds(lstNetSpeciesListA);
+        var bIds = GetIds(lstNetSpeciesListB);
+        var cIds = GetIds(lstNetSpeciesListC);
 
-        AuB = A.Concat(B).Select(x => x.AcceptedId).Distinct().Count();
-        AuC = A.Concat(C).Select(x => x.AcceptedId).Distinct().Count();
-        BuC = B.Concat(C).Select(x => x.AcceptedId).Distinct().Count();
-        AuBuC = A.Concat(B).Concat(C).Select(x => x.AcceptedId).Distinct().Count();
+        AminBuC = aIds.Except(bIds.Concat(cIds)).Count();
+        BminAuC = bIds.Except(aIds.Concat(cIds)).Count();
+        CminAuB = cIds.Except(aIds.Concat(bIds)).Count();
 
-        AnB = A.Select(x => x.AcceptedId).Distinct()
-                 .Intersect(B.Select(x => x.AcceptedId).Distinct()).Count();
-        AnC = A.Select(x => x.AcceptedId).Distinct()
-                 .Intersect(C.Select(x => x.AcceptedId).Distinct()).Count();
-        BnC = B.Select(x => x.AcceptedId).Distinct()
-                 .Intersect(C.Select(x => x.AcceptedId).Distinct()).Count();
-        AnBnC = A.Select(x => x.AcceptedId).Distinct()
-                 .Intersect(B.Select(x => x.AcceptedId).Distinct())
-                 .Intersect(C.Select(x => x.AcceptedId).Distinct()).Count();
+        AuB = aIds.Union(bIds).Count();
+        AuC = aIds.Union(cIds).Count();
+        BuC = bIds.Union(cIds).Count();
+        AuBuC = aIds.Union(bIds).Union(cIds).Count();
+
+        AnB = aIds.Intersect(bIds).Count();
+        AnC = aIds.Intersect(cIds).Count();
+        BnC = bIds.Intersect(cIds).Count();
+        AnBnC = aIds.Intersect(bIds).Intersect(cIds).Count();
         }
     public async Task ReportVannDiagram (string mode)
         {
@@ -282,6 +302,33 @@ else
             case "C":
                     {
                     lstSpeciesIds = C.Select(x => x.AcceptedId).Distinct().ToList();
+                    lstSpecies = await feService.Read_SpeciesByListOfIds(lstSpeciesIds);
+                    break;
+                    }
+            case "A-BuC":
+                    {
+                    // A minus (B ∪ C): IDs in A that are not in B and not in C
+                    var aIds = A.Select(x => x.AcceptedId).Distinct();
+                    var bcIds = B.Concat(C).Select(x => x.AcceptedId).Distinct();
+                    lstSpeciesIds = aIds.Except(bcIds).ToList();
+                    lstSpecies = await feService.Read_SpeciesByListOfIds(lstSpeciesIds);
+                    break;
+                    }
+            case "B-AuC":
+                    {
+                    // B minus (A ∪ C): IDs in B that are not in A and not in C
+                    var bIds = B.Select(x => x.AcceptedId).Distinct();
+                    var acIds = A.Concat(C).Select(x => x.AcceptedId).Distinct();
+                    lstSpeciesIds = bIds.Except(acIds).ToList();
+                    lstSpecies = await feService.Read_SpeciesByListOfIds(lstSpeciesIds);
+                    break;
+                    }
+            case "C-AuB":
+                    {
+                    // C minus (A ∪ B): IDs in C that are not in A and not in B
+                    var cIds = C.Select(x => x.AcceptedId).Distinct();
+                    var abIds = A.Concat(B).Select(x => x.AcceptedId).Distinct();
+                    lstSpeciesIds = cIds.Except(abIds).ToList();
                     lstSpecies = await feService.Read_SpeciesByListOfIds(lstSpeciesIds);
                     break;
                     }
@@ -339,7 +386,7 @@ else
                     break;
                     }
             }
-        lstSpecies = lstSpecies.OrderBy (x => x.SciName).ToList();
+        lstSpecies = lstSpecies.OrderBy(x => x.SciName).ToList();
         _hasFetched = true;
         _cmd = "showvanndiagramspecieslist";
         }
