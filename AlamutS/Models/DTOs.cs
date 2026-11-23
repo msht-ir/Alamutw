@@ -489,6 +489,23 @@ namespace AlamutS.Models
         public string SpeciesId { get; set; }
         public string AcceptedId { get; set; }
         }
+    public class AssociationResult
+        {
+        public string SpeciesA { get; set; }
+        public string SpeciesAId { get; set; }
+        public string SpeciesB { get; set; }
+        public string SpeciesBId { get; set; }
+        public int A { get; set; }
+        public int B { get; set; }
+        public int C { get; set; }
+        public int D { get; set; }
+        public double Ae { get; set; }
+        public double Be { get; set; }
+        public double Ce { get; set; }
+        public double De { get; set; }
+        public double chi2 { get; set; }
+        public string result { get; set; }
+        }
     //MapPoint
     public class MapPoint
         {

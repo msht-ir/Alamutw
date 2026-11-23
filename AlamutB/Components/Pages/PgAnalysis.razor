@@ -70,6 +70,9 @@ else
                     <MudToggleItem Value=@("comparesets")
                                    SelectedIcon="@Icons.Material.Outlined.JoinLeft"
                                    Text="Compare Sets" />
+                    <MudToggleItem Value=@("association")
+                                   SelectedIcon="@Icons.Material.Filled.InsertLink"
+                                   Text="Association" />
                     <MudToggleItem Value=@("cooccurrence")
                                    SelectedIcon="@Icons.Material.Outlined.Dashboard"
                                    Text="Cooccurrence" />
@@ -99,7 +102,7 @@ else
                     {
                     <CompInfoTech />
                     }
-                else if ((_cmd == "fvalue") || (_cmd == "diversity") || (_cmd == "floran") || (_cmd == "multivarfloran") || (_cmd == "comparesets"))
+                else if ((_cmd == "fvalue") || (_cmd == "diversity") || (_cmd == "floran") || (_cmd == "multivarfloran") || (_cmd == "comparesets") || (_cmd == "association"))
                     {
                     <CompAnalysisSets AnalysisType="@_cmd" OnSelectedSetsReceived="GetSelectedSetsFromComponent" />
                     }
@@ -131,26 +134,48 @@ else
                     {
                     <CompAnalysisCompareSetsResults lstNetSpeciesListA="lstNetSpeciesListA" lstNetSpeciesListB="lstNetSpeciesListB" lstNetSpeciesListC="lstNetSpeciesListC" OnAnalysisCompareSetsResultsClosed="BtnCloseAnalysisCompareSetsResults" />
                     }
+                else if (_cmd == "ShowAssociationResults")
+                    {
+                    <CompAnalysisAssociationResults lstOccurrenceData="lstOccurrenceData" lstSelectedDatasets="lstSelectedDatasets" lstNetSpeciesListA="lstNetSpeciesListA" lstAssociationResults="lstAssociationResults" OnAnalysisAssociationResultsClosed="BtnCloseAnalysisAssociationResults" />
+                    }
                 </MudStack>
             </MudStack>
+        @if (_cmd.StartsWith("calculating association of"))
+            {
+            @* ProgressBar *@
+                <MudCard Class="mx-0 mt-5">
+                    <MudCardContent Style="background-color:rgba(240,240,240);">
+                        <div class="d-flex justify-content-center">
+                            <MudProgressCircular Style="height: 80px; width: 80px"
+                                             Color="Color.Primary"
+                                             Value="@progressPercent">
+                                <ChildContent>
+                                    <MudStack Spacing="0" AlignItems="AlignItems.Center" Justify="Justify.Center">
+                                    <MudText Typo="Typo.subtitle2">alamut</MudText>
+                                    <MudText Typo="Typo.subtitle2">@progressPercent %</MudText>
+                                    </MudStack>
+                                </ChildContent>
+                            </MudProgressCircular>
+                        </div>
+                    <br />
+                        <div class="d-flex justify-content-center">
+                        <h6 style="color:indianred">@_cmd</h6>
+                        </div>
+                    <br />
+                    <br />
+                    </MudCardContent>
+                </MudCard>
+            }
+
         </EditForm>
     <br />
     <hr />
         <div class="gap-4" style="display: flex;  justify-content: center; align-items: center;">
-        @* <MudIconButton OnClick="BtnBack"
-                       Icon="@Icons.Material.Filled.Menu"
-                       Color="Color.Primary"
-                       Size="Size.Large"
-                       Title="Switchboard" /> *@
             <button class="btn btn-link pulse-hover" @onclick="ScrollToTop">
             <img src="/img/icoGotoTop2.png" width="32" />
             </button>
         </div>
     }
-    @* <script>
-    window.scrollToTop = () => { window.scrollTo({ top: 0, behavior: 'smooth' }); };
-    </script> *@
-
 
 @code {
     private string _analysis = "";
@@ -165,10 +190,11 @@ else
     public List<Species> lstSpeciesFlorAn = new List<Species>();
     public List<Occurrence> lstOccurrenceData = new List<Occurrence>();
     //comparesets
-    public List<wfoSpeciesId> lstNetSpeciesListA = new List<wfoSpeciesId> ();
-    public List<wfoSpeciesId> lstNetSpeciesListB = new List<wfoSpeciesId> ();
-    public List<wfoSpeciesId> lstNetSpeciesListC = new List<wfoSpeciesId> ();
-
+    public List<wfoSpeciesId> lstNetSpeciesListA = new List<wfoSpeciesId>();
+    public List<wfoSpeciesId> lstNetSpeciesListB = new List<wfoSpeciesId>();
+    public List<wfoSpeciesId> lstNetSpeciesListC = new List<wfoSpeciesId>();
+    //association
+    public List<AssociationResult> lstAssociationResults = new List<AssociationResult>();
     Set set = new Set();
     Dataset dataset = new Dataset();
     Species species = new Species();
@@ -176,6 +202,7 @@ else
     string _cmd = "";
     public bool _hasFetched = false;
     string _accountType = "";
+    public int progressPercent = 0;
 
     //LifeCycleEvents
     protected override async Task OnInitializedAsync ()
@@ -337,8 +364,116 @@ else
                         //keep sets names
                         appState.SetSetName(lstSelectedSets [0].SetName + " | " + lstSelectedSets [1].SetName + " | " + lstSelectedSets [2].SetName);
                         _hasFetched = true;
-                        _cmd = "ShowCompareSetsResults";                        
+                        _cmd = "ShowCompareSetsResults";
                         }
+                    break;
+                    }
+            case "association":
+                    {
+                    // _hasFetched = false;
+                    //Read/Get from Database
+                    lstOccurrenceData = await feService.Get_MultivarFlorAnData(lstSelectedSets [0].SetId, lstSelectedSets [0].SelectedSubset);
+                    lstSelectedDatasets = await feService.Read_DatasetsBySetId(lstSelectedSets [0].SetId);
+                    lstNetSpeciesListA = await feService.Get_SetxNetSpeciesList(lstSelectedSets [0].SetId, lstSelectedSets [0].SelectedSubset);
+                    //log
+                    Console.WriteLine($@"---- lstOccurrenceData: {lstOccurrenceData.Count()}, lstSelectedDatasets: {lstSelectedDatasets.Count()}, lstNetSpeciesListA: {lstNetSpeciesListA.Count()}");
+                    //calc Results
+                    lstAssociationResults.Clear();
+                    string result = "";
+                    int _recs = lstNetSpeciesListA.Count(); //temp use
+                    _recs = _recs * (_recs - 1) / 2;
+                    int cnt = 0;
+                    for (int i = 0; i < lstNetSpeciesListA.Count - 1; i++)
+                        {
+                        for (int j = i + 1; j < lstNetSpeciesListA.Count; j++)
+                            {
+                            int hasSp1 = 0;
+                            int hasSp2 = 0;
+                            int A = 0;
+                            int B = 0;
+                            int C = 0;
+                            int D = 0;
+                            int N = 0;
+                            double Ae = 0;
+                            double Be = 0;
+                            double Ce = 0;
+                            double De = 0;
+                            double Chi2 = 0;
+                            string SpeciesAId = lstNetSpeciesListA [i].SpeciesId;
+                            string SpeciesBId = lstNetSpeciesListA [j].SpeciesId;
+                            foreach (Dataset ds in lstSelectedDatasets)
+                                {
+                                hasSp1 = lstOccurrenceData.Any(x => string.Equals(x.AcceptedId, SpeciesAId, StringComparison.OrdinalIgnoreCase)) ? 1 : 0;
+                                hasSp2 = lstOccurrenceData.Any(x => string.Equals(x.AcceptedId, SpeciesBId, StringComparison.OrdinalIgnoreCase)) ? 1 : 0;
+                                if ((hasSp1 == 1) & (hasSp2 == 1))
+                                    {
+                                    A++;
+                                    }
+                                if ((hasSp1 == 1) & (hasSp2 == 0))
+                                    {
+                                    B++;
+                                    }
+                                if ((hasSp1 == 0) & (hasSp2 == 1))
+                                    {
+                                    C++;
+                                    }
+                                if ((hasSp1 == 0) & (hasSp2 == 0))
+                                    {
+                                    D++;
+                                    }
+                                }
+                            N = A + B + C + D;
+                            Ae = (A + B) * (A + C) / N;
+                            Be = (A + B) * (B + D) / N;
+                            Ce = (C + D) * (A + C) / N;
+                            De = (C + D) * (B + D) / N;
+                            Chi2 = Math.Pow(Math.Abs(A * D - B * C), 2) * N / ((A + B) * (C + D) * (A + C) * (B + D));
+                            if ((Chi2 > 3.84) & (A > Ae))
+                                {
+                                result = "association (+)";
+                                }
+                            else if ((Chi2 > 3.84) & (A <= Ae))
+                                {
+                                result = "association (-)";
+                                }
+                            else if ((Chi2 <= 3.84))
+                                {
+                                result = "association (x)";
+                                }
+                            else
+                                {
+                                result = "association (?)";
+                                }
+                            lstAssociationResults.Add(new AssociationResult
+                                {
+                                SpeciesA = "",
+                                SpeciesB = "",
+                                A = A,
+                                B = B,
+                                C = C,
+                                D = D,
+                                Ae = Ae,
+                                Be = Be,
+                                Ce = Ce,
+                                De = De,
+                                chi2 = Chi2,
+                                result = result
+                                });
+                            cnt++;
+                            if (cnt % 200 == 0)
+                                {
+                                //using mod200 to slowDown refreshing of pageProgressBar
+                                Console.WriteLine($@"------ cnt: {cnt} / {_recs}");
+                                progressPercent = (int) (((double) cnt / _recs) * 100);
+                                _cmd = $"calculating association of {i.ToString()}";
+                                StateHasChanged();
+                                }
+                            }
+                        }
+                    //keep sets names
+                    appState.SetSetName("associations in:" + lstSelectedSets [0].SetName);
+                    // _hasFetched = true;
+                    _cmd = "ShowAssociationResults";
                     break;
                     }
             case "multivarfloran":
@@ -396,6 +531,11 @@ else
     private void BtnCloseAnalysisCompareSetsResults ()
         {
         _cmd = "comparesets";
+        StateHasChanged();
+        }
+    private void BtnCloseAnalysisAssociationResults ()
+        {
+        _cmd = "association";
         StateHasChanged();
         }
 
