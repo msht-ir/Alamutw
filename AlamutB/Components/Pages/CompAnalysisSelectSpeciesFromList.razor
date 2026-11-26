@@ -23,12 +23,13 @@ else
                     @* CMDs: Search, All, Invert, delete/add *@
                         <div class="d-flex gap-4 justify-content-left align-items-left" style="margin-top:5px;margin-bottom:15px;">
                             <MudFabMenu StartIcon="@Icons.Material.Outlined.Menu" Size="Size.Medium" Color="Color.Dark" Variant="Variant.Text" Direction="Direction.Right" OpenOnMouseHover="false">
-                                <MudFabMenuItem StartIcon="@Icons.Material.Filled.Search" Color="Color.Dark" Size="Size.Medium" OnClick="BtnFilterSpeciesList" Title="select by Search keyword" />
-                                <MudFabMenuItem StartIcon="@Icons.Material.Filled.FilterAlt" Color="Color.Primary" Size="Size.Medium" OnClick="BtnFilterSpeciesListByKEWUPS" Title="select by KEWUPS characteristics" />
-                                <MudFabMenuItem StartIcon="@Icons.Material.Filled.DoneAll" Color="Color.Primary" Size="Size.Medium" OnClick="BtnSelectAllSpecies" Title="select all" />
-                                <MudFabMenuItem StartIcon="@Icons.Material.Filled.Rule" Color="Color.Primary" Size="Size.Medium" OnClick="BtnInvertSelection" Title="invert selection" />
-                                <MudFabMenuItem StartIcon="@Icons.Material.Filled.DownloadForOffline" Color="Color.Secondary" Size="Size.Medium" OnClick='@(() => BtnReportSelectedSpeciesAsPdf())' Title="report selected speciess" />
-                                <MudFabMenuItem StartIcon="@Icons.Material.Filled.PlayCircle" Color="Color.Success" Size="Size.Medium" OnClick='@(() => RollbackListOfSelectedSpecies())' Title="run association analysis for selected species" />
+                            <MudFabMenuItem StartIcon="@Icons.Material.Filled.PlayCircle" Color="Color.Success" Size="Size.Medium" OnClick='@(() => RollbackListOfSelectedSpecies())' Title="run association analysis for selected species" />
+                            <MudFabMenuItem StartIcon="@Icons.Material.Filled.DoneAll" Color="Color.Primary" Size="Size.Medium" OnClick="BtnSelectAllSpecies" Title="select all" />
+                            <MudFabMenuItem StartIcon="@Icons.Material.Filled.Rule" Color="Color.Primary" Size="Size.Medium" OnClick="BtnInvertSelection" Title="invert selection" />
+                            <MudFabMenuItem StartIcon="@Icons.Material.Filled.RemoveDone" Color="Color.Dark" Size="Size.Medium" OnClick='@(() => BtnClearSelections())' Title="report selected speciess" />
+                            <MudFabMenuItem StartIcon="@Icons.Material.Filled.Search" Color="Color.Dark" Size="Size.Medium" OnClick="BtnFilterSpeciesList" Title="select by Search keyword" />
+                            <MudFabMenuItem StartIcon="@Icons.Material.Filled.FilterAlt" Color="Color.Dark" Size="Size.Medium" OnClick="BtnFilterSpeciesListByKEWUPS" Title="select by KEWUPS characteristics" />
+                            <MudFabMenuItem StartIcon="@Icons.Material.Filled.DownloadForOffline" Color="Color.Secondary" Size="Size.Medium" OnClick='@(() => BtnReportSelectedSpeciesAsPdf())' Title="report selected speciess" />
                             </MudFabMenu>
                         </div>
                     @* Filter *@
@@ -194,24 +195,26 @@ else
         lstSpecies.ForEach(x => x.IsSelected = x.IsSelected ? false : true);
         StateHasChanged();
         }
+    public async Task BtnClearSelections ()
+        {
+        lstSpecies.ForEach(x => x.IsSelected = false);
+        StateHasChanged();
+        }
     private void BtnFilterSpeciesList ()
         {
-        _cmd = "selectspeciesbykeyword";
+        _cmd = (_cmd == "selectspeciesbykeyword") ? "" : "selectspeciesbykeyword";
         StateHasChanged();
         }
     public async Task BtnFilterSpeciesListByKeywords (string _speciesListFilter)
         {
         lstSpecies.ForEach(x => x.IsSelected = (x.SciName.Contains(_speciesListFilter, StringComparison.OrdinalIgnoreCase)) ? true : false);
         StateHasChanged();
-        }
-    private async Task ClosespeciesList ()
-        {
-        _cmd = "cmdListSetData";
-        lstSpecies = new();
+        int nItemsSelected = lstSpecies.Count(x => x.IsSelected == true);
+        Snackbar.Add($"selected items: {nItemsSelected}", Severity.Info, opt => { opt.VisibleStateDuration = 2000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
         }
     private void BtnFilterSpeciesListByKEWUPS ()
         {
-        _cmd = "selectkewupscharacters";
+        _cmd = (_cmd == "selectkewupscharacters") ? "" : "selectkewupscharacters";
         StateHasChanged();
         }
     private void SelectSpeciesByKEWUPS ()
@@ -240,15 +243,42 @@ else
 
         foreach (Species sp in lstSpecies)
             {
-            if ((sp.KEWUPS & kewupschars) != 0)
+            if ((sp.KEWUPS & kewupschars) == kewupschars)
                 {
                 sp.IsSelected = true;
                 }
+            else
+                {
+                sp.IsSelected = false;                
+                }
             }
+        int nItemsSelected = lstSpecies.Count(x => x.IsSelected == true);
+        Snackbar.Add($"selected items: {nItemsSelected}", Severity.Info, opt => { opt.VisibleStateDuration = 2000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
         }
     private void BtnReportSelectedSpeciesAsPdf ()
         {
-        // StateHasChanged();
+        /*
+            //prepare 2 lists: the parent species & list of datasets
+            List<DatasetData> _lstDatasetData = new();
+            _lstDatasetData.Add(new DatasetData
+                {
+                DatasetDataId = 1,
+                DatasetId = 1,
+                SpeciesId = species.SpeciesId,
+                Infraspecific = "",
+                LineString = "",
+                ParsedGenus = "",
+                ParsedEpithet = "",
+                SciName = species.SciName
+                });
+            lstDatasets = await feService.Read_DatasetsBySpeciesId(species.SpeciesId);
+            //Generate
+            var pdfBytes = feService.GenerateReportOfDatasetDataPdf(lstDatasets, _lstDatasetData, "ReportDatasets");
+            //Download
+            using var stream = new MemoryStream(pdfBytes);
+            using var streamRef = new DotNetStreamReference(stream);
+            await JS.InvokeVoidAsync("downloadFileFromStream", "ReportDatasets.pdf", streamRef);
+        */
         }
     //methods
     public string PersianDate (DateTimeOffset? dt)
@@ -277,7 +307,8 @@ else
             .ToList();
         if (lstSelectedSpecies.Count() == 0)
             {
-            Snackbar.Add("select Species from list", Severity.Warning);
+            Snackbar.Add("select Species from list", Severity.Warning, opt => { opt.VisibleStateDuration = 2000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
+
             return;
             }
         else

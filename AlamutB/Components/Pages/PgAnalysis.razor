@@ -389,6 +389,7 @@ else
                     lstNetSpeciesListA = lstNetSpeciesListA.DistinctBy(x => x.AcceptedId, StringComparer.OrdinalIgnoreCase).ToList();
                     List<string> lstSpx = lstNetSpeciesListA.Select(x => x.AcceptedId).ToList();
                     lstSpeciesFlorAn = await feService.Read_SpeciesByListOfIds(lstSpx); //notice: lstSpeciesFlorAn is List<Species>
+                    lstSpeciesFlorAn = lstSpeciesFlorAn.OrderBy(x => x.SciName).ToList();
                     Console.WriteLine(@$"
                                     ------ 
                                     >>> GetSelectedSetsFromComponent [branch association] >>>
