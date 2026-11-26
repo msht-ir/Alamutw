@@ -3083,10 +3083,10 @@ namespace AlamutB.Services2Backend
             wb.SaveAs (stream);
             return stream.ToArray ();
             }
-        public async Task<List<Occurrence>> Get_MultivarFlorAnDataAsync (int setId, int subsetIndex)
+        public async Task<List<Occurrence>> Get_OccurrenceDataAsync (int setId, int subsetIndex)
             {
             string? connString = _config.GetConnectionString ("cnni");
-            string sql = "Analyses.Get_MultivarFlorAnData";
+            string sql = "Analyses.Get_OccurrenceData";
 
             await using SqlConnection cnn = new (connString);
             await using SqlCommand cmd = new (sql, cnn)

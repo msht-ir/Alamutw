@@ -1,0 +1,199 @@
+@using System.Globalization
+@using AlamutB.Service
+@using System.Threading.Tasks
+@inject FeService feService
+@inject NavigationManager Navman
+@inject AppState appState
+@inject IJSRuntime JS
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+ @if (!_hasFetched)
+    {
+    <_ScanSheets />
+    }
+else
+    {
+        <EditForm Model="lstSpecies">
+            <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-2 px-0">
+                <MudCard Class="mx-0">
+                    <MudCardContent Style="background-color:rgba(249,249,249);">
+                    @* LIST Species *@
+                    <h6 style="text-align:center;color:royalblue">species <span style="font-size:x-small;color:indianred"> ( @lstSpecies.Count() )</span></h6>
+                    <hr style="color:indianred" />
+                    @* Filter *@
+                        <div class="d-flex">
+                        <MudTextField @ref="refFilterSpeciesList"
+                                      @bind-Value="_speciesListFilter"
+                                      Label="search species"
+                                      Variant="Variant.Text"
+                                      Margin="Margin.Dense"
+                                      Immediate="true"
+                                      Adornment="Adornment.Start"
+                                      AdornmentIcon="@Icons.Material.Filled.Search"
+                                      OnAdornmentClick='@(() => FilterSpeciesList(_speciesListFilter))'
+                                      Class="my-textfield" />
+                        @* Refresh *@
+                            <button type="button"
+                                class="btn btn-link"
+                                style="margin-left:1px"
+                                @onclick='() => BtnShowAllSpecies()'
+                                Title="Show species">
+                            <img src="/img/icoList1.png" width="22" />
+                            </button>
+                        </div>
+                    <br />
+                    <hr />
+                    @foreach (Species sp in lstSpecies)
+                        {
+                            <div class="d-flex align-items-center mb-1">
+                            <input class="form-check-input"
+                                   style="margin-left:1px;margin-right:10px;"
+                                   type="checkbox"
+                                   @bind="sp.IsSelected" />
+                            @sp.SciName
+                            </div>
+                        }
+                    <br />
+                    <hr />
+                        <div class="d-flex justify-content-center">
+                            <button class="btn btn-link pulse-hover"
+                                @onclick="RollbackListOfSelectedSpecies">
+                            <img src="/img/icoGo.png" width="28" />
+                            </button>
+                        </div>
+                    </MudCardContent>
+                </MudCard>
+            </MudContainer>
+        </EditForm>
+    }
+<br />
+
+@code {
+    [Parameter]
+    public string? AnalysisType
+        {
+        get; set;
+        }
+    [Parameter]
+    public List<Species> lstSpecies
+        {
+        get; set;
+        }
+    [Parameter]
+    public EventCallback<List<Species>> OnSelectedSpeciesReceived
+        {
+        get; set;
+        }
+    public MudTextField<string> refFilterSpeciesList;
+    public MudSelect<int> refAnalysisMode;
+    User user = new User();
+    List<Species> lstSelectedSpecies = new();
+    private string _speciesListFilter = "";
+    string _cmd = "";
+    public bool _hasFetched = false;
+
+    //LifeCycleEvents
+    protected override async Task OnInitializedAsync ()
+        {
+        appState.OnChange += TriggerRender;
+        if (Convert.ToInt32(appState.UserLoginStatus) != 1)
+            {
+            Navman.NavigateTo("/Login");
+            }
+        appState.SetCmd("");
+        user.UserId = Convert.ToInt32(appState.UserId);
+        user.Username = appState.Username ?? "";
+        _hasFetched = true;
+        }
+    private void TriggerRender ()
+        {
+        InvokeAsync(StateHasChanged);
+        }
+    public void Dispose ()
+        {
+        appState.OnChange -= TriggerRender;
+        }
+    //btns
+    private void CloseComponent ()
+        {
+        //RollBack of Component 'Dataset'
+        _cmd = "";
+        }
+    private void BtnCancel ()
+        {
+        _cmd = "";
+        StateHasChanged();
+        }
+    public void BtnBack ()
+        {
+        Navman.NavigateTo("/Switchboard");
+        }
+    //List Datasets
+    public async Task BtnShowAllSpecies ()
+        {
+        //lstDatasets = await feService.Read_Datasets(user.UserId, 1);
+        StateHasChanged();
+        }
+    public async Task BtnSelectAllSpecies ()
+        {
+        // foreach (SetData setData in lstSetData)
+        //     {
+        //     setData.IsSelected = true;
+        //     }
+        StateHasChanged();
+        }
+    public async Task BtnInvertSelection ()
+        {
+        // foreach (Species s in lstSpecies)
+        //     {
+        //     s.IsSelected = (s.IsSelected) ? false : true;
+        //     }
+        StateHasChanged();
+        }
+    public async Task FilterSpeciesList (string _speciesListFilter)
+        {
+        // lstSpecies = lstSpecies.Where(d => d.DatasetName?.Contains(_datasetsListFilter, StringComparison.OrdinalIgnoreCase) == true).ToList();
+        StateHasChanged();
+        }
+    private async Task ClosespeciesList ()
+        {
+        _cmd = "cmdListSetData";
+        lstSpecies = new();
+        }
+    //methods
+    public string PersianDate (DateTimeOffset? dt)
+        {
+        if ((Convert.ToInt32(appState.UserTags) & 2) == 2)
+            {
+            return feService.ToPersianDate(dt.ToString());
+            }
+        else
+            {
+            return dt?.ToString("yyyy-MM-dd HH:mm");
+            }
+        }
+    private async Task HandleModalClose ()
+        {
+        _hasFetched = false;
+        lstSpecies.Clear();
+        //lstSpecies = await feService.Read_Species();
+        _hasFetched = true;
+        StateHasChanged();
+        }
+    private async Task RollbackListOfSelectedSpecies ()
+        {
+        List<Species> lstSelectedSpecies = lstSpecies
+            .Where(sp => sp.IsSelected)
+            .ToList();
+        if (lstSelectedSpecies.Count() == 0)
+            {
+            Snackbar.Add("select Species from list", Severity.Warning);
+            return;
+            }
+        else
+            {
+            await OnSelectedSpeciesReceived.InvokeAsync(lstSelectedSpecies);
+            }
+        }
+    }

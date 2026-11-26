@@ -967,9 +967,9 @@ namespace AlamutB.Service
                 return new List<Species> ();
                 }
             }
-        public async Task<List<Occurrence>> Get_MultivarFlorAnData (int setId, int subsetIndex)
+        public async Task<List<Occurrence>> Get_OccurrenceData (int setId, int subsetIndex)
             {
-            var response = await _http.PostAsJsonAsync ($"api/Get_MultivarFlorAnData?subsetIndex={subsetIndex}", setId);
+            var response = await _http.PostAsJsonAsync ($"api/Get_OccurrenceData?subsetIndex={subsetIndex}", setId);
             if (response.IsSuccessStatusCode)
                 {
                 List<Occurrence> lstOccurrenceData = await response.Content.ReadFromJsonAsync<List<Occurrence>> ();
