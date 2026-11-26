@@ -252,7 +252,6 @@ else
         {
         appState.OnChange -= TriggerRender;
         }
-
     //btns
     public void BtnAnalysisSelected (string _analysisName)
         {
@@ -390,7 +389,6 @@ else
                     lstNetSpeciesListA = lstNetSpeciesListA.DistinctBy(x => x.AcceptedId, StringComparer.OrdinalIgnoreCase).ToList();
                     List<string> lstSpx = lstNetSpeciesListA.Select(x => x.AcceptedId).ToList();
                     lstSpeciesFlorAn = await feService.Read_SpeciesByListOfIds(lstSpx); //notice: lstSpeciesFlorAn is List<Species>
-                    //lstSpeciesFlorAn.ForEach(x => x.IsSelected = true);
                     Console.WriteLine(@$"
                                     ------ 
                                     >>> GetSelectedSetsFromComponent [branch association] >>>
@@ -586,7 +584,8 @@ else
                         //keep sets names
                         appState.SetSetName("associations in:" + lstSelectedSets [0].SetName);
                         _cmd = "ShowAssociationResults";
-                        Console.WriteLine($">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> DONE! >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+                        lstAssociationResults = lstAssociationResults.OrderByDescending(x => x.result).ThenByDescending(x => x.chi2).ToList();
+                        Console.WriteLine($">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> DONE!");
                         }
                     catch (Exception ex)
                         {

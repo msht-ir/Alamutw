@@ -12,6 +12,7 @@ using System.Data;
 using System.Drawing;
 using System.Text;
 using static MudBlazor.CategoryTypes;
+using DataTable = System.Data.DataTable;
 using Order = AlamutS.Models.Order;
 using Station = AlamutS.Models.Station;
 namespace AlamutB.Services2Backend
@@ -1255,50 +1256,46 @@ namespace AlamutB.Services2Backend
         public async Task<List<Species>> Read_SpeciesByListOfIdsAsync (List<string> lstSpeciesIds)
             {
             string? connString = _config.GetConnectionString ("cnni");
-            string sql = "TX.Read_SpeciesById";
+            string sql = "TX.Read_SpeciesByIds";
+            var lstSpecies = new List<Species> ();
+            //construct table-valued parameter data
+            var idTable = new DataTable ();
+            idTable.Columns.Add ("SpeciesId", typeof (string));
+            foreach (var id in lstSpeciesIds)
+                {
+                idTable.Rows.Add (id);
+                }
             using SqlConnection cnn = new (connString);
-            List<Species> lstSpecies = new List<Species> ();
-            try
+            await cnn.OpenAsync (); //open the cnn only once
+            using SqlCommand cmd = new (sql, cnn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            var tvp = cmd.Parameters.AddWithValue ("@SpeciesIds", idTable);
+            tvp.SqlDbType = SqlDbType.Structured;
+            tvp.TypeName = "dbo.SpeciesIdList"; //specify the database table type name
+            using SqlDataReader reader = await cmd.ExecuteReaderAsync ();
+            while (await reader.ReadAsync ())
                 {
-                foreach (string spid in lstSpeciesIds)
+                lstSpecies.Add (new Species
                     {
-                    await cnn.OpenAsync ();
-                    SqlCommand cmd = new (sql, cnn);
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue ("@SpeciesId", spid);
-                    SqlDataReader reader = await cmd.ExecuteReaderAsync ();
-                    while (await reader.ReadAsync ())
-                        {
-                        lstSpecies.Add (new Species
-                            {
-                            SpeciesId = reader.GetString (0),
-                            AcceptedId = reader.GetString (1),
-                            GenusId = reader.GetInt32 (2),
-                            Epithet = reader.GetString (3),
-                            Rank = reader.GetInt32 (4),
-                            InfraEpithet = reader.GetString (5),
-                            Author = reader.GetString (6),
-                            NomStatus = reader.GetInt32 (7),
-                            TaxStatus = reader.GetInt32 (8),
-                            ConsStatus = reader.GetInt32 (9),
-                            Characters = reader.GetInt32 (10),
-                            KEWUPS = reader.GetInt32 (11),
-                            Chorotype = reader.GetString (12),
-                            Lifeform = reader.GetString (13),
-                            IsHybrid = reader.GetBoolean (14),
-                            SciName = reader.GetString (15)
-                            });
-                        }
-                    await cnn.CloseAsync ();
-                    }
-                return lstSpecies;
+                    SpeciesId = reader.GetString (0),
+                    AcceptedId = reader.GetString (1),
+                    GenusId = reader.GetInt32 (2),
+                    Epithet = reader.GetString (3),
+                    Rank = reader.GetInt32 (4),
+                    InfraEpithet = reader.GetString (5),
+                    Author = reader.GetString (6),
+                    NomStatus = reader.GetInt32 (7),
+                    TaxStatus = reader.GetInt32 (8),
+                    ConsStatus = reader.GetInt32 (9),
+                    Characters = reader.GetInt32 (10),
+                    KEWUPS = reader.GetInt32 (11),
+                    Chorotype = reader.GetString (12),
+                    Lifeform = reader.GetString (13),
+                    IsHybrid = reader.GetBoolean (14),
+                    SciName = reader.GetString (15)
+                    });
                 }
-            catch (Exception ex)
-                {
-                Console.WriteLine ("error: " + ex.Message);
-                cnn.Close ();
-                return new List<Species> ();
-                }
+            return lstSpecies;
             }
         public async Task<bool> Update_SpeciesAsync (Species species)
             {

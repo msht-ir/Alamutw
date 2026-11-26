@@ -31,22 +31,14 @@ else
                         <table class="table table-borderless w-100">
                             <tr>
                             <th class="text-start"> <span style="color:darkslategrey;font-weight:bold;"> Species A x B </span></th>
-                            <th class="text-start"> <span style="color:darkslategrey;font-weight:bold;"> a          </span></th>
-                            <th class="text-start"> <span style="color:darkslategrey;font-weight:bold;"> b          </span></th>
-                            <th class="text-start"> <span style="color:darkslategrey;font-weight:bold;"> c          </span></th>
-                            <th class="text-start"> <span style="color:darkslategrey;font-weight:bold;"> d          </span></th>
                             <th class="text-start"> <span style="color:darkslategrey;font-weight:bold;"> chi2       </span></th>
                             <th class="text-start"> <span style="color:dimgray;font-weight:bold;">       result     </span></th>
                             </tr>
                         @foreach (AssociationResult rslt in lstAssociationResults)
                             {
                                 <tr>
-                                <td class="text-start"> <span style="color:darkslategrey;font-size:x-small;">@rslt.SpeciesAId x @rslt.SpeciesBId</span></td>
-                                <td class="text-start"> <span style="color:darkslategrey;font-size:smaller;">@rslt.A</span></td>
-                                <td class="text-start"> <span style="color:darkslategrey;font-size:smaller;">@rslt.B</span></td>
-                                <td class="text-start"> <span style="color:darkslategrey;font-size:smaller;">@rslt.C</span></td>
-                                <td class="text-start"> <span style="color:darkslategrey;font-size:smaller;">@rslt.D</span></td>
-                                <td class="text-start"> <span style="color:darkslategrey;font-size:smaller;font-weight:bold;">@rslt.chi2 </span></td>
+                                <td class="text-start"> <span style="color:darkslategrey;font-size:x-small;">@rslt.SpeciesAId <span style="font-weight:bold;color:indianred"> ~ </span> @rslt.SpeciesBId</span></td>
+                                <td class="text-start"> <span style="color:darkslategrey;font-size:smaller;font-weight:bold;">@rslt.chi2.ToString("F3") </span></td>
                                 <td class="text-start"> <span style="color:indianred;font-size:smaller;">@rslt.result </span></td>
                                 </tr>
                             }
@@ -54,9 +46,9 @@ else
                     </div>
                 @* FOOTER *@
                 <hr style="color:royalblue;margin-top:40px" />
-                    <div class="d-flex justify-content-center">
+                    <div class="d-flex justify-content-left">
                         <button class="btn btn-link pulse-hover" @onclick="OnClose">
-                        <img src="/img/icoCancel.png" width="22" />
+                        <img src="/img/icoBack3.png" width="24" />
                         </button>
                     </div>
                 </MudCardContent>

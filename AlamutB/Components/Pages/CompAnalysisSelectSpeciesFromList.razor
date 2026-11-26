@@ -18,32 +18,76 @@ else
             <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-2 px-0">
                 <MudCard Class="mx-0">
                     <MudCardContent Style="background-color:rgba(249,249,249);">
-                    @* LIST Species *@
                     <h6 style="text-align:center;color:royalblue">species <span style="font-size:x-small;color:indianred"> ( @lstSpecies.Count() )</span></h6>
                     <hr style="color:indianred" />
-                    @* Filter *@
-                        <div class="d-flex">
-                        <MudTextField @ref="refFilterSpeciesList"
-                                      @bind-Value="_speciesListFilter"
-                                      Label="search species"
-                                      Variant="Variant.Text"
-                                      Margin="Margin.Dense"
-                                      Immediate="true"
-                                      Adornment="Adornment.Start"
-                                      AdornmentIcon="@Icons.Material.Filled.Search"
-                                      OnAdornmentClick='@(() => FilterSpeciesList(_speciesListFilter))'
-                                      Class="my-textfield" />
-                        @* Refresh *@
-                            <button type="button"
-                                class="btn btn-link"
-                                style="margin-left:1px"
-                                @onclick='() => BtnShowAllSpecies()'
-                                Title="Show species">
-                            <img src="/img/icoList1.png" width="22" />
-                            </button>
+                    @* CMDs: Search, All, Invert, delete/add *@
+                        <div class="d-flex gap-4 justify-content-left align-items-left" style="margin-top:5px;margin-bottom:15px;">
+                            <MudFabMenu StartIcon="@Icons.Material.Outlined.Menu" Size="Size.Medium" Color="Color.Dark" Variant="Variant.Text" Direction="Direction.Right" OpenOnMouseHover="false">
+                                <MudFabMenuItem StartIcon="@Icons.Material.Filled.Search" Color="Color.Dark" Size="Size.Medium" OnClick="BtnFilterSpeciesList" Title="select by Search keyword" />
+                                <MudFabMenuItem StartIcon="@Icons.Material.Filled.FilterAlt" Color="Color.Primary" Size="Size.Medium" OnClick="BtnFilterSpeciesListByKEWUPS" Title="select by KEWUPS characteristics" />
+                                <MudFabMenuItem StartIcon="@Icons.Material.Filled.DoneAll" Color="Color.Primary" Size="Size.Medium" OnClick="BtnSelectAllSpecies" Title="select all" />
+                                <MudFabMenuItem StartIcon="@Icons.Material.Filled.Rule" Color="Color.Primary" Size="Size.Medium" OnClick="BtnInvertSelection" Title="invert selection" />
+                                <MudFabMenuItem StartIcon="@Icons.Material.Filled.DownloadForOffline" Color="Color.Secondary" Size="Size.Medium" OnClick='@(() => BtnReportSelectedSpeciesAsPdf())' Title="report selected speciess" />
+                                <MudFabMenuItem StartIcon="@Icons.Material.Filled.PlayCircle" Color="Color.Success" Size="Size.Medium" OnClick='@(() => RollbackListOfSelectedSpecies())' Title="run association analysis for selected species" />
+                            </MudFabMenu>
                         </div>
+                    @* Filter *@
+                    @if (_cmd == "selectspeciesbykeyword")
+                        {
+                            <div class="d-flex">
+                            <MudTextField @ref="refFilterSpeciesList"
+                                          @bind-Value="_speciesListFilter"
+                                          Label="search species"
+                                          Variant="Variant.Text"
+                                          Margin="Margin.Dense"
+                                          Immediate="true"
+                                          Adornment="Adornment.Start"
+                                          AdornmentIcon="@Icons.Material.Filled.Search"
+                                          OnAdornmentClick='@(() => BtnFilterSpeciesListByKeywords(_speciesListFilter))'
+                                          Class="my-textfield" />
+                            </div>
+                        }
+                    @if (_cmd == "selectkewupscharacters")
+                        {
+                            <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-4 px-0">
+                                <MudCard Class="mx-auto">
+                                    <MudCardContent Style="background-color:rgba(242,242,242);">
+                                        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; column-gap:8px; row-gap:0;">
+                                        <MudSwitch @bind-Value="_UPS10" Label="ME" Color="Color.Dark" Dense="true"
+                                                   Style="font-family:Tahoma;" title="گياهان دارويي" />
+                                        <MudSwitch @bind-Value="_UPS09" Label="GS" Color="Color.Dark" Dense="true"
+                                                   Style="font-family:Tahoma;" title="خويشاوندان وحشي گياهان زراعي" />
+                                        <MudSwitch @bind-Value="_UPS08" Label="PO" Color="Color.Dark" Dense="true"
+                                                   Style="font-family:Tahoma;" title="گياهان سمي" />
+                                        <MudSwitch @bind-Value="_UPS07" Label="EU" Color="Color.Dark" Dense="true"
+                                                   Style="font-family:Tahoma;" title="کاربرد محيطي" />
+                                        <MudSwitch @bind-Value="_UPS06" Label="MA" Color="Color.Dark" Dense="true"
+                                                   Style="font-family:Tahoma;" title="مواد طبيعي" />
+                                        <MudSwitch @bind-Value="_UPS05" Label="HF" Color="Color.Dark" Dense="true"
+                                                   Style="font-family:Tahoma;" title="غذاي انسان" />
+                                        <MudSwitch @bind-Value="_UPS04" Label="AF" Color="Color.Dark" Dense="true"
+                                                   Style="font-family:Tahoma;" title="غذاي دام" />
+                                        <MudSwitch @bind-Value="_UPS03" Label="IF" Color="Color.Dark" Dense="true"
+                                                   Style="font-family:Tahoma;" title="غذاي بي مهرگان" />
+                                        <MudSwitch @bind-Value="_UPS02" Label="FU" Color="Color.Dark" Dense="true"
+                                                   Style="font-family:Tahoma;" title="سوخت" />
+                                        <MudSwitch @bind-Value="_UPS01" Label="SU" Color="Color.Dark" Dense="true"
+                                                   Style="font-family:Tahoma;" title="کاربرد اجتماعي" />
+                                            <MudButton Variant="Variant.Filled"
+                                                   EndIcon="@Icons.Material.Filled.Search"
+                                                   Size="Size.Small"
+                                                   Style="margin:10px;width:180px;"
+                                                   Color="Color.Success"
+                                                   OnClick="@(() => SelectSpeciesByKEWUPS())">
+                                            Select Species
+                                            </MudButton>
+                                        </div>
+                                    </MudCardContent>
+                                </MudCard>
+                            </MudContainer>
+                        }
                     <br />
-                    <hr />
+                    @* LIST Species *@
                     @foreach (Species sp in lstSpecies)
                         {
                             <div class="d-flex align-items-center mb-1">
@@ -87,9 +131,19 @@ else
         }
     public MudTextField<string> refFilterSpeciesList;
     public MudSelect<int> refAnalysisMode;
-    User user = new User();
-    List<Species> lstSelectedSpecies = new();
+    private List<Species> lstSelectedSpecies = new();
     private string _speciesListFilter = "";
+    private User user = new User();
+    bool _UPS10;  //ME
+    bool _UPS09;  //GS
+    bool _UPS08;  //PO
+    bool _UPS07;  //EU
+    bool _UPS06;  //MA
+    bool _UPS05;  //HF
+    bool _UPS04;  //AF
+    bool _UPS03;  //IF
+    bool _UPS02;  //FU
+    bool _UPS01;  //SU
     string _cmd = "";
     public bool _hasFetched = false;
 
@@ -129,37 +183,72 @@ else
         {
         Navman.NavigateTo("/Switchboard");
         }
-    //List Datasets
-    public async Task BtnShowAllSpecies ()
-        {
-        //lstDatasets = await feService.Read_Datasets(user.UserId, 1);
-        StateHasChanged();
-        }
+
     public async Task BtnSelectAllSpecies ()
         {
-        // foreach (SetData setData in lstSetData)
-        //     {
-        //     setData.IsSelected = true;
-        //     }
+        lstSpecies.ForEach(x => x.IsSelected = true);
         StateHasChanged();
         }
     public async Task BtnInvertSelection ()
         {
-        // foreach (Species s in lstSpecies)
-        //     {
-        //     s.IsSelected = (s.IsSelected) ? false : true;
-        //     }
+        lstSpecies.ForEach(x => x.IsSelected = x.IsSelected ? false : true);
         StateHasChanged();
         }
-    public async Task FilterSpeciesList (string _speciesListFilter)
+    private void BtnFilterSpeciesList ()
         {
-        // lstSpecies = lstSpecies.Where(d => d.DatasetName?.Contains(_datasetsListFilter, StringComparison.OrdinalIgnoreCase) == true).ToList();
+        _cmd = "selectspeciesbykeyword";
+        StateHasChanged();
+        }
+    public async Task BtnFilterSpeciesListByKeywords (string _speciesListFilter)
+        {
+        lstSpecies.ForEach(x => x.IsSelected = (x.SciName.Contains(_speciesListFilter, StringComparison.OrdinalIgnoreCase)) ? true : false);
         StateHasChanged();
         }
     private async Task ClosespeciesList ()
         {
         _cmd = "cmdListSetData";
         lstSpecies = new();
+        }
+    private void BtnFilterSpeciesListByKEWUPS ()
+        {
+        _cmd = "selectkewupscharacters";
+        StateHasChanged();
+        }
+    private void SelectSpeciesByKEWUPS ()
+        {
+        int kewupschars = 0;
+        if (_UPS01)
+            kewupschars += 1;
+        if (_UPS02)
+            kewupschars += 2;
+        if (_UPS03)
+            kewupschars += 4;
+        if (_UPS04)
+            kewupschars += 8;
+        if (_UPS05)
+            kewupschars += 16;
+        if (_UPS06)
+            kewupschars += 32;
+        if (_UPS07)
+            kewupschars += 64;
+        if (_UPS08)
+            kewupschars += 128;
+        if (_UPS09)
+            kewupschars += 256;
+        if (_UPS10)
+            kewupschars += 512;
+
+        foreach (Species sp in lstSpecies)
+            {
+            if ((sp.KEWUPS & kewupschars) != 0)
+                {
+                sp.IsSelected = true;
+                }
+            }
+        }
+    private void BtnReportSelectedSpeciesAsPdf ()
+        {
+        // StateHasChanged();
         }
     //methods
     public string PersianDate (DateTimeOffset? dt)
