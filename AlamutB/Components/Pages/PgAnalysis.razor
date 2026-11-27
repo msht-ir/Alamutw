@@ -1,7 +1,8 @@
 ﻿@page "/PgAnalysis"
 @using System.Globalization
-@using AlamutB.Service
+@using System.Text
 @using System.Threading.Tasks
+@using AlamutB.Service
 @inject FeService feService
 @inject NavigationManager Navman
 @inject AppState appState
@@ -174,7 +175,6 @@ else
                     }
                 </MudStack>
             </MudStack>
-
         </EditForm>
     <br />
     <hr />
@@ -442,19 +442,9 @@ else
                     _cmd = "waitforoperationtocomplete";
                     StateHasChanged();
                     lstOccurrenceData = await feService.Get_OccurrenceData(lstSelectedSets [0].SetId, lstSelectedSets [0].SelectedSubset);
-                    lstSelectedDatasets = await feService.Read_DatasetsBySubsetIndex(lstSelectedSets [0].SetId, lstSelectedSets [0].SelectedSubset); //OR Read_DatasetsBySetId();
+                    lstSelectedDatasets = await feService.Read_DatasetsBySubsetIndex(lstSelectedSets [0].SetId, lstSelectedSets [0].SelectedSubset);
                     lstNetSpeciesListA = await feService.Get_SetxNetSpeciesList(lstSelectedSets [0].SetId, lstSelectedSets [0].SelectedSubset);
                     lstNetSpeciesListA = lstNetSpeciesListA.DistinctBy(x => x.AcceptedId, StringComparer.OrdinalIgnoreCase).ToList();
-
-                    Console.WriteLine($"DIAG occ count    = {lstOccurrenceData.Count}");
-                    Console.WriteLine($"DIAG occ[0].AcceptedId = '{lstOccurrenceData.FirstOrDefault()?.AcceptedId}'");
-                    Console.WriteLine($"DIAG occ[0].DatasetId  = {lstOccurrenceData.FirstOrDefault()?.DatasetId}");
-                    Console.WriteLine($"DIAG ds  count    = {lstSelectedDatasets.Count}");
-                    Console.WriteLine($"DIAG ds[0].DatasetId   = {lstSelectedDatasets.FirstOrDefault()?.DatasetId}");
-                    Console.WriteLine($"DIAG occ distinct DatasetIds = {string.Join(",", lstOccurrenceData.Select(o => o.DatasetId).Distinct().OrderBy(x => x))}");
-                    Console.WriteLine($"DIAG ds  distinct DatasetIds = {string.Join(",", lstSelectedDatasets.Select(d => d.DatasetId).OrderBy(x => x))}");
-                    Console.WriteLine($"DIAG occ distinct AcceptedIds (first 5) = {string.Join(",", lstOccurrenceData.Select(o => o.AcceptedId).Distinct().Take(5))}");
-
                     Console.WriteLine(@$"
                                 GetSelectedSpeciesFromComponent [branch selectspecies4association]
                                 -------------------------- >>>>>>> 
@@ -464,134 +454,142 @@ else
                                 lstSelectedSpeciess = {lstSelectedSpeciess.Count()}
                                 -------------------------- >>>>>>> 
                                 ");
-                    //calc Results
-                    try
+                    if (appState.Cmd == "")
                         {
-                        string SpeciesAId = "";
-                        string SpeciesBId = "";
-                        string result = "";
-                        lstAssociationResults.Clear();
-                        int cnt = 0;
-                        int cntR = 0;
-                        int _recs = lstSelectedSpeciess.Count() * lstNetSpeciesListA.Count(); //temp use!
-                        var speciesByDataset = lstOccurrenceData
-                            .GroupBy(o => o.DatasetId)
-                            .ToDictionary(
-                                g => g.Key,
-                                g => g.Select(o => o.AcceptedId ?? "")
-                                      .ToHashSet(StringComparer.OrdinalIgnoreCase));
-                        for (int i = 0; i < lstSelectedSpeciess.Count; i++)
+                        _cmd = "association";
+                        var acceptedIds = new HashSet<string>(lstNetSpeciesListA.Select(s => s.AcceptedId));
+                        lstOccurrenceData = lstOccurrenceData.Where(o => acceptedIds.Contains(o.AcceptedId)).ToList();
+                        await DownloadMatrixAsCSV ();
+                        }
+                    else
+                        {
+                        //calc Results
+                        try
                             {
-                            for (int j = 0; j < lstNetSpeciesListA.Count; j++)
+                            string SpeciesAId = "";
+                            string SpeciesBId = "";
+                            string result = "";
+                            lstAssociationResults.Clear();
+                            int cnt = 0;
+                            int cntR = 0;
+                            int _recs = lstSelectedSpeciess.Count() * lstNetSpeciesListA.Count(); //temp use!
+                            var speciesByDataset = lstOccurrenceData
+                                .GroupBy(o => o.DatasetId)
+                                .ToDictionary(
+                                    g => g.Key,
+                                    g => g.Select(o => o.AcceptedId ?? "")
+                                          .ToHashSet(StringComparer.OrdinalIgnoreCase));
+                            for (int i = 0; i < lstSelectedSpeciess.Count; i++)
                                 {
-                                SpeciesAId = lstSelectedSpeciess [i].AcceptedId;
-                                SpeciesBId = lstNetSpeciesListA [j].AcceptedId;
-                                if (SpeciesAId == SpeciesBId)
-                                    continue;
-                                int hasSp1 = 0;
-                                int hasSp2 = 0;
-                                int A = 0;
-                                int B = 0;
-                                int C = 0;
-                                int D = 0;
-                                int N = 0;
-                                double Ae = 0;
-                                double Be = 0;
-                                double Ce = 0;
-                                double De = 0;
-                                double chi2 = 0;
-                                foreach (Dataset ds in lstSelectedDatasets)
+                                for (int j = 0; j < lstNetSpeciesListA.Count; j++)
                                     {
-                                    hasSp1 = speciesByDataset.TryGetValue(ds.DatasetId, out var set) && set.Contains(SpeciesAId ?? "") ? 1 : 0;
-                                    hasSp2 = speciesByDataset.TryGetValue(ds.DatasetId, out set) && set.Contains(SpeciesBId ?? "") ? 1 : 0;
-                                    //Console.WriteLine(@$"--- dsId:{ds.DatasetId}, SpA:{SpeciesAId}, SpB:{SpeciesBId},  hasSp1:{hasSp1}, hasSp2:{hasSp2}  <<-- ");
-                                    if ((hasSp1 == 1) && (hasSp2 == 1))
+                                    SpeciesAId = lstSelectedSpeciess [i].AcceptedId;
+                                    SpeciesBId = lstNetSpeciesListA [j].AcceptedId;
+                                    if (SpeciesAId == SpeciesBId)
+                                        continue;
+                                    int hasSp1 = 0;
+                                    int hasSp2 = 0;
+                                    int A = 0;
+                                    int B = 0;
+                                    int C = 0;
+                                    int D = 0;
+                                    int N = 0;
+                                    double Ae = 0;
+                                    double Be = 0;
+                                    double Ce = 0;
+                                    double De = 0;
+                                    double chi2 = 0;
+                                    foreach (Dataset ds in lstSelectedDatasets)
                                         {
-                                        A++;
+                                        hasSp1 = speciesByDataset.TryGetValue(ds.DatasetId, out var set) && set.Contains(SpeciesAId ?? "") ? 1 : 0;
+                                        hasSp2 = speciesByDataset.TryGetValue(ds.DatasetId, out set) && set.Contains(SpeciesBId ?? "") ? 1 : 0;
+                                        if ((hasSp1 == 1) && (hasSp2 == 1))
+                                            {
+                                            A++;
+                                            }
+                                        else if ((hasSp1 == 1) && (hasSp2 == 0))
+                                            {
+                                            B++;
+                                            }
+                                        else if ((hasSp1 == 0) && (hasSp2 == 1))
+                                            {
+                                            C++;
+                                            }
+                                        else
+                                            {
+                                            D++;
+                                            }
                                         }
-                                    else if ((hasSp1 == 1) && (hasSp2 == 0))
+                                    cnt++;
+                                    N = A + B + C + D;
+                                    Ae = (double) (A + B) * (A + C) / N;
+                                    Be = (double) (A + B) * (B + D) / N;
+                                    Ce = (double) (C + D) * (A + C) / N;
+                                    De = (double) (C + D) * (B + D) / N;
+                                    int denom = (A + B) * (C + D) * (A + C) * (B + D);
+                                    if (denom == 0)
                                         {
-                                        B++;
-                                        }
-                                    else if ((hasSp1 == 0) && (hasSp2 == 1))
-                                        {
-                                        C++;
+                                        result = "(?)"; //chi2 undefined
                                         }
                                     else
                                         {
-                                        D++;
+                                        chi2 = Math.Pow(Math.Abs(A * D - B * C), 2) * N / (double) denom;
+                                        if ((chi2 > 3.84) && (A > Ae))
+                                            {
+                                            result = "(+)";
+                                            }
+                                        else if ((chi2 > 3.84) && (A <= Ae))
+                                            {
+                                            result = "(-)";
+                                            }
+                                        else if ((chi2 <= 3.84))
+                                            {
+                                            result = "(x)";
+                                            }
+                                        else
+                                            {
+                                            result = "(?)";
+                                            }
                                         }
-                                    }
-                                cnt++;
-                                N = A + B + C + D;
-                                Ae = (double) (A + B) * (A + C) / N;
-                                Be = (double) (A + B) * (B + D) / N;
-                                Ce = (double) (C + D) * (A + C) / N;
-                                De = (double) (C + D) * (B + D) / N;
-                                int denom = (A + B) * (C + D) * (A + C) * (B + D);
-                                if (denom == 0)
-                                    {
-                                    result = "(?)"; //chi2 undefined
-                                    }
-                                else
-                                    {
-                                    chi2 = Math.Pow(Math.Abs(A * D - B * C), 2) * N / (double) denom;
-                                    if ((chi2 > 3.84) && (A > Ae))
+                                    if ((result == "(+)") || (result == "(-)"))
                                         {
-                                        result = "(+)";
+                                        lstAssociationResults.Add(new AssociationResult
+                                            {
+                                            SpeciesAId = lstSelectedSpeciess [i].SciName,
+                                            SpeciesBId = (lstSpeciesFlorAn.FirstOrDefault(s => s.AcceptedId == lstNetSpeciesListA [j].AcceptedId)?.SciName) ?? lstNetSpeciesListA [j].AcceptedId,
+                                            A = A,
+                                            B = B,
+                                            C = C,
+                                            D = D,
+                                            Ae = Ae,
+                                            Be = Be,
+                                            Ce = Ce,
+                                            De = De,
+                                            chi2 = chi2,
+                                            result = result
+                                            });
+                                        cntR++;
                                         }
-                                    else if ((chi2 > 3.84) && (A <= Ae))
+                                    if (cnt % 200 == 0)
                                         {
-                                        result = "(-)";
+                                        //using mod200 to slowDown refreshing of pageProgressBar
+                                        progressPercent = (int) (((double) cnt / _recs) * 100);
+                                        _cmd = $"calculating association of {i.ToString()} / associations found: {cntR}";
+                                        StateHasChanged();
                                         }
-                                    else if ((chi2 <= 3.84))
-                                        {
-                                        result = "(x)";
-                                        }
-                                    else
-                                        {
-                                        result = "(?)";
-                                        }
-                                    }
-                                //Console.WriteLine(@$">>cnt: {cnt} -- sp1:{SpeciesAId} sp2:{SpeciesBId}  a={A},b={B},c={C},d={D},N={N} -- Ae={Ae},Be={Be},Ce={Ce},De={De}, chi2={chi2}");
-                                if ((result == "(+)") || (result == "(-)"))
-                                    {
-                                    lstAssociationResults.Add(new AssociationResult
-                                        {
-                                        SpeciesAId = lstSelectedSpeciess [i].SciName,
-                                        SpeciesBId = (lstSpeciesFlorAn.FirstOrDefault(s => s.AcceptedId == lstNetSpeciesListA [j].AcceptedId)?.SciName) ?? lstNetSpeciesListA [j].AcceptedId,
-                                        A = A,
-                                        B = B,
-                                        C = C,
-                                        D = D,
-                                        Ae = Ae,
-                                        Be = Be,
-                                        Ce = Ce,
-                                        De = De,
-                                        chi2 = chi2,
-                                        result = result
-                                        });
-                                    cntR++;
-                                    }
-                                if (cnt % 200 == 0)
-                                    {
-                                    //using mod200 to slowDown refreshing of pageProgressBar
-                                    progressPercent = (int) (((double) cnt / _recs) * 100);
-                                    _cmd = $"calculating association of {i.ToString()} / associations found: {cntR}";
-                                    StateHasChanged();
                                     }
                                 }
+                            //keep sets names
+                            appState.SetSetName("associations in:" + lstSelectedSets [0].SetName);
+                            _cmd = "ShowAssociationResults";
+                            lstAssociationResults = lstAssociationResults.OrderByDescending(x => x.result).ThenByDescending(x => x.chi2).ToList();
+                            Console.WriteLine($">>>>>>> DONE!");
                             }
-                        //keep sets names
-                        appState.SetSetName("associations in:" + lstSelectedSets [0].SetName);
-                        _cmd = "ShowAssociationResults";
-                        lstAssociationResults = lstAssociationResults.OrderByDescending(x => x.result).ThenByDescending(x => x.chi2).ToList();
-                        Console.WriteLine($">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> DONE!");
-                        }
-                    catch (Exception ex)
-                        {
-                        Console.WriteLine($">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ERROR:\r\n {ex.ToString()}");
-                        throw;
+                        catch (Exception ex)
+                            {
+                            Console.WriteLine($"ERROR:\r\n {ex.ToString()}");
+                            throw;
+                            }
                         }
                     break;
                     }
@@ -600,6 +598,69 @@ else
                     break;
                     }
             }
+        }
+    private async Task DownloadMatrixAsCSV ()
+        {
+        var csv = BuildMatrixCsv(lstOccurrenceData);
+        var bytes = Encoding.UTF8.GetBytes(csv);
+        var base64 = Convert.ToBase64String(bytes);
+        var fileName = $"alamut_matrix_{DateTime.Now:yyyyMMdd_HHmm}.csv";
+
+        await JS.InvokeVoidAsync(
+            "downloadFile",
+            fileName,
+            "text/csv",
+            base64
+        );
+        }
+    public static string BuildMatrixCsv (List<Occurrence> lstOccurrenceData)
+        {
+        //1.Distinct species (AcceptedId -> display name)
+        var speciesMap = lstOccurrenceData
+            .GroupBy(o => o.AcceptedId)
+            .ToDictionary(g => g.Key, g => g.First().SciName)
+            .OrderBy(kv => kv.Value)
+            .ToList();
+        //2.Distinct datasets, ordered
+        var datasetList = lstOccurrenceData
+            .Select(o => new { o.DatasetId, o.DatasetName })
+            .Distinct()
+            .OrderBy(d => d.DatasetId)
+            .ToList();
+        //3.Presence lookup
+        var presence = new HashSet<(string, int)>(
+            lstOccurrenceData.Select(o => (o.AcceptedId, o.DatasetId))
+        );
+        //4.Build CSV
+        var sb = new StringBuilder();
+        //Header row: "Species" then dataset abbreviations
+        sb.Append("Species");
+        foreach (var ds in datasetList)
+            {
+            sb.Append(',');
+            sb.Append(EscapeCsv(ds.DatasetName));
+            }
+        sb.AppendLine();
+        //One row per species
+        foreach (var sp in speciesMap)
+            {
+            sb.Append(EscapeCsv(sp.Value));
+            foreach (var ds in datasetList)
+                {
+                sb.Append(',');
+                sb.Append(presence.Contains((sp.Key, ds.DatasetId)) ? '1' : '0');
+                }
+            sb.AppendLine();
+            }
+        return sb.ToString();
+        }
+    private static string EscapeCsv (string value)
+        {
+        if (string.IsNullOrEmpty(value))
+            return "";
+        if (value.Contains(',') || value.Contains('"') || value.Contains('\n'))
+            return "\"" + value.Replace("\"", "\"\"") + "\"";
+        return value;
         }
     private void BtnCloseAnalysisDiversityResults ()
         {

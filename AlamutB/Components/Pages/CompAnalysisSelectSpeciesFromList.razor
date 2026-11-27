@@ -23,13 +23,14 @@ else
                     @* CMDs: Search, All, Invert, delete/add *@
                         <div class="d-flex gap-4 justify-content-left align-items-left" style="margin-top:5px;margin-bottom:15px;">
                             <MudFabMenu StartIcon="@Icons.Material.Outlined.Menu" Size="Size.Medium" Color="Color.Dark" Variant="Variant.Text" Direction="Direction.Right" OpenOnMouseHover="false">
+                            <MudFabMenuItem StartIcon="@Icons.Material.Filled.DownloadForOffline" Color="Color.Success" Size="Size.Medium" OnClick='@(() => BtnDownloadSelectedSpeciesAsCSV())' Title="download csv file for selected speciess" />
                             <MudFabMenuItem StartIcon="@Icons.Material.Filled.PlayCircle" Color="Color.Success" Size="Size.Medium" OnClick='@(() => RollbackListOfSelectedSpecies())' Title="run association analysis for selected species" />
                             <MudFabMenuItem StartIcon="@Icons.Material.Filled.DoneAll" Color="Color.Primary" Size="Size.Medium" OnClick="BtnSelectAllSpecies" Title="select all" />
                             <MudFabMenuItem StartIcon="@Icons.Material.Filled.Rule" Color="Color.Primary" Size="Size.Medium" OnClick="BtnInvertSelection" Title="invert selection" />
                             <MudFabMenuItem StartIcon="@Icons.Material.Filled.RemoveDone" Color="Color.Dark" Size="Size.Medium" OnClick='@(() => BtnClearSelections())' Title="report selected speciess" />
                             <MudFabMenuItem StartIcon="@Icons.Material.Filled.Search" Color="Color.Dark" Size="Size.Medium" OnClick="BtnFilterSpeciesList" Title="select by Search keyword" />
                             <MudFabMenuItem StartIcon="@Icons.Material.Filled.FilterAlt" Color="Color.Dark" Size="Size.Medium" OnClick="BtnFilterSpeciesListByKEWUPS" Title="select by KEWUPS characteristics" />
-                            <MudFabMenuItem StartIcon="@Icons.Material.Filled.DownloadForOffline" Color="Color.Secondary" Size="Size.Medium" OnClick='@(() => BtnReportSelectedSpeciesAsPdf())' Title="report selected speciess" />
+                            <MudFabMenuItem StartIcon="@Icons.Material.Filled.DownloadForOffline" Color="Color.Secondary" Size="Size.Medium" OnClick='@(() => BtnReportSelectedSpeciesAsPdf())' Title="report selected speciess as pdf" />
                             </MudFabMenu>
                         </div>
                     @* Filter *@
@@ -258,27 +259,32 @@ else
     private void BtnReportSelectedSpeciesAsPdf ()
         {
         /*
-            //prepare 2 lists: the parent species & list of datasets
-            List<DatasetData> _lstDatasetData = new();
-            _lstDatasetData.Add(new DatasetData
-                {
-                DatasetDataId = 1,
-                DatasetId = 1,
-                SpeciesId = species.SpeciesId,
-                Infraspecific = "",
-                LineString = "",
-                ParsedGenus = "",
-                ParsedEpithet = "",
-                SciName = species.SciName
-                });
-            lstDatasets = await feService.Read_DatasetsBySpeciesId(species.SpeciesId);
-            //Generate
-            var pdfBytes = feService.GenerateReportOfDatasetDataPdf(lstDatasets, _lstDatasetData, "ReportDatasets");
-            //Download
-            using var stream = new MemoryStream(pdfBytes);
-            using var streamRef = new DotNetStreamReference(stream);
-            await JS.InvokeVoidAsync("downloadFileFromStream", "ReportDatasets.pdf", streamRef);
+        //prepare 2 lists: the parent species & list of datasets
+        List<DatasetData> _lstDatasetData = new();
+        _lstDatasetData.Add(new DatasetData
+        {
+            DatasetDataId = 1,
+            DatasetId = 1,
+            SpeciesId = species.SpeciesId,
+            Infraspecific = "",
+            LineString = "",
+            ParsedGenus = "",
+            ParsedEpithet = "",
+            SciName = species.SciName
+            });
+        lstDatasets = await feService.Read_DatasetsBySpeciesId(species.SpeciesId);
+        //Generate
+        var pdfBytes = feService.GenerateReportOfDatasetDataPdf(lstDatasets, _lstDatasetData, "ReportDatasets");
+        //Download
+        using var stream = new MemoryStream(pdfBytes);
+        using var streamRef = new DotNetStreamReference(stream);
+        await JS.InvokeVoidAsync("downloadFileFromStream", "ReportDatasets.pdf", streamRef);
         */
+        }
+    private async Task BtnDownloadSelectedSpeciesAsCSV ()
+        {
+        appState.SetCmd("ExportOccurrenceDataAsCSV");
+        await RollbackListOfSelectedSpecies ();
         }
     //methods
     public string PersianDate (DateTimeOffset? dt)
@@ -313,6 +319,7 @@ else
             }
         else
             {
+            appState.SetCmd(""); //notice: for downloading data as csv the cmd be "ExportOccurrenceDataAsCSV"
             await OnSelectedSpeciesReceived.InvokeAsync(lstSelectedSpecies);
             }
         }
