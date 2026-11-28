@@ -76,6 +76,11 @@ else
                                     <img src="/img/icoGo.png" width="22" />
                                     </button>
                                 }
+                            @* Download icon for Association *@
+                            @if (AnalysisType == "association")
+                                {
+                                <MudIconButton Icon="@Icons.Material.Filled.DownloadForOffline" Color="Color.Success" Size="Size.Medium" OnClick='() => SelectThisSetForDownloadAndRollback(set.SetId)' Title="download csv file for selected speciess" />
+                                }
                             @* Note *@
                                 <button type="button"
                                     class="btn btn-link"
@@ -314,14 +319,14 @@ else
 @code {
     [Parameter]
     public string? AnalysisType
-    {
+        {
         get; set;
-    }
+        }
     [Parameter]
     public EventCallback<List<Set>> OnSelectedSetsReceived
-    {
+        {
         get; set;
-    }
+        }
     private MudTextField<string> refSet;
     string _setText = "";
     public MudTextField<string> refFilterDatasetsList;
@@ -354,12 +359,12 @@ else
 
     //LifeCycleEvents
     protected override async Task OnInitializedAsync ()
-    {
+        {
         appState.OnChange += TriggerRender;
         if (Convert.ToInt32(appState.UserLoginStatus) != 1)
-        {
+            {
             Navman.NavigateTo("/Login");
-        }
+            }
         appState.SetCmd("");
         user.UserId = Convert.ToInt32(appState.UserId);
         user.Username = appState.Username ?? "";
@@ -660,6 +665,11 @@ else
         lstSets = await feService.Read_Sets(user.UserId);
         _hasFetched = true;
         StateHasChanged();
+        }
+    private async Task SelectThisSetForDownloadAndRollback (int setId)
+        {
+        appState.SetCmd("ExportOccurrenceDataAsCSV");
+        await SelectThisSetForAnalysisAndRollback (setId);
         }
     private async Task SelectThisSetForAnalysisAndRollback (int setId)
         {

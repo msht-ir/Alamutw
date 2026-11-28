@@ -21,17 +21,14 @@ else
                     <h6 style="text-align:center;color:royalblue">species <span style="font-size:x-small;color:indianred"> ( @lstSpecies.Count() )</span></h6>
                     <hr style="color:indianred" />
                     @* CMDs: Search, All, Invert, delete/add *@
-                        <div class="d-flex gap-4 justify-content-left align-items-left" style="margin-top:5px;margin-bottom:15px;">
-                            <MudFabMenu StartIcon="@Icons.Material.Outlined.Menu" Size="Size.Medium" Color="Color.Dark" Variant="Variant.Text" Direction="Direction.Right" OpenOnMouseHover="false">
-                            <MudFabMenuItem StartIcon="@Icons.Material.Filled.DownloadForOffline" Color="Color.Success" Size="Size.Medium" OnClick='@(() => BtnDownloadSelectedSpeciesAsCSV())' Title="download csv file for selected speciess" />
-                            <MudFabMenuItem StartIcon="@Icons.Material.Filled.PlayCircle" Color="Color.Success" Size="Size.Medium" OnClick='@(() => RollbackListOfSelectedSpecies())' Title="run association analysis for selected species" />
-                            <MudFabMenuItem StartIcon="@Icons.Material.Filled.DoneAll" Color="Color.Primary" Size="Size.Medium" OnClick="BtnSelectAllSpecies" Title="select all" />
-                            <MudFabMenuItem StartIcon="@Icons.Material.Filled.Rule" Color="Color.Primary" Size="Size.Medium" OnClick="BtnInvertSelection" Title="invert selection" />
-                            <MudFabMenuItem StartIcon="@Icons.Material.Filled.RemoveDone" Color="Color.Dark" Size="Size.Medium" OnClick='@(() => BtnClearSelections())' Title="report selected speciess" />
-                            <MudFabMenuItem StartIcon="@Icons.Material.Filled.Search" Color="Color.Dark" Size="Size.Medium" OnClick="BtnFilterSpeciesList" Title="select by Search keyword" />
-                            <MudFabMenuItem StartIcon="@Icons.Material.Filled.FilterAlt" Color="Color.Dark" Size="Size.Medium" OnClick="BtnFilterSpeciesListByKEWUPS" Title="select by KEWUPS characteristics" />
-                            <MudFabMenuItem StartIcon="@Icons.Material.Filled.DownloadForOffline" Color="Color.Secondary" Size="Size.Medium" OnClick='@(() => BtnReportSelectedSpeciesAsPdf())' Title="report selected speciess as pdf" />
-                            </MudFabMenu>
+                        <div class="d-flex gap-4 justify-content-left align-items-left" style="margin-top:5px;margin-bottom:5px;">
+                            <MudIconButton Icon="@Icons.Material.Filled.DoneAll" Color="Color.Primary" Size="Size.Medium" OnClick="BtnSelectAllSpecies" Title="select all" />
+                            <MudIconButton Icon="@Icons.Material.Filled.Rule" Color="Color.Primary" Size="Size.Medium" OnClick="BtnInvertSelection" Title="invert selection" />
+                            @* <MudIconButton Icon="@Icons.Material.Filled.RemoveDone" Color="Color.Dark" Size="Size.Medium" OnClick='@(() => BtnClearSelections())' Title="deselect all" /> *@
+                            <MudIconButton Icon="@Icons.Material.Filled.Search" Color="Color.Dark" Size="Size.Medium" OnClick="BtnFilterSpeciesList" Title="select by Search keyword" />
+                            <MudIconButton Icon="@Icons.Material.Filled.FilterAlt" Color="Color.Dark" Size="Size.Medium" OnClick="BtnFilterSpeciesListByKEWUPS" Title="select by KEWUPS characteristics" />
+                            @* <MudIconButton Icon="@Icons.Material.Filled.DownloadForOffline" Color="Color.Secondary" Size="Size.Medium" OnClick='@(() => BtnReportSelectedSpeciesAsPdf())' Title="report selected speciess as pdf" /> *@
+                            <MudIconButton Icon="@Icons.Material.Filled.PlayCircle" Color="Color.Success" Size="Size.Medium" OnClick='@(() => RollbackListOfSelectedSpecies())' Title="run association analysis for selected species" />
                         </div>
                     @* Filter *@
                     @if (_cmd == "selectspeciesbykeyword")
@@ -103,10 +100,7 @@ else
                     <br />
                     <hr />
                         <div class="d-flex justify-content-center">
-                            <button class="btn btn-link pulse-hover"
-                                @onclick="RollbackListOfSelectedSpecies">
-                            <img src="/img/icoGo.png" width="28" />
-                            </button>
+                            <MudIconButton Icon="@Icons.Material.Filled.PlayCircle" Color="Color.Success" Size="Size.Medium" OnClick='@(() => RollbackListOfSelectedSpecies())' Title="run association analysis for selected species" />
                         </div>
                     </MudCardContent>
                 </MudCard>
@@ -160,6 +154,7 @@ else
         appState.SetCmd("");
         user.UserId = Convert.ToInt32(appState.UserId);
         user.Username = appState.Username ?? "";
+        appState.SetCmd(""); //notice: for downloading data as csv the cmd be "ExportOccurrenceDataAsCSV"
         _hasFetched = true;
         }
     private void TriggerRender ()
@@ -281,11 +276,6 @@ else
         await JS.InvokeVoidAsync("downloadFileFromStream", "ReportDatasets.pdf", streamRef);
         */
         }
-    private async Task BtnDownloadSelectedSpeciesAsCSV ()
-        {
-        appState.SetCmd("ExportOccurrenceDataAsCSV");
-        await RollbackListOfSelectedSpecies ();
-        }
     //methods
     public string PersianDate (DateTimeOffset? dt)
         {
@@ -314,12 +304,10 @@ else
         if (lstSelectedSpecies.Count() == 0)
             {
             Snackbar.Add("select Species from list", Severity.Warning, opt => { opt.VisibleStateDuration = 2000; opt.ShowTransitionDuration = 300; opt.HideTransitionDuration = 300; });
-
             return;
             }
         else
             {
-            appState.SetCmd(""); //notice: for downloading data as csv the cmd be "ExportOccurrenceDataAsCSV"
             await OnSelectedSpeciesReceived.InvokeAsync(lstSelectedSpecies);
             }
         }

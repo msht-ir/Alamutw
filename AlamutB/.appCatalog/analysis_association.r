@@ -25,10 +25,10 @@
 ## ===========================================================================
 
 # Path to the input file. Can be .csv, .xlsx, or .xls
-input_file <- "D:/alamut_matrix_20261127_2345_91.csv"
+input_file <- "D:/alamut_matrix.csv"
 
 # Path to the output file. Use .csv for a simple table, or .xlsx for Excel.
-output_file <- "D:/alamut_matrix_20261127_2345_91_out.csv"
+output_file <- "D:/alamut_matrix_out.csv"
 
 # Which sheet to read if the input is Excel? Ignored for CSV.
 # Use 1 for the first sheet, or the sheet name in quotes, e.g. "Sheet1".
